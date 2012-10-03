@@ -7,7 +7,6 @@ import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 
 /* an active/passive edge in a chart*/
 
-/* Thang v110901 move this class Edge definition into a separate class, and make it generic */
 class Edge {
   private IntTaggedWord mother;
   public void setMother(IntTaggedWord mother) {

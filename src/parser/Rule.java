@@ -1,12 +1,9 @@
 package parser;
 
-import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
-import edu.stanford.nlp.stats.Distribution;
-import edu.stanford.nlp.stats.TwoDimensionalCounter;
-import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.util.Index;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.*;
+import edu.stanford.nlp.util.Index;
 
 /**
  * Representation of CFG rules. Memory saving is achieved by using integers.
@@ -16,169 +13,160 @@ import java.util.*;
 
 class Rule {
   private int mother;
-  private int[] children;
-  private boolean isRHSTag = true; // indicate if the RHS are tags or words
+  private List<Integer> children;
+  private double score;
   
-  double score;
-  
-  public Rule(String mother, List<String> children, double score, boolean isRHSTag, Index<String> tagIndex, Index<String> wordIndex) {
-    this.mother = tagIndex.indexOf(mother, true);
-    this.children = new int[children.size()];
-    this.score = score;
-    this.isRHSTag = isRHSTag;
-    for (String child : children) {
-      if(isRHSTag){ // tag
-        this.children.add(new IntTaggedWord(IntTaggedWord.ANY, child));
-      } else { // word
-        this.children.add(new IntTaggedWord(child, IntTaggedWord.ANY));
-      }
+  public Rule(String motherStr, List<String> childStrs, double score, 
+      Index<String> motherIndex, Index<String> childIndex) {
+    this.mother = motherIndex.indexOf(motherStr, true);
+    this.children = new ArrayList<Integer>(childStrs.size());
+    for(String child : childStrs){
+      this.children.add(childIndex.indexOf(child, true));
     }
-  }
-  
-  public Rule(IntTaggedWord mother, List<IntTaggedWord> dtrs, double score){
-    this.mother = mother;
-    this.children = dtrs;
     this.score = score;
   }
   
-  public IntTaggedWord getMother(){
+  public Rule(int mother, List<Integer> children, double score){
+    this.mother = mother;
+    this.children = new ArrayList<Integer>(children.size());
+    for(int child:children){
+      this.children.add(child);
+    }
+    this.score = score;
+  }
+  
+  /** Setters and getters **/
+  public int getMother(){
     return mother;
   }
   
-  public List<IntTaggedWord> getDtrs(){
+  public List<Integer> getChildren(){
     return children;
   }
+  
+  public double getScore(){
+    return score;
+  }
+  
+  public boolean equals(Object o) {
+    if (this != o || !(o instanceof Rule)) {
+      return false;
+    } else {
+      Rule otherRule = (Rule) o;
+      List<Integer> otherChildren = otherRule.getChildren();
+      if (children == null || otherChildren == null || 
+          children.size() != otherChildren.size() || mother != otherRule.getMother()) {
+        return false;
+      } else {
+        
+        for (int i = 0; i < children.size(); i++) { // compare individual child
+          if (children.get(i) != otherChildren.get(i)){
+            return false;
+          }
+        }
+        return true;
+      } 
+    }
+  }
+
+  public int hashCode() {
+    int result = mother;
+    for(int child : children){
+      result = result<<4 + child;
+    }
+    return result;
+  }
+
   
   /**
    * Get the reverse view of the children
    * 
    * @return
    */
-  public List<IntTaggedWord> getReverseChildren(){
-    ListIterator<IntTaggedWord> iterator = children.listIterator(children.size());
-    List<IntTaggedWord> reverseChildren = new ArrayList<IntTaggedWord>();
-    while(iterator.hasPrevious()){
-      reverseChildren.add(iterator.previous());
+  public List<Integer> getReverseChildren(){
+    int numChildren = children.size();
+    List<Integer> reverseChildren = new ArrayList<Integer>();
+    for (int i = 0; i < numChildren; i++) {
+      reverseChildren.set(i, children.get(numChildren-1-i));
     }
     return reverseChildren;
   }
   
-  public Edge getMotherEdge(){
-    return new Edge(mother, new ArrayList<IntTaggedWord>());
-  }
-  
-  public Edge getChildEdge(int i){
-    return new Edge(children.get(i), new ArrayList<IntTaggedWord>());
-  }
-  
-  
-  /*
-  public Edge[] toEdges() {
-    Edge[] edges = new Edge[dtrs.size()];
-    for (int i = 0; i < dtrs.size(); i++) {
-      List thisDtrs = dtrs.subList(i,dtrs.size());
-      edges[i] = new Edge(mother,thisDtrs);
-    }
-    return edges;
-  }
-  */
-
-  public Edge toEdge() {
-    return new Edge(mother, children);
-  }
-
   public boolean isUnary() {
     return children.size() == 1;
   }
-
-  public String schemeString() {
+  
+  /** String output methods **/
+  public String toString(Index<String> motherIndex, Index<String> childIndex) {
     StringBuffer sb = new StringBuffer();
-    sb.append("(" + mother.tagString() + " ");
-    for (IntTaggedWord dtr : children){
-      if(isRHSTag){
-        sb.append("(X " + dtr.tagString() + ") ");
-      } else {
-        sb.append("(X _" + dtr.wordString() + ") ");
-      }
+    sb.append(motherIndex.get(mother) + "->[");
+    sb.append(rhsString(childIndex));
+    sb.append("] : " + score);
+    return sb.toString();
+  }
+  
+  public String rhsString(Index<String> childIndex){
+    StringBuffer sb = new StringBuffer();
+    for (int child : children){
+      sb.append(childIndex.get(child) + " ");
+    }
+    if(children.size() > 0){
+      sb.delete(sb.length()-1, sb.length());
+    }
+    return sb.toString();
+  }
+
+
+  public String schemeString(Index<String> motherIndex, Index<String> childIndex) {
+    StringBuffer sb = new StringBuffer();
+    sb.append("(" + motherIndex.get(mother) + " ");
+    for (int child : children){
+      sb.append("(X " + childIndex.get(child) + ") ");
     }
     
     if(children.size() > 0){
       sb.delete(sb.length()-1, sb.length());
       sb.append(")");
     }
-    
-    
-    //sb.append("\t" + ((int) score));
     return sb.toString();
-  }
-  
-  public String rhsString(){
-    StringBuffer sb = new StringBuffer();
-    for (IntTaggedWord dtr : children){
-      if(isRHSTag) {
-        sb.append(dtr.tagString() + " ");
-      } else {
-        sb.append(dtr.wordString() + " ");
-      }
-    }
-    if(children.size() > 0){
-      sb.delete(sb.length()-1, sb.length());
-    }
-    
-    return sb.toString();
-  }
-  
-  public String toString() {
-    StringBuffer sb = new StringBuffer();
-    sb.append(mother.tagString() + "->[");
-    sb.append(rhsString());
-    sb.append("] : " + score);
-    return sb.toString();
-  }
-
-  /**
-   * returns a collection of scored rules corresponding to all non-terminal productions from a collection of trees.
-   */
-  public static Collection<Rule> rulesFromTrees(Collection<Tree> trees) {
-    Collection<Rule> rules = new ArrayList<Rule>();
-    //GeneralizedCounter ruleCounts = new GeneralizedCounter(2);
-    TwoDimensionalCounter<IntTaggedWord, List<IntTaggedWord>> ruleCounts = new TwoDimensionalCounter<IntTaggedWord, List<IntTaggedWord>>();
-    
-    // go through trees
-    for(Tree tree:trees){
-      for(Tree subTree : tree.subTreeList()){
-        if (subTree.isLeaf() || subTree.isPreTerminal()) { // ignore leaf and preterminal nodes
-          continue;
-        }
-     
-        // increase count
-        ruleCounts.incrementCount(new IntTaggedWord(IntTaggedWord.ANY, subTree.value()), dtrCatsList(subTree.children())); 
-      }
-    }
-
-    for(IntTaggedWord mother: ruleCounts.firstKeySet()){ // go through all rules
-      // normalize w.r.t to parent node
-      Distribution<List<IntTaggedWord>> normalizedChildren = Distribution.getDistribution(ruleCounts.getCounter(mother));
-      for(List<IntTaggedWord> childList : normalizedChildren.keySet()){
-        rules.add(new Rule(mother, childList, normalizedChildren.getCount(childList)));
-      }
-    }
-
-    return rules;
-  }
-
-  private static List<IntTaggedWord> dtrCatsList(Tree[] dtrs) {
-    List<IntTaggedWord> l = new ArrayList<IntTaggedWord>(dtrs.length);
-    for (int i = 0; i < dtrs.length; i++) {
-      Tree dtr = dtrs[i];
-      l.add(new IntTaggedWord(IntTaggedWord.ANY, dtr.value()));
-    }
-    return l;
   }
 
 }
 
 /*** Unused code ***/
+//private boolean isRHSTag = true; // indicate if the RHS are tags or words
+//this.isRHSTag = isRHSTag;
+//for (String child : children) {
+//  if(isRHSTag){ // tag
+//    this.children.add(new IntTaggedWord(IntTaggedWord.ANY, child));
+//  } else { // word
+//    this.children.add(new IntTaggedWord(child, IntTaggedWord.ANY));
+//  }
+//}
 //public Rule(String mother, List<String> children, double score) {
 //  this(mother, children, score, true);
+//}
+
+//public Edge getMotherEdge(){
+//return new Edge(mother, new ArrayList<IntTaggedWord>());
+//}
+//
+//public Edge getChildEdge(int i){
+//return new Edge(children.get(i), new ArrayList<IntTaggedWord>());
+//}
+
+
+/*
+public Edge[] toEdges() {
+Edge[] edges = new Edge[dtrs.size()];
+for (int i = 0; i < dtrs.size(); i++) {
+List thisDtrs = dtrs.subList(i,dtrs.size());
+edges[i] = new Edge(mother,thisDtrs);
+}
+return edges;
+}
+*/
+
+//public Edge toEdge() {
+//return new Edge(mother, children);
 //}
