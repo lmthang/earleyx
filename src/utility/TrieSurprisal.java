@@ -1,42 +1,47 @@
-package parser;
+package utility;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import edu.stanford.nlp.math.SloppyMath;
-import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
 
 /**
- * Trie structure customized for prefix parser.
- * Values are stored in log-form. 
- * At each trie node, when a new value is added, which has pair id matches
- * existing pair ids, values are accummulated and SloopyMath.logAdd is used.
+ * Trie structure customized for a prefix parser.
+ * Values are stored in log-form. To store in normal form inilialized with isLogScore set to false. 
+ * Values accumulated are group by tag indices, and the trie is capable of answering two questions
+ *   (a) what pre-terminals expand a sequence of terminals. 
+ *     If we have 2 rules X -> a b c [0.1] and Y -> a b c [0.2] in the trie, findAllMap([a b c]) 
+ *     will returns {X: 0.1, Y: 0.2}.
+ *   (b) what pre-terminals expand a sequence of terminals as prefixes
+ *     If we have 2 rules X -> a b c [0.1] X -> a b d [0.3] and Y -> a b c [0.2] in the trie, 
+ *     findAllPrefixMap([a b]) returns {X: 0.4, Y:0.2}
  * Check the code for details.
  * 
- * @author lmthang
+ * @author Minh-Thang Luong, 2012
  *
  */
-public class TrieSurprisal extends Trie<IntTaggedWord, Pair<Integer, Double>> {
+public class TrieSurprisal extends Trie<Integer, Pair<Integer, Double>> {
   
   private boolean isLogScore = true;
-  //protected List<Pair<Integer, Double>> prefixValueList; // list of values associated with the trie which forms a prefix of somestring or could be a complete string itself
-  private Map<Integer, Double> prefixValueMap; // map id of a pair to its index in the value list
-  private Map<Integer, Double> valueMap; // for valueList, keep track of only complete strings
+  private Map<Integer, Double> prefixValueMap; // map a tag id to a value
+  private Map<Integer, Double> completeValueMap; // keep track of only complete strings
   protected List<TrieSurprisal> trieList;
+  private DecimalFormat df = new DecimalFormat("0.0");
   
   public TrieSurprisal(){
     trieList = new ArrayList<TrieSurprisal>();
-    keyList = new ArrayList<IntTaggedWord>();
+    keyList = new ArrayList<Integer>();
     size = 0;
     isEnd = false;
-    valueList = null;// we don't initialize valueList
     
     prefixValueMap = new HashMap<Integer, Double>();
-    valueMap = new HashMap<Integer, Double>();
+    completeValueMap = new HashMap<Integer, Double>();
   }
   
   public TrieSurprisal(boolean isLogScore){
@@ -45,7 +50,7 @@ public class TrieSurprisal extends Trie<IntTaggedWord, Pair<Integer, Double>> {
   }
   
   @Override
-  protected TrieSurprisal insertChild(IntTaggedWord element) {
+  protected TrieSurprisal insertChild(Integer element) {
     // is element already there?
     for (int i = 0; i < size; i++) {
       if (keyList.get(i).equals(element)) {
@@ -62,20 +67,18 @@ public class TrieSurprisal extends Trie<IntTaggedWord, Pair<Integer, Double>> {
     return result;
   }
   
-  protected void addValuePair(Pair<Integer, Double> pair, Map<Integer, Double> pairIdMap){
-    if(pairIdMap.containsKey(pair.first)){ // contains in valueList
-      double currentScore = pairIdMap.get(pair.first);
+  private void updateValue(Pair<Integer, Double> pair, Map<Integer, Double> valueMap){
+    double score = pair.second;
+    if(valueMap.containsKey(pair.first)){ // contains in valueList
+      double currentScore = valueMap.get(pair.first);
       
       if(isLogScore){
-        assert(currentScore <= 0 && pair.second <= 0);
-        currentScore = SloppyMath.logAdd(currentScore, pair.second); // aggregate
+        score = SloppyMath.logAdd(currentScore, score); // aggregate log scores
       } else {
-        currentScore += pair.second;
+        score +=currentScore;
       }
-      pairIdMap.put(pair.first, currentScore);
-    } else { // new pair, append at the end, update map id
-      pairIdMap.put(pair.first, pair.second);
     }
+    valueMap.put(pair.first, score);
   }
   
   /**
@@ -85,12 +88,12 @@ public class TrieSurprisal extends Trie<IntTaggedWord, Pair<Integer, Double>> {
    * @param i
    */
   @Override
-  protected void insert(List<IntTaggedWord> elements, List<Pair<Integer, Double>> values, int i) {
+  protected void insert(List<Integer> elements, List<Pair<Integer, Double>> values, int i) {
     // update value for all prefixes
     // we aggregate the result
     if(i>0){
       for (Pair<Integer, Double> pair : values) {
-        addValuePair(pair, prefixValueMap);
+        updateValue(pair, prefixValueMap);
       }
     }
     
@@ -101,7 +104,7 @@ public class TrieSurprisal extends Trie<IntTaggedWord, Pair<Integer, Double>> {
     if (i >= length) {
       setEnd(true);
       for (Pair<Integer, Double> pair : values) {
-        addValuePair(pair, valueMap);
+        updateValue(pair, completeValueMap);
       }
       return;
     }
@@ -111,7 +114,7 @@ public class TrieSurprisal extends Trie<IntTaggedWord, Pair<Integer, Double>> {
     nextT.insert(elements, values, i + 1);
   }
   
-  public Map<Integer, Double> findAllMap(List<IntTaggedWord> elements) {
+  public Map<Integer, Double> findAllMap(List<Integer> elements) {
     TrieSurprisal curTrie = findTrie(elements);
     
     if(curTrie == null){
@@ -120,7 +123,7 @@ public class TrieSurprisal extends Trie<IntTaggedWord, Pair<Integer, Double>> {
     return curTrie.getValueMap(); // always return no matter if the curTrie ends
   }
 
-  public Map<Integer, Double> findAllPrefixMap(List<IntTaggedWord> elements) {
+  public Map<Integer, Double> findAllPrefixMap(List<Integer> elements) {
     TrieSurprisal curTrie = findTrie(elements);
     
     if(curTrie == null){
@@ -129,22 +132,23 @@ public class TrieSurprisal extends Trie<IntTaggedWord, Pair<Integer, Double>> {
     return curTrie.getPrefixValueMap(); // always return no matter if the curTrie ends
   }
   
-  protected TrieSurprisal findTrie(List<IntTaggedWord> elements){
+  @Override
+  public TrieSurprisal findTrie(List<Integer> elements){
     TrieSurprisal curTrie = this;
     
     // go through each element
-    for(IntTaggedWord element : elements){
+    for(Integer element : elements){
       curTrie = curTrie.findChild(element);
       
       if(curTrie == null){ // not found, not end of the string s
-        return null;
+        break;
       }
     }
     
     return curTrie;
   }
   @Override
-  protected TrieSurprisal findChild(IntTaggedWord element) {
+  protected TrieSurprisal findChild(Integer element) {
     for (int i = 0; i < size; i++) {
       if (keyList.get(i).equals(element)) {
         return trieList.get(i);
@@ -153,30 +157,41 @@ public class TrieSurprisal extends Trie<IntTaggedWord, Pair<Integer, Double>> {
     return null;
   }
   
-  public String toString(Index<String> wordIndex){
+  public String toString(Index<String> wordIndex, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer();
     
     if(prefixValueMap.size() > 0){
-      sb.append("prefix=" + prefixValueMap);
+      sb.append("prefix={");
+      for (int iT : prefixValueMap.keySet()) {
+        sb.append(tagIndex.get(iT) + "=" + df.format(prefixValueMap.get(iT)) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+      sb.append("}");
     }
-    if(valueMap.size() > 0){
-      sb.append(", end=" + valueMap);
+    if(completeValueMap.size() > 0){
+      sb.append(", end={");
+      for (int iT : completeValueMap.keySet()) {
+        sb.append(tagIndex.get(iT) + "=" + df.format(completeValueMap.get(iT)) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+      sb.append("}");
     }
     
     int i=0;
-    for(IntTaggedWord element : keyList){
+    for(Integer element : keyList){
       trieList.get(i).setIndent(indent + " ");
-      sb.append("\n" + indent + element.wordString(wordIndex) + ":" + trieList.get(i).toString(wordIndex));
+      sb.append("\n" + indent + wordIndex.get(element) 
+          + ":" + trieList.get(i).toString(wordIndex, tagIndex));
       ++i;
     }
     return sb.toString();
   }
   
-  protected Map<Integer, Double> getValueMap() {
-    return valueMap;
+  public Map<Integer, Double> getValueMap() {
+    return completeValueMap;
   }
   
-  protected Map<Integer, Double> getPrefixValueMap() {
+  public Map<Integer, Double> getPrefixValueMap() {
     return prefixValueMap;
   }
 }

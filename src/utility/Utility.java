@@ -1,19 +1,33 @@
-package parser;
+package utility;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import cern.colt.matrix.DoubleMatrix2D;
+
+import parser.Completion;
+import parser.Prediction;
+import parser.Rule;
+import parser.EdgeSpace;
+import parser.TerminalRule;
 
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.parser.lexparser.TreebankLangParserParams;
+import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.stats.Distribution;
 import edu.stanford.nlp.stats.TwoDimensionalCounter;
 import edu.stanford.nlp.trees.MemoryTreebank;
@@ -24,11 +38,21 @@ import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
 
 public class Utility {
+  public static DecimalFormat df = new DecimalFormat("0.0");
+
+  public static BufferedReader getBufferedReaderFromFile(String inFile) throws FileNotFoundException{
+    return new BufferedReader(new InputStreamReader(new FileInputStream(inFile)));
+  }
+  
+  public static BufferedReader getBufferedReaderFromString(String str) throws FileNotFoundException{
+    return new BufferedReader(new StringReader(str));
+  }
+  
   /**
    * returns a collection of scored rules corresponding to all non-terminal productions from a collection of trees.
    */
   public static Collection<Rule> rulesFromTrees(Collection<Tree> trees, 
-      Index<String> motherIndex, Index<String> childIndex) {
+      Index<String> motherIndex, Index<String> childIndex, Set<Integer> nonterminals) {
     Collection<Rule> rules = new ArrayList<Rule>();
     TwoDimensionalCounter<Integer, List<Integer>> ruleCounts = 
       new TwoDimensionalCounter<Integer, List<Integer>>();
@@ -41,8 +65,12 @@ public class Utility {
         }
      
         // increase count
-        ruleCounts.incrementCount(motherIndex.indexOf(subTree.value(), true), 
-            getChildrenFromTree(subTree.children(), childIndex)); 
+        int index = motherIndex.indexOf(subTree.value(), true);
+        ruleCounts.incrementCount(index, 
+            getChildrenFromTree(subTree.children(), childIndex));
+        
+        // add nonterminals
+        nonterminals.add(index);
       }
     }
 
@@ -130,7 +158,8 @@ public class Utility {
    * extract rules and words from trees
    */
   public static Pair<Collection<Rule>, Collection<IntTaggedWord>> extractRulesWordsFromTreebank(
-      Treebank treebank, Index<String> wordIndex, Index<String> tagIndex) {
+      Treebank treebank, Index<String> wordIndex, Index<String> tagIndex,
+      Set<Integer> nonterminals) {
     Collection<IntTaggedWord> intTaggedWords = new ArrayList<IntTaggedWord>();
     Collection<Rule> rules = new ArrayList<Rule>();
     
@@ -146,7 +175,7 @@ public class Utility {
     }
     
     // build rules
-    rules.addAll(Utility.rulesFromTrees(trees, tagIndex, tagIndex));
+    rules.addAll(Utility.rulesFromTrees(trees, tagIndex, tagIndex, nonterminals));
     
     return new Pair<Collection<Rule>, Collection<IntTaggedWord>>(rules, intTaggedWords);
   }
@@ -201,4 +230,130 @@ public class Utility {
       }
     }
   }
+  
+  /** Print to string methods **/
+  public static String sprint(Map<Integer, Double> valueMap, Index<String> tagIndex){
+    StringBuffer sb = new StringBuffer("(");
+    
+    if(valueMap.size() > 0){
+      for (int iT : valueMap.keySet()) {
+        sb.append(tagIndex.get(iT) + "=" + df.format(valueMap.get(iT)) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+    }
+    sb.append(")");
+    return sb.toString();
+  }
+  
+  // print Prediction[]
+  public static String sprint(Prediction[] predictions, EdgeSpace stateSpace, Index<String> tagIndex){
+    StringBuffer sb = new StringBuffer("(");
+    for(Prediction prediction : predictions){
+      sb.append(prediction.toString(stateSpace, tagIndex) + ", ");
+    }
+    if (predictions.length > 0) {
+      sb.delete(sb.length()-2, sb.length());
+    }
+    sb.append(")");
+    return sb.toString();
+  }
+
+  // print Completion[]
+  public static String sprint(Completion[] completions, EdgeSpace stateSpace, Index<String> tagIndex){
+    StringBuffer sb = new StringBuffer("(");
+    for(Completion completion : completions){
+      sb.append(completion.toString(stateSpace, tagIndex) + ", ");
+    }
+    if (completions.length > 0) {
+      sb.delete(sb.length()-2, sb.length());
+    }
+    sb.append(")");
+    return sb.toString();
+  }
+  
+  public static String sprint(Index<String> tagIndex, Collection<Integer> indices){
+    StringBuffer sb = new StringBuffer();
+    for(int index : indices){
+      sb.append("(" + index + ", " + tagIndex.get(index) + ") ");
+    }
+    sb.deleteCharAt(sb.length()-1);
+    return sb.toString();
+  }
+  
+  public static String sprint(Collection<Rule> rules, Index<String> wordIndex, Index<String> tagIndex){
+    StringBuffer sb = new StringBuffer("[");
+    for(Rule rule : rules){
+      if(rule instanceof TerminalRule){
+        sb.append(rule.toString(tagIndex, wordIndex) + ", ");
+      } else {
+        sb.append(rule.toString(tagIndex, tagIndex) + ", ");
+      }
+    }
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
+    return sb.toString();
+  }
+  
+  public static String schemeSprint(Collection<Rule> rules, Index<String> wordIndex, Index<String> tagIndex){
+    StringBuffer sb = new StringBuffer("[");
+    for(Rule rule : rules){
+      if(rule instanceof TerminalRule){
+        sb.append(rule.schemeString(tagIndex, wordIndex) + ", ");
+      } else {
+        sb.append(rule.schemeString(tagIndex, tagIndex) + ", ");
+      }
+    }
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
+    return sb.toString();
+  }
+  
+  public static String sprint(Map<Integer, Counter<Integer>> int2intCounter
+      , Index<String> keyIndex, Index<String> valueIndex){
+    StringBuffer sb = new StringBuffer("{");
+    for(int iKey : int2intCounter.keySet()){
+      Counter<Integer> counter = int2intCounter.get(iKey);
+      sb.append(keyIndex.get(iKey) + "={");
+      for(int iValue : counter.keySet()){
+        sb.append(valueIndex.get(iValue) + "=" + counter.getCount(iValue) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+      sb.append("}, ");
+    }
+    sb.delete(sb.length()-2, sb.length());
+    return sb.toString();
+  }
+
+  public static String sprintWord2Tags(Map<Integer, Set<IntTaggedWord>> word2tagsMap
+      , Index<String> wordIndex, Index<String> tagIndex){
+    StringBuffer sb = new StringBuffer("{");
+    for(int iW : word2tagsMap.keySet()){
+      Set<IntTaggedWord> itwSet = word2tagsMap.get(iW);
+      sb.append(wordIndex.get(iW) + "=[");
+      for(IntTaggedWord itw : itwSet){
+        sb.append(itw.toString(wordIndex, tagIndex) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+      sb.append("}, ");
+    }
+    sb.delete(sb.length()-2, sb.length());
+    return sb.toString();
+  }
+  
+  public static String sprint(DoubleMatrix2D matrix){
+    StringBuffer sb = new StringBuffer("");
+    int numRows = matrix.rows();
+    int numCols = matrix.columns();
+    
+    for (int i = 0; i < numRows; i++) {
+      for (int j = 0; j < numCols; j++) {
+        sb.append(matrix.get(i, j) + " ");
+      }
+      sb.deleteCharAt(sb.length()-1);
+      sb.append("\n");
+    }
+    sb.deleteCharAt(sb.length()-1);
+    
+    return sb.toString();
+  }  
 }

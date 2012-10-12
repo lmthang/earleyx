@@ -1,4 +1,4 @@
-package parser;
+package utility;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,19 +6,23 @@ import java.util.List;
 
 /**
  * Implementation of Trie based on the "S-Q Course Book" by Daniel Ellard and Penelope Ellard
- * 
- * @author lmthang
+ * For a sequence of elements:
+ *   Retrieve a list of all associated values using getAllValues.
+ *   Retrieve the first associated value using getFirstValue.
+ *   Retrieve the associated trie using findTrie
+ * @author Minh-Thang Luong, 2012
  *
  * @param <K, V>
  */
-class Trie<K, V> {
-  protected List<Trie<K, V>> trieList;
+public class Trie<K, V> {
+  private List<Trie<K, V>> trieList;
   protected List<K> keyList;
+
   protected int size;
   protected boolean isEnd; // indicate if this trie is the end of a string, i.e. a sequence of E
-  protected List<V> valueList; // list of values associated with the trie, only activates when isEnd = true
+  private List<V> valueList; // list of values associated with the trie, only activates when isEnd = true
 
-  Trie() {
+  public Trie() {
     trieList = new ArrayList<Trie<K, V>>();
     keyList = new ArrayList<K>();
     size = 0;
@@ -42,13 +46,12 @@ class Trie<K, V> {
   }
   
   /**
-   * Find if the sequence elements exists, return the values associated with it. 
-   * Otherwise, return null.
+   * Find the trie corresponds to the list of elements
    * 
    * @param elements
    * @return
    */
-  public List<V> findAll(List<K> elements) {
+  public Trie<K, V> findTrie(List<K> elements){
     Trie<K, V> curTrie = this;
     
     // go through each element
@@ -56,8 +59,59 @@ class Trie<K, V> {
       curTrie = curTrie.findChild(element);
       
       if(curTrie == null){ // not found, not end of the string s
-        return null;
+        break;
       }
+    }
+    
+    return curTrie;
+  }
+  
+  /**
+   * Find sequences of key lists (List<List<K>>) below this trie, and are not longer than depth elements
+   * For example: if the current trie corresponds to "c" "a" "r", we will return "e", "i" "n" "g", "s", which form complete words care, caring, and cars.
+   * @param depth
+   * @return
+   */
+  public List<List<K>> findSuffixes(int depth){
+    List<List<K>> suffixList = new ArrayList<List<K>>();
+    
+    if(depth != 0){ // look further, note: we purposely put depth != 0, instead of depth > 0, to allow exhaustive search when depth=-1 
+      for(int i=0; i<size; i++){
+        K k = keyList.get(i);
+        Trie<K, V> childTrie = trieList.get(i);
+        
+        // add single-element list
+        if (childTrie.isEnd()){
+          List<K> list = new ArrayList<K>();
+          list.add(k);
+          suffixList.add(list);
+        }
+        
+        // add longer lists
+        List<List<K>> childSuffixList = childTrie.findSuffixes(depth-1);
+        for(List<K> childSuffix : childSuffixList){
+          List<K> list = new ArrayList<K>();
+          list.add(k);
+          list.addAll(childSuffix);
+          suffixList.add(list);
+        }
+      }
+    }
+    return suffixList;
+  }
+  
+  /**
+   * Find if the sequence elements exists, return the values associated with it. 
+   * Otherwise, return null.
+   * 
+   * @param elements
+   * @return
+   */
+  public List<V> getAllValues(List<K> elements) {
+    Trie<K, V> curTrie = findTrie(elements);
+    
+    if(curTrie == null){ // not found, not end of the string s
+      return null;
     }
     
     // see if this is the end
@@ -76,8 +130,8 @@ class Trie<K, V> {
    * @param elements
    * @return
    */
-  public V findFirst(List<K> elements) {
-    List<V> values = findAll(elements);
+  public V getFirstValue(List<K> elements) {
+    List<V> values = getAllValues(elements);
     if (values != null){
       return values.get(0);
     } else {
@@ -176,11 +230,12 @@ class Trie<K, V> {
   protected List<V> getValues(){
     return valueList;
   }
-
+  
   protected String indent = ""; // for printing purpose only
   public void setIndent(String indent){
     this.indent = indent;
   }
+  
   public String toString(){
     StringBuffer sb = new StringBuffer();
     
@@ -204,17 +259,39 @@ class Trie<K, V> {
     ts.append(Arrays.asList("o", "n", "e", "t", "o", "n"), true);
     ts.append(Arrays.asList("t", "w", "o"), true);
     
-    System.out.println("one " + ts.findFirst(Arrays.asList("o", "n", "e")));
-    System.out.println("only " + ts.findFirst(Arrays.asList("o", "n", "l", "y")));
-    System.out.println("on " + ts.findFirst(Arrays.asList("o", "n")));
-    System.out.println("onesin " + ts.findFirst(Arrays.asList("o", "n", "e", "s", "i", "n")));
-    System.out.println("onetonly " + ts.findFirst(Arrays.asList("o", "n", "e", "o", "n", "l", "y")));
-    System.out.println("twofer " + ts.findFirst(Arrays.asList("t", "w", "o", "f", "e", "r")));
-    System.out.println("tw " + ts.findFirst(Arrays.asList("t", "w")));
-    System.out.println("twitch " + ts.findFirst(Arrays.asList("t", "w", "i", "c", "h")));
-    System.out.println("super " + ts.findFirst(Arrays.asList("s", "u", "p", "e", "r")));
-    System.out.println("<empty> " + ts.findFirst(Arrays.asList("")));
-    
+    System.out.println("one " + ts.getFirstValue(Arrays.asList("o", "n", "e")));
+    System.out.println("only " + ts.getFirstValue(Arrays.asList("o", "n", "l", "y")));
+    System.out.println("on " + ts.getFirstValue(Arrays.asList("o", "n")));
+    System.out.println("onesin " + ts.getFirstValue(Arrays.asList("o", "n", "e", "s", "i", "n")));
+    System.out.println("onetonly " + ts.getFirstValue(Arrays.asList("o", "n", "e", "o", "n", "l", "y")));
+    System.out.println("twofer " + ts.getFirstValue(Arrays.asList("t", "w", "o", "f", "e", "r")));
+    System.out.println("tw " + ts.getFirstValue(Arrays.asList("t", "w")));
+    System.out.println("twitch " + ts.getFirstValue(Arrays.asList("t", "w", "i", "c", "h")));
+    System.out.println("super " + ts.getFirstValue(Arrays.asList("s", "u", "p", "e", "r")));
+    System.out.println("<empty> " + ts.getFirstValue(Arrays.asList("")));
     System.out.println(ts);
+    
+    Trie<String, Boolean> subTrie = ts.findTrie(Arrays.asList("o", "n"));
+    System.out.println(subTrie);
+    List<List<String>> suffixes = subTrie.findSuffixes(-1);
+    System.out.println(suffixes);
   }
 }
+
+/** Unused code **/
+//public K getChildKey(int index) {
+//  if (index >= 0 && index < size){
+//    return keyList.get(index);
+//  } else {
+//    return null;
+//  }
+//}
+//
+//public Trie<K, V> getChildTrie(int index){
+//  if (index >= 0 && index < size){
+//    return trieList.get(index);
+//  } else {
+//    return null;
+//  }
+//    
+//}

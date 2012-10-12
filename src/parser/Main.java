@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import utility.Utility;
+
 /**
  * An implementation of the Stolcke 1995 chart parsing algorithm that calculates the prefix probability
  * of a string S with respect to a probabilistic context-free grammar G.  The prefix probability is defined as the
@@ -131,12 +133,12 @@ public class Main {
     } else if (argsMap.keySet().contains("-grammar")) { // read from grammar file
       String inGrammarFile = argsMap.get("-grammar")[0];
       System.err.println("In grammar file = " + inGrammarFile);
-      parser = new EarleyParser(inGrammarFile, rootSymbol);
+      parser = new EarleyParserDense(inGrammarFile, rootSymbol);
     } else if (argsMap.keySet().contains("-treebank")) { // read from treebank file      
       // transform trees
       String treeFile = argsMap.get("-treebank")[0];
       MemoryTreebank treebank = Utility.transformTrees(treeFile, transformerClassName, treebankPackClassName);
-      parser = new EarleyParser(treebank, rootSymbol);
+      parser = new EarleyParserDense(treebank, rootSymbol);
     } else {
       printHelp(args, "No -grammar or -treebank option");
     }

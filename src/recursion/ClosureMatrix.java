@@ -1,4 +1,4 @@
-package parser;
+package recursion;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class ClosureMatrix {
   private static Algebra alg = new Algebra();
   private Map<Integer, Integer> rowIndexMap; // keep track of non-zero rows in pu matrix, non-zero row index -> linear id
   private DoubleMatrix2D closureMatrix;
-  
+
   public ClosureMatrix(DoubleMatrix2D relationMatrix) {
     rowIndexMap = new HashMap<Integer, Integer>();
     
@@ -42,14 +42,14 @@ public class ClosureMatrix {
     
     computeClosureMatrix(relationMatrix);
     
-    if (verbose >= 1) {
-      Timing.tick("Done with closure matrix.");
-    }   
-    
     if(verbose >= 3){
       System.err.println("# closure matrix\n" + this);
     }
  
+
+    if (verbose >= 1) {
+      Timing.tick("Done=!");
+    }  
   }
 
   public Set<Integer> getNonZeroRowIndices(){
@@ -111,14 +111,14 @@ public class ClosureMatrix {
     
     // inverse submatrix
     if (verbose >= 1) {
-      System.err.print("Inverting submatrix ... ");
+      System.err.println("Inverting submatrix ... ");
     }
     if(verbose >= 3){
       System.err.println(subRelationMatrix);
     }
     DoubleMatrix2D invSubMatrix = alg.inverse(subRelationMatrix);
     if (verbose >= 1) {
-      System.err.print("Done!\nComputing closure matrix ... ");
+      System.err.println("Computing full matrix ... ");
     }
     
     /** compute closure matrix **/
@@ -153,11 +153,12 @@ public class ClosureMatrix {
         System.err.print(" (" + rowCount + ") ");
       }
     } // end for rowId
-
-    System.err.println("Done! Num non-zero rows=" + rowCount);
-    
   }
-   
+
+  public DoubleMatrix2D getClosureMatrix() {
+    return closureMatrix;
+  }
+  
   private static final DoubleFunction takeExp = new DoubleFunction() {
     public double apply(double x) {
       return Math.exp(x);

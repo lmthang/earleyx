@@ -1,8 +1,9 @@
-package parser;
+package lexicon;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -13,7 +14,7 @@ import edu.stanford.nlp.util.Index;
 public class BaseLexicon implements Lexicon {
   protected Map<Integer, Counter<Integer>> tag2wordsMap;
 
-  protected Map<Integer, Set<Integer>> word2tagsMap;
+  protected Map<Integer, Set<IntTaggedWord>> word2tagsMap;
   protected Index<String> wordIndex;
   protected Index<String> tagIndex;
   protected int unkIndex = -1;
@@ -43,8 +44,15 @@ public class BaseLexicon implements Lexicon {
     return tag2wordsMap;
   }
 
-  public Map<Integer, Set<Integer>> getWord2tagsMap() {
+  public Map<Integer, Set<IntTaggedWord>> getWord2tagsMap() {
     return word2tagsMap;
   }
 
+  public void setTag2wordsMap(Map<Integer, Counter<Integer>> tag2wordsMap) {
+    this.tag2wordsMap = tag2wordsMap;
+  }
+
+  public void setWord2tagsMap(Map<Integer, Set<IntTaggedWord>> word2tagsMap) {
+    this.word2tagsMap = word2tagsMap;
+  }
 }

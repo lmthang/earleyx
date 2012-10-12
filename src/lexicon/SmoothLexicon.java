@@ -1,9 +1,11 @@
-package parser;
+package lexicon;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
 
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.ClassicCounter;
@@ -18,7 +20,6 @@ public class SmoothLexicon extends BaseLexicon {
   
   public Set<IntTaggedWord> tagsForWord(String word) {
     int iW = wordIndex.indexOf(word, true);
-    Set<Integer> tagIndices = null;
     if(!word2tagsMap.containsKey(iW)){ // unknown word
       word = getSignature(word);
       iW = wordIndex.indexOf(word, true);
@@ -29,14 +30,8 @@ public class SmoothLexicon extends BaseLexicon {
       }
     }
     assert(word2tagsMap.containsKey(iW));
-    tagIndices = word2tagsMap.get(iW);
     
-    // build int tagged words
-    Set<IntTaggedWord> itws = new HashSet<IntTaggedWord>();
-    for(int iT : tagIndices){ // go through all tags
-      itws.add(new IntTaggedWord(iW, iT));
-    }
-    return itws;
+    return word2tagsMap.get(iW);
   }
 
   public double score(IntTaggedWord itw) {
@@ -62,32 +57,17 @@ public class SmoothLexicon extends BaseLexicon {
     return tag2wordsMap.get(itw.tag()).getCount(iW);
   }
 
-  public void train(Collection<IntTaggedWord> intTaggedWords) {
-    // initialize
-    tag2wordsMap = new HashMap<Integer, Counter<Integer>>(); 
-    word2tagsMap = new HashMap<Integer, Set<Integer>>();
+  // convert to logprob
+  public static void smooth(Map<Integer, Counter<Integer>> tag2wordsMap, Index<String> wordIndex
+      , Map<Integer, Set<IntTaggedWord>> word2tagsMap){
+    smooth(tag2wordsMap, wordIndex, word2tagsMap, false);
+  }
+  
+  public static void smooth(Map<Integer, Counter<Integer>> tag2wordsMap, Index<String> wordIndex
+      , Map<Integer, Set<IntTaggedWord>> word2tagsMap, boolean keepRawCount){
+    int unkIndex = wordIndex.indexOf(UNKNOWN_WORD, true);
+    word2tagsMap.put(unkIndex, new HashSet<IntTaggedWord>());
     
-    
-    // scan data, collect counts
-    for(IntTaggedWord itw : intTaggedWords){
-      int tag = itw.tag();
-      int word = itw.word();
-      
-      // tag2wordsMap
-      if(!tag2wordsMap.containsKey(tag)){
-        tag2wordsMap.put(tag, new ClassicCounter<Integer>());
-      }
-      tag2wordsMap.get(tag).incrementCount(word);
-      
-      // word2tagsMap
-      if(!word2tagsMap.containsKey(word)){
-        word2tagsMap.put(word, new HashSet<Integer>());
-      }
-      word2tagsMap.get(word).add(tag);
-    }
-    
-    // smoothing
-    word2tagsMap.put(unkIndex, new HashSet<Integer>());
     for(Integer iT : tag2wordsMap.keySet()){ // tag
       Counter<Integer> wordCounter = tag2wordsMap.get(iT);
       
@@ -101,23 +81,53 @@ public class SmoothLexicon extends BaseLexicon {
           
           // update word2tags map
           if(!word2tagsMap.containsKey(signatureIndex)){
-            word2tagsMap.put(signatureIndex, new HashSet<Integer>());
+            word2tagsMap.put(signatureIndex, new HashSet<IntTaggedWord>());
           }
-          word2tagsMap.get(signatureIndex).add(iT);
+          word2tagsMap.get(signatureIndex).add(new IntTaggedWord(signatureIndex, iT));
         }
       }
       wordCounter.addAll(signatureCounter);
       
       // add unk, for a totally new word at test time, whose signature we haven't seen
       wordCounter.incrementCount(unkIndex);
-      word2tagsMap.get(unkIndex).add(iT); // add all tags to unk
+      word2tagsMap.get(unkIndex).add(new IntTaggedWord(unkIndex, iT)); // add all tags to unk
       
-      // normalize
-      Counters.normalize(wordCounter);
-      
-      // convert to log space
-      Counters.logInPlace(wordCounter);
+      if(!keepRawCount){ // convert to log prob
+        // normalize
+        Counters.normalize(wordCounter);
+        
+        // convert to log space
+        Counters.logInPlace(wordCounter);
+      }
     }
+  }
+  
+  public void train(Collection<IntTaggedWord> intTaggedWords) {
+    // initialize
+    tag2wordsMap = new HashMap<Integer, Counter<Integer>>(); 
+    word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
+    
+    
+    // scan data, collect counts
+    for(IntTaggedWord iTW : intTaggedWords){
+      int iT = iTW.tag();
+      int iW = iTW.word();
+      
+      // tag2wordsMap
+      if(!tag2wordsMap.containsKey(iT)){
+        tag2wordsMap.put(iT, new ClassicCounter<Integer>());
+      }
+      tag2wordsMap.get(iT).incrementCount(iW);
+      
+      // word2tagsMap
+      if(!word2tagsMap.containsKey(iW)){
+        word2tagsMap.put(iW, new HashSet<IntTaggedWord>());
+      }
+      word2tagsMap.get(iW).add(iTW);
+    }
+    
+    // smoothing
+    smooth(tag2wordsMap, wordIndex, word2tagsMap);
   }
 
   /**
@@ -126,7 +136,7 @@ public class SmoothLexicon extends BaseLexicon {
    * @param word The word
    * @return A "signature" (which represents an equivalence class of Strings), e.g., a suffix of the string
    */
-  public String getSignature(String word) {
+  public static String getSignature(String word) {
     boolean useFirst = false; //= true;
     boolean useEnd = true; 
     boolean useFirstCap = true;
