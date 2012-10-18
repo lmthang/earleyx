@@ -51,7 +51,9 @@ public class Main {
   public static void printHelp(String[] args, String message){
     System.err.println("! " + message);
     System.err.println(args[0] + " -in inputFileName -out outPrefixName " + 
-        "(-grammar grammarFile | -treebank treebankFile) [-id indexFileName]");
+        "(-grammar grammarFile | -treebank treebankFile) [-id indexFileName] [-opt option] [-prob probHandling]");
+    System.err.println("\toption: 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)");
+    System.err.println("\tprob: 0 -- normal (default), 1 -- scaling (todo)");
     System.exit(1);
   }
   
@@ -75,7 +77,8 @@ public class Main {
     // optional
     flags.put("-id", new Integer(1)); // sentence indices
     flags.put("-save", new Integer(1)); // save option, 0: save nothing (default), 1: save grammar
-    flags.put("-opt", new Integer(1)); // 0: default, 1: old way of handling extended rules
+    flags.put("-opt", new Integer(1)); // 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)
+    flags.put("-prob", new Integer(1)); // 0 -- normal (default), 1 -- scaling (todo)
     flags.put("-verbose", new Integer(1));     // 0: no debug info (default), 1: progress info, 2: closure matrices, combine/predict parsing info, 3: details edge/rule info, parser chart, prediction/completion list info, trie
     flags.put("-debug", new Integer(1));
     
@@ -98,8 +101,20 @@ public class Main {
     if (argsMap.keySet().contains("-opt")) {
       parserOpt = Integer.parseInt(argsMap.get("-opt")[0]);
     }
-    System.err.println("# Parser opt =" + parserOpt);
-    System.err.println("# Verbose opt =" + verbose);
+    
+    /* prob opt */
+    int probOpt = 0; // 0: default
+    boolean isScaling = false;
+    if (argsMap.keySet().contains("-prob")) {
+      probOpt = Integer.parseInt(argsMap.get("-prob")[0]);
+      if(probOpt == 1){// scailing
+        isScaling = true;
+      }
+    }
+    
+    System.err.println("# Parser opt = " + parserOpt);
+    System.err.println("# Prob opt = " + probOpt + ", isScaling = " + isScaling);
+    System.err.println("# Verbose opt = " + verbose);
 
     /******************/
     /* get input data */
@@ -133,12 +148,12 @@ public class Main {
     } else if (argsMap.keySet().contains("-grammar")) { // read from grammar file
       String inGrammarFile = argsMap.get("-grammar")[0];
       System.err.println("In grammar file = " + inGrammarFile);
-      parser = new EarleyParserDense(inGrammarFile, rootSymbol);
+      parser = new EarleyParserDense(inGrammarFile, rootSymbol, isScaling);
     } else if (argsMap.keySet().contains("-treebank")) { // read from treebank file      
       // transform trees
       String treeFile = argsMap.get("-treebank")[0];
       MemoryTreebank treebank = Utility.transformTrees(treeFile, transformerClassName, treebankPackClassName);
-      parser = new EarleyParserDense(treebank, rootSymbol);
+      parser = new EarleyParserDense(treebank, rootSymbol, isScaling);
     } else {
       printHelp(args, "No -grammar or -treebank option");
     }
@@ -157,7 +172,7 @@ public class Main {
         
         boolean isExp = true;      
         RuleFile.printRules(outGrammarFile, parser.getRules(), parser.getLexicon().getTag2wordsMap(), 
-            EarleyParser.WORD_INDEX, EarleyParser.TAG_INDEX, isExp);
+            parser.getParserWordIndex(), parser.getParserTagIndex(), isExp);
       }
     } else {
       printHelp(args, "No output prefix, -out option");

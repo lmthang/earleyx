@@ -1,13 +1,7 @@
 package test;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import org.junit.Before;
@@ -15,22 +9,21 @@ import org.junit.Before;
 import parser.Completion;
 import parser.EarleyParser;
 import parser.EarleyParserDense;
-import parser.Grammar;
 import parser.Prediction;
-import parser.Rule;
 import parser.EdgeSpace;
 import recursion.ClosureMatrix;
 import recursion.RelationMatrix;
 import utility.Utility;
 
-import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
-import edu.stanford.nlp.stats.Counter;
-import edu.stanford.nlp.util.HashIndex;
-import edu.stanford.nlp.util.Index;
-
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
-//  private String prefixModel = "parser.EarleyParserDense";
+  private boolean isScaling = true;
+
+  String basicGrammarString = "ROOT->[A B] : 0.9\n" + 
+  "ROOT->[_a _b] : 0.1\n" +
+  "A->[_a] : 1.0\n" +
+  "B->[_b] : 1.0\n";
+  
   String grammarString = "ROOT->[A] : 1.0\n" + 
   "A->[B C] : 0.5\n" +
   "A->[D B] : 0.5\n" +
@@ -68,61 +61,164 @@ public class EarleyParserTest extends TestCase {
   "D->[_d] : 0.9\n" +
   "D->[_UNK] : 0.1\n";
   
-  String grammarStringWithPseudoNodes = "ROOT->[A] : 1.0\n" + 
-  "A->[|A1-1|b |A1-2|e] : 0.1\n" +
-  "A->[|A2-1|b |A2-2|c] : 0.1\n" +
-  "A->[|A3-1|d |A3-2|c] : 0.1\n" +
-  "A->[B C] : 0.6\n" +
-  "A->[D C] : 0.1\n" +
-  "|A1-1|b->[_b] : 1.0\n" +
-  "|A1-2|e->[_e] : 1.0\n" +
-  "|A2-1|b->[_b] : 1.0\n" +
-  "|A2-2|c->[_c] : 1.0\n" +
-  "|A3-1|d->[_d] : 1.0\n" +
-  "|A3-2|c->[_c] : 1.0\n" +
-  "B->[A] : 0.1\n" +
-  "B->[_b] : 0.8\n" +
-  "B->[_UNK] : 0.1\n" +
-  "C->[_c] : 0.9\n" +
-  "C->[_UNK] : 0.1\n" + 
-  "D->[_d] : 0.9\n" +
-  "D->[_UNK] : 0.1\n";
-  
   String wsj500RuleFile = "../grammars/WSJ.500/WSJ.500.AG-PCFG.extendedRules";
   String wsj5000RuleFile = "../grammars/WSJ.5000/WSJ.5000.AG-PCFG.rules"; // this is the latest extended rules
-  
-  Index<String> wordIndex = new HashIndex<String>();
-  Index<String> tagIndex = new HashIndex<String>();
-  
-  Collection<Rule> rules = new ArrayList<Rule>();
-  Collection<Rule> extendedRules = new ArrayList<Rule>();
-  
-  Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
-  Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
-  Set<Integer> nonterminals = new HashSet<Integer>();
-  
   
   @Before
   public void setUp(){    
     // set output verbose modes
-    //StateSpace.verbose = 2;
-    //Grammar.verbose = 2;
-    //RelationMatrix.verbose = 2;
-    //ClosureMatrix.verbose = 2;
-    Prediction.verbose = 3;
-    Completion.verbose = 3;
-    EarleyParser.verbose = 3;
+    RelationMatrix.verbose = 0;
+    ClosureMatrix.verbose = 0;
+    EdgeSpace.verbose = 0;
+    Prediction.verbose = 0;
+    Completion.verbose = 0;
+    EarleyParser.verbose = 2;
   }
   
   private void initParserFromFile(String ruleFile){
-    parser = new EarleyParserDense(ruleFile, "ROOT");
+    parser = new EarleyParserDense(ruleFile, "ROOT", isScaling);
   }
   
   private void initParserFromString(String grammarString){
     try {
-      parser= new EarleyParserDense(Utility.getBufferedReaderFromString(grammarString), "ROOT");
+      parser= new EarleyParserDense(Utility.getBufferedReaderFromString(grammarString), "ROOT", isScaling);
     } catch (FileNotFoundException e) {
       e.printStackTrace();
+    }
+  }
+  
+  public void testBasic(){
+    initParserFromString(basicGrammarString);
+    
+    String inputSentence = "a b";
+    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
+    assertEquals(resultLists.size(), 4);
+    List<Double> surprisalList = resultLists.get(0);
+    List<Double> stringProbList = resultLists.get(3);
+    
+    
+    for (int i = 0; i < surprisalList.size(); i++) {
+      System.err.println(i + "\t" + surprisalList.get(i));
+    }
+    
+    assertEquals(surprisalList.size(), 2);
+    assertEquals(0.0, surprisalList.get(0), 1e-5);
+    assertEquals(0.0, surprisalList.get(1), 1e-5);
+    
+    if(!isScaling){
+      assertEquals(stringProbList.size(), 2);
+      assertEquals(0.0, stringProbList.get(0), 1e-5);
+      assertEquals(1.0, stringProbList.get(1), 1e-5);
+    }
+  }
+  
+  
+  public void testLeftInfiniteGrammar(){
+    double p = 0.1;
+    double q = 1-p;
+    String infiniteGrammarString = 
+    "ROOT->[X] : " + p + "\n" +
+    "ROOT->[ROOT X] : " + q + "\n" +
+    "X->[_x] : 1.0\n";
+    initParserFromString(infiniteGrammarString);
+    
+    int numSymbols = 100;
+    StringBuffer sb = new StringBuffer("x");
+    for (int i = 0; i < (numSymbols-1); i++) {
+      sb.append(" x");
+    }
+    String inputSentence = sb.toString();
+    
+    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
+    assertEquals(resultLists.size(), 4);
+    List<Double> surprisalList = resultLists.get(0);
+    List<Double> stringProbList = resultLists.get(3);
+    
+    assert(surprisalList.size() == numSymbols);
+    
+    // string x: string prob = p, prefix prob = 1.0, surprisal = -log(1)=0
+    System.err.println(0 + "\tsurprisal " + surprisalList.get(0));
+    assertEquals(0, surprisalList.get(0), 1e-10);
+    if(!isScaling){
+      assert(stringProbList.size()==numSymbols);
+      System.err.println(0 + "\tstring prob " + stringProbList.get(0));
+      assertEquals(p, stringProbList.get(0), 1e-10);
+    }
+    for (int i = 1; i < numSymbols; i++) {
+      // strings of (i+1) x: string prob = p*q^i, prefix prob = q^i, surprisal = -log(q)
+      System.err.println(i + "\tsurprisal " + surprisalList.get(i));
+      assertEquals(-Math.log(q), surprisalList.get(i), 1e-10);
+      if(!isScaling){
+        System.err.println(i + "\tstring prob " + stringProbList.get(i));
+        assertEquals(p*Math.pow(q, i), stringProbList.get(i), 1e-10);
+      }
+    }
+  }
+  
+  public void testCatalanGrammar(){
+    double p = 0.1;
+    double q = 1-p;
+    String catalanGrammarString = 
+    "ROOT->[X] : " + p + "\n" +
+    "ROOT->[ROOT ROOT] : " + q + "\n" +
+    "X->[_x] : 1.0\n";
+    initParserFromString(catalanGrammarString);
+    
+    int numSymbols = 100;
+    StringBuffer sb = new StringBuffer("x");
+    for (int i = 0; i < (numSymbols-1); i++) {
+      sb.append(" x");
+    }
+    String inputSentence = sb.toString();
+    
+    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
+    assertEquals(resultLists.size(), 4);
+    List<Double> surprisalList = resultLists.get(0);
+    List<Double> stringProbList = resultLists.get(3);
+    
+    assert(surprisalList.size() == numSymbols);
+    
+    // string x: string prob[1] = p, prefix prob[1] = 1.0, surprisal = -log(1)=0
+    System.err.println(0 + "\tsurprisal " + surprisalList.get(0));
+    assertEquals(0, surprisalList.get(0), 1e-10);
+    if(!isScaling){
+      assert(stringProbList.size()==numSymbols);
+      System.err.println(0 + "\tstring prob " + stringProbList.get(0));
+      assertEquals(p, stringProbList.get(0), 1e-10);
+    }
+    
+    /// TO THINK: by right if p<q, the total prob string < 1, should prefix prob[1] < 1.0 ?
+    //double totalStringProb = Math.min(1, p/q); // see "The Linguist's Guide to Statistics", section 4.6
+    
+    int[][] c = Utility.permutationMatrix(2*numSymbols);
+    
+    double prevPrefixProb = 1.0;
+    double prevStringProb = p;
+    double totalStringProb = p;
+    for (int i = 1; i < numSymbols; i++) {
+      System.err.println(i + "\tsurprisal " + surprisalList.get(i));
+      
+      // strings of (i+1) x: string prob[i+1] = (c[2i][i]/(i+1))*p^(i+1)*q^i
+      // prefix prob[i+1] = prefix prob[i]-string prob[i]
+      double currentStringProb = (c[2*i][i]/(i+1.0))*Math.pow(p,i+1)*Math.pow(q, i);
+      if(!isScaling){
+        System.err.println(i + "\tstring prob " + stringProbList.get(i));
+        assertEquals(currentStringProb, stringProbList.get(i), 1e-10);
+      }
+      
+      
+      double currentPrefixProb = prevPrefixProb - prevStringProb;
+      assertEquals(-Math.log(currentPrefixProb/prevPrefixProb), surprisalList.get(i), 1e-10);
+      
+      // update
+      prevPrefixProb = currentPrefixProb;
+      prevStringProb = currentStringProb;
+      
+      totalStringProb += currentStringProb;
+      System.err.println(totalStringProb);
     }
   }
   
@@ -135,9 +231,9 @@ public class EarleyParserTest extends TestCase {
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    //List<Double> synSurprisalList = resultLists.get(1);
-    //List<Double> lexSurprisalList = resultLists.get(2);
-    //List<Double> stringProbList = resultLists.get(3);
+    List<Double> synSurprisalList = resultLists.get(1);
+    List<Double> lexSurprisalList = resultLists.get(2);
+    List<Double> stringProbList = resultLists.get(3);
     
     
     for (int i = 0; i < surprisalList.size(); i++) {
@@ -147,6 +243,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(surprisalList.size(), 2);
     assertEquals(0.7985076959756138, surprisalList.get(0), 1e-5);
     assertEquals(0.10536051541566838, surprisalList.get(1), 1e-5);
+    
+    if(!isScaling){
+      assertEquals(synSurprisalList.toString(), "[0.6931471805599451, -0.0]");
+      assertEquals(lexSurprisalList.toString(), "[0.1053605156578264, 0.1053605156578264]");
+      assertEquals(stringProbList.toString(), "[0.0, 0.405]");
+    }
   }
   
   public void testParsing2(){
@@ -157,9 +259,6 @@ public class EarleyParserTest extends TestCase {
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
-    List<Double> stringProbList = resultLists.get(3);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -167,6 +266,15 @@ public class EarleyParserTest extends TestCase {
     
     assertEquals(surprisalList.size(), 1);
     assertEquals(2.3025851249694824, surprisalList.get(0), 1e-5);
+    
+    if(!isScaling){
+      List<Double> synSurprisalList = resultLists.get(1);
+      List<Double> lexSurprisalList = resultLists.get(2);
+      List<Double> stringProbList = resultLists.get(3);
+      assertEquals(synSurprisalList.toString(), "[1.1102230246251565E-16]");
+      assertEquals(lexSurprisalList.toString(), "[2.3025850929940455]");
+      assertEquals(stringProbList.toString(), "[0.0]");
+    }
   }
   
   public void testParsing3(){
@@ -177,9 +285,6 @@ public class EarleyParserTest extends TestCase {
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
-    List<Double> stringProbList = resultLists.get(3);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -188,6 +293,16 @@ public class EarleyParserTest extends TestCase {
     assertEquals(surprisalList.size(), 2);
     assertEquals(0.9162907283333066, surprisalList.get(0), 1e-5);
     assertEquals(2.3025851249694824, surprisalList.get(1), 1e-5);
+    
+    if(!isScaling){
+      List<Double> synSurprisalList = resultLists.get(1);
+      List<Double> lexSurprisalList = resultLists.get(2);
+      List<Double> stringProbList = resultLists.get(3);
+  
+      assertEquals(synSurprisalList.toString(), "[0.6931471805599453, 1.1102230246251565E-16]");
+      assertEquals(lexSurprisalList.toString(), "[0.2231435513142097, 2.3025850929940455]");
+      assertEquals(stringProbList.toString(), "[0.0, 0.04000000000000001]");
+    }
   }
   
   public void testRecursiveGrammar(){
@@ -198,9 +313,6 @@ public class EarleyParserTest extends TestCase {
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
-    List<Double> stringProbList = resultLists.get(3);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -211,36 +323,19 @@ public class EarleyParserTest extends TestCase {
     assertEquals(3.167582526939802, surprisalList.get(1), 1e-5);
     assertEquals(0.17185025338581103, surprisalList.get(2), 1e-5);
     assertEquals(2.052896986215565, surprisalList.get(3), 1e-5);
+    
+    if(!isScaling){
+      List<Double> synSurprisalList = resultLists.get(1);
+      List<Double> lexSurprisalList = resultLists.get(2);
+      List<Double> stringProbList = resultLists.get(3);
+      assertEquals(synSurprisalList.toString(), "[0.6418538861723948, 2.9444389791664407, -0.05129329438755048, 1.9475364707998972]");
+      assertEquals(lexSurprisalList.toString(), "[0.2231435513142097, 0.2231435513142097, 0.22314355131421013, 0.1053605156578259]");
+      assertEquals(stringProbList.toString(), "[0.0, 0.0, 0.012799999999999997, 0.0017280000000000019]");
+    }
   }
   
-  public void testGrammarWithPseudoNodes() {
-    initParserFromString(grammarStringWithPseudoNodes);
-    
-    String inputSentence = "b c";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
-    List<Double> stringProbList = resultLists.get(3);
-    
-    for (int i = 0; i < surprisalList.size(); i++) {
-      System.err.println(i + "\t" + surprisalList.get(i));
-    }
-    
-    assertEquals(surprisalList.size(), 2);
-    assertEquals(0.3237870745944744, surprisalList.get(0), 1e-5);
-    assertEquals(0.24544930825601569, surprisalList.get(1), 1e-5);
-  }
   
   public void testWSJ500(){
-    EdgeSpace.verbose = 1;
-    Grammar.verbose = 1;
-    RelationMatrix.verbose = 1;
-    ClosureMatrix.verbose = 1;
-    EarleyParser.verbose = 1;
-    
     initParserFromFile(wsj500RuleFile);
     
     int numSentences = 4;
@@ -250,77 +345,40 @@ public class EarleyParserTest extends TestCase {
     inputSentences[2] = "A little further on were the blue-footed boobies , birds with brilliant china-blue feet , again unique .";
     inputSentences[3] = "It was late afternoon on one of the last days of the year , and we had come ashore to scramble round the rough dark lava rocks of Punta Espinosa on the island .";
     
-//    for (int i = 2; i < numSentences; i++) {
-//      String inputSentence = inputSentences[i];
-//      System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-//      double[] surprisals = parser.parseSentence(inputSentence);
-//      for (double d : surprisals) {
-//        System.err.println(d);
-//      }
-//    }
-    
     String inputSentence = inputSentences[1];
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
     List<Double> stringProbList = resultLists.get(3);
     
     for (int i = 0; i < surprisalList.size(); i++) {
-      System.err.println(i + "\t" + surprisalList.get(i));
+      System.err.println(i + "\tsurprisal " + surprisalList.get(i));
     }
-    System.err.println(synSurprisalList);
-    System.err.println(lexSurprisalList);
+    
+    // Note: scores here are slightly different from those of previous version
+    // that is because RoarkBaseLexicon.score returns float instead of double
     assertEquals(surprisalList.size(), 13);
     assertEquals(2.5902917249093926, surprisalList.get(0), 1e-5);
     assertEquals(11.17802383709047, surprisalList.get(1), 1e-5);
     assertEquals(6.679507135955136, surprisalList.get(2), 1e-5);
-    assertEquals(5.0073376384631345, surprisalList.get(3), 1e-5);
-    assertEquals(9.380751667699116, surprisalList.get(4), 1e-5);
-    assertEquals(6.460154578833205, surprisalList.get(5), 1e-5);
-    assertEquals(4.3742137680538775, surprisalList.get(6), 1e-5);
-    assertEquals(2.1105612970193235, surprisalList.get(7), 1e-5);
-    assertEquals(7.902509908353828, surprisalList.get(8), 1e-5);
-    assertEquals(3.841929098333189, surprisalList.get(9), 1e-5);
-    assertEquals(7.72602036377566, surprisalList.get(10), 1e-5);
-    assertEquals(1.2489743964356563, surprisalList.get(11), 1e-5);
-    assertEquals(2.0214240754987856, surprisalList.get(12), 1e-5);
-    
-    assertEquals(synSurprisalList.size(), 13);
-    assertEquals(2.3602916439035084, synSurprisalList.get(0), 1e-5);
-    assertEquals(7.357910128168035, synSurprisalList.get(1), 1e-5);
-    assertEquals(1.5620497546547085, synSurprisalList.get(2), 1e-5);
-    assertEquals(0.0022030055514754587, synSurprisalList.get(3), 1e-5);
-    assertEquals(4.266575485102322, synSurprisalList.get(4), 1e-5);
-    assertEquals(3.3698137403538055, synSurprisalList.get(5), 1e-5);
-    assertEquals(3.907705022942366, synSurprisalList.get(6), 1e-5);
-    assertEquals(0.6713614106221825, synSurprisalList.get(7), 1e-5);
-    assertEquals(1.798583726560615, synSurprisalList.get(8), 1e-5);
-    assertEquals(2.4213217230452457, synSurprisalList.get(9), 1e-5);
-    assertEquals(5.142054047896671, synSurprisalList.get(10), 1e-5);
-    assertEquals(0.16264021799989337, synSurprisalList.get(11), 1e-5);
-    assertEquals(1.845825275316443, synSurprisalList.get(12), 1e-5);
-    
-    assertEquals(lexSurprisalList.size(), 13);
-    assertEquals(0.2300000810058728, lexSurprisalList.get(0), 1e-5);
-    assertEquals(3.8201137089224453, lexSurprisalList.get(1), 1e-5);
-    assertEquals(5.117457381300428, lexSurprisalList.get(2), 1e-5);
-    assertEquals(5.005134632911659, lexSurprisalList.get(3), 1e-5);
-    assertEquals(5.11417618259658, lexSurprisalList.get(4), 1e-5);
-    assertEquals(3.090340838479669, lexSurprisalList.get(5), 1e-5);
-    assertEquals(0.46650874511149715, lexSurprisalList.get(6), 1e-5);
-    assertEquals(1.4391998863970983, lexSurprisalList.get(7), 1e-5);
-    assertEquals(6.103926181793213, lexSurprisalList.get(8), 1e-5);
-    assertEquals(1.4206073752878936, lexSurprisalList.get(9), 1e-5);
-    assertEquals(2.583966315879323, lexSurprisalList.get(10), 1e-5);
-    assertEquals(1.0863341784354787, lexSurprisalList.get(11), 1e-5);
-    assertEquals(0.1755988001823425, lexSurprisalList.get(12), 1e-5);
+    assertEquals(4.946327386976545, surprisalList.get(3), 1e-5);
+    assertEquals(9.38715961005888, surprisalList.get(4), 1e-5);
+    assertEquals(6.448605383890275, surprisalList.get(5), 1e-5);
+    assertEquals(4.250957965992164, surprisalList.get(6), 1e-5);
+    assertEquals(1.985522166292121, surprisalList.get(7), 1e-5);
+    assertEquals(7.997642700623828, surprisalList.get(8), 1e-5);
+    assertEquals(3.9585395344479366, surprisalList.get(9), 1e-5);
+    assertEquals(7.726724284649578, surprisalList.get(10), 1e-5);
+    assertEquals(1.2492399154169647, surprisalList.get(11), 1e-5);
+    assertEquals(2.0730450598410783, surprisalList.get(12), 1e-5);
+
+    if(!isScaling){
+      assertEquals(stringProbList.toString(), "[2.7631257999498153E-6, 3.7643574066525755E-8, 1.7159626394143225E-12, 1.895696047664002E-12, 5.813756868792682E-18, 1.1485269741998332E-20, 9.316157229315558E-23, 2.7565905744941673E-22, 8.213699654698347E-26, 1.0083447592775234E-29, 0.0, 2.4432270339764795E-31, 2.267676745209734E-31]");
+    }
   }
   
   public void testExtendedRule(){
-    System.err.println(extendedGrammarString);
     initParserFromString(extendedGrammarString);
     
     String inputSentence = "b c";
@@ -329,9 +387,6 @@ public class EarleyParserTest extends TestCase {
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
-    List<Double> stringProbList = resultLists.get(3);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -356,9 +411,6 @@ public class EarleyParserTest extends TestCase {
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
-    List<Double> stringProbList = resultLists.get(3);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -386,8 +438,6 @@ public class EarleyParserTest extends TestCase {
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
     List<Double> stringProbList = resultLists.get(3);
     
     for (int i = 0; i < surprisalList.size(); i++) {
@@ -398,9 +448,11 @@ public class EarleyParserTest extends TestCase {
     assertEquals(0.0, surprisalList.get(0), 1e-5);
     assertEquals(-Math.log(1-x*y), surprisalList.get(1), 1e-5);
     
-    assertEquals(stringProbList.size(), 2);
-    assertEquals(x*y, stringProbList.get(0), 1e-5);
-    assertEquals(1-x*y, stringProbList.get(1), 1e-5);
+    if(!isScaling){
+      assertEquals(stringProbList.size(), 2);
+      assertEquals(x*y, stringProbList.get(0), 1e-5);
+      assertEquals(1-x*y, stringProbList.get(1), 1e-5);
+    }
   }
   
   public void testComplexAG(){
@@ -435,8 +487,6 @@ public class EarleyParserTest extends TestCase {
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
     List<Double> stringProbList = resultLists.get(3);
     
     for (int i = 0; i < surprisalList.size(); i++) {
@@ -448,10 +498,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(-Math.log(x2 + x4 + x5 + x1*(y2 + y4 + y5)), surprisalList.get(1), 1e-5);
     assertEquals(-Math.log((x4 + x1*y4)/(x2 + x4 + x5 + x1*(y2 + y4 + y5))), surprisalList.get(2), 1e-5);
     
-    assertEquals(stringProbList.size(), 3);
-    assertEquals(x1*y1, stringProbList.get(0), 1e-5);
-    assertEquals(x1*y2 + x2, stringProbList.get(1), 1e-5);
-    assertEquals(x4 + x1*y4, stringProbList.get(2), 1e-5);
+    if(!isScaling){
+      assertEquals(stringProbList.size(), 3);
+      assertEquals(x1*y1, stringProbList.get(0), 1e-5);
+      assertEquals(x1*y2 + x2, stringProbList.get(1), 1e-5);
+      assertEquals(x4 + x1*y4, stringProbList.get(2), 1e-5);
+    }
   }
   
   public void testComplexAG1(){
@@ -462,7 +514,7 @@ public class EarleyParserTest extends TestCase {
     double z1 = 0.3;
     double z2 = 1-z1;
     
-    String simpleExtendedGrammarString = 
+    String complexAGGrammarString = 
       "ROOT->[S] : " + x1 + "\n" +
       "ROOT->[_a _b _c] : " + x2 + "\n" +
       "S->[A S1] : " + y1 + "\n" +
@@ -473,15 +525,13 @@ public class EarleyParserTest extends TestCase {
       "B->[_b] : " + 1.0 + "\n" + 
       "C->[_c] : " + 1.0;
     
-    initParserFromString(simpleExtendedGrammarString);
+    initParserFromString(complexAGGrammarString);
     
     String inputSentence = "a b c";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
     List<Double> stringProbList = resultLists.get(3);
     
     for (int i = 0; i < surprisalList.size(); i++) {
@@ -493,10 +543,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(0.0, surprisalList.get(1), 1e-5);
     assertEquals(0.0, surprisalList.get(2), 1e-5);
     
-    assertEquals(stringProbList.size(), 3);
-    assertEquals(0.0, stringProbList.get(0), 1e-5);
-    assertEquals(0.0, stringProbList.get(1), 1e-5);
-    assertEquals(1.0, stringProbList.get(2), 1e-5);
+    if(!isScaling){
+      assertEquals(stringProbList.size(), 3);
+      assertEquals(0.0, stringProbList.get(0), 1e-5);
+      assertEquals(0.0, stringProbList.get(1), 1e-5);
+      assertEquals(1.0, stringProbList.get(2), 1e-5);
+    }
   }
   
   // @TODO: TRY THIS TEST!!!
@@ -517,34 +569,46 @@ public class EarleyParserTest extends TestCase {
       "S->[A] : " + y1 + "\n" +
       "S->[S A] : " + y2 + "\n" +
       "A->[S] : " + z1 + "\n" +
-      "A->[A1] : " + z2 + "\n" +
+      "A->[B C] : " + z2 + "\n" +
       "A->[_b _c] : " + z3 + "\n" +
-      "A->[B C] : " + z4 + "\n" +
+      "A->[A1] : " + z4 + "\n" +
+      "B->[B1] : " + 1.0 + "\n" +
+      "C->[C1] : " + 1.0 + "\n" +
       "A1->[_a] : " + 1.0 + "\n" +
-      "B->[_b] : " + 1.0 + "\n" + 
-      "C->[_c] : " + 1.0;
-    System.err.println(simpleExtendedGrammarString);
+      "B1->[_b] : " + 1.0 + "\n" + 
+      "C1->[_c] : " + 1.0;
     
-    Grammar.verbose = 3;
-    RelationMatrix.verbose = 3;
-    ClosureMatrix.verbose = 3;
     initParserFromString(simpleExtendedGrammarString);
-    System.err.println(parser.getGrammar().getStateSpace());
     
     String inputSentence = "a b c";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
     List<List<Double>> resultLists = parser.parseSentence(inputSentence);
     assertEquals(resultLists.size(), 4);
     List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
     List<Double> stringProbList = resultLists.get(3);
     
+    // test left-corner closure
+    // a = zeros(6,6); a(1,2)=1.0; a(2,3)=0.01; a(3,3)=0.89;a(3,4)=0.11;a(4,3)=0.21;a(4,5)=0.22;
+    // (eye(6)-a)^(-1)
+    assertEquals(Utility.sprint(parser.getGrammar().getLeftCornerClosures().getClosureMatrix()), "0.0 0.0 -2.1621729392773004 -4.3694478524670215 -5.883575585096797 -Infinity\n-Infinity 0.0 -2.1621729392773004 -4.3694478524670215 -5.883575585096797 -Infinity\n-Infinity -Infinity 2.442997246710791 0.23572233352106994 -1.278405399108706 -Infinity\n-Infinity -Infinity 0.8823494984461224 0.23572233352106994 -1.2784053991087057 -Infinity");
+
     for (int i = 0; i < surprisalList.size(); i++) {
-      System.err.println(i + "\t" + surprisalList.get(i));
+      System.err.println(i + "\tsurprisal=" + surprisalList.get(i));
+      if(!isScaling){
+        assert(stringProbList.get(i)<=1.0);
+      }
     }
     
     assertEquals(surprisalList.size(), 3);
+    assertEquals(0.005712487765391473, surprisalList.get(0), 1e-5);
+    assertEquals(0.0020843742359873776, surprisalList.get(1), 1e-5);
+    assertEquals(0.0, surprisalList.get(2), 1e-5);
     
+    if(!isScaling){
+      assertEquals(stringProbList.size(), 3);
+      assertEquals(3.8284368922100536E-4, stringProbList.get(0), 1e-5);
+      assertEquals(0.0, stringProbList.get(1), 1e-5);
+      assertEquals(0.9901606659305786, stringProbList.get(2), 1e-5);
+    }
   }
 }

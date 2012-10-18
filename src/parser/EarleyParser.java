@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,29 +42,52 @@ public abstract class EarleyParser {
   protected Collection<Rule> extendedRules;
   
   // root
-  //protected String rootSymbol;
-  //protected int rootEdge;
+  protected static final String ORIG_SYMBOL = "";
+  protected int origSymbolIndex; // indexed by TAG_INDEX
   protected Rule rootRule; // "" -> ROOT
-  protected int rootEdge; // ROOT -> []
+  protected int rootEdge; // "" -> . ROOT
   protected int goalEdge; // "" -> []
   
-  // edge space
-  protected int edgeSpaceSize;
+  protected int edgeSpaceSize;   // edge space
   
-  public static Index<String> WORD_INDEX = new HashIndex<String>();
-  public static Index<String> TAG_INDEX = new HashIndex<String>();
-  public static Set<Integer> NONTERMINALS = new HashSet<Integer>();
+  /** convert strings into integers **/
+  protected Index<String> parserWordIndex;
+  protected Index<String> parserTagIndex;
+  // keys are nonterminal indices (indexed by parserTagIndex)
+  // values are used to retrieve nonterminals (when necessary) in the order that
+  //   we processed them when loading treebank or grammar files (more for debug purpose)
+  protected Map<Integer, Integer> parserNonterminalMap; 
   
   /** prefix & syntactic prefix probabilities: all in log forms **/
-  // to accumulate probabilities of all paths leading to a particular words
-  protected DoubleList thisPrefixProb;
   // prefixProb[i]: prefix prob of word_0...word_(i-1) log-sum of thisPrefixProb
-  protected double[] prefixProb; 
-  // to accumulate probabilities of all paths leading to a particular words, but don't commit to lexical rewriting
-  protected DoubleList thisSynPrefixProb;
+  protected double[] prefixProb; // numWords+1 
   // synPrefixProb[i]: syntatic prefix prob of word_0...word_(i-1) log-sum of thisSynPrefixProb
   protected double[] synPrefixProb;
 
+  /** per word info **/
+  // to accumulate probabilities of all paths leading to a particular words
+  protected DoubleList thisPrefixProb;
+  protected DoubleList thisAGPrefixProb; // for debug purpose: accumulate prefix prob arising from AG rules
+  // to accumulate probabilities of all paths leading to a particular words, but don't commit to lexical rewriting
+  protected DoubleList thisSynPrefixProb;
+  
+  /** scaling info **/
+  // * Invariants (here we assume things in normal probs not log prob):
+  // Let P(w0...w_(i-1) be the non-scaled prefix prob
+  // prefixProb[i]: be the scaled prefix prob for w0...w_(i-1)
+  // prefixProb[0] = 1
+  // prefixProb[1] = P(w0)
+  //
+  // scaling[1] = 1
+  // scaling[2] = 1/P(w0)
+  // scaling[i] = P(w0..w_(i-3)) / P(w0..w_(i-2))
+  // prefixProb[i] = scaling[1]*...scaling[i]*P(w0..w_(i-1)) = P(w0..w_(i-1)) / P(w0..w_(i-2))
+  // Thus, scaling[i] = 1/prefixProb[i-1]
+  // surprisal[i] now = -log(prefixProb[i])
+  protected boolean isScaling = false;
+  protected double[] scaling; // log 
+  protected double[][] scalingMatrix; // used for extended rules, scalingMatrix[left][right] = log sum scaling[left+1] ... scaling[right]
+  
   /** current sentence info **/
   protected List<String> words;
   protected List<Integer> wordIndices;
@@ -74,11 +96,12 @@ public abstract class EarleyParser {
   
   public static int verbose = 0;
   protected static DecimalFormat df = new DecimalFormat("0.0000");
+  protected static DecimalFormat df1 = new DecimalFormat("0.00");
 
   public EarleyParser(Treebank treebank, String rootSymbol){
     preInit(rootSymbol);
     Pair<Collection<Rule>, Collection<IntTaggedWord>> rules_itws = 
-      Utility.extractRulesWordsFromTreebank(treebank, WORD_INDEX, TAG_INDEX, NONTERMINALS);
+      Utility.extractRulesWordsFromTreebank(treebank, parserWordIndex, parserTagIndex, parserNonterminalMap);
     rules.addAll(rules_itws.first());
     buildGrammarLex(rules, new ArrayList<Rule>(), rules_itws.second());
     postInit(rootSymbol);
@@ -102,9 +125,31 @@ public abstract class EarleyParser {
     postInit(rootSymbol);
   }
   
+  // constructors with scailing
+  public EarleyParser(Treebank treebank, String rootSymbol, boolean isScaling){
+    this(treebank, rootSymbol);
+    this.isScaling = isScaling;
+  }
+  public EarleyParser(String grammarFile, String rootSymbol, boolean isScaling){
+    this(grammarFile, rootSymbol);
+    this.isScaling = isScaling;
+  }
+  public EarleyParser(BufferedReader br, String rootSymbol, boolean isScaling){
+    this(br, rootSymbol);
+    this.isScaling = isScaling;
+  }
+  
   // add root rule
   private void preInit(String rootSymbol){
-    rootRule = new Rule("", Arrays.asList(rootSymbol), 1.0, TAG_INDEX, TAG_INDEX);
+    parserWordIndex = new HashIndex<String>();
+    parserTagIndex = new HashIndex<String>();
+    parserNonterminalMap = new HashMap<Integer, Integer>();
+    
+    rootRule = new Rule(ORIG_SYMBOL, Arrays.asList(rootSymbol), 1.0, parserTagIndex, parserTagIndex);
+    origSymbolIndex = parserTagIndex.indexOf(ORIG_SYMBOL);
+    parserNonterminalMap.put(origSymbolIndex, parserNonterminalMap.size());
+    assert(parserNonterminalMap.get(origSymbolIndex) == 0);
+    
     rules = new ArrayList<Rule>();
     rules.add(rootRule);
   }
@@ -117,13 +162,10 @@ public abstract class EarleyParser {
         
     try {
       RuleFile.parseRuleFile(br, 
-          rules, extendedRules, tag2wordsMap, word2tagsMap, NONTERMINALS, WORD_INDEX, TAG_INDEX);
+          rules, extendedRules, tag2wordsMap, word2tagsMap, parserNonterminalMap, parserWordIndex, parserTagIndex);
     } catch (IOException e) {
       System.err.println("! Problem initializing Earley parser");
       e.printStackTrace();
-    }
-    if(verbose>=2){
-      System.err.println("Earley Parser -- nonterminals: " + Utility.sprint(TAG_INDEX, NONTERMINALS));
     }
     
     // // convert to log prob
@@ -132,7 +174,7 @@ public abstract class EarleyParser {
       for (int iW : counter.keySet()) {
         double prob = counter.getCount(iW);
         if(prob<0 || prob>1){ // make sure this is a proper prob
-          System.err.println("! prob of " + TAG_INDEX.get(iT) + "->" + WORD_INDEX.get(iW) + " " + prob 
+          System.err.println("! prob of " + parserTagIndex.get(iT) + "->" + parserWordIndex.get(iW) + " " + prob 
               + " not in [0, 1]");
           System.exit(1);
         }
@@ -141,19 +183,20 @@ public abstract class EarleyParser {
       // Counters.logInPlace(counter);
     }
     
+    
     buildGrammarLex(rules, extendedRules, tag2wordsMap, word2tagsMap);
   }
   
   private void postInit(String rootSymbol){
     // root
-    rootEdge = g.getStateSpace().indexOf(rootRule.toEdge());
-    goalEdge = g.getStateSpace().indexOfTag(rootRule.getMother());
-    assert(goalEdge == g.getStateSpace().indexOf(rootRule.getMotherEdge()));
+    rootEdge = g.getEdgeSpace().indexOf(rootRule.toEdge());
+    goalEdge = g.getEdgeSpace().indexOfTag(rootRule.getMother());
+    assert(goalEdge == g.getEdgeSpace().indexOf(rootRule.getMotherEdge()));
     
-    edgeSpaceSize = g.getStateSpace().size();
+    edgeSpaceSize = g.getEdgeSpace().size();
     
     if(verbose>=2){
-      System.err.println("Earley Parser -- nonterminals: " + Utility.sprint(TAG_INDEX, NONTERMINALS));
+      System.err.println("postInit Earley Parser -- nonterminals: " + Utility.sprint(parserTagIndex, parserNonterminalMap.keySet()));
     }
   }
   
@@ -168,20 +211,17 @@ public abstract class EarleyParser {
   private void buildGrammarLex(Collection<Rule> rules, Collection<Rule> extendedRules, Collection<IntTaggedWord> intTaggedWords){//, Rule rootRule) {
     /* learn grammar */
     if (verbose>=1){
-      System.err.print("# Learning grammar ... ");
+      System.err.println("\n### Learning grammar ... ");
     }
-    g = new Grammar(WORD_INDEX, TAG_INDEX, NONTERMINALS);
+    g = new Grammar(parserWordIndex, parserTagIndex, parserNonterminalMap);
     g.learnGrammar(rules, extendedRules);
-    System.err.println("Done!");
     
     /* learn lexicon */
-    System.err.print("# Learning lexicon ... ");
-    lex = new SmoothLexicon(WORD_INDEX, TAG_INDEX);
-    lex.train(intTaggedWords);
-    
     if (verbose>=1){
-      System.err.println("Done!");
+      System.err.println("\n### Learning lexicon ... ");
     }
+    lex = new SmoothLexicon(parserWordIndex, parserTagIndex);
+    lex.train(intTaggedWords);
   }
   
   public void buildGrammarLex(
@@ -189,24 +229,19 @@ public abstract class EarleyParser {
       Collection<Rule> extendedRules,
       Map<Integer, Counter<Integer>> tag2wordsMap,
       Map<Integer, Set<IntTaggedWord>> word2tagsMap) {
-//    Collection<Rule> rules = new ArrayList<Rule>();
-//    rules.addAll(originalRules);
-//    rules.add(rootRule);
-  
+
     /* learn grammar */
     if (verbose>=1){
-      System.err.print("# Learning grammar ... ");
-    }
-    
-    g = new Grammar(WORD_INDEX, TAG_INDEX, NONTERMINALS);
+      System.err.print("\n### Learning grammar ... ");
+    }    
+    g = new Grammar(parserWordIndex, parserTagIndex, parserNonterminalMap);
     g.learnGrammar(rules, extendedRules);
     
-    if (verbose>=1){
-      System.err.println("Done!");
-    }
-    
     /* create lexicon */
-    lex = new SmoothLexicon(WORD_INDEX, TAG_INDEX);
+    if (verbose>=1){
+      System.err.println("\n### Learning lexicon ... ");
+    }
+    lex = new SmoothLexicon(parserWordIndex, parserTagIndex);
     lex.setTag2wordsMap(tag2wordsMap);
     lex.setWord2tagsMap(word2tagsMap);
   }
@@ -263,7 +298,7 @@ public abstract class EarleyParser {
     numWords = words.size();
     wordIndices = new ArrayList<Integer>();
     for (String word : words) {
-      wordIndices.add(WORD_INDEX.indexOf(word, true));
+      wordIndices.add(parserWordIndex.indexOf(word, true));
     }
     
     List<Double> surprisalList = new ArrayList<Double>();
@@ -272,38 +307,54 @@ public abstract class EarleyParser {
     List<Double> stringProbList = new ArrayList<Double>();
     
     // init
-    sentInitialize();
-    
-    
+    sentInit();
+        
     double lastProbability = 1.0;
-    for(int rightEdge=1; rightEdge<=numWords; rightEdge++){ // span [0, rightEdge] covers words 0, ..., rightEdge-1
-      int wordId = rightEdge-1;
-      parseNextWord(rightEdge);
+    for(int right=1; right<=numWords; right++){ // span [0, rightEdge] covers words 0, ..., rightEdge-1
+      int wordId = right-1;
+      parseWord(right);
+            
+      double prefixProbability = Math.exp(prefixProb[right]);
+      if(!isScaling){
+        // string probs
+        double stringProbability = Math.exp(stringProbability(right));
+        stringProbList.add(stringProbability);
+
+        // surprisals
+        double prefixProbabilityRatio = prefixProbability / lastProbability;
+        assert prefixProbabilityRatio <= 1.0 + 1e-10;
+        surprisalList.add(-Math.log(prefixProbabilityRatio));
+        
+        // syntatic/lexical surprisals
+        double synPrefixProbability = Math.exp(synPrefixProb[right]);
+        synSurprisalList.add(-Math.log(synPrefixProbability/lastProbability));
+        lexSurprisalList.add(-Math.log(prefixProbability/synPrefixProbability));
+
+        // print info
+        if(verbose>=1){
+          System.err.println(Utility.sprint(parserWordIndex, wordIndices.subList(0, right)));
+          String msg = "Prefix probability: " + prefixProbability + "\n" +
+          "String probability: " + stringProbability + "\n" +
+          "Surprisal: " + surprisalList.get(wordId) + " = -log(" + 
+          prefixProbability + "/" + lastProbability + ")\n";
+          System.err.println(msg);
+        }
+        lastProbability = prefixProbability;
+      } else {
+        // surprisals
+        surprisalList.add(-prefixProb[right]); // note: prefix prob is scaled, and equal to log P(w0..w_(right-1))/P(w0..w_(right-2))
+        if(verbose>=1){
+          System.err.println(Utility.sprint(parserWordIndex, wordIndices.subList(0, right)));
+          String msg = "Scaled prefix probability: " + prefixProbability + "\n" +
+          "Scaling: " + scaling[right] + "\n" + 
+          "Surprisal: " + surprisalList.get(wordId) + " = -" + prefixProb[right] + "\n";
+          System.err.println(msg);
+        }
+      }
       
-      double prefixProbability = Math.exp(prefixProb[wordId]);
-      double synPrefixProbability = Math.exp(synPrefixProb[wordId]);
-      double stringProbability = Math.exp(stringProbability(rightEdge));
-      double prefixProbabilityRatio = prefixProbability / lastProbability;
-      assert prefixProbabilityRatio <= 1.0;
-     
-      
-      surprisalList.add(-Math.log(prefixProbabilityRatio));
-      synSurprisalList.add(-Math.log(synPrefixProbability/lastProbability));
-      lexSurprisalList.add(-Math.log(prefixProbability/synPrefixProbability));
-      stringProbList.add(stringProbability);
-      lastProbability = prefixProbability;
-      
-      // print info
-      String msg = "Prefix probability: " + prefixProbability + "\n" +
-      "Syntactic Prefix probability: " + synPrefixProbability + "\n" +
-      "String probability: " + stringProbability + "\n" +
-      "Prefix probability ratio for word " + wordId + " " + words.get(wordId) + ": " + prefixProbabilityRatio + "\n" + 
-      "Surprisal: " + surprisalList.get(wordId) +"\n" + 
-      "synSurprisal: " + synSurprisalList.get(wordId) +"\n" +
-      "lexSurprisal: " + lexSurprisalList.get(wordId);
-      System.err.println(msg);
+            
     }
-    
+
     // compile result lists
     List<List<Double>> resultLists = new ArrayList<List<Double>>();
     resultLists.add(surprisalList);
@@ -319,20 +370,43 @@ public abstract class EarleyParser {
    * 
    * @param right
    */
-  public void parseNextWord(int right) { // 
+  public void parseWord(int right) { // 
     //initializeTemporaryProbLists();
     String word = words.get(right-1);
     wordInitialize();
     
+    /** Scailing factors **/
+    if(isScaling){ // scaling
+      scaling[right] = -prefixProb[right-1];
+      if(verbose>=1){
+        System.err.println("# Scaling " + right + ": " + Math.exp(scaling[right]) + ", \t prev prefix prob = " + Math.exp(prefixProb[right-1]));
+      }
+      
+      // scaling matrix for extended rules
+      for (int i = 0; i < right; i++) {
+        scalingMatrix[i][right] = scalingMatrix[i][right-1] + scaling[right];
+        if(verbose>=1){
+          System.err.println("# Scaling matrix: " + i + "\t" + right + "\t scaling " + Math.exp(scalingMatrix[i][right]));
+        }
+      }        
+    }
+    
     /** Handle normal rules **/
     Set<IntTaggedWord> iTWs = lex.tagsForWord(word);
-    if (verbose>=2){
+    if (verbose>=1){
       System.err.println("# " + right + "\t" + word + ", numTags=" + iTWs.size());
     }
     for (IntTaggedWord itw : iTWs) { // go through each POS tag the current word could have
-      int edge = g.getStateSpace().indexOfTag(itw.tag());
+      int edge = g.getEdgeSpace().indexOfTag(itw.tag());
       double score = lex.score(itw);
-      assert(score<0);
+      if(verbose>=1){
+        System.err.println(itw.toString(parserWordIndex, parserTagIndex) + "\t" + score);
+      }
+      assert(score<=0);
+      
+      if(isScaling){ // scaling
+        score += scaling[right];
+      }
       addToChart(right-1, right, edge, 0, score);
     }
 
@@ -341,32 +415,40 @@ public abstract class EarleyParser {
       // find all rules that rewrite into word_i ... word_(rightEdge-1)
       Map<Integer, Double> valueMap = g.getRuleTrie().findAllMap(wordIndices.subList(i, right));
       if(valueMap != null){
+        if (verbose>=3){
+          System.err.println("AG full: " + words.subList(i, right) + ": " + Utility.sprint(valueMap, parserTagIndex));
+        }
         for (int iT : valueMap.keySet()) {
-          int edge = g.getStateSpace().indexOfTag(iT);
+          int edge = g.getEdgeSpace().indexOfTag(iT);
           double score = valueMap.get(iT);
+          
+          if(isScaling){ // scaling
+            score += scalingMatrix[i][right];
+          }
           addToChart(i, right, edge, 0, score);
         }
-        if (verbose>=3){
-          System.err.println(words.subList(i, right) + ": " + Utility.sprint(valueMap, TAG_INDEX));
-        }
+        
       }
     }
     
     
-    //storePassiveEdgeChartProbs(currentWord-1);
-    //2a. initialize intermediate data structures
-    //2. combine
-    /* emptyAgenda(); */
-    
-    Timing.startTime();
-    combineAll(right);
-    Timing.tick("# " + word + ", finished combineAll");
+    //2. completion
+    if(verbose>=1){
+      Timing.startTime();
+    }
+    completeAll(right);
+    if(verbose>=1){
+      Timing.tick("# " + word + ", finished completeAll");
+    }
     
     //3. predictAll all new active edges for further down the road
-    Timing.startTime();
+    if(verbose>=1){
+      Timing.startTime();
+    }
     predictAll(right);
-    //storeActiveEdgeChartProbs(currentWord);
-    Timing.tick("# " + word + ", finished predictAll");
+    if(verbose>=1){
+      Timing.tick("# " + word + ", finished predictAll");
+    }
   }
 
   /**********************/
@@ -379,7 +461,14 @@ public abstract class EarleyParser {
   protected abstract void addToChart(int state, int left, int right, 
       double logForward, double logInner);
   protected abstract void predictAll(int right);
-  protected abstract void combineAll(int right);
+  
+  /**
+   * Consider all triples [left, middle, right] to see if there're any edge pair
+   * middle: left X -> _ . Y _ and right: middle Y -> _ and , we'll then create a new edge
+   * right: left X -> _ Y . _  
+   * @param right
+   */
+  protected abstract void completeAll(int right);
   
   /*******************/
   /** Other methods **/
@@ -388,15 +477,21 @@ public abstract class EarleyParser {
   /**
    * Initialization for every sentence
    */
-  protected void sentInitialize(){
-    if (verbose>=1){
+  protected void sentInit(){
+    if (verbose>=2){
       System.err.println("# EarleyParser initializing ... ");
     }
     chartCount = new int[numWords+1][numWords+1];
     prefixProb = new double[numWords + 1];
     synPrefixProb = new double[numWords + 1];
-    Utility.initToNegativeInfinity(prefixProb);
-    Utility.initToNegativeInfinity(synPrefixProb);
+    
+    if (isScaling){
+      scaling = new double[numWords + 1];
+      scalingMatrix = new double[numWords + 1][numWords+1];
+    }
+    
+    // init
+    prefixProb[0] = 0.0; // log(1)
   }
   
   /**
@@ -404,16 +499,36 @@ public abstract class EarleyParser {
    */
   protected void wordInitialize(){
     thisPrefixProb = new DoubleList();
+    thisAGPrefixProb = new DoubleList();
     thisSynPrefixProb = new DoubleList();
   }
   
   protected void storePrefixProb(int right) {
+    if(verbose>=2){
+      System.err.print("Store prefix prob: ");
+      for(double value : thisPrefixProb.toArray()){
+        System.err.print(Math.exp(value) + " ");
+      }
+      System.err.println();
+    }
+    
     if (thisPrefixProb.size() == 0) { // no path
       prefixProb[right] = Double.NEGATIVE_INFINITY;
       synPrefixProb[right] = Double.NEGATIVE_INFINITY;
     } else {
       prefixProb[right] = ArrayMath.logSum(thisPrefixProb.toArray());
+      
       synPrefixProb[right] = ArrayMath.logSum(thisSynPrefixProb.toArray());
+    }
+    if(verbose>=1){
+      double agPrefixProb = Double.NEGATIVE_INFINITY;
+      if (thisAGPrefixProb.size() > 0) { // AG paths
+        agPrefixProb = ArrayMath.logSum(thisAGPrefixProb.toArray());
+      }
+      System.err.println("# Prefix prob [0," + right + "] = " 
+          + Math.exp(prefixProb[right]) 
+          +  ": ag prefix prob=" + Math.exp(agPrefixProb)
+          + " + normal prefix prob=" + (Math.exp(prefixProb[right])-Math.exp(agPrefixProb)));
     }
   }
   
@@ -429,6 +544,18 @@ public abstract class EarleyParser {
   public Collection<Rule> getRules() {
     return rules;
   }
+  public Index<String> getParserWordIndex() {
+    return parserWordIndex;
+  }
+  public Index<String> getParserTagIndex() {
+    return parserTagIndex;
+  }
 }
 
 /** Unused code **/
+//"Syntactic Prefix probability: " + synPrefixProbability + "\n" +
+//"Prefix probability ratio for word " + wordId + " " + words.get(wordId) + ": " + prefixProbabilityRatio + "\n" +
+//+ 
+//"synSurprisal: " + synSurprisalList.get(wordId) +"\n" +
+//"lexSurprisal: " + lexSurprisalList.get(wordId)
+//

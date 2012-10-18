@@ -7,7 +7,7 @@ import edu.stanford.nlp.util.Timing;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import recursion.ClosureMatrix;
 import recursion.RelationMatrix;
@@ -30,19 +30,22 @@ public class Grammar {
   // keep track of rules of type X -> a b c, where "a b c" is a key, sequence of string,
   // while a pair of X, state id, and rule score is a value associated to the key
   private TrieSurprisal ruleTrie;  
-  private Completion[][] completions; // completions[i] is the set of Completion instances for the state i 
-  private Prediction[][] predictions; // predictions[i] is the set of Prediction instances for the state i
-  private EdgeSpace stateSpace; // consist of all the rules
+  private Completion[][] completionsArray; // completions[i] is the set of Completion instances for the state i 
+  private Prediction[][] predictionsArray; // predictions[i] is the set of Prediction instances for the state i
+  private EdgeSpace edgeSpace; // consist of all the rules
 
   private Index<String> wordIndex;
   private Index<String> tagIndex;
-  private Set<Integer> nonterminals;
-  public Grammar(Index<String> wordIndex, Index<String> tagIndex, Set<Integer> nonterminals){
+  private Map<Integer, Integer> nonterminalMap;
+
+  private ClosureMatrix leftCornerClosures;
+  private ClosureMatrix unaryClosures;
+  public Grammar(Index<String> wordIndex, Index<String> tagIndex, Map<Integer, Integer> nonterminals){
     this.wordIndex = wordIndex;
     this.tagIndex = tagIndex;
-    this.nonterminals = nonterminals;
+    this.nonterminalMap = nonterminals;
     
-    stateSpace = new EdgeSpace(tagIndex);
+    edgeSpace = new EdgeSpace(tagIndex);
     ruleTrie = new TrieSurprisal();
   }
     
@@ -51,18 +54,19 @@ public class Grammar {
    */
   public void learnGrammar(Collection<Rule> rules, Collection<Rule> extendedRules) { // , Collection<Rule> extendedRules, , Rule rootRule    
     /* set up state space. */
-    stateSpace.addRules(rules);
+    edgeSpace.build(rules);
     
     /*** Compute reflective and transitive left-corner and unit-production matrices ***/
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     
     /* do left-corner closures matrix */
-    DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminals);
-    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl);
-
+    DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminalMap);
+    leftCornerClosures = new ClosureMatrix(pl);
+    leftCornerClosures.changeIndices(nonterminalMap);
+    
     /* do unary closure matrix */
     DoubleMatrix2D pu = relationMatrix.getPU(rules); //, nontermPretermIndexer);
-    ClosureMatrix unaryClosures = new ClosureMatrix(pu);
+    unaryClosures = new ClosureMatrix(pu);
     
     /*** Extended rules ***/
     /* !!! Important: this needs to be added after closure matrix construction
@@ -70,20 +74,16 @@ public class Grammar {
     processExtendedRules(extendedRules);
     
     /*** construct predictions ***/
-    predictions = Prediction.constructPredictions(rules, leftCornerClosures, stateSpace, tagIndex); 
-    assert checkPredictions(predictions);
+    predictionsArray = Prediction.constructPredictions(rules, leftCornerClosures, edgeSpace, tagIndex, 
+        Utility.getNonterminals(nonterminalMap)); 
+    assert Prediction.checkPredictions(predictionsArray, edgeSpace);
 
-    /*** construct backward combination Set[] ***/
+    /*** construct completion Set[] ***/
     // here state space does implies new states added from extended rules
     // we purposely use the old nontermPretermIndexer
-    completions = Completion.constructCompletions(unaryClosures, stateSpace, tagIndex);
+    completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
     
-    //if(verbose) System.err.println(stateSpace.toString());
-    assert checkCompletions();
-
-    /* finally set up root active edge */
-//    rootActiveEdge = stateSpace.indexOf(rootRule.toEdge());
-//    goalEdge = stateSpace.indexOf(rootRule.getMotherEdge());
+    assert Completion.checkCompletions(completionsArray, edgeSpace, tagIndex);
   }
 
   private void processExtendedRules(Collection<Rule> extendedRules){
@@ -95,13 +95,13 @@ public class Grammar {
     int numExtendedRules = 0;
     for (Rule extendedRule : extendedRules) {
       List<Integer> children = extendedRule.getChildren();
-      int motherState = stateSpace.indexOfTag(extendedRule.getMother()); 
-      assert(motherState == stateSpace.indexOf(extendedRule.getMotherEdge()));
+      int motherState = edgeSpace.indexOfTag(extendedRule.getMother()); 
+      assert(motherState == edgeSpace.indexOf(extendedRule.getMotherEdge()));
       assert(motherState >= 0);
       ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), Math.log(extendedRule.score))); // add log value here 
       
-      if (verbose >= 2) {
-        System.err.println("Add to trie: " + children + "\t" + (new Pair<Integer, Double>(motherState, Math.log(extendedRule.score))));
+      if (verbose >= 4) {
+        System.err.println("Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
       }
       if (verbose >= 1) {
         if(++numExtendedRules % 10000 == 0){
@@ -110,7 +110,7 @@ public class Grammar {
       }
     }
     
-    if (verbose >= 3) {
+    if (verbose >= 4) {
       System.err.println(Utility.sprint(extendedRules, wordIndex, tagIndex));
       System.err.println(ruleTrie.toString(wordIndex, tagIndex));
     }
@@ -120,78 +120,30 @@ public class Grammar {
   }
   
 
-  
-  /* safety check via assertion */
-  private boolean checkPredictions(Prediction[][] predictions) {
-    boolean result = true;
-    double[] predictedStateInnerProbs = new double[stateSpace.size()];
-    boolean[] existingPredictedStates = new boolean[stateSpace.size()];
-    for (int i = 0; i < predictions.length; i++) {
-      Prediction[] prediction = predictions[i];
-      
-      for (int j = 0; j < prediction.length; j++) {
-        Prediction p = prediction[j];
-        if (existingPredictedStates[p.predictedState]) {
-          if (Math.abs(predictedStateInnerProbs[p.predictedState] - p.innerProbMultiplier) > 0.00001) {
-            System.err.println("Error -- predicted-state " + stateSpace.get(p.predictedState) + "has inconsistent inner probability estimate of " + p.innerProbMultiplier);
-            result = false;
-          }
-        } else {
-          existingPredictedStates[p.predictedState] = true;
-          predictedStateInnerProbs[p.predictedState] = p.innerProbMultiplier;
-        }
-      }
-    }
-    return result;
-  }
-
-  /* check to see if any of the completions are invalid*/
-  private boolean checkCompletions() {
-    System.err.println("Checking validity of backward combinations ...");
-    boolean satisfied = true;
-    for (int i = 0; i < completions.length; i++) {
-      Completion[] backwardCombination = completions[i];
-      for (int j = 0; j < backwardCombination.length; j++) {
-        Completion combination = backwardCombination[j];
-        Edge active = stateSpace.get(combination.activeState);
-        Edge result = stateSpace.get(stateSpace.to(combination.activeState));
-        
-        // compare mother
-        if (active.getMother() != result.getMother()) {
-          System.err.println("Error -- mother categories of active edge " + active.toString(tagIndex, tagIndex) 
-              + " " + active + " and result " + result.toString(tagIndex, tagIndex) + " " + result + " are not identical");
-          satisfied = false;
-        }
-        
-        // compare children: children of active shifted 1 to the right should be equal to those of result
-        if (!active.getChildrenAfterDot(1).equals(result.getChildrenAfterDot(0))) {
-          System.err.println("Error -- dtrs lists of active edge " + active.toString(tagIndex, tagIndex)  + 
-              active + " and result " + result.toString(tagIndex, tagIndex) + result + " are not consistent.");
-          satisfied = false;
-        }
-      }
-    }
-    if (satisfied) {
-      System.err.println("All backward combinations are valid.");
-    }
-    return satisfied;
-  }
-
   /** Getters **/  
   public TrieSurprisal getRuleTrie() {
     return ruleTrie;
   }
   public Completion[] getCompletions(int pos) {
-    return completions[pos];
+    return completionsArray[pos];
   }
 
   public Prediction[] getPredictions(int pos) {
-    return predictions[pos];
+    return predictionsArray[pos];
   }
 
-  public EdgeSpace getStateSpace() {
-    return stateSpace;
+  public EdgeSpace getEdgeSpace() {
+    return edgeSpace;
   }
+  
+  public ClosureMatrix getLeftCornerClosures() {
+    return leftCornerClosures;
+  }
+
+  public ClosureMatrix getUnaryClosures() {
+    return unaryClosures;
+  }
+
 }
 
 /** Unused code **/

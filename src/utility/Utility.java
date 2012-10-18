@@ -11,7 +11,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +42,8 @@ import edu.stanford.nlp.util.Pair;
 
 public class Utility {
   public static DecimalFormat df = new DecimalFormat("0.0");
+  public static DecimalFormat df1 = new DecimalFormat("0.0000");
+  public static DecimalFormat df3 = new DecimalFormat("000");
 
   public static BufferedReader getBufferedReaderFromFile(String inFile) throws FileNotFoundException{
     return new BufferedReader(new InputStreamReader(new FileInputStream(inFile)));
@@ -47,12 +52,55 @@ public class Utility {
   public static BufferedReader getBufferedReaderFromString(String str) throws FileNotFoundException{
     return new BufferedReader(new StringReader(str));
   }
-  
+
+  public static int[][] permutationMatrix(int size){
+    // C(n, i): # ways of choosing i numbers from n numbers
+    // C(n, 0) = C(n, n) = 1
+    // C(n, i) = C(n-1, i) + C(n-1, i-1)
+    
+    int[][] c = new int[size+1][size+1];
+    
+    // init
+    for (int n = 0; n <=size; n++) {
+      c[n][0] = 1;
+      c[n][n] = 1;
+    }
+    
+    for (int n = 2; n<=size; n++) {
+      for (int i = 1; i < n; i++) {
+        c[n][i] = c[n-1][i] + c[n-1][i-1];
+      }
+    }
+    
+//    for (int i = 0; i < c.length; i++) {
+//      for (int j = 0; j <=i; j++) {
+//        System.err.print(df3.format(c[i][j]) + " ");
+//      }
+//      System.err.println();
+//    }
+    return c;
+  }
+  public static List<Integer> getNonterminals(Map<Integer, Integer> nonterminalMap){
+    List<Map.Entry<Integer, Integer>> list = new LinkedList<Map.Entry<Integer, Integer>>(nonterminalMap.entrySet());
+
+    Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>() {
+      public int compare(Map.Entry<Integer, Integer> m1, Map.Entry<Integer, Integer> m2) {
+        return (m1.getValue()).compareTo(m2.getValue());
+      }
+    });
+
+    List<Integer> result = new LinkedList<Integer>();
+    for (Map.Entry<Integer, Integer> entry : list) {
+        result.add(entry.getKey());
+    }
+    
+    return result;
+  }
   /**
    * returns a collection of scored rules corresponding to all non-terminal productions from a collection of trees.
    */
   public static Collection<Rule> rulesFromTrees(Collection<Tree> trees, 
-      Index<String> motherIndex, Index<String> childIndex, Set<Integer> nonterminals) {
+      Index<String> motherIndex, Index<String> childIndex, Map<Integer, Integer> nonterminalMap) {
     Collection<Rule> rules = new ArrayList<Rule>();
     TwoDimensionalCounter<Integer, List<Integer>> ruleCounts = 
       new TwoDimensionalCounter<Integer, List<Integer>>();
@@ -70,7 +118,9 @@ public class Utility {
             getChildrenFromTree(subTree.children(), childIndex));
         
         // add nonterminals
-        nonterminals.add(index);
+        if(!nonterminalMap.containsKey(index)){
+          nonterminalMap.put(index, nonterminalMap.size());
+        }
       }
     }
 
@@ -159,7 +209,7 @@ public class Utility {
    */
   public static Pair<Collection<Rule>, Collection<IntTaggedWord>> extractRulesWordsFromTreebank(
       Treebank treebank, Index<String> wordIndex, Index<String> tagIndex,
-      Set<Integer> nonterminals) {
+      Map<Integer, Integer> nonterminalMap) {
     Collection<IntTaggedWord> intTaggedWords = new ArrayList<IntTaggedWord>();
     Collection<Rule> rules = new ArrayList<Rule>();
     
@@ -175,7 +225,7 @@ public class Utility {
     }
     
     // build rules
-    rules.addAll(Utility.rulesFromTrees(trees, tagIndex, tagIndex, nonterminals));
+    rules.addAll(Utility.rulesFromTrees(trees, tagIndex, tagIndex, nonterminalMap));
     
     return new Pair<Collection<Rule>, Collection<IntTaggedWord>>(rules, intTaggedWords);
   }
@@ -216,28 +266,59 @@ public class Utility {
     outWriter.flush();
   }
   
-  public static void initToNegativeInfinity(double[] dl) {
+  public static void init(double[] dl, double value) {
     for (int i = 0; i < dl.length; i++) {
-      dl[i] = Double.NEGATIVE_INFINITY;
+      dl[i] = value;
     }
   }
   
-  public static void initToNegativeInfinity(double[][] dl) {
+  public static void init(double[][] dl, double value) {
     for (int i = 0; i < dl.length; i++) {
       double[] doubles = dl[i];
       for (int j = 0; j < doubles.length; j++) {
-        doubles[j] = Double.NEGATIVE_INFINITY;
+        doubles[j] = value;
       }
     }
   }
   
   /** Print to string methods **/
+  // print boolean array
+  public static String sprint(boolean[] values){
+    StringBuffer sb = new StringBuffer("[");
+    
+    if(values.length > 0){
+      for(boolean value : values){
+        sb.append(value + ", ");
+      }
+    }
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
+    return sb.toString();
+  }
+
+  public static String sprint(Index<String> index){
+    StringBuffer sb = new StringBuffer("[");
+    
+    if(index.size() > 0){
+      for (int i = 0; i < index.size(); i++) {
+        sb.append(index.get(i) + ", ");
+      }
+    }
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
+    return sb.toString();
+  }
+  
   public static String sprint(Map<Integer, Double> valueMap, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer("(");
     
     if(valueMap.size() > 0){
       for (int iT : valueMap.keySet()) {
-        sb.append(tagIndex.get(iT) + "=" + df.format(valueMap.get(iT)) + ", ");
+        double score = valueMap.get(iT);
+        if (score<=0){
+          score = Math.exp(score);
+        }
+        sb.append(tagIndex.get(iT) + "=" + df1.format(score) + ", ");
       }
       sb.delete(sb.length()-2, sb.length());
     }
@@ -246,10 +327,10 @@ public class Utility {
   }
   
   // print Prediction[]
-  public static String sprint(Prediction[] predictions, EdgeSpace stateSpace, Index<String> tagIndex){
+  public static String sprint(Prediction[] predictions, EdgeSpace edgeSpace, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer("(");
     for(Prediction prediction : predictions){
-      sb.append(prediction.toString(stateSpace, tagIndex) + ", ");
+      sb.append(prediction.toString(edgeSpace, tagIndex) + ", ");
     }
     if (predictions.length > 0) {
       sb.delete(sb.length()-2, sb.length());
@@ -259,24 +340,26 @@ public class Utility {
   }
 
   // print Completion[]
-  public static String sprint(Completion[] completions, EdgeSpace stateSpace, Index<String> tagIndex){
-    StringBuffer sb = new StringBuffer("(");
+  public static String sprint(Completion[] completions, EdgeSpace edgeSpace, Index<String> tagIndex){
+    StringBuffer sb = new StringBuffer("[");
     for(Completion completion : completions){
-      sb.append(completion.toString(stateSpace, tagIndex) + ", ");
+      sb.append(completion.toString(edgeSpace, tagIndex) + ", ");
     }
     if (completions.length > 0) {
       sb.delete(sb.length()-2, sb.length());
     }
-    sb.append(")");
+    sb.append("]");
     return sb.toString();
   }
   
   public static String sprint(Index<String> tagIndex, Collection<Integer> indices){
-    StringBuffer sb = new StringBuffer();
+    StringBuffer sb = new StringBuffer("[");
     for(int index : indices){
-      sb.append("(" + index + ", " + tagIndex.get(index) + ") ");
+      //sb.append("(" + index + ", " + tagIndex.get(index) + ") ");
+      sb.append(tagIndex.get(index) + ", ");
     }
-    sb.deleteCharAt(sb.length()-1);
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
     return sb.toString();
   }
   
@@ -337,6 +420,17 @@ public class Utility {
       sb.append("}, ");
     }
     sb.delete(sb.length()-2, sb.length());
+    return sb.toString();
+  }
+  
+  public static String sprint(Set<IntTaggedWord> itws, 
+      Index<String> wordIndex, Index<String> tagIndex){
+    StringBuffer sb = new StringBuffer("[");
+    for(IntTaggedWord itw : itws){
+      sb.append(itw.toString(wordIndex, tagIndex) + ", ");
+    }
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
     return sb.toString();
   }
   

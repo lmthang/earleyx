@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import recursion.ClosureMatrix;
 import utility.Utility;
@@ -47,7 +46,9 @@ public class Prediction {
    */
   public static Prediction[][] constructPredictions(Collection<Rule> rules,
       ClosureMatrix leftCornerClosures, 
-      EdgeSpace stateSpace, Index<String> tagIndex){
+      EdgeSpace stateSpace, Index<String> tagIndex, List<Integer> nonterminals){
+    // Note: we used list for nonterminals instead of set, to ensure a fixed order for debug purpose
+    
     // indexed by non-terminal index, predictions for Z
     Prediction[][] predictionsVia = new Prediction[tagIndex.size()][]; 
     
@@ -61,8 +62,9 @@ public class Prediction {
     
     
     /** Construct predictions via states**/
-    Set<Integer> activeIndices = stateSpace.getActiveIndices(); // those that has at least 1 non-terminal left-corner child 
-    for (int viaCategoryIndex : activeIndices) { // Z 
+    //Set<Integer> activeIndices = stateSpace.getActiveIndices(); // those that has at least 1 non-terminal left-corner child 
+    //for (int viaCategoryIndex : activeIndices) { // Z
+    for (int viaCategoryIndex : nonterminals) { // Z
       //System.err.println(viaCategoryIndex + "\t" + stateSpace.get(viaCategoryIndex).numChildren() + "\t" + stateSpace.get(stateSpace.indexOfTag(viaCategoryIndex)).getMother());
       assert(stateSpace.get(stateSpace.indexOfTag(viaCategoryIndex)).getMother()==viaCategoryIndex);
       if(verbose >= 2){
@@ -75,6 +77,7 @@ public class Prediction {
         if (r.isUnary()) {
           continue;
         }
+        
         assert(r.getScore()>=0 && r.getScore()<=1);
         double rewriteScore = Math.log(r.score);
         
@@ -119,12 +122,13 @@ public class Prediction {
         assert(stateSpace.get(viaState).numChildren()==0);
         assert(stateSpace.get(predictorState).getChildAfterDot(0) == viaCategoryIndex);
         
-        if (activeIndices.contains(viaCategoryIndex)){
+        //if (activeIndices.contains(viaCategoryIndex)){
+        if (nonterminals.contains(viaCategoryIndex)){
           predictions[predictorState] = predictionsVia[viaCategoryIndex];
           
-          if(verbose>=3){
-            System.err.println(predictorState + "\t" + stateSpace.get(predictorState).toString(tagIndex, tagIndex)
-                + "\t" + Utility.sprint(predictions[predictorState], stateSpace, tagIndex));
+          if(verbose>=4){
+            System.err.println("Edge " + predictorState + ", " + stateSpace.get(predictorState).toString(tagIndex, tagIndex)
+                + ": predictions " + Utility.sprint(predictions[predictorState], stateSpace, tagIndex));
           }
         } else {
           predictions[predictorState] = NO_PREDICTION;
@@ -140,6 +144,30 @@ public class Prediction {
     }
     
     return predictions;
+  }
+  
+  /* safety check via assertion */
+  public static boolean checkPredictions(Prediction[][] predictionsArray, EdgeSpace edgeSpace) {
+    boolean satisfied = true;
+    double[] predictedStateInnerProbs = new double[edgeSpace.size()];
+    boolean[] existingPredictedStates = new boolean[edgeSpace.size()];
+    for (int i = 0; i < predictionsArray.length; i++) {
+      Prediction[] predictions = predictionsArray[i];
+      
+      for (int j = 0; j < predictions.length; j++) {
+        Prediction prediction = predictions[j];
+        if (existingPredictedStates[prediction.predictedState]) {
+          if (Math.abs(predictedStateInnerProbs[prediction.predictedState] - prediction.innerProbMultiplier) > 0.00001) {
+            System.err.println("Error -- predicted-state " + edgeSpace.get(prediction.predictedState) + "has inconsistent inner probability estimate of " + prediction.innerProbMultiplier);
+            satisfied = false;
+          }
+        } else {
+          existingPredictedStates[prediction.predictedState] = true;
+          predictedStateInnerProbs[prediction.predictedState] = prediction.innerProbMultiplier;
+        }
+      }
+    }
+    return satisfied;
   }
   
   public boolean equals(Object o) {
@@ -174,7 +202,10 @@ public class Prediction {
   }
 
   public String toString(EdgeSpace stateSpace, Index<String> tagIndex) {
-    return "(" + stateSpace.get(predictedState).toString(tagIndex, tagIndex) + ",f=" + df.format(Math.exp(forwardProbMultiplier)) + ",i=" 
+    //assert(forwardProbMultiplier<=0);
+    //assert(innerProbMultiplier<=0);
+    return "(" + stateSpace.get(predictedState).toString(tagIndex, tagIndex) 
+    + ",f=" + df.format(Math.exp(forwardProbMultiplier)) + ",i=" 
     + df.format(Math.exp(innerProbMultiplier)) + ")";
   }
 

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,14 +49,14 @@ public class PredictionTest extends TestCase {
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
-    Set<Integer> nonterminals = new HashSet<Integer>();
+    Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     
     
     
     try {
       RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleString), 
           rules, extendedRules, tag2wordsMap, word2tagsMap, 
-          nonterminals, wordIndex, tagIndex);
+          nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
@@ -65,18 +64,20 @@ public class PredictionTest extends TestCase {
 
     // statespace
     EdgeSpace stateSpace = new EdgeSpace(tagIndex);
-    stateSpace.addRules(rules);
+    stateSpace.build(rules);
     
     // closure matrix
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
-    DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminals);
+    DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminalMap);
     ClosureMatrix leftCornerClosures = new ClosureMatrix(pl);
+    leftCornerClosures.changeIndices(nonterminalMap);
     
-    Prediction[][] predictions = Prediction.constructPredictions(rules, leftCornerClosures, stateSpace, tagIndex);
+    Prediction[][] predictions = Prediction.constructPredictions(rules, leftCornerClosures, stateSpace, tagIndex,
+        Utility.getNonterminals(nonterminalMap));
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < predictions.length; i++) {
       sb.append(stateSpace.get(i).toString(tagIndex, tagIndex) + ", " + Utility.sprint(predictions[i], stateSpace, tagIndex) + "\n");
     }
-    assertEquals(sb.toString(), "ROOT -> ., ()\nROOT -> . A, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nA -> ., ()\nA -> . A B, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nA -> A . B, ((B -> . D E,f=0.8511,i=0.8000))\nB -> ., ()\nA -> . B C, ((B -> . D E,f=0.8511,i=0.8000))\nA -> B . C, ((B -> . D E,f=0.2553,i=0.8000))\nC -> ., ()\nA -> . A1, ()\nA1 -> ., ()\nA1 -> . A2, ()\nA2 -> ., ()\nB -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nB -> . D E, ()\nD -> ., ()\nB -> D . E, ()\nE -> ., ()\nC -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nC -> . D, ()\n");    
+    assertEquals(sb.toString(), "ROOT -> . A, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nROOT -> ., ()\nA -> ., ()\nA -> . A B, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nA -> A . B, ((B -> . D E,f=0.8511,i=0.8000))\nB -> ., ()\nA -> . B C, ((B -> . D E,f=0.8511,i=0.8000))\nA -> B . C, ((B -> . D E,f=0.2553,i=0.8000))\nC -> ., ()\nA -> . A1, ()\nA1 -> ., ()\nA1 -> . A2, ()\nA2 -> ., ()\nB -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nB -> . D E, ()\nD -> ., ()\nB -> D . E, ()\nE -> ., ()\nC -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nC -> . D, ()\n");    
   }
 }

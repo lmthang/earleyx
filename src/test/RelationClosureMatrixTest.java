@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,14 +43,14 @@ public class RelationClosureMatrixTest extends TestCase{
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
-    Set<Integer> nonterminals = new HashSet<Integer>();
+    Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     
     
     
     try {
       RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleString), 
           rules, extendedRules, tag2wordsMap, word2tagsMap, 
-          nonterminals, wordIndex, tagIndex);
+          nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
@@ -64,30 +63,15 @@ public class RelationClosureMatrixTest extends TestCase{
     assertEquals(tagIndex.toString(), "[0=ROOT,1=A,2=B,3=C,4=D,5=E]");
     
     /* do left-corner closures matrix */
-    DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminals);
-    assertEquals(Utility.sprint(pl), "0.0 1.0 0.0 0.0 0.0 0.0\n0.0 0.1 0.1 0.0 0.0 0.0\n0.0 0.0 0.0 0.2 0.0 0.0\n0.0 0.0 0.3 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0");
+    DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminalMap);
+    assertEquals(Utility.sprint(pl), "0.0 1.0 0.0 0.0\n0.0 0.1 0.1 0.0\n0.0 0.0 0.0 0.2\n0.0 0.0 0.3 0.0");
     ClosureMatrix leftCornerClosures = new ClosureMatrix(pl);
-    assertEquals(Utility.sprint(leftCornerClosures.getClosureMatrix()), "0.0 0.10536051565782635 -2.135349173618132 -3.744787086052232 -Infinity -Infinity\n-Infinity 0.10536051565782635 -2.135349173618132 -3.744787086052232 -Infinity -Infinity\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013 -Infinity -Infinity\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745 -Infinity -Infinity");
-    System.err.println(Utility.sprint(leftCornerClosures.getClosureMatrix()));
+    leftCornerClosures.changeIndices(nonterminalMap);
+    assertEquals(Utility.sprint(leftCornerClosures.getClosureMatrix()), "0.0 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745");
+    
     // Matlab code
     // a = [0 1 0 0 0 0; 0 0.1 0.1 0 0 0; 0 0 0 0.2 0 0; 0 0 0.3 0 0 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
     // log((eye(6)-a)^(-1))
-    int dIndex = tagIndex.indexOf("D");
-    int eIndex = tagIndex.indexOf("E");
-    for (int i = 0; i < tagIndex.size(); i++) {
-      double dScore = leftCornerClosures.get(dIndex, i);
-      double eScore = leftCornerClosures.get(eIndex, i);
-      if (i==dIndex){
-        assertEquals(dScore, 0.0);
-        assertEquals(eScore, Double.NEGATIVE_INFINITY);
-      } else if (i==eIndex){
-        assertEquals(dScore, Double.NEGATIVE_INFINITY);
-        assertEquals(eScore, 0.0);
-      } else {
-        assertEquals(dScore, Double.NEGATIVE_INFINITY);
-        assertEquals(eScore, Double.NEGATIVE_INFINITY);
-      }
-    }
     
     /* do unary closure matrix */
     DoubleMatrix2D pu = relationMatrix.getPU(rules); //, nontermPretermIndexer);
@@ -101,24 +85,10 @@ public class RelationClosureMatrixTest extends TestCase{
     int aIndex = tagIndex.indexOf("A");
     for (int i = 0; i < tagIndex.size(); i++) {
       double aScore = unaryClosures.get(aIndex, i);
-      double dScore = unaryClosures.get(dIndex, i);
-      double eScore = unaryClosures.get(eIndex, i);
-      if (i==dIndex){
-        assertEquals(aScore, Double.NEGATIVE_INFINITY);
-        assertEquals(dScore, 0.0);
-        assertEquals(eScore, Double.NEGATIVE_INFINITY);
-      } else if (i==eIndex){
-        assertEquals(aScore, Double.NEGATIVE_INFINITY);
-        assertEquals(dScore, Double.NEGATIVE_INFINITY);
-        assertEquals(eScore, 0.0);
-      } else if (i==aIndex){
+      if (i==aIndex){
         assertEquals(aScore, 0.0);
-        assertEquals(dScore, Double.NEGATIVE_INFINITY);
-        assertEquals(eScore, Double.NEGATIVE_INFINITY);
       } else {
         assertEquals(aScore, Double.NEGATIVE_INFINITY);
-        assertEquals(dScore, Double.NEGATIVE_INFINITY);
-        assertEquals(eScore, Double.NEGATIVE_INFINITY);
       }
     }
   }

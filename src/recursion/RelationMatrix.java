@@ -1,9 +1,10 @@
 package recursion;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.Map;
 
 import parser.Rule;
+import utility.Utility;
 
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.RCDoubleMatrix2D;
@@ -30,24 +31,33 @@ public class RelationMatrix {
    * @param categories
    * @return pl (sparse matrix)
    */
-  public DoubleMatrix2D getPL(Collection<Rule> rules, Set<Integer> nonterminals) {
-    int numRows = tagIndex.size(); // categories.size();
+  public DoubleMatrix2D getPL(Collection<Rule> rules, Map<Integer, Integer> nonterminalMap) {
+    int numRows = nonterminalMap.size(); //tagIndex.size(); // categories.size();
     DoubleMatrix2D pl = new RCDoubleMatrix2D(numRows, numRows);
     
     if(verbose >= 1){
       System.err.println("\n# Construct left-corner relation matrix " + numRows + " x " + numRows);
       Timing.startTime();
-      //System.err.println("Categories: " + getCategoryToString(categories));
+      if(verbose>=2){
+        System.err.println(Utility.sprint(tagIndex, Utility.getNonterminals(nonterminalMap)));
+      }
     }
     
     int numRules = 0;
     for (Rule r:rules) {
       int firstChild = r.getChild(0); //categories.indexOf(stateSpace.indexOf(r.getChildEdge(0)));
-      if (nonterminals.contains(firstChild)) { // if the first child is a non-terminal
+      if (nonterminalMap.containsKey(firstChild)) { // if the first child is a non-terminal
+        assert(nonterminalMap.containsKey(r.getMother()));
         assert(r.getScore()>=0);
+        
         numRules++;
         int mother = r.getMother(); //categories.indexOf(stateSpace.indexOf(r.getMotherEdge()));
-        pl.set(mother, firstChild, pl.get(mother, firstChild) + r.getScore()); // note of + sign here
+        
+        // change indices
+        int newFirstChild = nonterminalMap.get(firstChild);
+        int newMother = nonterminalMap.get(mother);
+        //pl.set(mother, firstChild, pl.get(mother, firstChild) + r.getScore()); // note of + sign here
+        pl.set(newMother, newFirstChild, pl.get(newMother, newFirstChild) + r.getScore()); // note of + sign here
         
         if(verbose >= 1){
           if(numRules % 10000 == 0){
@@ -57,7 +67,8 @@ public class RelationMatrix {
         if(verbose >= 3){
           System.err.println("Rule: " + r.toString(tagIndex, tagIndex) + ", score " + 
               tagIndex.get(mother) + " -> " + tagIndex.get(firstChild) 
-              + " " + pl.get(mother, firstChild));
+              //+ " " + pl.get(mother, firstChild));
+              + " " + pl.get(newMother, newFirstChild));
         }
       }
     }
@@ -86,7 +97,9 @@ public class RelationMatrix {
     if(verbose >= 1){
       System.err.println("\n# Construct unit-production relation matrix " + numRows + " x " + numRows);
       Timing.startTime();
-      //System.err.println("Categories: " + getCategoryToString(allNontermCategories));
+      if(verbose>=2){
+        System.err.println(Utility.sprint(tagIndex));
+      }
     }
     
     for (Rule r:rules) {

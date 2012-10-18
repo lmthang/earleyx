@@ -36,7 +36,7 @@ public class RuleFile {
       Collection<Rule> extendedRules, // e.g. adaptor grammar rules, i.e. approximating pcfg with sequence of terminals on the rhs
       Map<Integer, Counter<Integer>> tag2wordsMap,
       Map<Integer, Set<IntTaggedWord>> word2tagsMap,
-      Set<Integer> nonterminals,
+      Map<Integer, Integer> nonterminalMap,
       Index<String> wordIndex,
       Index<String> tagIndex
       ) throws IOException{
@@ -45,7 +45,9 @@ public class RuleFile {
     if (verbose>=1){
       System.err.print("# Parsing rule data ...");
     }
+    
     int count = 0;
+    
     while ((inputLine = br.readLine()) != null){
       count++;
 
@@ -77,7 +79,9 @@ public class RuleFile {
           int iW = wordIndex.indexOf(children[0].substring(1), true);
           addWord(iW, iT, prob, tag2wordsMap, word2tagsMap); //, nonterminals, tagHash, seenEnd);
         } else { // rule
-          nonterminals.add(iT);
+          if(!nonterminalMap.containsKey(iT)){
+            nonterminalMap.put(iT, nonterminalMap.size());
+          }
           
           // child indices
           List<Integer> childIndices = new ArrayList<Integer>();
@@ -268,7 +272,7 @@ public class RuleFile {
     // extract rules and taggedWords from grammar file
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
-    Set<Integer> nonterminals = new HashSet<Integer>();
+    Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     Collection<Rule> rules = new ArrayList<Rule>();
@@ -277,7 +281,7 @@ public class RuleFile {
     /* Input */
     try {
       RuleFile.parseRuleFile(Utility.getBufferedReaderFromFile(ruleFile), rules, extendedRules, tag2wordsMap, 
-          word2tagsMap, nonterminals, wordIndex, tagIndex); //, tagHash, seenEnd); // we don't care much about extended rules, just treat them as rules
+          word2tagsMap, nonterminalMap, wordIndex, tagIndex); //, tagHash, seenEnd); // we don't care much about extended rules, just treat them as rules
       //rules.addAll(extendedRules);
     } catch (IOException e){
       System.err.println("Can't read rule file: " + ruleFile);

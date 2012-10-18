@@ -23,7 +23,7 @@ interface Lexicon {
 
  
   /* handle OOV word */
-  public static String UNKNOWN_WORD = "UNKNOWN"; 
+  public static String UNKNOWN_WORD = "UNK"; 
   
   //public static IntTaggedWord UNKNOWN_WORD_ITW = new IntTaggedWord(UNKNOWN_WORD, IntTaggedWord.ANY);
   //public static IntTaggedWord UNKNOWN_TAG_ITW = new IntTaggedWord(IntTaggedWord.ANY, "$" + UNKNOWN_WORD);

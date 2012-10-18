@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,20 +48,20 @@ public class GrammarTest extends TestCase{
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
-    Set<Integer> nonterminals = new HashSet<Integer>();
+    Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     
     
     
     try {
       RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleString), 
           rules, extendedRules, tag2wordsMap, word2tagsMap, 
-          nonterminals, wordIndex, tagIndex);
+          nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
     }
   
-    Grammar g = new Grammar(wordIndex, tagIndex, nonterminals);
+    Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap);
     g.learnGrammar(rules, extendedRules);
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\nd:prefix={A=-0.9}\n e:prefix={A=-0.9}, end={A=-0.9}");
  
@@ -99,23 +98,24 @@ public class GrammarTest extends TestCase{
     extendedRules.add(achefNP);
     extendedRules.add(thechefNP);
     extendedRules.add(asoupNP);
-    extendedRules.add(cooksoupVP)
-    ;
-    Set<Integer> nonterminals = new HashSet<Integer>();
+    extendedRules.add(cooksoupVP);
+    Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     for (int i = 0; i < tagIndex.size(); i++) {
       String tag = tagIndex.get(i);
       if(!tag.equals("a") && !tag.equals("the") && !tag.equals("chef") && !tag.equals("cook") && !tag.equals("soup")){
-        nonterminals.add(i);
+        if(!nonterminalMap.containsKey(i)){
+          nonterminalMap.put(i, nonterminalMap.size());
+        }
       }
     }
 
-    Grammar g = new Grammar(wordIndex, tagIndex, nonterminals);
+    Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap);
     g.learnGrammar(rules, extendedRules);
     
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\na:prefix={NP=-1.6}\n chef:prefix={NP=-1.9}, end={NP=-1.9}\n soup:prefix={NP=-3.0}, end={NP=-3.0}\nthe:prefix={NP=-2.3}\n chef:prefix={NP=-2.3}, end={NP=-2.3}\ncook:prefix={VP=-2.3}\n soup:prefix={VP=-2.3}, end={VP=-2.3}");
  
     Edge r = new Edge(new BaseEdge("PP", new ArrayList<String>(), tagIndex, wordIndex), 0);
-    assertEquals(Utility.sprint(g.getCompletions(g.getStateSpace().indexOf(r)), g.getStateSpace(), tagIndex), "((NP -> NP . PP, NP -> ., 0.0408219945202552), (VP -> V . NP, VP -> ., -2.26176309847379), (NP -> . NP PP, NP -> NP . PP, -2.26176309847379), (S -> . NP VP, S -> NP . VP, -2.26176309847379), (PP -> P . NP, PP -> ., -2.26176309847379))");
+    assertEquals(Utility.sprint(g.getCompletions(g.getEdgeSpace().indexOf(r)), g.getEdgeSpace(), tagIndex), "[(NP -> NP . PP, NP -> ., 1.0416666666666667), (VP -> V . NP, VP -> ., 0.1041666666666667), (NP -> . NP PP, NP -> NP . PP, 0.1041666666666667), (PP -> P . NP, PP -> ., 0.1041666666666667), (S -> . NP VP, S -> NP . VP, 0.1041666666666667)]");
 
   }
 }

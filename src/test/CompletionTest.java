@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,14 +48,14 @@ public class CompletionTest extends TestCase{
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
-    Set<Integer> nonterminals = new HashSet<Integer>();
+    Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     
     
     
     try {
       RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleString), 
           rules, extendedRules, tag2wordsMap, word2tagsMap, 
-          nonterminals, wordIndex, tagIndex);
+          nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
@@ -64,7 +63,7 @@ public class CompletionTest extends TestCase{
 
     // statespace
     EdgeSpace stateSpace = new EdgeSpace(tagIndex);
-    stateSpace.addRules(rules);
+    stateSpace.build(rules);
     
     ClosureMatrix.verbose = 3;
     Completion.verbose = 3;
@@ -82,6 +81,6 @@ public class CompletionTest extends TestCase{
         sb.append(stateSpace.get(i).toString(tagIndex, tagIndex) + ", " + Utility.sprint(completions[i], stateSpace, tagIndex) + "\n");
       }
     }
-    assertEquals(sb.toString(), "A -> ., ((A -> . A B, A -> A . B, 0.0), (ROOT -> . A, ROOT -> ., 0.0))\nB -> ., ((A -> . B C, A -> B . C, 0.06187540371808745), (A -> A . B, A -> ., 0.06187540371808745), (C -> . B, C -> ., 0.06187540371808745), (A -> B . C, A -> ., -1.1420974006078486), (B -> . C, B -> ., -1.1420974006078486))\nC -> ., ((B -> . C, B -> ., 0.06187540371808745), (A -> B . C, A -> ., 0.06187540371808745), (A -> A . B, A -> ., -1.547562508716013), (A -> . B C, A -> B . C, -1.547562508716013), (C -> . B, C -> ., -1.547562508716013))\nA1 -> ., ((A -> . A1, A -> ., 0.0), (A -> . A B, A -> A . B, -1.2039728043259361), (ROOT -> . A, ROOT -> ., -1.2039728043259361))\nA2 -> ., ((A1 -> . A2, A1 -> ., 0.0), (A -> . A1, A -> ., 0.0), (A -> . A B, A -> A . B, -1.2039728043259361), (ROOT -> . A, ROOT -> ., -1.2039728043259361))\nD -> ., ((B -> . D E, B -> D . E, 0.0), (B -> . C, B -> ., -0.294799540220645), (A -> B . C, A -> ., -0.294799540220645), (C -> . D, C -> ., 0.0), (A -> A . B, A -> ., -1.9042374526547454), (A -> . B C, A -> B . C, -1.9042374526547454), (C -> . B, C -> ., -1.9042374526547454))\nE -> ., ((B -> D . E, B -> ., 0.0))\n");    
+    assertEquals(sb.toString(), "A -> ., [(A -> . A B, A -> A . B, 1.0), (ROOT -> . A, ROOT -> ., 1.0)]\nB -> ., [(A -> . B C, A -> B . C, 1.0638297872340425), (A -> A . B, A -> ., 1.0638297872340425), (C -> . B, C -> ., 1.0638297872340425), (A -> B . C, A -> ., 0.3191489361702127), (B -> . C, B -> ., 0.3191489361702127)]\nC -> ., [(B -> . C, B -> ., 1.0638297872340425), (A -> B . C, A -> ., 1.0638297872340425), (A -> A . B, A -> ., 0.21276595744680848), (A -> . B C, A -> B . C, 0.21276595744680848), (C -> . B, C -> ., 0.21276595744680848)]\nA1 -> ., [(A -> . A1, A -> ., 1.0), (A -> . A B, A -> A . B, 0.29999999999999993), (ROOT -> . A, ROOT -> ., 0.29999999999999993)]\nA2 -> ., [(A1 -> . A2, A1 -> ., 1.0), (A -> . A1, A -> ., 1.0), (A -> . A B, A -> A . B, 0.29999999999999993), (ROOT -> . A, ROOT -> ., 0.29999999999999993)]\nD -> ., [(B -> . D E, B -> D . E, 1.0), (B -> . C, B -> ., 0.7446808510638298), (A -> B . C, A -> ., 0.7446808510638298), (C -> . D, C -> ., 1.0), (A -> A . B, A -> ., 0.14893617021276595), (A -> . B C, A -> B . C, 0.14893617021276595), (C -> . B, C -> ., 0.14893617021276595)]\nE -> ., [(B -> D . E, B -> ., 1.0)]\n");    
   }
 }

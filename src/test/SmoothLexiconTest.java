@@ -3,6 +3,8 @@ package test;
 import java.util.LinkedList;
 import java.util.List;
 
+import utility.Utility;
+
 
 import junit.framework.TestCase;
 import lexicon.SmoothLexicon;
@@ -39,24 +41,33 @@ public class SmoothLexiconTest extends TestCase{
     IntTaggedWord ddTagD = new IntTaggedWord("dd", "TagD", wordIndex, tagIndex);
     IntTaggedWord dbbTagB = new IntTaggedWord("dbb", "TagB", wordIndex, tagIndex);
     IntTaggedWord c123TagC = new IntTaggedWord("c123", "TagC", wordIndex, tagIndex);
-    IntTaggedWord eTagE = new IntTaggedWord("e", "TagE", wordIndex, tagIndex);
+    //IntTaggedWord eTagE = new IntTaggedWord("e", "TagE", wordIndex, tagIndex);
     testITWs.add(ddTagD);
     testITWs.add(dbbTagB);
     testITWs.add(c123TagC);
-    testITWs.add(eTagE);
+    //testITWs.add(eTagE);
 
-    assertEquals(sl.tagsForWord("c").toString(), "[2/2, 2/3]");
-    assertEquals(sl.tagsForWord("ccc").toString(), "[5/4, 5/1, 5/0, 5/3, 5/2]");
-    assertEquals(wordIndex.toString(), "[0=a,1=cbb,2=c,3=D,4=c12,5=UNKNOWN,6=UNK-cbb,7=UNK-cc,8=UNK-c12,9=UNK-CD,10=dd,11=dbb,12=c123,13=e,14=ccc,15=UNK-ccc]");
-    assertEquals(tagIndex.toString(), "[0=TagA,1=TagB,2=TagC,3=TagF,4=TagD,5=TagE]");
+    assertEquals(wordIndex.toString(), "[0=a,1=cbb,2=c,3=D,4=c12,5=UNK,6=UNK-LC,7=UNK-LC-DIG,8=UNK-ALLC,9=dd,10=dbb,11=c123]"); //,13=e]");
+    assertEquals(tagIndex.toString(), "[0=TagA,1=TagB,2=TagC,3=TagF,4=TagD]"); //,5=TagE]");
+    
+    assertEquals(Utility.sprint(sl.tagsForWord("c"), wordIndex, tagIndex), "[c/TagC, c/TagF]");
+    //assertEquals(sl.tagsForWord("c").toString(), "[2/2, 2/3]");
+    
+    assertEquals(Utility.sprint(sl.tagsForWord("ccc"), wordIndex, tagIndex), "[ccc/TagD, ccc/TagA, ccc/TagB, ccc/TagC, ccc/TagF]");    
+    //assertEquals(sl.tagsForWord("ccc").toString(), "[5/4, 5/1, 5/0, 5/3, 5/2]");
+    
 
+    assertEquals(wordIndex.toString(), "[0=a,1=cbb,2=c,3=D,4=c12,5=UNK,6=UNK-LC,7=UNK-LC-DIG,8=UNK-ALLC,9=dd,10=dbb,11=c123,12=ccc]"); //13=e,14=ccc]");
+    
     List<Double> lexScores = new LinkedList<Double>();
     for(IntTaggedWord iTW : trainITWs){
       lexScores.add(sl.score(iTW));
+      System.err.println(iTW.toString(wordIndex, tagIndex) + "\t" + sl.score(iTW));
     }
-    
+    System.err.println();
     for (IntTaggedWord iTW : testITWs) {
       lexScores.add(sl.score(iTW));
+      System.err.println(iTW.toString(wordIndex, tagIndex) + "\t" + sl.score(iTW));
     }
     
     assertEquals(-0.4054651, lexScores.get(0), 1e-5);
@@ -66,9 +77,9 @@ public class SmoothLexiconTest extends TestCase{
     assertEquals(-0.4054651, lexScores.get(4), 1e-5);
     assertEquals(-1.0986123, lexScores.get(5), 1e-5);
     assertEquals(-1.609438, lexScores.get(6), 1e-5);
-    assertEquals(-1.0986123, lexScores.get(7), 1e-5);
+    assertEquals(0.0, lexScores.get(7), 1e-5);
     assertEquals(-1.0986123, lexScores.get(8), 1e-5);
     assertEquals(-1.609438, lexScores.get(9), 1e-5);
-    assertEquals(Float.NEGATIVE_INFINITY, lexScores.get(10), 1e-5);
+    //assertEquals(Float.NEGATIVE_INFINITY, lexScores.get(10), 1e-5);
   }
 }

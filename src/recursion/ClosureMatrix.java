@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import cern.colt.function.DoubleFunction;
 import cern.colt.matrix.DoubleMatrix2D;
@@ -30,11 +29,15 @@ public class ClosureMatrix {
   /* for matrix operation */
   private static Algebra alg = new Algebra();
   private Map<Integer, Integer> rowIndexMap; // keep track of non-zero rows in pu matrix, non-zero row index -> linear id
+  private Map<Integer, Integer> colIndexMap; // map from indices to real matrix column indices
   private DoubleMatrix2D closureMatrix;
 
   public ClosureMatrix(DoubleMatrix2D relationMatrix) {
     rowIndexMap = new HashMap<Integer, Integer>();
-    
+    colIndexMap = new HashMap<Integer, Integer>();
+    for (int i = 0; i < relationMatrix.columns(); i++) {
+      colIndexMap.put(i, i); // identity, will be non-trivial when changeIndices() is called
+    }
     if (verbose >= 1) {
       System.err.println("\n# Building closure matrix...");
       Timing.startTime();
@@ -52,18 +55,51 @@ public class ClosureMatrix {
     }  
   }
 
-  public Set<Integer> getNonZeroRowIndices(){
-    return rowIndexMap.keySet();
+  /**
+   * if indexMap(i) = j, after changing indices, we could use get(i, i)
+   * to refer to the value returned by get(j, j) previously 
+   * @param indexMap
+   */
+  public void changeIndices(Map<Integer, Integer> indexMap){
+    Map<Integer, Integer> newRowIndexMap = new HashMap<Integer, Integer>();
+    Map<Integer, Integer> newColIndexMap = new HashMap<Integer, Integer>();
+    for(int key : indexMap.keySet()){
+      int value = indexMap.get(key);
+      
+      // indexMap: newIndex -> oldIndex row/colIndexMap: oldIndex -> real row/col index
+      if(rowIndexMap.containsKey(value)){
+        newRowIndexMap.put(key, rowIndexMap.get(value));
+      }
+      if(colIndexMap.containsKey(value)){
+        newColIndexMap.put(key, colIndexMap.get(value));
+      }
+    }
+    rowIndexMap = newRowIndexMap;
+    colIndexMap = newColIndexMap;
+    
+    if(verbose>=2){
+      System.err.println("new row map: " + newRowIndexMap);
+      System.err.println("new col map: " + newColIndexMap);
+    }
   }
   
+//  public Set<Integer> getNonZeroRowIndices(){
+//    return rowIndexMap.keySet();
+//  }
+//  
   public boolean containsRow(int rowIndex){
     return rowIndexMap.containsKey(rowIndex);
   }
   
   public double get(int rowIndex, int colIndex){
+    if(!colIndexMap.containsKey(colIndex)){ // no such column
+      return Double.NEGATIVE_INFINITY;
+    }
+    
     if(rowIndexMap.containsKey(rowIndex)){
       int compressedRowIndex = rowIndexMap.get(rowIndex);
-      return closureMatrix.get(compressedRowIndex, colIndex);
+      int compressedColIndex = colIndexMap.get(colIndex);
+      return closureMatrix.get(compressedRowIndex, compressedColIndex);
     } else if(rowIndex == colIndex){ // return log(1) since we add I
       return 0;
     } else { // return log(0)

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,14 +57,14 @@ public class RuleFileTest extends TestCase{
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
-    Set<Integer> nonterminals = new HashSet<Integer>();
+    Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     
     
     
     try {
       RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleString), 
           rules, extendedRules, tag2wordsMap, word2tagsMap, 
-          nonterminals, wordIndex, tagIndex);
+          nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
@@ -77,7 +76,7 @@ public class RuleFileTest extends TestCase{
     assertEquals(Utility.sprint(rules, wordIndex, tagIndex), "[ROOT->[A] : 1.0, A->[B C] : 0.4, A->[D B] : 0.4]");
     assertEquals(Utility.sprint(extendedRules, wordIndex, tagIndex), "[A->[_b _c] : 0.1, A->[_d _b] : 0.1]");
     
-    assertEquals(Utility.sprint(tagIndex, nonterminals), "(0, ROOT) (1, A)");
+    assertEquals(Utility.sprint(tagIndex, nonterminalMap.keySet()), "[ROOT, A]");
     assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=0.9, UNK=0.1}, C={c=0.9, UNK=0.1}, D={d=0.8, UNK=0.1, UNK-1=0.1}");
     assertEquals(Utility.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, c=[c/C}, d=[d/D}, UNK=[UNK/C, UNK/B, UNK/D}, UNK-1=[UNK-1/D}");
   }
@@ -85,7 +84,7 @@ public class RuleFileTest extends TestCase{
   public void testRuleSmoothing(){
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
-    Set<Integer> nonterminals = new HashSet<Integer>();
+    Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     Collection<Rule> rules = new ArrayList<Rule>();
@@ -94,7 +93,7 @@ public class RuleFileTest extends TestCase{
     /* Input */
     try {
       RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleStringNoSmooth), rules, extendedRules, tag2wordsMap, 
-          word2tagsMap, nonterminals, wordIndex, tagIndex); // we don't care much about extended rules, just treat them as rules
+          word2tagsMap, nonterminalMap, wordIndex, tagIndex); // we don't care much about extended rules, just treat them as rules
       //rules.addAll(extendedRules);
     } catch (IOException e){
       System.err.println("Can't read rule string: " + ruleString);
@@ -107,9 +106,9 @@ public class RuleFileTest extends TestCase{
     /* Smooth */
     assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0}, C={C=1.0}, D={d=1.0}");
     SmoothLexicon.smooth(tag2wordsMap, wordIndex, word2tagsMap, true); //Map<IntTaggedWord, Counter<IntTaggedWord>> newWordCounterTagMap = RuleFile.smoothWordCounterTagMap(tag2wordsMap);
-    assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0, UNKNOWN=1.0, UNK-cb1=1.0, UNK-cb2=1.0}, C={C=1.0, UNKNOWN=1.0, UNK-CC=1.0}, D={d=1.0, UNKNOWN=1.0, UNK-cd=1.0}");
+    assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0, UNK=1.0, UNK-LC-DIG=2.0}, C={C=1.0, UNK=1.0, UNK-ALLC=1.0}, D={d=1.0, UNK=1.0, UNK-LC=1.0}");
     
-    assertEquals(Utility.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, d=[d/D}, b1=[b1/B}, b2=[b2/B}, b3=[b3/B}, C=[C/C}, UNKNOWN=[UNKNOWN/D, UNKNOWN/C, UNKNOWN/B}, UNK-cb1=[UNK-cb1/B}, UNK-cb2=[UNK-cb2/B}, UNK-CC=[UNK-CC/C}, UNK-cd=[UNK-cd/D}");
+    assertEquals(Utility.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, d=[d/D}, b1=[b1/B}, b2=[b2/B}, b3=[b3/B}, C=[C/C}, UNK=[UNK/D, UNK/C, UNK/B}, UNK-LC-DIG=[UNK-LC-DIG/B}, UNK-ALLC=[UNK-ALLC/C}, UNK-LC=[UNK-LC/D}");
     
     
     

@@ -10,6 +10,7 @@ import utility.Utility;
 
 import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;
+import edu.stanford.nlp.util.Timing;
 
 /**
  * keeps track of edges as integers.  Guarantees that the integers are contiguous.
@@ -29,7 +30,7 @@ public class EdgeSpace {
   private Set<Integer> activeEdges;
   private Set<Integer> activeIndices; // set of nonterminals, each of which has least one nonterminal left-corner child
 
-  private int size = -0; // number of distinct active edges
+  private int size = 0; // number of distinct active edges
   private int[] via; // relate X -> A . B C to B -> []
   private int[] to;  // relate X -> A . B C to X -> A B . C   
 
@@ -46,10 +47,12 @@ public class EdgeSpace {
     to = new int[1000];
   }
   
-  public void addRules(Collection<Rule> rules){
+  public void build(Collection<Rule> rules){
     if (verbose >= 1){
-      System.err.println("\n# Setting up state space and category indices...");
-      System.err.println("Normal rules ... ");
+      System.err.println("\n## Setting up edge space ...");
+    }
+    if(verbose >= 3){
+      System.err.println("Rules: " + Utility.sprint(rules, tagIndex, tagIndex));
     }
     
     int numRules = 0;
@@ -62,13 +65,23 @@ public class EdgeSpace {
         }
       }
     }
+    assert(size == (activeEdges.size() + passiveEdges.size()));
     
-    if(verbose >= 3){
-      System.err.println(Utility.sprint(rules, tagIndex, tagIndex));
+    // add preterminals that we haven't seen
+    for (int iT = 0; iT < tagIndex.size(); iT++) {
+      if(indexOfTag(iT) == -1){ // add preterminal -> []
+        if(verbose>=3){
+          System.err.println("Add preterminal " + tagIndex.get(iT) + " to edge space");
+        }
+        addEdge(Edge.createTagEdge(iT));
+      }
+    }
+     
+    if(verbose >= 3){      
+      System.err.println("Active indices: " + Utility.sprint(tagIndex, activeIndices));
     }
     if (verbose >= 1) {
-      System.err.println(" Done! Num rules=" + numRules);
-      System.err.println("# State space size=" + size 
+      Timing.tick("Done! Num rules=" + numRules + ", state space size=" + size 
           + ", num active indices=" + activeIndices.size());
     }
   }
@@ -78,7 +91,11 @@ public class EdgeSpace {
    * @return
    */
   public int indexOfTag(int iT) {
-    return index2stateMap.get(iT);
+    if(!index2stateMap.containsKey(iT)){
+      return -1;
+    } else { 
+      return index2stateMap.get(iT);
+    }
   }
   
   
@@ -138,6 +155,9 @@ public class EdgeSpace {
    * add edge (represent a rule) and keep track of mother, via, to edges
    */
   public int addEdge(Edge e) {
+    // store current edge
+    int state = storeEdgeInIndex(e);
+    
     // store mother -> [] edge if not in the state space
     int motherIndex = e.getMother();
     if(!index2stateMap.containsKey(motherIndex)){ 
@@ -149,9 +169,8 @@ public class EdgeSpace {
       passiveEdges.add(motherState);
     }
     
-    // store current state
-    int state = storeEdgeInIndex(e);
-  
+    
+    
     
     // check children
     if (e.numRemainingChildren() == 0) { // passive edge, no children

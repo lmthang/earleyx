@@ -20,24 +20,21 @@ public class SmoothLexicon extends BaseLexicon {
   
   public Set<IntTaggedWord> tagsForWord(String word) {
     int iW = wordIndex.indexOf(word, true);
-    if(!word2tagsMap.containsKey(iW)){ // unknown word
-      word = getSignature(word);
-      iW = wordIndex.indexOf(word, true);
-      
-      if(!word2tagsMap.containsKey(iW)){ // unknown signature
-        word = UNKNOWN_WORD;
-        iW = wordIndex.indexOf(word, true);
-      }
-    }
-    assert(word2tagsMap.containsKey(iW));
     
-    return word2tagsMap.get(iW);
+    if(word2tagsMap.containsKey(iW)){ // known word
+      return word2tagsMap.get(iW);
+    } else { // unknown, use all tags
+      Set<IntTaggedWord> itws = new HashSet<IntTaggedWord>();
+      for(int iT : tag2wordsMap.keySet()){
+        itws.add(new IntTaggedWord(iW, iT));
+      }
+      return itws;
+    }
   }
 
   public double score(IntTaggedWord itw) {
-    if(!tag2wordsMap.containsKey(itw.tag())){ // no such tag
-      return Double.NEGATIVE_INFINITY;
-    }
+    assert(tag2wordsMap.containsKey(itw.tag()));
+
     int iW = itw.word();
     String word = wordIndex.get(iW);
     
@@ -51,9 +48,9 @@ public class SmoothLexicon extends BaseLexicon {
       }
     }
      
-//    System.err.println("score: " + word + "\t" + itw + "\t" + itw.wordString(wordIndex) +
+//    System.err.println("SmoothLexicon: " + word + "\t" + itw + "\t" + itw.wordString(wordIndex) +
 //        "\t" + tag2wordsMap.get(itw.tag()).getCount(iW));
-    
+
     return tag2wordsMap.get(itw.tag()).getCount(iW);
   }
 
@@ -136,28 +133,101 @@ public class SmoothLexicon extends BaseLexicon {
    * @param word The word
    * @return A "signature" (which represents an equivalence class of Strings), e.g., a suffix of the string
    */
-  public static String getSignature(String word) {
-    boolean useFirst = false; //= true;
-    boolean useEnd = true; 
-    boolean useFirstCap = true;
-    int endLength = 2;
+//  public static String getSignature(String word) {
+//    boolean useFirst = false; //= true;
+//    boolean useEnd = true; 
+//    boolean useFirstCap = true;
+//    int endLength = 2;
+//  
+//    StringBuilder subStr = new StringBuilder("UNK-");
+//    int n = word.length(); // Thang fix, remove -1;
+//    char first = word.charAt(0);
+//    if (useFirstCap) {
+//      if (Character.isUpperCase(first) || Character.isTitleCase(first)) {
+//        subStr.append('C');
+//      } else {
+//        subStr.append('c');
+//      }
+//    }
+//    if (useFirst) {
+//      subStr.append(first);
+//    }
+//    if (useEnd) {
+//      subStr.append(word.substring(n - endLength > 0 ? n - endLength : 0, n));
+//    }
+//    return subStr.toString();
+//  }
   
-    StringBuilder subStr = new StringBuilder("UNK-");
-    int n = word.length(); // Thang fix, remove -1;
-    char first = word.charAt(0);
-    if (useFirstCap) {
-      if (Character.isUpperCase(first) || Character.isTitleCase(first)) {
-        subStr.append('C');
+  public static String getSignature(String word) {
+    // this is getSignature2 in EnglishUnknownWordModel
+    
+    int loc = 0;
+    StringBuilder sb = new StringBuilder("UNK");
+    // {-ALLC, -INIT, -UC, -LC, zero} +
+    // {-DASH, zero} +
+    // {-NUM, -DIG, zero} +
+    // {lowerLastChar, zeroIfShort}
+    boolean hasDigit = false;
+    boolean hasNonDigit = false;
+    boolean hasLower = false;
+    int wlen = word.length();
+    for (int i = 0; i < wlen; i++) {
+      char ch = word.charAt(i);
+      if (Character.isDigit(ch)) {
+        hasDigit = true;
       } else {
-        subStr.append('c');
+        hasNonDigit = true;
+        if (Character.isLetter(ch)) {
+          if (Character.isLowerCase(ch) || Character.isTitleCase(ch)) {
+            hasLower = true;
+          }
+        }
       }
     }
-    if (useFirst) {
-      subStr.append(first);
+    if (wlen > 0
+            && (Character.isUpperCase(word.charAt(0)) || Character.isTitleCase(word.charAt(0)))) {
+      if (!hasLower) {
+        sb.append("-ALLC");
+      } else if (loc == 0) {
+        sb.append("-INIT");
+      } else {
+        sb.append("-UC");
+      }
+    } else if (hasLower) { // if (Character.isLowerCase(word.charAt(0))) {
+      sb.append("-LC");
     }
-    if (useEnd) {
-      subStr.append(word.substring(n - endLength > 0 ? n - endLength : 0, n));
+    // no suffix = no (lowercase) letters
+    if (word.indexOf('-') >= 0) {
+      sb.append("-DASH");
     }
-    return subStr.toString();
-  }
+    if (hasDigit) {
+      if (!hasNonDigit) {
+        sb.append("-NUM");
+      } else {
+        sb.append("-DIG");
+      }
+    } else if (wlen > 3) {
+      // don't do for very short words: "yes" isn't an "-es" word
+      // try doing to lower for further densening and skipping digits
+      char ch = word.charAt(word.length() - 1);
+      sb.append(Character.toLowerCase(ch));
+    }
+    // no suffix = short non-number, non-alphabetic
+    
+    return sb.toString();
+  } 
+
 }
+
+/** Unused code **/
+//if(!word2tagsMap.containsKey(iW)){ // unknown word
+//word = getSignature(word);
+//iW = wordIndex.indexOf(word, true);
+//
+//if(!word2tagsMap.containsKey(iW)){ // unknown signature
+//word = UNKNOWN_WORD;
+//iW = wordIndex.indexOf(word, true);
+//}
+//}
+//assert(word2tagsMap.containsKey(iW));
+//return word2tagsMap.get(iW);
