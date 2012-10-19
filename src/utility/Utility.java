@@ -365,16 +365,14 @@ public class Utility {
   }
   
   public static String sprint(Collection<Rule> rules, Index<String> wordIndex, Index<String> tagIndex){
-    StringBuffer sb = new StringBuffer("[");
+    StringBuffer sb = new StringBuffer("");
     for(Rule rule : rules){
       if(rule instanceof TerminalRule){
-        sb.append(rule.toString(tagIndex, wordIndex) + ", ");
+        sb.append(rule.toString(tagIndex, wordIndex) + "\n");
       } else {
-        sb.append(rule.toString(tagIndex, tagIndex) + ", ");
+        sb.append(rule.toString(tagIndex, tagIndex) + "\n");
       }
     }
-    sb.delete(sb.length()-2, sb.length());
-    sb.append("]");
     return sb.toString();
   }
   

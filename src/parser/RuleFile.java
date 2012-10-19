@@ -164,12 +164,11 @@ public class RuleFile {
     Map<Integer, Counter<Integer>> tag2wordsMap;
     if (isExp){ // exp
       tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
-      for(Integer iT : tag2wordsMap.keySet()){
-        Counter<Integer> counter = Counters.getCopy(tag2wordsMap.get(iT));
+      for(Integer iT : origTag2wordsMap.keySet()){
+        Counter<Integer> counter = Counters.getCopy(origTag2wordsMap.get(iT));
         Counters.expInPlace(counter);
         
         tag2wordsMap.put(iT, counter);
-        System.err.println(counter + "\t" + tag2wordsMap.get(iT));
       }
     } else {
       tag2wordsMap = origTag2wordsMap;
@@ -191,9 +190,10 @@ public class RuleFile {
     }
     
     // rules: non-terminal -> non-terminals
-    for(Rule rule : rules){
-      bw.write(rule + "\n");
-    }
+    bw.write(Utility.sprint(rules, wordIndex, tagIndex));
+//    for(Rule rule : rules){
+//      bw.write(rule + "\n");
+//    }
     
     bw.close();
   }

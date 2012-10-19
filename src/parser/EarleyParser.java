@@ -550,6 +550,9 @@ public abstract class EarleyParser {
   public Index<String> getParserTagIndex() {
     return parserTagIndex;
   }
+  public Rule getRootRule() {
+    return rootRule;
+  }
 }
 
 /** Unused code **/

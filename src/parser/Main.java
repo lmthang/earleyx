@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,9 +56,13 @@ public class Main {
 
   public static void printHelp(String[] args, String message){
     System.err.println("! " + message);
-    System.err.println("Main -in inFile -out outFile " + 
-        "(-grammar grammarFile | -treebank treebankFile) [-id indexFileName] [-opt option] [-prob probHandling]");
-    System.err.println("\t\toption: 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)");
+    System.err.println("Main -in inFile -out outPrefix " + 
+        "(-grammar grammarFile | -treebank treebankFile) " + 
+        "[-id indexFileName] [-opt option] [-prob probHandling]");
+    System.err.println("\t\tin: input filename");
+    System.err.println("\t\tout: output prefix to name output files");
+    System.err.println();
+    System.err.println("\t\toption: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse (todo)");
     System.err.println("\t\tprob: 0 -- normal (default), 1 -- scaling (todo)");
     System.err.println("\t\tverbose: -1 -- no debug info (default), " + 
         "0: surprisal per word, 1-4 -- increasing more details");
@@ -86,7 +91,6 @@ public class Main {
     
     // optional
     flags.put("-id", new Integer(1)); // sentence indices
-    flags.put("-save", new Integer(1)); // save option, 0: save nothing (default), 1: save grammar
     flags.put("-opt", new Integer(1)); // 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)
     flags.put("-prob", new Integer(1)); // 0 -- normal (default), 1 -- scaling (todo)
     flags.put("-verbose", new Integer(1));     // 0: no debug info (default), 1: progress info, 2: closure matrices, combine/predict parsing info, 3: details edge/rule info, parser chart, prediction/completion list info, trie
@@ -161,6 +165,22 @@ public class Main {
       }
     }
     
+
+    /*****************/
+    /* output prefix */
+    /*****************/
+    String outPrefix = null;
+    if (argsMap.keySet().contains("-out")) {
+      outPrefix = argsMap.get("-out")[0];
+      File outDir = (new File(outPrefix)).getParentFile();
+      if(!outDir.exists()){
+        System.err.println("# Creating output directory " + outDir.getAbsolutePath());
+        outDir.mkdirs();
+      }
+    } else {
+      printHelp(args, "No output prefix, -out option");
+    }
+    
     /******************/
     /* grammar option */
     /******************/
@@ -175,39 +195,34 @@ public class Main {
       String treeFile = argsMap.get("-treebank")[0];
       MemoryTreebank treebank = Utility.transformTrees(treeFile, transformerClassName, treebankPackClassName);
       parser = new EarleyParserDense(treebank, rootSymbol, isScaling);
+      
+      // save grammar
+      String outGrammarFile = outPrefix + ".grammar"; //argsMap.get("-saveGrammar")[0];
+      System.err.println("Out grammar file = " + outGrammarFile);
+      
+      boolean isExp = true;      
+      try {
+        // ignore root rule
+        Collection<Rule> newRules = new ArrayList<Rule>();
+        Rule rootRule = parser.getRootRule();
+        for(Rule rule : parser.getRules()){
+          if(!rule.equals(rootRule)){
+            newRules.add(rule);
+          }
+        }
+        RuleFile.printRules(outGrammarFile, newRules, parser.getLexicon().getTag2wordsMap(), 
+            parser.getParserWordIndex(), parser.getParserTagIndex(), isExp);
+      } catch (IOException e) {
+        System.err.println("! Main: error printing rules to " + outGrammarFile);
+        System.exit(1);
+      }
     } else {
       printHelp(args, "No -grammar or -treebank option");
     }
-    
-    /*****************/
-    /* output prefix */
-    /*****************/
-    String outPrefix = null;
-    if (argsMap.keySet().contains("-out")) {
-      outPrefix = argsMap.get("-out")[0];
-      File outDir = (new File(outPrefix)).getParentFile();
-      if(!outDir.exists()){
-        System.err.println("# Creating output directory " + outDir.getAbsolutePath());
-        outDir.mkdirs();
-      }
-      /* output grammar to file */
-      if (argsMap.keySet().contains("-saveGrammar")) {
-        String outGrammarFile = outPrefix + ".grammar"; //argsMap.get("-saveGrammar")[0];
-        System.err.println("Out grammar file = " + outGrammarFile);
         
-        boolean isExp = true;      
-        try {
-          RuleFile.printRules(outGrammarFile, parser.getRules(), parser.getLexicon().getTag2wordsMap(), 
-              parser.getParserWordIndex(), parser.getParserTagIndex(), isExp);
-        } catch (IOException e) {
-          System.err.println("! Main: error printing rules to " + outGrammarFile);
-          System.exit(1);
-        }
-      }
-    } else {
-      printHelp(args, "No output prefix, -out option");
-    }
-
+    /***********/
+    /* Parsing */
+    /***********/
     try {
       parser.parseSentences(sentences, indices, outPrefix);
     } catch (IOException e) {
