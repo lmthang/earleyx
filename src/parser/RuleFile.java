@@ -289,7 +289,7 @@ public class RuleFile {
     }
     
     /* Smooth */
-    SmoothLexicon.smooth(tag2wordsMap, wordIndex, word2tagsMap);
+    SmoothLexicon.smooth(tag2wordsMap, wordIndex, tagIndex, word2tagsMap);
     
     /* Output */
     try {

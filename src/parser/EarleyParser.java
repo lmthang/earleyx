@@ -94,7 +94,7 @@ public abstract class EarleyParser {
   protected int[][] chartCount; // chartCount[left][right]: how many categories at the cell [left, right]
   protected int numWords = 0;
   
-  public static int verbose = 0;
+  public static int verbose = -1;
   protected static DecimalFormat df = new DecimalFormat("0.0000");
   protected static DecimalFormat df1 = new DecimalFormat("0.00");
 
@@ -331,7 +331,7 @@ public abstract class EarleyParser {
         lexSurprisalList.add(-Math.log(prefixProbability/synPrefixProbability));
 
         // print info
-        if(verbose>=1){
+        if(verbose>=0){
           System.err.println(Utility.sprint(parserWordIndex, wordIndices.subList(0, right)));
           String msg = "Prefix probability: " + prefixProbability + "\n" +
           "String probability: " + stringProbability + "\n" +
@@ -343,7 +343,7 @@ public abstract class EarleyParser {
       } else {
         // surprisals
         surprisalList.add(-prefixProb[right]); // note: prefix prob is scaled, and equal to log P(w0..w_(right-1))/P(w0..w_(right-2))
-        if(verbose>=1){
+        if(verbose>=0){
           System.err.println(Utility.sprint(parserWordIndex, wordIndices.subList(0, right)));
           String msg = "Scaled prefix probability: " + prefixProbability + "\n" +
           "Scaling: " + scaling[right] + "\n" + 

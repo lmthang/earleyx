@@ -35,6 +35,7 @@ public abstract class BaseLexicon {
   /**
    * The score of a word given a tag.  Corresponds to log-probabilities
    */
+//  public abstract float score(IntTaggedWord itw);
   public abstract double score(IntTaggedWord itw);
 
   /**

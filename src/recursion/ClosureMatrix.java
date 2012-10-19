@@ -185,7 +185,7 @@ public class ClosureMatrix {
       
       rowCount++;
       
-      if(rowCount % 10 == 0){
+      if(verbose>=1 && rowCount % 10 == 0){
         System.err.print(" (" + rowCount + ") ");
       }
     } // end for rowId

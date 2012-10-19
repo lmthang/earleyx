@@ -17,7 +17,7 @@ import utility.Utility;
 
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
-  private boolean isScaling = true;
+  private boolean isScaling = false; //true;
 
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 
   "ROOT->[_a _b] : 0.1\n" +
@@ -72,7 +72,7 @@ public class EarleyParserTest extends TestCase {
     EdgeSpace.verbose = 0;
     Prediction.verbose = 0;
     Completion.verbose = 0;
-    EarleyParser.verbose = 2;
+    EarleyParser.verbose = 0;
   }
   
   private void initParserFromFile(String ruleFile){
@@ -362,19 +362,20 @@ public class EarleyParserTest extends TestCase {
     assertEquals(2.5902917249093926, surprisalList.get(0), 1e-5);
     assertEquals(11.17802383709047, surprisalList.get(1), 1e-5);
     assertEquals(6.679507135955136, surprisalList.get(2), 1e-5);
-    assertEquals(4.946327386976545, surprisalList.get(3), 1e-5);
-    assertEquals(9.38715961005888, surprisalList.get(4), 1e-5);
-    assertEquals(6.448605383890275, surprisalList.get(5), 1e-5);
-    assertEquals(4.250957965992164, surprisalList.get(6), 1e-5);
-    assertEquals(1.985522166292121, surprisalList.get(7), 1e-5);
-    assertEquals(7.997642700623828, surprisalList.get(8), 1e-5);
-    assertEquals(3.9585395344479366, surprisalList.get(9), 1e-5);
-    assertEquals(7.726724284649578, surprisalList.get(10), 1e-5);
-    assertEquals(1.2492399154169647, surprisalList.get(11), 1e-5);
-    assertEquals(2.0730450598410783, surprisalList.get(12), 1e-5);
+    assertEquals(4.948450710073175, surprisalList.get(3), 1e-5);
+    assertEquals(9.385103677293866, surprisalList.get(4), 1e-5);
+    assertEquals(6.44860564335427, surprisalList.get(5), 1e-5);
+    assertEquals(4.250959913607808, surprisalList.get(6), 1e-5);
+    assertEquals(2.033052140740189, surprisalList.get(7), 1e-5);
+    assertEquals(7.950249255267927, surprisalList.get(8), 1e-5);
+    assertEquals(3.9584749706452556, surprisalList.get(9), 1e-5);
+    assertEquals(7.72672337348633, surprisalList.get(10), 1e-5);
+    assertEquals(1.2492400898444487, surprisalList.get(11), 1e-5);
+    assertEquals(2.072968468479857, surprisalList.get(12), 1e-5);
 
     if(!isScaling){
-      assertEquals(stringProbList.toString(), "[2.7631257999498153E-6, 3.7643574066525755E-8, 1.7159626394143225E-12, 1.895696047664002E-12, 5.813756868792682E-18, 1.1485269741998332E-20, 9.316157229315558E-23, 2.7565905744941673E-22, 8.213699654698347E-26, 1.0083447592775234E-29, 0.0, 2.4432270339764795E-31, 2.267676745209734E-31]");
+      System.err.println(stringProbList.toString());
+      assertEquals(stringProbList.toString(), "[2.7631257999498153E-6, 3.7643574066525755E-8, 1.7159626394143225E-12, 1.8778083802959357E-12, 5.813632517303932E-18, 1.1484971623511003E-20, 9.315915216122732E-23, 1.718918071281025E-22, 8.212552526820724E-26, 1.0082110788122197E-29, 0.0, 2.4430738209264177E-31, 2.267542490039142E-31]");
     }
   }
   

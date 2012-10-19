@@ -105,7 +105,7 @@ public class RuleFileTest extends TestCase{
     
     /* Smooth */
     assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0}, C={C=1.0}, D={d=1.0}");
-    SmoothLexicon.smooth(tag2wordsMap, wordIndex, word2tagsMap, true); //Map<IntTaggedWord, Counter<IntTaggedWord>> newWordCounterTagMap = RuleFile.smoothWordCounterTagMap(tag2wordsMap);
+    SmoothLexicon.smooth(tag2wordsMap, wordIndex, tagIndex, word2tagsMap, true); //Map<IntTaggedWord, Counter<IntTaggedWord>> newWordCounterTagMap = RuleFile.smoothWordCounterTagMap(tag2wordsMap);
     assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0, UNK=1.0, UNK-LC-DIG=2.0}, C={C=1.0, UNK=1.0, UNK-ALLC=1.0}, D={d=1.0, UNK=1.0, UNK-LC=1.0}");
     
     assertEquals(Utility.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, d=[d/D}, b1=[b1/B}, b2=[b2/B}, b3=[b3/B}, C=[C/C}, UNK=[UNK/D, UNK/C, UNK/B}, UNK-LC-DIG=[UNK-LC-DIG/B}, UNK-ALLC=[UNK-ALLC/C}, UNK-LC=[UNK-LC/D}");

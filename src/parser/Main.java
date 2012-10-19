@@ -3,6 +3,7 @@ package parser;
 import edu.stanford.nlp.trees.MemoryTreebank;
 import edu.stanford.nlp.util.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +59,8 @@ public class Main {
         "(-grammar grammarFile | -treebank treebankFile) [-id indexFileName] [-opt option] [-prob probHandling]");
     System.err.println("\t\toption: 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)");
     System.err.println("\t\tprob: 0 -- normal (default), 1 -- scaling (todo)");
+    System.err.println("\t\tverbose: -1 -- no debug info (default), " + 
+        "0: surprisal per word, 1-4 -- increasing more details");
     System.exit(1);
   }
   
@@ -93,7 +96,7 @@ public class Main {
     args = argsMap.get(null);
     
     /* verbose option */
-    int verbose = 0;
+    int verbose = -1;
     if (argsMap.keySet().contains("-verbose")) {
       verbose = Integer.parseInt(argsMap.get("-verbose")[0]);
       RelationMatrix.verbose = verbose;
@@ -182,7 +185,11 @@ public class Main {
     String outPrefix = null;
     if (argsMap.keySet().contains("-out")) {
       outPrefix = argsMap.get("-out")[0];
-    
+      File outDir = (new File(outPrefix)).getParentFile();
+      if(!outDir.exists()){
+        System.err.println("# Creating output directory " + outDir.getAbsolutePath());
+        outDir.mkdirs();
+      }
       /* output grammar to file */
       if (argsMap.keySet().contains("-saveGrammar")) {
         String outGrammarFile = outPrefix + ".grammar"; //argsMap.get("-saveGrammar")[0];
