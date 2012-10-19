@@ -2,6 +2,7 @@ package utility;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -190,7 +191,7 @@ public class Utility {
     
     
     /* load tree file */
-    System.err.print("# Loading tree file " + treeFile + " ... ");
+    System.err.print("# Loading tree file " + (new File(treeFile)).getAbsolutePath() + " ... ");
     trees.loadPath(treeFile);
     System.err.println("Done!");
 

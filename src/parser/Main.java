@@ -3,11 +3,15 @@ package parser;
 import edu.stanford.nlp.trees.MemoryTreebank;
 import edu.stanford.nlp.util.StringUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import recursion.ClosureMatrix;
+import recursion.RelationMatrix;
 
 import utility.Utility;
 
@@ -50,14 +54,17 @@ public class Main {
 
   public static void printHelp(String[] args, String message){
     System.err.println("! " + message);
-    System.err.println(args[0] + " -in inputFileName -out outPrefixName " + 
+    System.err.println("Main -in inFile -out outFile " + 
         "(-grammar grammarFile | -treebank treebankFile) [-id indexFileName] [-opt option] [-prob probHandling]");
-    System.err.println("\toption: 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)");
-    System.err.println("\tprob: 0 -- normal (default), 1 -- scaling (todo)");
+    System.err.println("\t\toption: 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)");
+    System.err.println("\t\tprob: 0 -- normal (default), 1 -- scaling (todo)");
     System.exit(1);
   }
   
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
+    if(args.length==0){
+      printHelp(args, "No argument");
+    }
     System.err.println("EarleyParser invoked with arguments " + Arrays.asList(args));
     
     /* Default parameters */
@@ -89,11 +96,12 @@ public class Main {
     int verbose = 0;
     if (argsMap.keySet().contains("-verbose")) {
       verbose = Integer.parseInt(argsMap.get("-verbose")[0]);
-//      StateSpace.verbose = verbose;
-//      Grammar.verbose = verbose;
-//      RelationMatrix.verbose = verbose;
-//      ClosureMatrix.verbose = verbose;
-//      PrefixProbabilityParserOld.verbose = verbose;
+      RelationMatrix.verbose = verbose;
+      ClosureMatrix.verbose = verbose;
+      EdgeSpace.verbose = verbose;
+      Prediction.verbose = verbose;
+      Completion.verbose = verbose;
+      EarleyParser.verbose = verbose;
     }
     
     /* parser opt */
@@ -123,7 +131,12 @@ public class Main {
     if (argsMap.keySet().contains("-in")) { // read from file
       String sentencesFileName = argsMap.get("-in")[0];
       System.err.println("# Input file =" + sentencesFileName);
-      sentences = Utility.loadFile(sentencesFileName);
+      try {
+        sentences = Utility.loadFile(sentencesFileName);
+      } catch (IOException e) {
+        System.err.println("! Main: error loading input file " + sentencesFileName);
+        System.exit(1);
+      }
     } else {
       printHelp(args, "No input file, -in option");
     }
@@ -132,7 +145,12 @@ public class Main {
     List<String> indices = null;
     if (argsMap.keySet().contains("-id")) {
       String idFile = argsMap.get("-id")[0];
-      indices = Utility.loadFile(idFile);
+      try {
+        indices = Utility.loadFile(idFile);
+      } catch (IOException e) {
+        System.err.println("! Main: error loading id file " + idFile);
+        System.exit(1);
+      }
     } else {
       indices = new ArrayList<String>();
       for (int i = 0; i < sentences.size(); i++) {
@@ -171,14 +189,24 @@ public class Main {
         System.err.println("Out grammar file = " + outGrammarFile);
         
         boolean isExp = true;      
-        RuleFile.printRules(outGrammarFile, parser.getRules(), parser.getLexicon().getTag2wordsMap(), 
-            parser.getParserWordIndex(), parser.getParserTagIndex(), isExp);
+        try {
+          RuleFile.printRules(outGrammarFile, parser.getRules(), parser.getLexicon().getTag2wordsMap(), 
+              parser.getParserWordIndex(), parser.getParserTagIndex(), isExp);
+        } catch (IOException e) {
+          System.err.println("! Main: error printing rules to " + outGrammarFile);
+          System.exit(1);
+        }
       }
     } else {
       printHelp(args, "No output prefix, -out option");
     }
 
-    parser.parseSentences(sentences, indices, outPrefix);  
+    try {
+      parser.parseSentences(sentences, indices, outPrefix);
+    } catch (IOException e) {
+      System.err.println("! Main: error printing output during parsing to outprefix " + outPrefix);
+      System.exit(1);
+    }  
     //System.err.println("String probability: " + Math.exp(parser.stringProbability()));
     //parser.dumpChart();
   }
