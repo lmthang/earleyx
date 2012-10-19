@@ -12,9 +12,12 @@ data/           - sample data
 /********************************/
 /* Main class to run the parser */
 /********************************/
-parser.Main -in inFile -out outFile (-grammar grammarFile | -treebank treebankFile) [-id indexFileName] [-opt option] [-prob probHandling]
+parser.Main -in inFile -out outPrefix (-grammar grammarFile | -treebank treebankFile) [-id indexFileName] [-opt option] [-prob probHandling]
+     in: input filename
+     out: output prefix to name output files
+
      option: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse (todo)
-     prob: 0 -- normal (default), 1 -- scaling (todo)
+     prob: 0 -- normal (default), 1 -- scaling
      verbose: -1 -- no debug info (default), 0: surprisal per word, 1-4 -- increasing more details
 
 /*******************/
