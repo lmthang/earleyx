@@ -1,3 +1,9 @@
+archive/*
+results/*
+data/social*
+grammars/social*
+.classpath
+.project
 output/*
 bin/*
 earleyx.jar

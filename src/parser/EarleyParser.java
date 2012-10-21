@@ -94,6 +94,7 @@ public abstract class EarleyParser {
   protected int[][] chartCount; // chartCount[left][right]: how many categories at the cell [left, right]
   protected int numWords = 0;
   
+  protected boolean containsExtendedRule = false;
   public static int verbose = -1;
   protected static DecimalFormat df = new DecimalFormat("0.0000");
   protected static DecimalFormat df1 = new DecimalFormat("0.00");
@@ -185,6 +186,12 @@ public abstract class EarleyParser {
     
     
     buildGrammarLex(rules, extendedRules, tag2wordsMap, word2tagsMap);
+    if(extendedRules.size()>0){
+      containsExtendedRule = true;
+      if(verbose>=0){
+        System.err.println("# Num extended rules = " + extendedRules.size());
+      }
+    }
   }
   
   private void postInit(String rootSymbol){
@@ -383,12 +390,11 @@ public abstract class EarleyParser {
       }
       
       // scaling matrix for extended rules
-      for (int i = 0; i < right; i++) {
-        scalingMatrix[i][right] = scalingMatrix[i][right-1] + scaling[right];
-        if(verbose>=1){
-          System.err.println("# Scaling matrix: " + i + "\t" + right + "\t scaling " + Math.exp(scalingMatrix[i][right]));
+      if(containsExtendedRule){
+        for (int i = 0; i < right; i++) {
+          scalingMatrix[i][right] = scalingMatrix[i][right-1] + scaling[right];
         }
-      }        
+      }
     }
     
     /** Handle normal rules **/
@@ -400,7 +406,9 @@ public abstract class EarleyParser {
       int edge = g.getEdgeSpace().indexOfTag(itw.tag());
       double score = lex.score(itw);
       if(verbose>=1){
-        System.err.println(itw.toString(parserWordIndex, parserTagIndex) + "\t" + score);
+        System.err.println("Lexical prob: " + parserTagIndex.get(itw.tag()) + "->[_" 
+            + parserWordIndex.get(itw.word()) + "] : " + Math.exp(score));
+        //System.err.println(itw.toString(parserWordIndex, parserTagIndex) + "\t" + score);
       }
       assert(score<=0);
       
@@ -487,7 +495,9 @@ public abstract class EarleyParser {
     
     if (isScaling){
       scaling = new double[numWords + 1];
-      scalingMatrix = new double[numWords + 1][numWords+1];
+      if(containsExtendedRule){
+        scalingMatrix = new double[numWords + 1][numWords+1];
+      }
     }
     
     // init

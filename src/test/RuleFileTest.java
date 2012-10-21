@@ -73,8 +73,8 @@ public class RuleFileTest extends TestCase{
     assertEquals(tagIndex.toString(), "[0=ROOT,1=A,2=B,3=C,4=D]");
     assertEquals(wordIndex.toString(), "[0=b,1=c,2=d,3=UNK,4=UNK-1]");
     
-    assertEquals(Utility.sprint(rules, wordIndex, tagIndex), "[ROOT->[A] : 1.0, A->[B C] : 0.4, A->[D B] : 0.4]");
-    assertEquals(Utility.sprint(extendedRules, wordIndex, tagIndex), "[A->[_b _c] : 0.1, A->[_d _b] : 0.1]");
+    assertEquals(Utility.sprint(rules, wordIndex, tagIndex), "ROOT->[A] : 1.0\nA->[B C] : 0.4\nA->[D B] : 0.4\n");
+    assertEquals(Utility.sprint(extendedRules, wordIndex, tagIndex), "A->[_b _c] : 0.1\nA->[_d _b] : 0.1\n");
     
     assertEquals(Utility.sprint(tagIndex, nonterminalMap.keySet()), "[ROOT, A]");
     assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=0.9, UNK=0.1}, C={c=0.9, UNK=0.1}, D={d=0.8, UNK=0.1, UNK-1=0.1}");
@@ -101,7 +101,7 @@ public class RuleFileTest extends TestCase{
     }
     System.err.println(ruleStringNoSmooth);
     
-    assertEquals(Utility.sprint(rules, wordIndex, tagIndex), "[ROOT->[A] : 5.0, A->[B C] : 4.0, A->[D B] : 4.0]");
+    assertEquals(Utility.sprint(rules, wordIndex, tagIndex), "ROOT->[A] : 5.0\nA->[B C] : 4.0\nA->[D B] : 4.0\n");
     
     /* Smooth */
     assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0}, C={C=1.0}, D={d=1.0}");

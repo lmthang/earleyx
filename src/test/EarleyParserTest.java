@@ -17,7 +17,7 @@ import utility.Utility;
 
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
-  private boolean isScaling = false; //true;
+  private boolean isScaling = true; // false; //
 
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 
   "ROOT->[_a _b] : 0.1\n" +
@@ -61,8 +61,7 @@ public class EarleyParserTest extends TestCase {
   "D->[_d] : 0.9\n" +
   "D->[_UNK] : 0.1\n";
   
-  String wsj500RuleFile = "../grammars/WSJ.500/WSJ.500.AG-PCFG.extendedRules";
-  String wsj5000RuleFile = "../grammars/WSJ.5000/WSJ.5000.AG-PCFG.rules"; // this is the latest extended rules
+  String wsj500RuleFile = "grammars/WSJ.500/WSJ.500.AG-PCFG.extendedRules";
   
   @Before
   public void setUp(){    
@@ -72,7 +71,7 @@ public class EarleyParserTest extends TestCase {
     EdgeSpace.verbose = 0;
     Prediction.verbose = 0;
     Completion.verbose = 0;
-    EarleyParser.verbose = 0;
+    EarleyParser.verbose = 1;
   }
   
   private void initParserFromFile(String ruleFile){
@@ -123,7 +122,7 @@ public class EarleyParserTest extends TestCase {
     "X->[_x] : 1.0\n";
     initParserFromString(infiniteGrammarString);
     
-    int numSymbols = 100;
+    int numSymbols = 500;
     StringBuffer sb = new StringBuffer("x");
     for (int i = 0; i < (numSymbols-1); i++) {
       sb.append(" x");

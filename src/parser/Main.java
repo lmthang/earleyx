@@ -58,10 +58,11 @@ public class Main {
     System.err.println("! " + message);
     System.err.println("Main -in inFile -out outPrefix " + 
         "(-grammar grammarFile | -treebank treebankFile) " + 
-        "[-id indexFileName] [-opt option] [-prob probHandling]");
+        "[-id indexFileName] [-opt option] [-prob probHandling] [-root rootSymbol]");
     System.err.println("\t\tin: input filename");
     System.err.println("\t\tout: output prefix to name output files");
     System.err.println();
+    System.err.println("\t\t-root rootSymbol: specify the start symbol of sentences (default \"ROOT\")");
     System.err.println("\t\toption: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse (todo)");
     System.err.println("\t\tprob: 0 -- normal (default), 1 -- scaling (todo)");
     System.err.println("\t\tverbose: -1 -- no debug info (default), " + 
@@ -93,6 +94,7 @@ public class Main {
     flags.put("-id", new Integer(1)); // sentence indices
     flags.put("-opt", new Integer(1)); // 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)
     flags.put("-prob", new Integer(1)); // 0 -- normal (default), 1 -- scaling (todo)
+    flags.put("-root", new Integer(1)); // root symbol
     flags.put("-verbose", new Integer(1));     // 0: no debug info (default), 1: progress info, 2: closure matrices, combine/predict parsing info, 3: details edge/rule info, parser chart, prediction/completion list info, trie
     flags.put("-debug", new Integer(1));
     
@@ -127,8 +129,14 @@ public class Main {
       }
     }
     
+    /* root symbol */
+    if (argsMap.keySet().contains("-root")) {
+      rootSymbol = argsMap.get("-root")[0];
+    }
+    
     System.err.println("# Parser opt = " + parserOpt);
     System.err.println("# Prob opt = " + probOpt + ", isScaling = " + isScaling);
+    System.err.println("# Root symbol = " + rootSymbol);
     System.err.println("# Verbose opt = " + verbose);
 
     /******************/
@@ -142,6 +150,7 @@ public class Main {
         sentences = Utility.loadFile(sentencesFileName);
       } catch (IOException e) {
         System.err.println("! Main: error loading input file " + sentencesFileName);
+        System.err.println(e);
         System.exit(1);
       }
     } else {

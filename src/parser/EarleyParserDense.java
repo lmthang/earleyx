@@ -288,7 +288,7 @@ public class EarleyParserDense extends EarleyParser{
    
 
     if (isScaling){
-      System.err.println(middle + "\t" + right + " scale extended " + inner + "\t" + (inner+scalingMatrix[middle][right]));
+      assert(containsExtendedRule);
       inner += scalingMatrix[middle][right];
     }
     // the current AG rule: Y -> w_middle ... w_(right-1) .
