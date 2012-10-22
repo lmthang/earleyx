@@ -1,3 +1,5 @@
+*.lt
+*nohup.out*
 archive/*
 results/*
 data/social*
