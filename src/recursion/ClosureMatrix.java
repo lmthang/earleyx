@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import parser.LogProbOperator;
+import parser.Operator;
+
 import cern.colt.function.DoubleFunction;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
@@ -31,8 +34,10 @@ public class ClosureMatrix {
   private Map<Integer, Integer> rowIndexMap; // keep track of non-zero rows in pu matrix, non-zero row index -> linear id
   private Map<Integer, Integer> colIndexMap; // map from indices to real matrix column indices
   private DoubleMatrix2D closureMatrix;
-
-  public ClosureMatrix(DoubleMatrix2D relationMatrix) {
+  private Operator operator;
+  public ClosureMatrix(DoubleMatrix2D relationMatrix, Operator operator) {
+    this.operator = operator;
+    
     rowIndexMap = new HashMap<Integer, Integer>();
     colIndexMap = new HashMap<Integer, Integer>();
     for (int i = 0; i < relationMatrix.columns(); i++) {
@@ -83,27 +88,23 @@ public class ClosureMatrix {
     }
   }
   
-//  public Set<Integer> getNonZeroRowIndices(){
-//    return rowIndexMap.keySet();
-//  }
-//  
   public boolean containsRow(int rowIndex){
     return rowIndexMap.containsKey(rowIndex);
   }
   
   public double get(int rowIndex, int colIndex){
     if(!colIndexMap.containsKey(colIndex)){ // no such column
-      return Double.NEGATIVE_INFINITY;
+      return operator.zero();
     }
     
     if(rowIndexMap.containsKey(rowIndex)){
       int compressedRowIndex = rowIndexMap.get(rowIndex);
       int compressedColIndex = colIndexMap.get(colIndex);
       return closureMatrix.get(compressedRowIndex, compressedColIndex);
-    } else if(rowIndex == colIndex){ // return log(1) since we add I
-      return 0;
-    } else { // return log(0)
-      return Double.NEGATIVE_INFINITY;
+    } else if(rowIndex == colIndex){
+      return operator.one();
+    } else {
+      return operator.zero();
     }
   }
   
@@ -178,8 +179,8 @@ public class ClosureMatrix {
           value += 1.0;
         }
         
-        double logValue = Math.log(value);
-        closureMatrix.set(invSubMatrixRowIndex, colId, logValue); // Important: here we use invSubMatrixRowIndex instead of rowId
+        value = operator.getScore(value);
+        closureMatrix.set(invSubMatrixRowIndex, colId, value); // Important: here we use invSubMatrixRowIndex instead of rowId
       }
       
       
@@ -204,8 +205,12 @@ public class ClosureMatrix {
   @Override
   public String toString() {
     StringBuffer sb = new StringBuffer(rowIndexMap.toString());
-    //sb.append("\n" + closureMatrix.toString());
-    sb.append("\n" + closureMatrix.copy().assign(takeExp).toString());
+
+    if(operator instanceof LogProbOperator){
+      sb.append("\n" + closureMatrix.copy().assign(takeExp).toString());
+    } else {
+      sb.append("\n" + closureMatrix.toString());
+    }
     return sb.toString();
   }
  

@@ -28,13 +28,15 @@ import edu.stanford.nlp.util.Pair;
  */
 public class TrieSurprisal extends Trie<Integer, Pair<Integer, Double>> {
   
-  private boolean isLogScore = true;
+  private boolean isLogProb = true;
   private Map<Integer, Double> prefixValueMap; // map a tag id to a value
   private Map<Integer, Double> completeValueMap; // keep track of only complete strings
   protected List<TrieSurprisal> trieList;
   private DecimalFormat df = new DecimalFormat("0.0");
   
-  public TrieSurprisal(){
+  public TrieSurprisal(boolean isLogProb){
+    this.isLogProb = isLogProb;
+    
     trieList = new ArrayList<TrieSurprisal>();
     keyList = new ArrayList<Integer>();
     size = 0;
@@ -42,11 +44,6 @@ public class TrieSurprisal extends Trie<Integer, Pair<Integer, Double>> {
     
     prefixValueMap = new HashMap<Integer, Double>();
     completeValueMap = new HashMap<Integer, Double>();
-  }
-  
-  public TrieSurprisal(boolean isLogScore){
-    this();
-    this.isLogScore = isLogScore;
   }
   
   @Override
@@ -60,7 +57,7 @@ public class TrieSurprisal extends Trie<Integer, Pair<Integer, Double>> {
     }
     
     // element is not in trie
-    TrieSurprisal result = new TrieSurprisal(isLogScore);
+    TrieSurprisal result = new TrieSurprisal(isLogProb);
     keyList.add(element);
     trieList.add(result);
     size++;
@@ -72,7 +69,7 @@ public class TrieSurprisal extends Trie<Integer, Pair<Integer, Double>> {
     if(valueMap.containsKey(pair.first)){ // contains in valueList
       double currentScore = valueMap.get(pair.first);
       
-      if(isLogScore){
+      if(isLogProb){
         score = SloppyMath.logAdd(currentScore, score); // aggregate log scores
       } else {
         score +=currentScore;

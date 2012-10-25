@@ -48,7 +48,7 @@ public class TrieSurprisalTest extends TestCase {
   }
   
   public void testLogTrie(){
-    TrieSurprisal trie = new TrieSurprisal(); // no log score
+    TrieSurprisal trie = new TrieSurprisal(true); // log score
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     

@@ -11,6 +11,8 @@ import java.util.Set;
 import parser.Edge;
 import parser.BaseEdge;
 import parser.Grammar;
+import parser.LogProbOperator;
+import parser.Operator;
 import parser.Rule;
 import parser.RuleFile;
 import parser.TerminalRule;
@@ -24,6 +26,8 @@ import junit.framework.TestCase;
 
 
 public class GrammarTest extends TestCase{
+  private Operator operator = new LogProbOperator();
+  
   String ruleString = 
     "ROOT->[A] : 1.0\n" + 
     "A->[A B] : 0.1\n" +
@@ -61,7 +65,7 @@ public class GrammarTest extends TestCase{
       e.printStackTrace();
     }
   
-    Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap);
+    Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
     g.learnGrammar(rules, extendedRules);
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\nd:prefix={A=-0.9}\n e:prefix={A=-0.9}, end={A=-0.9}");
  
@@ -109,13 +113,14 @@ public class GrammarTest extends TestCase{
       }
     }
 
-    Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap);
+    Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
     g.learnGrammar(rules, extendedRules);
     
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\na:prefix={NP=-1.6}\n chef:prefix={NP=-1.9}, end={NP=-1.9}\n soup:prefix={NP=-3.0}, end={NP=-3.0}\nthe:prefix={NP=-2.3}\n chef:prefix={NP=-2.3}, end={NP=-2.3}\ncook:prefix={VP=-2.3}\n soup:prefix={VP=-2.3}, end={VP=-2.3}");
  
     Edge r = new Edge(new BaseEdge("PP", new ArrayList<String>(), tagIndex, wordIndex), 0);
-    assertEquals(Utility.sprint(g.getCompletions(g.getEdgeSpace().indexOf(r)), g.getEdgeSpace(), tagIndex), "[(NP -> NP . PP, NP -> ., 1.0416666666666667), (VP -> V . NP, VP -> ., 0.1041666666666667), (NP -> . NP PP, NP -> NP . PP, 0.1041666666666667), (PP -> P . NP, PP -> ., 0.1041666666666667), (S -> . NP VP, S -> NP . VP, 0.1041666666666667)]");
+    assertEquals(Utility.sprint(g.getCompletions(g.getEdgeSpace().indexOf(r)), g.getEdgeSpace(), 
+        tagIndex, operator), "[(NP -> NP . PP, NP -> ., 1.0416666666666667), (VP -> V . NP, VP -> ., 0.1041666666666667), (NP -> . NP PP, NP -> NP . PP, 0.1041666666666667), (PP -> P . NP, PP -> ., 0.1041666666666667), (S -> . NP VP, S -> NP . VP, 0.1041666666666667)]");
 
   }
 }

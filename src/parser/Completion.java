@@ -44,7 +44,7 @@ public class Completion {
    * @return
    */
   public static Map<Integer, Completion[]> constructCompletions(ClosureMatrix unaryClosures, 
-      EdgeSpace edgeSpace, Index<String> tagIndex){
+      EdgeSpace edgeSpace, Index<String> tagIndex, Operator operator){
     
     /* do completion Set[] */
     if(verbose > 0){
@@ -72,23 +72,23 @@ public class Completion {
           assert(passiveCategoryIndex >= 0);
           double unaryClosureScore = unaryClosures.get(viaCategoryIndex, passiveCategoryIndex); // R(Z -> Y)
           
-          if (unaryClosureScore != Double.NEGATIVE_INFINITY) {
+          if (unaryClosureScore != operator.zero()) {
             Completion completion = new Completion(activeEdge, edgeSpace.to(activeEdge), unaryClosureScore);
             passiveEdge2completionsMap.get(passiveEdge).add(completion);
      
             if(verbose >= 3){
               System.err.println("Edge " + tagIndex.get(edgeSpace.get(passiveEdge).getMother())
-                  + ": completion " + completion.toString(edgeSpace, tagIndex));
+                  + ": completion " + completion.toString(edgeSpace, tagIndex, operator));
             }
           }
         }
       } else { // for zero row, there is only passive state, which is the via state Z -> []
-        Completion completion = new Completion(activeEdge, edgeSpace.to(activeEdge), 0.0);
+        Completion completion = new Completion(activeEdge, edgeSpace.to(activeEdge), operator.one());
         passiveEdge2completionsMap.get(viaEdge).add(completion);
         
         if(verbose >= 3){
           System.err.println("Edge " + tagIndex.get(edgeSpace.get(viaEdge).getMother())
-              + ": completion " + completion.toString(edgeSpace, tagIndex));
+              + ": completion " + completion.toString(edgeSpace, tagIndex, operator));
         }
       }
     }
@@ -156,9 +156,10 @@ public class Completion {
     return (int)score<<16 + activeEdge;
   }
 
-  public String toString(EdgeSpace edgeSpace, Index<String> tagIndex) {
+  public String toString(EdgeSpace edgeSpace, Index<String> tagIndex, Operator operator) {
     return "(" + edgeSpace.get(activeEdge).toString(tagIndex, tagIndex) 
-    + ", " + edgeSpace.get(completedEdge).toString(tagIndex, tagIndex) + ", " + Math.exp(score) + ")"; //df.format()
+    + ", " + edgeSpace.get(completedEdge).toString(tagIndex, tagIndex) + ", " 
+    + operator.getProb(score) + ")"; //df.format()
   }
 
 }

@@ -58,13 +58,14 @@ public class Main {
     System.err.println("! " + message);
     System.err.println("Main -in inFile -out outPrefix " + 
         "(-grammar grammarFile | -treebank treebankFile) " + 
-        "[-id indexFileName] [-opt option] [-prob probHandling] [-root rootSymbol]");
+        "[-id indexFileName] [-opt option] [-prob probOpt] [-scale scaleOpt] [-root rootSymbol]");
     System.err.println("\t\tin: input filename");
     System.err.println("\t\tout: output prefix to name output files");
     System.err.println();
     System.err.println("\t\t-root rootSymbol: specify the start symbol of sentences (default \"ROOT\")");
     System.err.println("\t\toption: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse (todo)");
-    System.err.println("\t\tprob: 0 -- normal (default), 1 -- scaling (todo)");
+    System.err.println("\t\tprob: 0 -- log-prob (default), 1 -- normal prob");
+    System.err.println("\t\tscale: 0 -- no scaling (default), 1 -- scaling");
     System.err.println("\t\tverbose: -1 -- no debug info (default), " + 
         "0: surprisal per word, 1-4 -- increasing more details");
     System.exit(1);
@@ -93,7 +94,8 @@ public class Main {
     // optional
     flags.put("-id", new Integer(1)); // sentence indices
     flags.put("-opt", new Integer(1)); // 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)
-    flags.put("-prob", new Integer(1)); // 0 -- normal (default), 1 -- scaling (todo)
+    flags.put("-prob", new Integer(1)); // 0 -- log-prob (default), 1 -- normal prob
+    flags.put("-scale", new Integer(1)); // 0 -- no scaling (default), 1 -- scaling
     flags.put("-root", new Integer(1)); // root symbol
     flags.put("-verbose", new Integer(1));     // 0: no debug info (default), 1: progress info, 2: closure matrices, combine/predict parsing info, 3: details edge/rule info, parser chart, prediction/completion list info, trie
     flags.put("-debug", new Integer(1));
@@ -121,10 +123,20 @@ public class Main {
     
     /* prob opt */
     int probOpt = 0; // 0: default
-    boolean isScaling = false;
+    boolean isLogProb = true;
     if (argsMap.keySet().contains("-prob")) {
       probOpt = Integer.parseInt(argsMap.get("-prob")[0]);
-      if(probOpt == 1){// scailing
+      if(probOpt == 1){// normal prob
+        isLogProb = false;
+      }
+    }
+    
+    /* scale opt */
+    int scaleOpt = 0; // 0: default
+    boolean isScaling = false;
+    if (argsMap.keySet().contains("-scale")) {
+      scaleOpt = Integer.parseInt(argsMap.get("-scale")[0]);
+      if(scaleOpt == 1){// scailing
         isScaling = true;
       }
     }
@@ -135,7 +147,8 @@ public class Main {
     }
     
     System.err.println("# Parser opt = " + parserOpt);
-    System.err.println("# Prob opt = " + probOpt + ", isScaling = " + isScaling);
+    System.err.println("# Prob opt = " + probOpt + ", isLogProb = " + isLogProb);
+    System.err.println("# Scale opt = " + scaleOpt + ", isScaling = " + isScaling);
     System.err.println("# Root symbol = " + rootSymbol);
     System.err.println("# Verbose opt = " + verbose);
 
@@ -154,7 +167,7 @@ public class Main {
         System.exit(1);
       }
     } else {
-      printHelp(args, "No input file, -in option");
+      printHelp(args, "No inpu file, -in option");
     }
     
     /* input indices */
@@ -198,12 +211,12 @@ public class Main {
     } else if (argsMap.keySet().contains("-grammar")) { // read from grammar file
       String inGrammarFile = argsMap.get("-grammar")[0];
       System.err.println("In grammar file = " + inGrammarFile);
-      parser = new EarleyParserDense(inGrammarFile, rootSymbol, isScaling);
+      parser = new EarleyParserDense(inGrammarFile, rootSymbol, isScaling, isLogProb);
     } else if (argsMap.keySet().contains("-treebank")) { // read from treebank file      
       // transform trees
       String treeFile = argsMap.get("-treebank")[0];
       MemoryTreebank treebank = Utility.transformTrees(treeFile, transformerClassName, treebankPackClassName);
-      parser = new EarleyParserDense(treebank, rootSymbol, isScaling);
+      parser = new EarleyParserDense(treebank, rootSymbol, isScaling, isLogProb);
       
       // save grammar
       String outGrammarFile = outPrefix + ".grammar"; //argsMap.get("-saveGrammar")[0];

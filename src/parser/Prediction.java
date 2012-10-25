@@ -46,7 +46,7 @@ public class Prediction {
    */
   public static Prediction[][] constructPredictions(Collection<Rule> rules,
       ClosureMatrix leftCornerClosures, 
-      EdgeSpace stateSpace, Index<String> tagIndex, List<Integer> nonterminals){
+      EdgeSpace stateSpace, Index<String> tagIndex, List<Integer> nonterminals, Operator operator){
     // Note: we used list for nonterminals instead of set, to ensure a fixed order for debug purpose
     
     // indexed by non-terminal index, predictions for Z
@@ -79,21 +79,19 @@ public class Prediction {
         }
         
         assert(r.getScore()>=0 && r.getScore()<=1);
-        double rewriteScore = Math.log(r.score);
+        double rewriteScore = operator.getScore(r.score);
         
-        int predictedCategoryMotherIndex = r.getMother(); //categories.indexOf(stateSpace.indexOf(r.getMotherEdge()));
+        int predictedCategoryMotherIndex = r.getMother();
         int predictedState = stateSpace.indexOf(r.toEdge());
         double leftCornerClosureScore = leftCornerClosures.get(viaCategoryIndex, predictedCategoryMotherIndex); // P_L (Z -> Y)
         
-        if (leftCornerClosureScore != Double.NEGATIVE_INFINITY) {
-          assert rewriteScore <= 0.0;
-          
-          Prediction p = new Prediction(predictedState, rewriteScore + leftCornerClosureScore, rewriteScore); // note scores are in log space
+        if (leftCornerClosureScore != operator.zero()) {
+          Prediction p = new Prediction(predictedState, operator.multiply(rewriteScore, leftCornerClosureScore), rewriteScore);
           thesePredictions.add(p);
           if (verbose>=2){
-            System.err.println("Predict: " + p.toString(stateSpace, tagIndex) 
-                + ", left-corner=" + df.format(Math.exp(leftCornerClosureScore))
-                + ", rewrite=" + df.format(Math.exp(rewriteScore)));
+            System.err.println("Predict: " + p.toString(stateSpace, tagIndex, operator) 
+                + ", left-corner=" + df.format(operator.getProb(leftCornerClosureScore))
+                + ", rewrite=" + df.format(operator.getProb(rewriteScore)));
           }
         }
       }
@@ -128,7 +126,7 @@ public class Prediction {
           
           if(verbose>=4){
             System.err.println("Edge " + predictorState + ", " + stateSpace.get(predictorState).toString(tagIndex, tagIndex)
-                + ": predictions " + Utility.sprint(predictions[predictorState], stateSpace, tagIndex));
+                + ": predictions " + Utility.sprint(predictions[predictorState], stateSpace, tagIndex, operator));
           }
         } else {
           predictions[predictorState] = NO_PREDICTION;
@@ -201,12 +199,12 @@ public class Prediction {
     return result1;
   }
 
-  public String toString(EdgeSpace stateSpace, Index<String> tagIndex) {
+  public String toString(EdgeSpace stateSpace, Index<String> tagIndex, Operator operator) {
     //assert(forwardProbMultiplier<=0);
     //assert(innerProbMultiplier<=0);
     return "(" + stateSpace.get(predictedState).toString(tagIndex, tagIndex) 
-    + ",f=" + df.format(Math.exp(forwardProbMultiplier)) + ",i=" 
-    + df.format(Math.exp(innerProbMultiplier)) + ")";
+    + ",f=" + df.format(operator.getProb(forwardProbMultiplier)) + ",i=" 
+    + df.format(operator.getProb(innerProbMultiplier)) + ")";
   }
 
 }

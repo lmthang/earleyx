@@ -9,6 +9,7 @@ import org.junit.Before;
 import parser.Completion;
 import parser.EarleyParser;
 import parser.EarleyParserDense;
+import parser.Grammar;
 import parser.Prediction;
 import parser.EdgeSpace;
 import recursion.ClosureMatrix;
@@ -17,7 +18,8 @@ import utility.Utility;
 
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
-  private boolean isScaling = true; // false; //
+  private boolean isScaling = true;
+  private boolean isLogProb = false; 
 
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 
   "ROOT->[_a _b] : 0.1\n" +
@@ -69,18 +71,19 @@ public class EarleyParserTest extends TestCase {
     RelationMatrix.verbose = 0;
     ClosureMatrix.verbose = 0;
     EdgeSpace.verbose = 0;
+    Grammar.verbose = 0;
     Prediction.verbose = 0;
     Completion.verbose = 0;
-    EarleyParser.verbose = 1;
+    EarleyParser.verbose = 0;
   }
   
   private void initParserFromFile(String ruleFile){
-    parser = new EarleyParserDense(ruleFile, "ROOT", isScaling);
+    parser = new EarleyParserDense(ruleFile, "ROOT", isScaling, isLogProb);
   }
   
   private void initParserFromString(String grammarString){
     try {
-      parser= new EarleyParserDense(Utility.getBufferedReaderFromString(grammarString), "ROOT", isScaling);
+      parser= new EarleyParserDense(Utility.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb);
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
@@ -244,8 +247,14 @@ public class EarleyParserTest extends TestCase {
     assertEquals(0.10536051541566838, surprisalList.get(1), 1e-5);
     
     if(!isScaling){
-      assertEquals(synSurprisalList.toString(), "[0.6931471805599451, -0.0]");
-      assertEquals(lexSurprisalList.toString(), "[0.1053605156578264, 0.1053605156578264]");
+      assertEquals(synSurprisalList.size(), 2);
+      assertEquals(0.6931471805599453, synSurprisalList.get(0), 1e-5);
+      assertEquals(0.0, synSurprisalList.get(1), 1e-5);
+      
+      assertEquals(lexSurprisalList.size(), 2);
+      assertEquals(0.10536051565782628, lexSurprisalList.get(0), 1e-5);
+      assertEquals(0.10536051565782628, lexSurprisalList.get(1), 1e-5);
+      
       assertEquals(stringProbList.toString(), "[0.0, 0.405]");
     }
   }
@@ -270,7 +279,10 @@ public class EarleyParserTest extends TestCase {
       List<Double> synSurprisalList = resultLists.get(1);
       List<Double> lexSurprisalList = resultLists.get(2);
       List<Double> stringProbList = resultLists.get(3);
-      assertEquals(synSurprisalList.toString(), "[1.1102230246251565E-16]");
+      
+      assertEquals(synSurprisalList.size(), 1);
+      assertEquals(1.1102230246251565E-16, synSurprisalList.get(0), 1e-5);
+      
       assertEquals(lexSurprisalList.toString(), "[2.3025850929940455]");
       assertEquals(stringProbList.toString(), "[0.0]");
     }
@@ -298,7 +310,10 @@ public class EarleyParserTest extends TestCase {
       List<Double> lexSurprisalList = resultLists.get(2);
       List<Double> stringProbList = resultLists.get(3);
   
-      assertEquals(synSurprisalList.toString(), "[0.6931471805599453, 1.1102230246251565E-16]");
+      assertEquals(synSurprisalList.size(), 2);
+      assertEquals(0.6931471805599453, synSurprisalList.get(0), 1e-5);
+      assertEquals(1.1102230246251565E-16, synSurprisalList.get(1), 1e-5);
+      
       assertEquals(lexSurprisalList.toString(), "[0.2231435513142097, 2.3025850929940455]");
       assertEquals(stringProbList.toString(), "[0.0, 0.04000000000000001]");
     }
@@ -328,8 +343,18 @@ public class EarleyParserTest extends TestCase {
       List<Double> lexSurprisalList = resultLists.get(2);
       List<Double> stringProbList = resultLists.get(3);
       assertEquals(synSurprisalList.toString(), "[0.6418538861723948, 2.9444389791664407, -0.05129329438755048, 1.9475364707998972]");
-      assertEquals(lexSurprisalList.toString(), "[0.2231435513142097, 0.2231435513142097, 0.22314355131421013, 0.1053605156578259]");
-      assertEquals(stringProbList.toString(), "[0.0, 0.0, 0.012799999999999997, 0.0017280000000000019]");
+      
+      assertEquals(lexSurprisalList.size(), 4);
+      assertEquals(0.2231435513142097, lexSurprisalList.get(0), 1e-5);
+      assertEquals(0.2231435513142097, lexSurprisalList.get(1), 1e-5);
+      assertEquals(0.2231435513142097, lexSurprisalList.get(2), 1e-5);
+      assertEquals(0.10536051565782628, lexSurprisalList.get(3), 1e-5);
+
+      assertEquals(stringProbList.size(), 4);
+      assertEquals(0.0, stringProbList.get(0), 1e-5);
+      assertEquals(0.0, stringProbList.get(1), 1e-5);
+      assertEquals(0.012800000000000008, stringProbList.get(2), 1e-5);
+      assertEquals(0.0017280000000000019, stringProbList.get(3), 1e-5);
     }
   }
   
@@ -351,10 +376,6 @@ public class EarleyParserTest extends TestCase {
     List<Double> surprisalList = resultLists.get(0);
     List<Double> stringProbList = resultLists.get(3);
     
-    for (int i = 0; i < surprisalList.size(); i++) {
-      System.err.println(i + "\tsurprisal " + surprisalList.get(i));
-    }
-    
     // Note: scores here are slightly different from those of previous version
     // that is because RoarkBaseLexicon.score returns float instead of double
     assertEquals(surprisalList.size(), 13);
@@ -373,8 +394,20 @@ public class EarleyParserTest extends TestCase {
     assertEquals(2.072968468479857, surprisalList.get(12), 1e-5);
 
     if(!isScaling){
-      System.err.println(stringProbList.toString());
-      assertEquals(stringProbList.toString(), "[2.7631257999498153E-6, 3.7643574066525755E-8, 1.7159626394143225E-12, 1.8778083802959357E-12, 5.813632517303932E-18, 1.1484971623511003E-20, 9.315915216122732E-23, 1.718918071281025E-22, 8.212552526820724E-26, 1.0082110788122197E-29, 0.0, 2.4430738209264177E-31, 2.267542490039142E-31]");
+      assertEquals(stringProbList.size(), 13);
+      assertEquals(2.7631257999498153E-6, stringProbList.get(0), 1e-5);
+      assertEquals(3.7643574066525755E-8, stringProbList.get(1), 1e-5);
+      assertEquals(1.7159626394143225E-12, stringProbList.get(2), 1e-5);
+      assertEquals(1.8778083802959357E-12, stringProbList.get(3), 1e-5);
+      assertEquals(5.8136325173038904E-18, stringProbList.get(4), 1e-5);
+      assertEquals(1.1484971623511003E-20, stringProbList.get(5), 1e-5);
+      assertEquals(9.315915216122732E-23, stringProbList.get(6), 1e-5);
+      assertEquals(1.718918071281025E-22, stringProbList.get(7), 1e-5);
+      assertEquals(8.212552526820724E-26, stringProbList.get(8), 1e-5);
+      assertEquals(1.0082110788122197E-29, stringProbList.get(9), 1e-5);
+      assertEquals(0.0, stringProbList.get(10), 1e-5);
+      assertEquals(2.4430738209264177E-31, stringProbList.get(11), 1e-5);
+      assertEquals(2.267542490039142E-31, stringProbList.get(12), 1e-5);
     }
   }
   
@@ -590,7 +623,14 @@ public class EarleyParserTest extends TestCase {
     // test left-corner closure
     // a = zeros(6,6); a(1,2)=1.0; a(2,3)=0.01; a(3,3)=0.89;a(3,4)=0.11;a(4,3)=0.21;a(4,5)=0.22;
     // (eye(6)-a)^(-1)
-    assertEquals(Utility.sprint(parser.getGrammar().getLeftCornerClosures().getClosureMatrix()), "0.0 0.0 -2.1621729392773004 -4.3694478524670215 -5.883575585096797 -Infinity\n-Infinity 0.0 -2.1621729392773004 -4.3694478524670215 -5.883575585096797 -Infinity\n-Infinity -Infinity 2.442997246710791 0.23572233352106994 -1.278405399108706 -Infinity\n-Infinity -Infinity 0.8823494984461224 0.23572233352106994 -1.2784053991087057 -Infinity");
+    if(isLogProb){
+      assertEquals(Utility.sprint(
+        parser.getGrammar().getLeftCornerClosures().getClosureMatrix()), "0.0 0.0 -2.1621729392773004 -4.3694478524670215 -5.883575585096797 -Infinity\n-Infinity 0.0 -2.1621729392773004 -4.3694478524670215 -5.883575585096797 -Infinity\n-Infinity -Infinity 2.442997246710791 0.23572233352106994 -1.278405399108706 -Infinity\n-Infinity -Infinity 0.8823494984461224 0.23572233352106994 -1.2784053991087057 -Infinity");
+    } else {
+      assertEquals(Utility.sprint(
+          parser.getGrammar().getLeftCornerClosures().getClosureMatrix()), "1.0 1.0 0.11507479861910243 0.012658227848101267 0.002784810126582277 0.0\n0.0 1.0 0.11507479861910243 0.012658227848101267 0.002784810126582277 0.0\n0.0 0.0 11.507479861910243 1.2658227848101267 0.2784810126582277 0.0\n0.0 0.0 2.416570771001151 1.2658227848101267 0.27848101265822783 0.0");
+    }
+    
 
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\tsurprisal=" + surprisalList.get(i));

@@ -41,13 +41,20 @@ public class Grammar {
 
   private ClosureMatrix leftCornerClosures;
   private ClosureMatrix unaryClosures;
-  public Grammar(Index<String> wordIndex, Index<String> tagIndex, Map<Integer, Integer> nonterminals){
+  private Operator operator;
+  public Grammar(Index<String> wordIndex, Index<String> tagIndex, Map<Integer, Integer> nonterminals, Operator operator){
     this.wordIndex = wordIndex;
     this.tagIndex = tagIndex;
     this.nonterminalMap = nonterminals;
+    this.operator = operator;
     
     edgeSpace = new EdgeSpace(tagIndex);
-    ruleTrie = new TrieSurprisal();
+    if(operator instanceof LogProbOperator){
+      ruleTrie = new TrieSurprisal(true); // log prob
+    } else {
+      ruleTrie = new TrieSurprisal(false);
+    }
+      
   }
     
   /**
@@ -62,12 +69,12 @@ public class Grammar {
     
     /* do left-corner closures matrix */
     DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminalMap);
-    leftCornerClosures = new ClosureMatrix(pl);
+    leftCornerClosures = new ClosureMatrix(pl, operator);
     leftCornerClosures.changeIndices(nonterminalMap);
     
     /* do unary closure matrix */
     DoubleMatrix2D pu = relationMatrix.getPU(rules); //, nontermPretermIndexer);
-    unaryClosures = new ClosureMatrix(pu);
+    unaryClosures = new ClosureMatrix(pu, operator);
     
     /*** Extended rules ***/
     /* !!! Important: this needs to be added after closure matrix construction
@@ -76,14 +83,15 @@ public class Grammar {
     
     /*** construct predictions ***/
     predictionsArray = Prediction.constructPredictions(rules, leftCornerClosures, edgeSpace, tagIndex, 
-        Utility.getNonterminals(nonterminalMap)); 
+        Utility.getNonterminals(nonterminalMap), operator); 
     assert Prediction.checkPredictions(predictionsArray, edgeSpace);
 
     /*** construct completion Set[] ***/
     // here state space does implies new states added from extended rules
     // we purposely use the old nontermPretermIndexer
 //    completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
-    passiveEdge2completionsMap = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
+    passiveEdge2completionsMap = Completion.constructCompletions(unaryClosures, edgeSpace, 
+        tagIndex, operator);
     
     assert Completion.checkCompletions(passiveEdge2completionsMap, edgeSpace, tagIndex);
   }
@@ -100,7 +108,8 @@ public class Grammar {
       int motherState = edgeSpace.indexOfTag(extendedRule.getMother()); 
       assert(motherState == edgeSpace.indexOf(extendedRule.getMotherEdge()));
       assert(motherState >= 0);
-      ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), Math.log(extendedRule.score))); // add log value here 
+      ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), 
+          operator.getScore(extendedRule.score))); 
       
       if (verbose >= 4) {
         System.err.println("Add to trie: " + extendedRule.toString(tagIndex, wordIndex));

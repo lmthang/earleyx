@@ -23,6 +23,7 @@ import java.util.Set;
 import cern.colt.matrix.DoubleMatrix2D;
 
 import parser.Completion;
+import parser.Operator;
 import parser.Prediction;
 import parser.Rule;
 import parser.EdgeSpace;
@@ -328,10 +329,11 @@ public class Utility {
   }
   
   // print Prediction[]
-  public static String sprint(Prediction[] predictions, EdgeSpace edgeSpace, Index<String> tagIndex){
+  public static String sprint(Prediction[] predictions, EdgeSpace edgeSpace, 
+      Index<String> tagIndex, Operator operator){
     StringBuffer sb = new StringBuffer("(");
     for(Prediction prediction : predictions){
-      sb.append(prediction.toString(edgeSpace, tagIndex) + ", ");
+      sb.append(prediction.toString(edgeSpace, tagIndex, operator) + ", ");
     }
     if (predictions.length > 0) {
       sb.delete(sb.length()-2, sb.length());
@@ -341,10 +343,11 @@ public class Utility {
   }
 
   // print Completion[]
-  public static String sprint(Completion[] completions, EdgeSpace edgeSpace, Index<String> tagIndex){
+  public static String sprint(Completion[] completions, EdgeSpace edgeSpace, 
+      Index<String> tagIndex, Operator operator){
     StringBuffer sb = new StringBuffer("[");
     for(Completion completion : completions){
-      sb.append(completion.toString(edgeSpace, tagIndex) + ", ");
+      sb.append(completion.toString(edgeSpace, tagIndex, operator) + ", ");
     }
     if (completions.length > 0) {
       sb.delete(sb.length()-2, sb.length());

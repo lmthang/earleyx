@@ -9,6 +9,8 @@ import java.util.Set;
 
 import cern.colt.matrix.DoubleMatrix2D;
 
+import parser.LogProbOperator;
+import parser.Operator;
 import parser.Prediction;
 import parser.Rule;
 import parser.RuleFile;
@@ -24,6 +26,8 @@ import junit.framework.TestCase;
 
 
 public class PredictionTest extends TestCase {
+  private Operator operator = new LogProbOperator();
+  
   String ruleString = 
     "ROOT->[A] : 1.0\n" + 
     "A->[A B] : 0.1\n" +
@@ -69,14 +73,14 @@ public class PredictionTest extends TestCase {
     // closure matrix
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminalMap);
-    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl);
+    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator);
     leftCornerClosures.changeIndices(nonterminalMap);
     
     Prediction[][] predictions = Prediction.constructPredictions(rules, leftCornerClosures, stateSpace, tagIndex,
-        Utility.getNonterminals(nonterminalMap));
+        Utility.getNonterminals(nonterminalMap), operator);
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < predictions.length; i++) {
-      sb.append(stateSpace.get(i).toString(tagIndex, tagIndex) + ", " + Utility.sprint(predictions[i], stateSpace, tagIndex) + "\n");
+      sb.append(stateSpace.get(i).toString(tagIndex, tagIndex) + ", " + Utility.sprint(predictions[i], stateSpace, tagIndex, operator) + "\n");
     }
     assertEquals(sb.toString(), "ROOT -> . A, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nROOT -> ., ()\nA -> ., ()\nA -> . A B, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nA -> A . B, ((B -> . D E,f=0.8511,i=0.8000))\nB -> ., ()\nA -> . B C, ((B -> . D E,f=0.8511,i=0.8000))\nA -> B . C, ((B -> . D E,f=0.2553,i=0.8000))\nC -> ., ()\nA -> . A1, ()\nA1 -> ., ()\nA1 -> . A2, ()\nA2 -> ., ()\nB -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nB -> . D E, ()\nD -> ., ()\nB -> D . E, ()\nE -> ., ()\nC -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nC -> . D, ()\n");    
   }
