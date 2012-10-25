@@ -1,3 +1,4 @@
+doc/*
 *.lt
 *nohup.out*
 archive/*
@@ -8,4 +9,4 @@ grammars/social*
 .project
 output/*
 bin/*
-earleyx.jar
+earleyx*.jar

@@ -122,7 +122,7 @@ public class EarleyParserTest extends TestCase {
     "X->[_x] : 1.0\n";
     initParserFromString(infiniteGrammarString);
     
-    int numSymbols = 500;
+    int numSymbols = 100;
     StringBuffer sb = new StringBuffer("x");
     for (int i = 0; i < (numSymbols-1); i++) {
       sb.append(" x");

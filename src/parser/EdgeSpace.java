@@ -103,24 +103,24 @@ public class EdgeSpace {
     return activeEdgeIndex.indexOf(edge);
   }
 
-  public Edge get(int edgeIndex) {
-    return activeEdgeIndex.get(edgeIndex);
+  public Edge get(int edge) {
+    return activeEdgeIndex.get(edge);
   }
 
   public int size() {
     return size;
   }
 
-  public boolean isPassive(int state) {
-    return via[state] == -1;
+  public boolean isPassive(int edge) {
+    return via[edge] == -1;
   }
 
-  public int via(int state) {
-    return via[state];
+  public int via(int edge) {
+    return via[edge];
   }
 
-  public int to(int state) {
-    return to[state];
+  public int to(int edge) {
+    return to[edge];
   }
 
 

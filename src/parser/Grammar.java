@@ -30,7 +30,8 @@ public class Grammar {
   // keep track of rules of type X -> a b c, where "a b c" is a key, sequence of string,
   // while a pair of X, state id, and rule score is a value associated to the key
   private TrieSurprisal ruleTrie;  
-  private Completion[][] completionsArray; // completions[i] is the set of Completion instances for the state i 
+  //private Completion[][] completionsArray; // completions[i] is the set of Completion instances for the state i
+  private Map<Integer, Completion[]> passiveEdge2completionsMap;
   private Prediction[][] predictionsArray; // predictions[i] is the set of Prediction instances for the state i
   private EdgeSpace edgeSpace; // consist of all the rules
 
@@ -81,9 +82,10 @@ public class Grammar {
     /*** construct completion Set[] ***/
     // here state space does implies new states added from extended rules
     // we purposely use the old nontermPretermIndexer
-    completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
+//    completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
+    passiveEdge2completionsMap = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
     
-    assert Completion.checkCompletions(completionsArray, edgeSpace, tagIndex);
+    assert Completion.checkCompletions(passiveEdge2completionsMap, edgeSpace, tagIndex);
   }
 
   private void processExtendedRules(Collection<Rule> extendedRules){
@@ -124,8 +126,12 @@ public class Grammar {
   public TrieSurprisal getRuleTrie() {
     return ruleTrie;
   }
-  public Completion[] getCompletions(int pos) {
-    return completionsArray[pos];
+  public Completion[] getCompletions(int edge) {
+    if(passiveEdge2completionsMap.containsKey(edge)){
+      return passiveEdge2completionsMap.get(edge);
+    } else {
+      return Completion.NO_COMPLETION;
+    }
   }
 
   public Prediction[] getPredictions(int pos) {

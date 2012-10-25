@@ -19,6 +19,9 @@ public class EarleyParserDense extends EarleyParser{
   protected double[][] forwardProb;   // forwardProb[linear[leftEdge][rightEdge]][categoryNumber]
   protected double[][] innerProb;     // innerProb[linear[leftEdge][rightEdge]][categoryNumber]
   
+  protected void buildOutSide(){
+    
+  }
   public EarleyParserDense(Treebank treebank, String rootSymbol) {
     super(treebank, rootSymbol);
   }
@@ -182,7 +185,8 @@ public class EarleyParserDense extends EarleyParser{
         if (chartCount[middle][right]>0){ // there're active edges for the span [middle, right]
           flag = true;
           // check which categories have finished expanding [middle, right]
-          for (int edge = edgeSpaceSize - 1; edge >= 0; edge--) { // TODO: we could be faster here by going through only passive edges, Thang: why do we go back ward in edge ??
+          //for (int edge = edgeSpaceSize - 1; edge >= 0; edge--) { // TODO: we could be faster here by going through only passive edges, Thang: why do we go back ward in edge ??
+          for(int edge : edgeSpace.getPassiveEdges()){
             if (chartEntries[linear[middle][right]][edge]) { // right: middle Y -> _ .
               double inner = innerProb[linear[middle][right]][edge];
               complete(left, middle, right, edge, inner); // in completion the forward prob of Y -> _ . is ignored
@@ -382,11 +386,37 @@ public class EarleyParserDense extends EarleyParser{
     return edgeInfo(left, right, edge, forwardProb[linear[left][right]][edge], innerProb[linear[left][right]][edge]);
   }
   
-  public String edgeInfo(int left, int right, int edge, double logForward, double logInner){
+  private String edgeInfo(int left, int right, int edge, double logForward, double logInner){
     return right + ": " + left + " " + 
     g.getEdgeSpace().get(edge).toString(parserTagIndex, parserTagIndex) + " [" + 
     df.format(Math.exp(logForward)) + ", " + 
     df.format(Math.exp(logInner)) + "]";
+  }
+  
+  protected void dumpInnerChart() {
+    System.err.println("# Inner chat");
+    
+    for(int length=1; length<=numWords; length++){ // length
+      for (int left = 0; left <= numWords-length; left++) {
+        int right = left+length;
+
+        double scalingFactor = 0;
+        if(isScaling){
+          for(int i=left+1; i<=right; i++){
+            scalingFactor += scaling[i];
+          }
+        }
+        if(chartCount[left][right]>0){ // there're active states
+          System.err.println("cell " + left + "-" + right);
+          for (int edge = 0; edge < chartEntries[linear[left][right]].length; edge++) {
+            if (chartEntries[linear[left][right]][edge] && edgeSpace.isPassive(edge)) {
+              System.err.println(" " + g.getEdgeSpace().get(edge).toString(parserTagIndex, parserTagIndex) 
+                  + ": " + Math.exp(innerProb[linear[left][right]][edge]-scalingFactor));
+            }
+          }
+        }
+      }
+    }
   }
   
   void dumpChart() {

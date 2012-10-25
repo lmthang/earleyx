@@ -74,13 +74,12 @@ public class CompletionTest extends TestCase{
     DoubleMatrix2D pu = relationMatrix.getPU(rules);
     ClosureMatrix unaryClosures = new ClosureMatrix(pu);
     
-    Completion[][] completions = Completion.constructCompletions(unaryClosures, stateSpace, tagIndex);
+    Map<Integer, Completion[]>  passiveEdge2completionsMap = Completion.constructCompletions(unaryClosures, stateSpace, tagIndex);
     StringBuffer sb = new StringBuffer();
-    for (int i = 0; i < completions.length; i++) {
-      if(completions[i].length>0){
-        sb.append(stateSpace.get(i).toString(tagIndex, tagIndex) + ", " + Utility.sprint(completions[i], stateSpace, tagIndex) + "\n");
-      }
+    for(int passiveEdge : passiveEdge2completionsMap.keySet()){
+      Completion[] completions = passiveEdge2completionsMap.get(passiveEdge);
+      sb.append(stateSpace.get(passiveEdge).toString(tagIndex, tagIndex) + ", " + Utility.sprint(completions, stateSpace, tagIndex) + "\n");
     }
-    assertEquals(sb.toString(), "A -> ., [(A -> . A B, A -> A . B, 1.0), (ROOT -> . A, ROOT -> ., 1.0)]\nB -> ., [(A -> . B C, A -> B . C, 1.0638297872340425), (A -> A . B, A -> ., 1.0638297872340425), (C -> . B, C -> ., 1.0638297872340425), (A -> B . C, A -> ., 0.3191489361702127), (B -> . C, B -> ., 0.3191489361702127)]\nC -> ., [(B -> . C, B -> ., 1.0638297872340425), (A -> B . C, A -> ., 1.0638297872340425), (A -> A . B, A -> ., 0.21276595744680848), (A -> . B C, A -> B . C, 0.21276595744680848), (C -> . B, C -> ., 0.21276595744680848)]\nA1 -> ., [(A -> . A1, A -> ., 1.0), (A -> . A B, A -> A . B, 0.29999999999999993), (ROOT -> . A, ROOT -> ., 0.29999999999999993)]\nA2 -> ., [(A1 -> . A2, A1 -> ., 1.0), (A -> . A1, A -> ., 1.0), (A -> . A B, A -> A . B, 0.29999999999999993), (ROOT -> . A, ROOT -> ., 0.29999999999999993)]\nD -> ., [(B -> . D E, B -> D . E, 1.0), (B -> . C, B -> ., 0.7446808510638298), (A -> B . C, A -> ., 0.7446808510638298), (C -> . D, C -> ., 1.0), (A -> A . B, A -> ., 0.14893617021276595), (A -> . B C, A -> B . C, 0.14893617021276595), (C -> . B, C -> ., 0.14893617021276595)]\nE -> ., [(B -> D . E, B -> ., 1.0)]\n");    
+    assertEquals(sb.toString(), "E -> ., [(B -> D . E, B -> ., 1.0)]\nROOT -> ., []\nA -> ., [(A -> . A B, A -> A . B, 1.0), (ROOT -> . A, ROOT -> ., 1.0)]\nB -> ., [(A -> . B C, A -> B . C, 1.0638297872340425), (A -> A . B, A -> ., 1.0638297872340425), (C -> . B, C -> ., 1.0638297872340425), (A -> B . C, A -> ., 0.3191489361702127), (B -> . C, B -> ., 0.3191489361702127)]\nC -> ., [(B -> . C, B -> ., 1.0638297872340425), (A -> B . C, A -> ., 1.0638297872340425), (A -> A . B, A -> ., 0.21276595744680848), (A -> . B C, A -> B . C, 0.21276595744680848), (C -> . B, C -> ., 0.21276595744680848)]\nA1 -> ., [(A -> . A1, A -> ., 1.0), (A -> . A B, A -> A . B, 0.29999999999999993), (ROOT -> . A, ROOT -> ., 0.29999999999999993)]\nA2 -> ., [(A1 -> . A2, A1 -> ., 1.0), (A -> . A1, A -> ., 1.0), (A -> . A B, A -> A . B, 0.29999999999999993), (ROOT -> . A, ROOT -> ., 0.29999999999999993)]\nD -> ., [(B -> . D E, B -> D . E, 1.0), (B -> . C, B -> ., 0.7446808510638298), (A -> B . C, A -> ., 0.7446808510638298), (C -> . D, C -> ., 1.0), (A -> A . B, A -> ., 0.14893617021276595), (A -> . B C, A -> B . C, 0.14893617021276595), (C -> . B, C -> ., 0.14893617021276595)]\n");    
   }
 }

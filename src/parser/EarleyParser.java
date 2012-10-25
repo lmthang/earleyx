@@ -37,6 +37,7 @@ import lexicon.SmoothLexicon;
 
 public abstract class EarleyParser {
   protected Grammar g;
+  protected EdgeSpace edgeSpace;
   protected BaseLexicon lex;
   protected Collection<Rule> rules;
   protected Collection<Rule> extendedRules;
@@ -196,11 +197,11 @@ public abstract class EarleyParser {
   
   private void postInit(String rootSymbol){
     // root
-    rootEdge = g.getEdgeSpace().indexOf(rootRule.toEdge());
-    goalEdge = g.getEdgeSpace().indexOfTag(rootRule.getMother());
-    assert(goalEdge == g.getEdgeSpace().indexOf(rootRule.getMotherEdge()));
+    rootEdge = edgeSpace.indexOf(rootRule.toEdge());
+    goalEdge = edgeSpace.indexOfTag(rootRule.getMother());
+    assert(goalEdge == edgeSpace.indexOf(rootRule.getMotherEdge()));
     
-    edgeSpaceSize = g.getEdgeSpace().size();
+    edgeSpaceSize = edgeSpace.size();
     
     if(verbose>=2){
       System.err.println("postInit Earley Parser -- nonterminals: " + Utility.sprint(parserTagIndex, parserNonterminalMap.keySet()));
@@ -222,6 +223,7 @@ public abstract class EarleyParser {
     }
     g = new Grammar(parserWordIndex, parserTagIndex, parserNonterminalMap);
     g.learnGrammar(rules, extendedRules);
+    edgeSpace = g.getEdgeSpace();
     
     /* learn lexicon */
     if (verbose>=1){
@@ -243,6 +245,7 @@ public abstract class EarleyParser {
     }    
     g = new Grammar(parserWordIndex, parserTagIndex, parserNonterminalMap);
     g.learnGrammar(rules, extendedRules);
+    edgeSpace = g.getEdgeSpace();
     
     /* create lexicon */
     if (verbose>=1){
@@ -282,13 +285,16 @@ public abstract class EarleyParser {
       Timing.tick("finished parsing sentence. ");
       if(outWriter != null){ // output
         outWriter.write("# " + id + "\n");
-        synOutWriter.write("# " + id + "\n");
-        lexOutWriter.write("# " + id + "\n");
-        stringOutWriter.write("# " + id + "\n");
         Utility.outputSentenceResult(sentenceString, outWriter, surprisalList);
-        Utility.outputSentenceResult(sentenceString, synOutWriter, synSurprisalList);
-        Utility.outputSentenceResult(sentenceString, lexOutWriter, lexSurprisalList);
-        Utility.outputSentenceResult(sentenceString, stringOutWriter, stringProbList);
+
+        if(!isScaling){
+          synOutWriter.write("# " + id + "\n");
+          lexOutWriter.write("# " + id + "\n");
+          stringOutWriter.write("# " + id + "\n");
+          Utility.outputSentenceResult(sentenceString, synOutWriter, synSurprisalList);
+          Utility.outputSentenceResult(sentenceString, lexOutWriter, lexSurprisalList);
+          Utility.outputSentenceResult(sentenceString, stringOutWriter, stringProbList);
+        }
       }
     }
   }
@@ -362,6 +368,9 @@ public abstract class EarleyParser {
             
     }
 
+    if(verbose>=4){
+      dumpInnerChart();
+    }
     // compile result lists
     List<List<Double>> resultLists = new ArrayList<List<Double>>();
     resultLists.add(surprisalList);
@@ -403,7 +412,7 @@ public abstract class EarleyParser {
       System.err.println("# " + right + "\t" + word + ", numTags=" + iTWs.size());
     }
     for (IntTaggedWord itw : iTWs) { // go through each POS tag the current word could have
-      int edge = g.getEdgeSpace().indexOfTag(itw.tag());
+      int edge = edgeSpace.indexOfTag(itw.tag());
       double score = lex.score(itw);
       if(verbose>=1){
         System.err.println("Lexical prob: " + parserTagIndex.get(itw.tag()) + "->[_" 
@@ -427,7 +436,7 @@ public abstract class EarleyParser {
           System.err.println("AG full: " + words.subList(i, right) + ": " + Utility.sprint(valueMap, parserTagIndex));
         }
         for (int iT : valueMap.keySet()) {
-          int edge = g.getEdgeSpace().indexOfTag(iT);
+          int edge = edgeSpace.indexOfTag(iT);
           double score = valueMap.get(iT);
           
           if(isScaling){ // scaling
@@ -462,6 +471,8 @@ public abstract class EarleyParser {
   /**********************/
   /** Abstract methods **/
   /**********************/
+  protected abstract void dumpInnerChart();
+  
   /**
    * Returns the total probability of complete parses for the string prefix parsed so far.
    */
