@@ -72,10 +72,12 @@ public class EarleyParserSparse extends EarleyParser {
       double logInner) {
     int lrIndex = linear[left][right]; // left right index
     
-    assert(!forwardProb.containsKey(lrIndex));
-    forwardProb.put(lrIndex, new HashMap<Integer, Double>());
-    innerProb.put(lrIndex, new HashMap<Integer, Double>());
+    if(!forwardProb.containsKey(lrIndex)){
+      forwardProb.put(lrIndex, new HashMap<Integer, Double>());
+      innerProb.put(lrIndex, new HashMap<Integer, Double>());
+    }
     
+    assert(!forwardProb.get(lrIndex).containsKey(edge));
     forwardProb.get(lrIndex).put(edge, logForward);
     innerProb.get(lrIndex).put(edge, logInner);
     
@@ -165,7 +167,8 @@ public class EarleyParserSparse extends EarleyParser {
       for (int middle = right - 1; middle >= left; middle--) {
         int mrIndex = linear[middle][right]; // middle right index
         if(!forwardProb.containsKey(mrIndex)){
-          continue;
+          forwardProb.put(mrIndex, new HashMap<Integer, Double>());
+          innerProb.put(mrIndex, new HashMap<Integer, Double>());
         }
         
         // there're active edges for the span [middle, right]
@@ -202,9 +205,6 @@ public class EarleyParserSparse extends EarleyParser {
           for(Entry<Integer, Double> entry : valueMap.entrySet()){
             int tag = entry.getKey();
             double score = entry.getValue();
-            if(!isLogProb){
-              score = Math.exp(score);
-            }
             addPrefixProbExtendedRule(left, middle, right, tag, score);
           }
           
@@ -212,8 +212,12 @@ public class EarleyParserSparse extends EarleyParser {
     
         // completions yield edges: right: left X -> _ Y . _
         int lrIndex = linear[left][right];
-        storeProbs(theseForwardProb, forwardProb, lrIndex);
-        storeProbs(theseInnerProb, innerProb, lrIndex);
+        if(!forwardProb.containsKey(lrIndex)){
+          forwardProb.put(lrIndex, new HashMap<Integer, Double>());
+          innerProb.put(lrIndex, new HashMap<Integer, Double>());
+        }
+        storeProbs(theseForwardProb, forwardProb.get(lrIndex));
+        storeProbs(theseInnerProb, innerProb.get(lrIndex));
       } // end middle
     } // end left
     
@@ -266,12 +270,15 @@ public class EarleyParserSparse extends EarleyParser {
         //also a careful addition to the prefix probabilities -- is this right?
         if (middle == right - 1) {
           thisPrefixProb.add(newForwardProb);
-          double synProb = newForwardProb - inner;
+          double synProb = operator.divide(newForwardProb, inner);
           thisSynPrefixProb.add(synProb); // minus the lexical score
           if (verbose >= 2) {
-            System.err.println("# Prefix prob += " + Math.exp(newForwardProb) + "=" + 
+            System.err.println("# Prefix prob += " + operator.getProb(newForwardProb) + "=" + 
                 operator.getProb(forwardMap.get(completion.activeEdge)) + "*" + 
                 operator.getProb(completion.score) + "*" + operator.getProb(inner) + "\t" + left + "\t" + middle + "\t" + completion.activeEdge);
+            System.err.println("# Syn prefix prob += " + operator.getProb(synProb) + "=" + 
+                operator.getProb(newForwardProb) + "/" + 
+                operator.getProb(inner));
           }
         }
       }
@@ -315,17 +322,21 @@ public class EarleyParserSparse extends EarleyParser {
         }
         
         if (verbose >= 2) {
-          System.err.println("  # prefix prob AG += " + operator.getProb(prefixScore));
+          System.err.println("  # prefix prob AG += " + operator.getProb(prefixScore) + "(" +  
+              operator.getProb(forwardProb.get(lmIndex).get(completion.activeEdge)) + "*" +
+              operator.getProb(completion.score) + "*" + operator.getProb(inner)  + ")");
         }
       }
     }
   }    
 
-  private void storeProbs(Map<Integer, DoubleList> dl, Map<Integer, Map<Integer, Double>> probs, int index) {
+  private void storeProbs(Map<Integer, DoubleList> dl, Map<Integer, Double> probs) {
+    
     for (int edge : dl.keySet()) {
       double[] temps = dl.get(edge).toArray();
       if (temps.length > 0) {
-        probs.get(index).put(edge, operator.add(operator.arraySum(temps), probs.get(index).get(edge)));
+        double currentValue = (probs.containsKey(edge)) ? probs.get(edge) : operator.zero();
+        probs.put(edge, operator.add(operator.arraySum(temps), currentValue));
       }
     }
   }
@@ -369,8 +380,25 @@ public class EarleyParserSparse extends EarleyParser {
 
   @Override
   protected void dumpChart() {
-    // TODO Auto-generated method stub
-    
+    System.err.println("# Chart snapshot, edge space size = " + edgeSpaceSize);
+    for (int left = 0; left <= numWords; left++) {
+      for (int right = left; right <= numWords; right++) {
+        int lrIndex = linear[left][right];
+        
+        int count = forwardProb.containsKey(lrIndex) ? forwardProb.get(lrIndex).size() : 0;
+        if(count>0){ // there're active states
+          assert(forwardProb.get(lrIndex).size()>0);
+          
+          System.err.println("[" + left + "," + right + "]: " + count  
+              + " (" + df1.format(count*100.0/edgeSpaceSize) + "%)");
+          for (int edge : forwardProb.get(lrIndex).keySet()) {
+            System.err.println("  " + g.getEdgeSpace().get(edge).toString(parserTagIndex, parserTagIndex) 
+                + ": " + df.format(operator.getProb(forwardProb.get(lrIndex).get(edge))) 
+                + " " + df.format(operator.getProb(innerProb.get(lrIndex).get(edge))));
+          }
+        }
+      }
+    }
   }
 
 }

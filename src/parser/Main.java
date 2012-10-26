@@ -63,7 +63,7 @@ public class Main {
     System.err.println("\t\tout: output prefix to name output files");
     System.err.println();
     System.err.println("\t\t-root rootSymbol: specify the start symbol of sentences (default \"ROOT\")");
-    System.err.println("\t\toption: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse (todo)");
+    System.err.println("\t\toption: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse");
     System.err.println("\t\tprob: 0 -- log-prob (default), 1 -- normal prob");
     System.err.println("\t\tscale: 0 -- no scaling (default), 1 -- scaling");
     System.err.println("\t\tverbose: -1 -- no debug info (default), " + 
@@ -211,12 +211,23 @@ public class Main {
     } else if (argsMap.keySet().contains("-grammar")) { // read from grammar file
       String inGrammarFile = argsMap.get("-grammar")[0];
       System.err.println("In grammar file = " + inGrammarFile);
-      parser = new EarleyParserDense(inGrammarFile, rootSymbol, isScaling, isLogProb);
+      
+      if(parserOpt==0){ // dense
+        parser = new EarleyParserDense(inGrammarFile, rootSymbol, isScaling, isLogProb);
+      } else if(parserOpt==1){ // sparse
+        parser = new EarleyParserSparse(inGrammarFile, rootSymbol, isScaling, isLogProb);
+      }
+      
     } else if (argsMap.keySet().contains("-treebank")) { // read from treebank file      
       // transform trees
       String treeFile = argsMap.get("-treebank")[0];
       MemoryTreebank treebank = Utility.transformTrees(treeFile, transformerClassName, treebankPackClassName);
-      parser = new EarleyParserDense(treebank, rootSymbol, isScaling, isLogProb);
+      
+      if(parserOpt==0){ // dense
+        parser = new EarleyParserDense(treebank, rootSymbol, isScaling, isLogProb);
+      } else if(parserOpt==1){ // sparse
+        parser = new EarleyParserSparse(treebank, rootSymbol, isScaling, isLogProb);
+      }
       
       // save grammar
       String outGrammarFile = outPrefix + ".grammar"; //argsMap.get("-saveGrammar")[0];

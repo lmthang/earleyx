@@ -385,14 +385,16 @@ public class EarleyParserDense extends EarleyParser{
     System.err.println("# Chart snapshot, edge space size = " + edgeSpaceSize);
     for (int left = 0; left <= numWords; left++) {
       for (int right = left; right <= numWords; right++) {
-        if(chartCount[linear[left][right]]>0){ // there're active states
-          System.err.println("[" + left + "," + right + "]: " + chartCount[linear[left][right]]  
-              + " (" + df1.format(chartCount[linear[left][right]]*100.0/edgeSpaceSize) + "%)");
-          for (int edge = 0; edge < chartEntries[linear[left][right]].length; edge++) {
-            if (chartEntries[linear[left][right]][edge]) {
+        int lrIndex = linear[left][right];
+        
+        if(chartCount[lrIndex]>0){ // there're active states
+          System.err.println("[" + left + "," + right + "]: " + chartCount[lrIndex]  
+              + " (" + df1.format(chartCount[lrIndex]*100.0/edgeSpaceSize) + "%)");
+          for (int edge = 0; edge < chartEntries[lrIndex].length; edge++) {
+            if (chartEntries[lrIndex][edge]) {
               System.err.println("  " + g.getEdgeSpace().get(edge).toString(parserTagIndex, parserTagIndex) 
-                  + ": " + df.format(operator.getProb(forwardProb[linear[left][right]][edge])) 
-                  + " " + df.format(operator.getProb(innerProb[linear[left][right]][edge])));
+                  + ": " + df.format(operator.getProb(forwardProb[lrIndex][edge])) 
+                  + " " + df.format(operator.getProb(innerProb[lrIndex][edge])));
             }
           }
         }

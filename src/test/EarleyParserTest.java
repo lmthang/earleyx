@@ -9,6 +9,7 @@ import org.junit.Before;
 import parser.Completion;
 import parser.EarleyParser;
 import parser.EarleyParserDense;
+import parser.EarleyParserSparse;
 import parser.Grammar;
 import parser.Prediction;
 import parser.EdgeSpace;
@@ -18,6 +19,7 @@ import utility.Utility;
 
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
+  private int parserOpt = 1; // 0: dense, 1: sparse
   private boolean isScaling = true;
   private boolean isLogProb = false; 
 
@@ -78,12 +80,20 @@ public class EarleyParserTest extends TestCase {
   }
   
   private void initParserFromFile(String ruleFile){
-    parser = new EarleyParserDense(ruleFile, "ROOT", isScaling, isLogProb);
+    if(parserOpt==0){
+      parser = new EarleyParserDense(ruleFile, "ROOT", isScaling, isLogProb);
+    } else if(parserOpt==1){
+      parser = new EarleyParserSparse(ruleFile, "ROOT", isScaling, isLogProb);
+    }
   }
   
   private void initParserFromString(String grammarString){
     try {
-      parser= new EarleyParserDense(Utility.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb);
+      if(parserOpt==0){
+        parser= new EarleyParserDense(Utility.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb);
+      } else if(parserOpt==1){    
+        parser= new EarleyParserSparse(Utility.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb);
+      }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
