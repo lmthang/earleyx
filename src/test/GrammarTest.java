@@ -8,16 +8,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import parser.Edge;
-import parser.BaseEdge;
-import parser.Grammar;
-import parser.LogProbOperator;
-import parser.Operator;
-import parser.Rule;
-import parser.RuleFile;
-import parser.TerminalRule;
+import base.BaseEdge;
+import base.Edge;
+import base.Rule;
+import base.TerminalRule;
 
-import utility.Utility;
+import parser.Grammar;
+
+
+import util.LogProbOperator;
+import util.Operator;
+import util.RuleFile;
+import util.Util;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.util.HashIndex;
@@ -57,7 +59,7 @@ public class GrammarTest extends TestCase{
     
     
     try {
-      RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleString), 
+      RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
           rules, extendedRules, tag2wordsMap, word2tagsMap, 
           nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
@@ -119,7 +121,7 @@ public class GrammarTest extends TestCase{
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\na:prefix={NP=-1.6}\n chef:prefix={NP=-1.9}, end={NP=-1.9}\n soup:prefix={NP=-3.0}, end={NP=-3.0}\nthe:prefix={NP=-2.3}\n chef:prefix={NP=-2.3}, end={NP=-2.3}\ncook:prefix={VP=-2.3}\n soup:prefix={VP=-2.3}, end={VP=-2.3}");
  
     Edge r = new Edge(new BaseEdge("PP", new ArrayList<String>(), tagIndex, wordIndex), 0);
-    assertEquals(Utility.sprint(g.getCompletions(g.getEdgeSpace().indexOf(r)), g.getEdgeSpace(), 
+    assertEquals(Util.sprint(g.getCompletions(g.getEdgeSpace().indexOf(r)), g.getEdgeSpace(), 
         tagIndex, operator), "[(NP -> NP . PP, NP -> ., 1.0416666666666667), (VP -> V . NP, VP -> ., 0.1041666666666667), (NP -> . NP PP, NP -> NP . PP, 0.1041666666666667), (PP -> P . NP, PP -> ., 0.1041666666666667), (S -> . NP VP, S -> NP . VP, 0.1041666666666667)]");
 
   }

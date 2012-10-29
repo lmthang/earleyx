@@ -1,10 +1,10 @@
-package recursion;
+package base;
 
 import java.util.Collection;
 import java.util.Map;
 
-import parser.Rule;
-import utility.Utility;
+
+import util.Util;
 
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.RCDoubleMatrix2D;
@@ -39,7 +39,7 @@ public class RelationMatrix {
       System.err.println("\n# Construct left-corner relation matrix " + numRows + " x " + numRows);
       Timing.startTime();
       if(verbose>=2){
-        System.err.println(Utility.sprint(tagIndex, Utility.getNonterminals(nonterminalMap)));
+        System.err.println(Util.sprint(tagIndex, Util.getNonterminals(nonterminalMap)));
       }
     }
     
@@ -98,7 +98,7 @@ public class RelationMatrix {
       System.err.println("\n# Construct unit-production relation matrix " + numRows + " x " + numRows);
       Timing.startTime();
       if(verbose>=2){
-        System.err.println(Utility.sprint(tagIndex));
+        System.err.println(Util.sprint(tagIndex));
       }
     }
     

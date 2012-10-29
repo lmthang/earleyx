@@ -1,5 +1,8 @@
 package parser;
 
+import base.ClosureMatrix;
+import base.RelationMatrix;
+import base.Rule;
 import cern.colt.matrix.DoubleMatrix2D;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
@@ -9,10 +12,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import recursion.ClosureMatrix;
-import recursion.RelationMatrix;
-import utility.TrieSurprisal;
-import utility.Utility;
+
+import util.LogProbOperator;
+import util.Operator;
+import util.TrieSurprisal;
+import util.Util;
 
 /**
  * A grammar to supply to construct an {@link EarleyParser}, which prebuilds:
@@ -83,7 +87,7 @@ public class Grammar {
     
     /*** construct predictions ***/
     predictionsArray = Prediction.constructPredictions(rules, leftCornerClosures, edgeSpace, tagIndex, 
-        Utility.getNonterminals(nonterminalMap), operator); 
+        Util.getNonterminals(nonterminalMap), operator); 
     assert Prediction.checkPredictions(predictionsArray, edgeSpace);
 
     /*** construct completion Set[] ***/
@@ -109,7 +113,7 @@ public class Grammar {
       assert(motherState == edgeSpace.indexOf(extendedRule.getMotherEdge()));
       assert(motherState >= 0);
       ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), 
-          operator.getScore(extendedRule.score))); 
+          operator.getScore(extendedRule.getScore()))); 
       
       if (verbose >= 4) {
         System.err.println("Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
@@ -122,7 +126,7 @@ public class Grammar {
     }
     
     if (verbose >= 4) {
-      System.err.println(Utility.sprint(extendedRules, wordIndex, tagIndex));
+      System.err.println(Util.sprint(extendedRules, wordIndex, tagIndex));
       System.err.println(ruleTrie.toString(wordIndex, tagIndex));
     }
     if (verbose >= 1) {

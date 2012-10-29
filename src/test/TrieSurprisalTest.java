@@ -2,7 +2,7 @@ package test;
 
 import java.util.Arrays;
 
-import utility.TrieSurprisal;
+import util.TrieSurprisal;
 
 import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;

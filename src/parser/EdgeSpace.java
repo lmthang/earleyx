@@ -6,7 +6,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import utility.Utility;
+import base.Edge;
+import base.Rule;
+
+import util.Util;
 
 import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;
@@ -52,7 +55,7 @@ public class EdgeSpace {
       System.err.println("\n## Setting up edge space ...");
     }
     if(verbose >= 3){
-      System.err.println("Rules: " + Utility.sprint(rules, tagIndex, tagIndex));
+      System.err.println("Rules: " + Util.sprint(rules, tagIndex, tagIndex));
     }
     
     int numRules = 0;
@@ -78,7 +81,7 @@ public class EdgeSpace {
     }
      
     if(verbose >= 3){      
-      System.err.println("Active indices: " + Utility.sprint(tagIndex, activeIndices));
+      System.err.println("Active indices: " + Util.sprint(tagIndex, activeIndices));
     }
     if (verbose >= 1) {
       Timing.tick("Done! Num rules=" + numRules + ", state space size=" + size 

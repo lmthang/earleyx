@@ -8,13 +8,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import parser.SmoothLexicon;
+
+import base.Rule;
+
 import junit.framework.TestCase;
-import lexicon.SmoothLexicon;
 
-import parser.Rule;
-import parser.RuleFile;
 
-import utility.Utility;
+import util.RuleFile;
+import util.Util;
 
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.Counter;
@@ -62,7 +64,7 @@ public class RuleFileTest extends TestCase{
     
     
     try {
-      RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleString), 
+      RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
           rules, extendedRules, tag2wordsMap, word2tagsMap, 
           nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
@@ -73,12 +75,12 @@ public class RuleFileTest extends TestCase{
     assertEquals(tagIndex.toString(), "[0=ROOT,1=A,2=B,3=C,4=D]");
     assertEquals(wordIndex.toString(), "[0=b,1=c,2=d,3=UNK,4=UNK-1]");
     
-    assertEquals(Utility.sprint(rules, wordIndex, tagIndex), "ROOT->[A] : 1.0\nA->[B C] : 0.4\nA->[D B] : 0.4\n");
-    assertEquals(Utility.sprint(extendedRules, wordIndex, tagIndex), "A->[_b _c] : 0.1\nA->[_d _b] : 0.1\n");
+    assertEquals(Util.sprint(rules, wordIndex, tagIndex), "ROOT->[A] : 1.0\nA->[B C] : 0.4\nA->[D B] : 0.4\n");
+    assertEquals(Util.sprint(extendedRules, wordIndex, tagIndex), "A->[_b _c] : 0.1\nA->[_d _b] : 0.1\n");
     
-    assertEquals(Utility.sprint(tagIndex, nonterminalMap.keySet()), "[ROOT, A]");
-    assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=0.9, UNK=0.1}, C={c=0.9, UNK=0.1}, D={d=0.8, UNK=0.1, UNK-1=0.1}");
-    assertEquals(Utility.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, c=[c/C}, d=[d/D}, UNK=[UNK/C, UNK/B, UNK/D}, UNK-1=[UNK-1/D}");
+    assertEquals(Util.sprint(tagIndex, nonterminalMap.keySet()), "[ROOT, A]");
+    assertEquals(Util.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=0.9, UNK=0.1}, C={c=0.9, UNK=0.1}, D={d=0.8, UNK=0.1, UNK-1=0.1}");
+    assertEquals(Util.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, c=[c/C}, d=[d/D}, UNK=[UNK/C, UNK/B, UNK/D}, UNK-1=[UNK-1/D}");
   }
   
   public void testRuleSmoothing(){
@@ -92,7 +94,7 @@ public class RuleFileTest extends TestCase{
     
     /* Input */
     try {
-      RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleStringNoSmooth), rules, extendedRules, tag2wordsMap, 
+      RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleStringNoSmooth), rules, extendedRules, tag2wordsMap, 
           word2tagsMap, nonterminalMap, wordIndex, tagIndex); // we don't care much about extended rules, just treat them as rules
       //rules.addAll(extendedRules);
     } catch (IOException e){
@@ -101,19 +103,19 @@ public class RuleFileTest extends TestCase{
     }
     System.err.println(ruleStringNoSmooth);
     
-    assertEquals(Utility.sprint(rules, wordIndex, tagIndex), "ROOT->[A] : 5.0\nA->[B C] : 4.0\nA->[D B] : 4.0\n");
+    assertEquals(Util.sprint(rules, wordIndex, tagIndex), "ROOT->[A] : 5.0\nA->[B C] : 4.0\nA->[D B] : 4.0\n");
     
     /* Smooth */
-    assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0}, C={C=1.0}, D={d=1.0}");
+    assertEquals(Util.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0}, C={C=1.0}, D={d=1.0}");
     SmoothLexicon.smooth(tag2wordsMap, wordIndex, tagIndex, word2tagsMap, true); //Map<IntTaggedWord, Counter<IntTaggedWord>> newWordCounterTagMap = RuleFile.smoothWordCounterTagMap(tag2wordsMap);
-    assertEquals(Utility.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0, UNK=1.0, UNK-LC-DIG=2.0}, C={C=1.0, UNK=1.0, UNK-ALLC=1.0}, D={d=1.0, UNK=1.0, UNK-LC=1.0}");
+    assertEquals(Util.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0, UNK=1.0, UNK-LC-DIG=2.0}, C={C=1.0, UNK=1.0, UNK-ALLC=1.0}, D={d=1.0, UNK=1.0, UNK-LC=1.0}");
     
-    assertEquals(Utility.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, d=[d/D}, b1=[b1/B}, b2=[b2/B}, b3=[b3/B}, C=[C/C}, UNK=[UNK/D, UNK/C, UNK/B}, UNK-LC-DIG=[UNK-LC-DIG/B}, UNK-ALLC=[UNK-ALLC/C}, UNK-LC=[UNK-LC/D}");
+    assertEquals(Util.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, d=[d/D}, b1=[b1/B}, b2=[b2/B}, b3=[b3/B}, C=[C/C}, UNK=[UNK/D, UNK/C, UNK/B}, UNK-LC-DIG=[UNK-LC-DIG/B}, UNK-ALLC=[UNK-ALLC/C}, UNK-LC=[UNK-LC/D}");
     
     
     
     // test scheme print
     rules.addAll(extendedRules);
-    assertEquals(Utility.schemeSprint(rules, wordIndex, tagIndex), "[(ROOT (_ A)), (A (_ B) (_ C)), (A (_ D) (_ B)), (A (_ _b) (_ _c)), (A (_ _d) (_ _b))]");
+    assertEquals(Util.schemeSprint(rules, wordIndex, tagIndex), "[(ROOT (_ A)), (A (_ B) (_ C)), (A (_ D) (_ B)), (A (_ _b) (_ _c)), (A (_ _d) (_ _b))]");
   }
 }

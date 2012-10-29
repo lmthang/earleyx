@@ -2,7 +2,8 @@ package test;
 
 import java.util.Arrays;
 import java.util.List;
-import utility.Trie;
+
+import util.Trie;
 
 import junit.framework.TestCase;
 

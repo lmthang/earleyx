@@ -2,12 +2,14 @@ package test;
 
 import java.util.Arrays;
 
+import base.BaseEdge;
+import base.Edge;
+
+import parser.EdgeSpace;
+
 import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;
 
-import parser.Edge;
-import parser.BaseEdge;
-import parser.EdgeSpace;
 import junit.framework.TestCase;
 
 

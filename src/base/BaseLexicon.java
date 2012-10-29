@@ -1,4 +1,4 @@
-package lexicon;
+package base;
 
 import java.util.Arrays;
 import java.util.Collection;

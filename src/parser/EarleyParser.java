@@ -23,10 +23,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import utility.Utility;
+import base.BaseLexicon;
+import base.Rule;
 
-import lexicon.BaseLexicon;
-import lexicon.SmoothLexicon;
+import util.LogProbOperator;
+import util.Operator;
+import util.ProbOperator;
+import util.RuleFile;
+import util.Util;
+
 
 /**
  * Abstract class for an Earley parser instance
@@ -110,7 +115,7 @@ public abstract class EarleyParser {
   public EarleyParser(Treebank treebank, String rootSymbol, boolean isScaling, boolean isLogProb){
     preInit(rootSymbol, isScaling, isLogProb);
     Pair<Collection<Rule>, Collection<IntTaggedWord>> rules_itws = 
-      Utility.extractRulesWordsFromTreebank(treebank, parserWordIndex, parserTagIndex, parserNonterminalMap);
+      Util.extractRulesWordsFromTreebank(treebank, parserWordIndex, parserTagIndex, parserNonterminalMap);
     rules.addAll(rules_itws.first());
     buildGrammarLex(rules, new ArrayList<Rule>(), rules_itws.second());
     postInit(rootSymbol);
@@ -118,7 +123,7 @@ public abstract class EarleyParser {
   public EarleyParser(String grammarFile, String rootSymbol, boolean isScaling, boolean isLogProb){
     preInit(rootSymbol, isScaling, isLogProb);
     try{
-      init(Utility.getBufferedReaderFromFile(grammarFile), rootSymbol);
+      init(Util.getBufferedReaderFromFile(grammarFile), rootSymbol);
     } catch(FileNotFoundException e){
       System.err.println("! Problem reading grammar file " + grammarFile);
       e.printStackTrace();
@@ -204,7 +209,7 @@ public abstract class EarleyParser {
     edgeSpaceSize = edgeSpace.size();
     
     if(verbose>=2){
-      System.err.println("postInit Earley Parser -- nonterminals: " + Utility.sprint(parserTagIndex, parserNonterminalMap.keySet()));
+      System.err.println("postInit Earley Parser -- nonterminals: " + Util.sprint(parserTagIndex, parserNonterminalMap.keySet()));
     }
   }
   
@@ -285,15 +290,15 @@ public abstract class EarleyParser {
       Timing.tick("finished parsing sentence. ");
       if(outWriter != null){ // output
         outWriter.write("# " + id + "\n");
-        Utility.outputSentenceResult(sentenceString, outWriter, surprisalList);
+        Util.outputSentenceResult(sentenceString, outWriter, surprisalList);
 
         if(!isScaling){
           synOutWriter.write("# " + id + "\n");
           lexOutWriter.write("# " + id + "\n");
           stringOutWriter.write("# " + id + "\n");
-          Utility.outputSentenceResult(sentenceString, synOutWriter, synSurprisalList);
-          Utility.outputSentenceResult(sentenceString, lexOutWriter, lexSurprisalList);
-          Utility.outputSentenceResult(sentenceString, stringOutWriter, stringProbList);
+          Util.outputSentenceResult(sentenceString, synOutWriter, synSurprisalList);
+          Util.outputSentenceResult(sentenceString, lexOutWriter, lexSurprisalList);
+          Util.outputSentenceResult(sentenceString, stringOutWriter, stringProbList);
         }
       }
     }
@@ -359,7 +364,7 @@ public abstract class EarleyParser {
 
         // print info
         if(verbose>=0){
-          System.err.println(Utility.sprint(parserWordIndex, wordIndices.subList(0, right)));
+          System.err.println(Util.sprint(parserWordIndex, wordIndices.subList(0, right)));
           String msg = "Prefix probability: " + prefixProbability + "\n" +
           "String probability: " + stringProbability + "\n" +
           "Surprisal: " + surprisalList.get(wordId) + " = -log(" + 
@@ -373,7 +378,7 @@ public abstract class EarleyParser {
         surprisalList.add(-Math.log(prefixProbability));
         
         if(verbose>=0){
-          System.err.println(Utility.sprint(parserWordIndex, wordIndices.subList(0, right)));
+          System.err.println(Util.sprint(parserWordIndex, wordIndices.subList(0, right)));
           String msg = "Scaled prefix probability: " + prefixProbability + "\n" +
           "Scaling: " + scaling[right] + "\n" + 
           "Surprisal: " + surprisalList.get(wordId) + " = -log(" + prefixProbability + ")\n";
@@ -448,7 +453,7 @@ public abstract class EarleyParser {
       Map<Integer, Double> valueMap = g.getRuleTrie().findAllMap(wordIndices.subList(i, right));
       if(valueMap != null){
         if (verbose>=3){
-          System.err.println("AG full: " + words.subList(i, right) + ": " + Utility.sprint(valueMap, parserTagIndex));
+          System.err.println("AG full: " + words.subList(i, right) + ": " + Util.sprint(valueMap, parserTagIndex));
         }
         for (int iT : valueMap.keySet()) {
           int edge = edgeSpace.indexOfTag(iT);
@@ -537,7 +542,7 @@ public abstract class EarleyParser {
       scaling = new double[numWords + 1];
       if(containsExtendedRule){
         scalingMatrix = new double[numCells];
-        Utility.init(scalingMatrix, operator.one());
+        Util.init(scalingMatrix, operator.one());
       }
     }
     

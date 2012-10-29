@@ -7,17 +7,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import base.ClosureMatrix;
+import base.RelationMatrix;
+import base.Rule;
+
 import cern.colt.matrix.DoubleMatrix2D;
 
-import parser.LogProbOperator;
-import parser.Operator;
-import parser.Prediction;
-import parser.Rule;
-import parser.RuleFile;
 import parser.EdgeSpace;
-import recursion.ClosureMatrix;
-import recursion.RelationMatrix;
-import utility.Utility;
+import parser.Prediction;
+import util.LogProbOperator;
+import util.Operator;
+import util.RuleFile;
+import util.Util;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.util.HashIndex;
@@ -58,7 +59,7 @@ public class PredictionTest extends TestCase {
     
     
     try {
-      RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleString), 
+      RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
           rules, extendedRules, tag2wordsMap, word2tagsMap, 
           nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
@@ -77,10 +78,10 @@ public class PredictionTest extends TestCase {
     leftCornerClosures.changeIndices(nonterminalMap);
     
     Prediction[][] predictions = Prediction.constructPredictions(rules, leftCornerClosures, stateSpace, tagIndex,
-        Utility.getNonterminals(nonterminalMap), operator);
+        Util.getNonterminals(nonterminalMap), operator);
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < predictions.length; i++) {
-      sb.append(stateSpace.get(i).toString(tagIndex, tagIndex) + ", " + Utility.sprint(predictions[i], stateSpace, tagIndex, operator) + "\n");
+      sb.append(stateSpace.get(i).toString(tagIndex, tagIndex) + ", " + Util.sprint(predictions[i], stateSpace, tagIndex, operator) + "\n");
     }
     assertEquals(sb.toString(), "ROOT -> . A, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nROOT -> ., ()\nA -> ., ()\nA -> . A B, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nA -> A . B, ((B -> . D E,f=0.8511,i=0.8000))\nB -> ., ()\nA -> . B C, ((B -> . D E,f=0.8511,i=0.8000))\nA -> B . C, ((B -> . D E,f=0.2553,i=0.8000))\nC -> ., ()\nA -> . A1, ()\nA1 -> ., ()\nA1 -> . A2, ()\nA2 -> ., ()\nB -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nB -> . D E, ()\nD -> ., ()\nB -> D . E, ()\nE -> ., ()\nC -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nC -> . D, ()\n");    
   }

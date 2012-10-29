@@ -3,8 +3,9 @@ package test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import parser.Edge;
-import parser.BaseEdge;
+import base.BaseEdge;
+import base.Edge;
+
 
 import junit.framework.TestCase;
 

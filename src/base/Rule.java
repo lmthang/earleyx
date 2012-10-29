@@ -1,6 +1,7 @@
-package parser;
+package base;
 
 import java.util.List;
+
 
 import edu.stanford.nlp.util.Index;
 

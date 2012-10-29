@@ -12,10 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import recursion.ClosureMatrix;
-import recursion.RelationMatrix;
+import base.ClosureMatrix;
+import base.RelationMatrix;
+import base.Rule;
 
-import utility.Utility;
+
+import util.RuleFile;
+import util.Util;
 
 /**
  * An implementation of the Stolcke 1995 chart parsing algorithm that calculates the prefix probability
@@ -65,7 +68,7 @@ public class Main {
     System.err.println("\t\t-root rootSymbol: specify the start symbol of sentences (default \"ROOT\")");
     System.err.println("\t\toption: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse");
     System.err.println("\t\tprob: 0 -- log-prob (default), 1 -- normal prob");
-    System.err.println("\t\tscale: 0 -- no scaling (default), 1 -- scaling");
+    System.err.println("\t\tscale: 0 -- no rescaling (default), 1 -- rescaling");
     System.err.println("\t\tverbose: -1 -- no debug info (default), " + 
         "0: surprisal per word, 1-4 -- increasing more details");
     System.exit(1);
@@ -95,7 +98,7 @@ public class Main {
     flags.put("-id", new Integer(1)); // sentence indices
     flags.put("-opt", new Integer(1)); // 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)
     flags.put("-prob", new Integer(1)); // 0 -- log-prob (default), 1 -- normal prob
-    flags.put("-scale", new Integer(1)); // 0 -- no scaling (default), 1 -- scaling
+    flags.put("-scale", new Integer(1)); // 0 -- no rescaling (default), 1 -- rescaling
     flags.put("-root", new Integer(1)); // root symbol
     flags.put("-verbose", new Integer(1));     // 0: no debug info (default), 1: progress info, 2: closure matrices, combine/predict parsing info, 3: details edge/rule info, parser chart, prediction/completion list info, trie
     flags.put("-debug", new Integer(1));
@@ -160,7 +163,7 @@ public class Main {
       String sentencesFileName = argsMap.get("-in")[0];
       System.err.println("# Input file =" + sentencesFileName);
       try {
-        sentences = Utility.loadFile(sentencesFileName);
+        sentences = Util.loadFile(sentencesFileName);
       } catch (IOException e) {
         System.err.println("! Main: error loading input file " + sentencesFileName);
         System.err.println(e);
@@ -175,7 +178,7 @@ public class Main {
     if (argsMap.keySet().contains("-id")) {
       String idFile = argsMap.get("-id")[0];
       try {
-        indices = Utility.loadFile(idFile);
+        indices = Util.loadFile(idFile);
       } catch (IOException e) {
         System.err.println("! Main: error loading id file " + idFile);
         System.exit(1);
@@ -221,7 +224,7 @@ public class Main {
     } else if (argsMap.keySet().contains("-treebank")) { // read from treebank file      
       // transform trees
       String treeFile = argsMap.get("-treebank")[0];
-      MemoryTreebank treebank = Utility.transformTrees(treeFile, transformerClassName, treebankPackClassName);
+      MemoryTreebank treebank = Util.transformTrees(treeFile, transformerClassName, treebankPackClassName);
       
       if(parserOpt==0){ // dense
         parser = new EarleyParserDense(treebank, rootSymbol, isScaling, isLogProb);

@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import recursion.ClosureMatrix;
+import base.ClosureMatrix;
+import base.Edge;
+
+import util.Operator;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Timing;
 

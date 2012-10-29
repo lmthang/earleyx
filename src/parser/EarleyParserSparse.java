@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import utility.Utility;
+import util.Util;
 
 import edu.stanford.nlp.trees.Treebank;
 import edu.stanford.nlp.util.DoubleList;
@@ -199,8 +199,8 @@ public class EarleyParserSparse extends EarleyParser {
         
         if(valueMap != null){
           if(verbose >= 2){
-            System.err.println("# AG prefix " + Utility.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
-                ": " + Utility.sprint(valueMap, parserTagIndex));
+            System.err.println("# AG prefix " + Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
+                ": " + Util.sprint(valueMap, parserTagIndex));
           }
           for(Entry<Integer, Double> entry : valueMap.entrySet()){
             int tag = entry.getKey();
@@ -233,7 +233,7 @@ public class EarleyParserSparse extends EarleyParser {
     
     if (verbose>=3 && completions.length>0){
       System.err.println("End edge " + edgeInfo(middle, right, passive) 
-          + ", completions: " + Utility.sprint(completions, 
+          + ", completions: " + Util.sprint(completions, 
               g.getEdgeSpace(), parserTagIndex, operator));
     }
     
@@ -291,7 +291,7 @@ public class EarleyParserSparse extends EarleyParser {
     
     if (verbose>=3 && completions.length>0){
       System.err.println("  End edge " + edgeInfo(middle, right, passive) 
-          + ", completions: " + Utility.sprint(completions, g.getEdgeSpace(), 
+          + ", completions: " + Util.sprint(completions, g.getEdgeSpace(), 
               parserTagIndex, operator));
     }
    

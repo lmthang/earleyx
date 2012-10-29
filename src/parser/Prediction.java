@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import recursion.ClosureMatrix;
-import utility.Utility;
+import base.ClosureMatrix;
+import base.Rule;
+
+import util.Operator;
+import util.Util;
 
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Timing;
@@ -79,7 +82,7 @@ public class Prediction {
         }
         
         assert(r.getScore()>=0 && r.getScore()<=1);
-        double rewriteScore = operator.getScore(r.score);
+        double rewriteScore = operator.getScore(r.getScore());
         
         int predictedCategoryMotherIndex = r.getMother();
         int predictedState = stateSpace.indexOf(r.toEdge());
@@ -126,7 +129,7 @@ public class Prediction {
           
           if(verbose>=4){
             System.err.println("Edge " + predictorState + ", " + stateSpace.get(predictorState).toString(tagIndex, tagIndex)
-                + ": predictions " + Utility.sprint(predictions[predictorState], stateSpace, tagIndex, operator));
+                + ": predictions " + Util.sprint(predictions[predictorState], stateSpace, tagIndex, operator));
           }
         } else {
           predictions[predictorState] = NO_PREDICTION;

@@ -7,15 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import base.ClosureMatrix;
+import base.RelationMatrix;
+import base.Rule;
+
 import cern.colt.matrix.DoubleMatrix2D;
 
-import parser.LogProbOperator;
-import parser.Operator;
-import parser.Rule;
-import parser.RuleFile;
-import recursion.ClosureMatrix;
-import recursion.RelationMatrix;
-import utility.Utility;
+import util.LogProbOperator;
+import util.Operator;
+import util.RuleFile;
+import util.Util;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.util.HashIndex;
@@ -52,7 +53,7 @@ public class RelationClosureMatrixTest extends TestCase{
     
     
     try {
-      RuleFile.parseRuleFile(Utility.getBufferedReaderFromString(ruleString), 
+      RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
           rules, extendedRules, tag2wordsMap, word2tagsMap, 
           nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
@@ -68,10 +69,10 @@ public class RelationClosureMatrixTest extends TestCase{
     
     /* do left-corner closures matrix */
     DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminalMap);
-    assertEquals(Utility.sprint(pl), "0.0 1.0 0.0 0.0\n0.0 0.1 0.1 0.0\n0.0 0.0 0.0 0.2\n0.0 0.0 0.3 0.0");
+    assertEquals(Util.sprint(pl), "0.0 1.0 0.0 0.0\n0.0 0.1 0.1 0.0\n0.0 0.0 0.0 0.2\n0.0 0.0 0.3 0.0");
     ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator);
     leftCornerClosures.changeIndices(nonterminalMap);
-    assertEquals(Utility.sprint(leftCornerClosures.getClosureMatrix()), "0.0 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745");
+    assertEquals(Util.sprint(leftCornerClosures.getClosureMatrix()), "0.0 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745");
     
     // Matlab code
     // a = [0 1 0 0 0 0; 0 0.1 0.1 0 0 0; 0 0 0 0.2 0 0; 0 0 0.3 0 0 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
@@ -79,10 +80,10 @@ public class RelationClosureMatrixTest extends TestCase{
     
     /* do unary closure matrix */
     DoubleMatrix2D pu = relationMatrix.getPU(rules); //, nontermPretermIndexer);
-    assertEquals(Utility.sprint(pu), "0.0 1.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.2 0.0 0.0\n0.0 0.0 0.3 0.0 0.7 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0");
+    assertEquals(Util.sprint(pu), "0.0 1.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.2 0.0 0.0\n0.0 0.0 0.3 0.0 0.7 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0");
     ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator);
-    assertEquals(Utility.sprint(unaryClosures.getClosureMatrix()), "0.0 0.0 -Infinity -Infinity -Infinity -Infinity\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013 -1.9042374526547454 -Infinity\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745 -0.294799540220645 -Infinity");
-    System.err.println(Utility.sprint(unaryClosures.getClosureMatrix()));
+    assertEquals(Util.sprint(unaryClosures.getClosureMatrix()), "0.0 0.0 -Infinity -Infinity -Infinity -Infinity\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013 -1.9042374526547454 -Infinity\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745 -0.294799540220645 -Infinity");
+    System.err.println(Util.sprint(unaryClosures.getClosureMatrix()));
     // Matlab code
     // a = [0 1 0 0 0 0; 0 0 0 0 0 0; 0 0 0 0.2 0 0; 0 0 0.3 0 0.7 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
     // log((eye(6)-a)^(-1))

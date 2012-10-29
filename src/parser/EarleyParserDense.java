@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import utility.Utility;
+import util.Util;
 
 import edu.stanford.nlp.trees.Treebank;
 import edu.stanford.nlp.util.DoubleList;
@@ -39,8 +39,8 @@ public class EarleyParserDense extends EarleyParser{
     forwardProb = new double[numCells][edgeSpaceSize];
     innerProb = new double[numCells][edgeSpaceSize];
     chartCount = new int[numCells];
-    Utility.init(forwardProb, operator.zero());
-    Utility.init(innerProb, operator.zero());
+    Util.init(forwardProb, operator.zero());
+    Util.init(innerProb, operator.zero());
   }
   
   /* used as holding zone for predictions */
@@ -59,8 +59,8 @@ public class EarleyParserDense extends EarleyParser{
     predictedForwardProb = new double[edgeSpaceSize];
     predictedInnerProb = new double[edgeSpaceSize];
     predictedChartCount = 0;
-    Utility.init(predictedForwardProb, operator.zero());
-    Utility.init(predictedInnerProb, operator.zero());
+    Util.init(predictedForwardProb, operator.zero());
+    Util.init(predictedInnerProb, operator.zero());
     
     boolean flag = false;
     for (int left = 0; left <= right; left++) {
@@ -164,8 +164,8 @@ public class EarleyParserDense extends EarleyParser{
         
         if(valueMap != null){
           if(verbose >= 2){
-            System.err.println("# AG prefix " + Utility.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
-                ": " + Utility.sprint(valueMap, parserTagIndex));
+            System.err.println("# AG prefix " + Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
+                ": " + Util.sprint(valueMap, parserTagIndex));
           }
           for(Entry<Integer, Double> entry : valueMap.entrySet()){
             int tag = entry.getKey();
@@ -207,7 +207,7 @@ public class EarleyParserDense extends EarleyParser{
     
     if (verbose>=3 && completions.length>0){
       System.err.println("End edge " + edgeInfo(middle, right, passive) 
-          + ", completions: " + Utility.sprint(completions, g.getEdgeSpace(), parserTagIndex, operator));
+          + ", completions: " + Util.sprint(completions, g.getEdgeSpace(), parserTagIndex, operator));
     }
     
     int lmIndex = linear[left][middle]; // left middle index
@@ -258,7 +258,7 @@ public class EarleyParserDense extends EarleyParser{
     
     if (verbose>=3 && completions.length>0){
       System.err.println("  End edge " + edgeInfo(middle, right, passive) 
-          + ", completions: " + Utility.sprint(completions, g.getEdgeSpace(), parserTagIndex, operator));
+          + ", completions: " + Util.sprint(completions, g.getEdgeSpace(), parserTagIndex, operator));
     }
    
 

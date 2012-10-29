@@ -1,4 +1,4 @@
-package parser;
+package util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -15,9 +15,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import utility.Utility;
+import parser.SmoothLexicon;
 
-import lexicon.SmoothLexicon;
+import base.Rule;
+import base.TerminalRule;
+
+
 
 
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
@@ -190,7 +193,7 @@ public class RuleFile {
     }
     
     // rules: non-terminal -> non-terminals
-    bw.write(Utility.sprint(rules, wordIndex, tagIndex));
+    bw.write(Util.sprint(rules, wordIndex, tagIndex));
 //    for(Rule rule : rules){
 //      bw.write(rule + "\n");
 //    }
@@ -280,7 +283,7 @@ public class RuleFile {
     
     /* Input */
     try {
-      RuleFile.parseRuleFile(Utility.getBufferedReaderFromFile(ruleFile), rules, extendedRules, tag2wordsMap, 
+      RuleFile.parseRuleFile(Util.getBufferedReaderFromFile(ruleFile), rules, extendedRules, tag2wordsMap, 
           word2tagsMap, nonterminalMap, wordIndex, tagIndex); //, tagHash, seenEnd); // we don't care much about extended rules, just treat them as rules
       //rules.addAll(extendedRules);
     } catch (IOException e){

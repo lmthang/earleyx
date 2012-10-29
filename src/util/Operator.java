@@ -1,4 +1,4 @@
-package parser;
+package util;
 
 /**
  * Make it easier to handle in prob or log-prob doamains 

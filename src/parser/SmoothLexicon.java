@@ -1,10 +1,12 @@
-package lexicon;
+package parser;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import base.BaseLexicon;
 
 
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;

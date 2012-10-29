@@ -1,21 +1,23 @@
 package test;
 
+
 import java.io.FileNotFoundException;
 import java.util.List;
 
 import junit.framework.TestCase;
 import org.junit.Before;
 
+import base.ClosureMatrix;
+import base.RelationMatrix;
+
 import parser.Completion;
 import parser.EarleyParser;
 import parser.EarleyParserDense;
 import parser.EarleyParserSparse;
+import parser.EdgeSpace;
 import parser.Grammar;
 import parser.Prediction;
-import parser.EdgeSpace;
-import recursion.ClosureMatrix;
-import recursion.RelationMatrix;
-import utility.Utility;
+import util.Util;
 
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
@@ -90,9 +92,9 @@ public class EarleyParserTest extends TestCase {
   private void initParserFromString(String grammarString){
     try {
       if(parserOpt==0){
-        parser= new EarleyParserDense(Utility.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb);
+        parser= new EarleyParserDense(Util.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb);
       } else if(parserOpt==1){    
-        parser= new EarleyParserSparse(Utility.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb);
+        parser= new EarleyParserSparse(Util.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb);
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -205,7 +207,7 @@ public class EarleyParserTest extends TestCase {
     /// TO THINK: by right if p<q, the total prob string < 1, should prefix prob[1] < 1.0 ?
     //double totalStringProb = Math.min(1, p/q); // see "The Linguist's Guide to Statistics", section 4.6
     
-    int[][] c = Utility.permutationMatrix(2*numSymbols);
+    int[][] c = Util.permutationMatrix(2*numSymbols);
     
     double prevPrefixProb = 1.0;
     double prevStringProb = p;
@@ -634,10 +636,10 @@ public class EarleyParserTest extends TestCase {
     // a = zeros(6,6); a(1,2)=1.0; a(2,3)=0.01; a(3,3)=0.89;a(3,4)=0.11;a(4,3)=0.21;a(4,5)=0.22;
     // (eye(6)-a)^(-1)
     if(isLogProb){
-      assertEquals(Utility.sprint(
+      assertEquals(Util.sprint(
         parser.getGrammar().getLeftCornerClosures().getClosureMatrix()), "0.0 0.0 -2.1621729392773004 -4.3694478524670215 -5.883575585096797 -Infinity\n-Infinity 0.0 -2.1621729392773004 -4.3694478524670215 -5.883575585096797 -Infinity\n-Infinity -Infinity 2.442997246710791 0.23572233352106994 -1.278405399108706 -Infinity\n-Infinity -Infinity 0.8823494984461224 0.23572233352106994 -1.2784053991087057 -Infinity");
     } else {
-      assertEquals(Utility.sprint(
+      assertEquals(Util.sprint(
           parser.getGrammar().getLeftCornerClosures().getClosureMatrix()), "1.0 1.0 0.11507479861910243 0.012658227848101267 0.002784810126582277 0.0\n0.0 1.0 0.11507479861910243 0.012658227848101267 0.002784810126582277 0.0\n0.0 0.0 11.507479861910243 1.2658227848101267 0.2784810126582277 0.0\n0.0 0.0 2.416570771001151 1.2658227848101267 0.27848101265822783 0.0");
     }
     

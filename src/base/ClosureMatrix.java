@@ -1,12 +1,12 @@
-package recursion;
+package base;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import parser.LogProbOperator;
-import parser.Operator;
+import util.LogProbOperator;
+import util.Operator;
 
 import cern.colt.function.DoubleFunction;
 import cern.colt.matrix.DoubleMatrix2D;

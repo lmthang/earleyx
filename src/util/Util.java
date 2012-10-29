@@ -1,4 +1,4 @@
-package utility;
+package util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -20,14 +20,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import base.Rule;
+import base.TerminalRule;
+
 import cern.colt.matrix.DoubleMatrix2D;
 
 import parser.Completion;
-import parser.Operator;
-import parser.Prediction;
-import parser.Rule;
 import parser.EdgeSpace;
-import parser.TerminalRule;
+import parser.Prediction;
 
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
@@ -42,7 +42,7 @@ import edu.stanford.nlp.trees.Treebank;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
 
-public class Utility {
+public class Util {
   public static DecimalFormat df = new DecimalFormat("0.0");
   public static DecimalFormat df1 = new DecimalFormat("0.0000");
   public static DecimalFormat df3 = new DecimalFormat("000");
@@ -227,7 +227,7 @@ public class Utility {
     }
     
     // build rules
-    rules.addAll(Utility.rulesFromTrees(trees, tagIndex, tagIndex, nonterminalMap));
+    rules.addAll(Util.rulesFromTrees(trees, tagIndex, tagIndex, nonterminalMap));
     
     return new Pair<Collection<Rule>, Collection<IntTaggedWord>>(rules, intTaggedWords);
   }

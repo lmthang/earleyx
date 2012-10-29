@@ -2,10 +2,11 @@ package test;
 
 import java.util.Arrays;
 
+import base.Rule;
+
 import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;
 
-import parser.Rule;
 import junit.framework.TestCase;
 
 
