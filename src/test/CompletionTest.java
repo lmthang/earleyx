@@ -9,10 +9,11 @@ import java.util.Set;
 
 import base.ClosureMatrix;
 import base.RelationMatrix;
-import base.Rule;
+import base.ProbRule;
 
 import parser.Completion;
 import parser.EdgeSpace;
+import parser.LeftWildcardEdgeSpace;
 import util.LogProbOperator;
 import util.Operator;
 import util.RuleFile;
@@ -44,12 +45,15 @@ public class CompletionTest extends TestCase{
     "E->[_e] : 1.0\n";
   
   public void testBasic(){
-    System.err.println(ruleString);
+    EdgeSpace.verbose = 0;
+    ClosureMatrix.verbose = 0;
+    Completion.verbose = 0;
+    
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     
-    Collection<Rule> rules = new ArrayList<Rule>();
-    Collection<Rule> extendedRules = new ArrayList<Rule>();
+    Collection<ProbRule> rules = new ArrayList<ProbRule>();
+    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
@@ -67,26 +71,22 @@ public class CompletionTest extends TestCase{
     }
 
     // statespace
-    EdgeSpace stateSpace = new EdgeSpace(tagIndex);
+    EdgeSpace stateSpace = new LeftWildcardEdgeSpace(tagIndex);
     stateSpace.build(rules);
-    
-    ClosureMatrix.verbose = 3;
-    Completion.verbose = 3;
-    System.err.println(tagIndex);
     
     // closure matrix
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     DoubleMatrix2D pu = relationMatrix.getPU(rules);
     ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator);
     
-    Map<Integer, Completion[]>  passiveEdge2completionsMap = Completion.constructCompletions(
+    Map<Integer, Completion[]>  tag2completionsMap = Completion.constructCompletions(
         unaryClosures, stateSpace, tagIndex, operator);
     StringBuffer sb = new StringBuffer();
-    for(int passiveEdge : passiveEdge2completionsMap.keySet()){
-      Completion[] completions = passiveEdge2completionsMap.get(passiveEdge);
-      sb.append(stateSpace.get(passiveEdge).toString(tagIndex, tagIndex) + ", " + 
+    for(int iT : tag2completionsMap.keySet()){
+      Completion[] completions = tag2completionsMap.get(iT);
+      sb.append(tagIndex.get(iT) + ", " + 
           Util.sprint(completions, stateSpace, tagIndex, operator) + "\n");
     }
-    assertEquals(sb.toString(), "E -> ., [(B -> D . E, B -> ., 1.0)]\nROOT -> ., []\nA -> ., [(A -> . A B, A -> A . B, 1.0), (ROOT -> . A, ROOT -> ., 1.0)]\nB -> ., [(A -> . B C, A -> B . C, 1.0638297872340425), (A -> A . B, A -> ., 1.0638297872340425), (C -> . B, C -> ., 1.0638297872340425), (A -> B . C, A -> ., 0.3191489361702127), (B -> . C, B -> ., 0.3191489361702127)]\nC -> ., [(B -> . C, B -> ., 1.0638297872340425), (A -> B . C, A -> ., 1.0638297872340425), (A -> A . B, A -> ., 0.21276595744680848), (A -> . B C, A -> B . C, 0.21276595744680848), (C -> . B, C -> ., 0.21276595744680848)]\nA1 -> ., [(A -> . A1, A -> ., 1.0), (A -> . A B, A -> A . B, 0.29999999999999993), (ROOT -> . A, ROOT -> ., 0.29999999999999993)]\nA2 -> ., [(A1 -> . A2, A1 -> ., 1.0), (A -> . A1, A -> ., 1.0), (A -> . A B, A -> A . B, 0.29999999999999993), (ROOT -> . A, ROOT -> ., 0.29999999999999993)]\nD -> ., [(B -> . D E, B -> D . E, 1.0), (B -> . C, B -> ., 0.7446808510638298), (A -> B . C, A -> ., 0.7446808510638298), (C -> . D, C -> ., 1.0), (A -> A . B, A -> ., 0.14893617021276595), (A -> . B C, A -> B . C, 0.14893617021276595), (C -> . B, C -> ., 0.14893617021276595)]\n");    
+    assertEquals(sb.toString(), "ROOT, []\nA, [(A -> . A B, A -> . B, 1.0), (ROOT -> . A, ROOT -> ., 1.0)]\nB, [(A -> . B C, A -> . C, 1.0638297872340425), (A -> . B, A -> ., 1.0638297872340425), (C -> . B, C -> ., 1.0638297872340425), (A -> . C, A -> ., 0.3191489361702127), (B -> . C, B -> ., 0.3191489361702127)]\nC, [(B -> . C, B -> ., 1.0638297872340425), (A -> . C, A -> ., 1.0638297872340425), (A -> . B, A -> ., 0.21276595744680848), (A -> . B C, A -> . C, 0.21276595744680848), (C -> . B, C -> ., 0.21276595744680848)]\nA1, [(A -> . A1, A -> ., 1.0), (A -> . A B, A -> . B, 0.29999999999999993), (ROOT -> . A, ROOT -> ., 0.29999999999999993)]\nA2, [(A1 -> . A2, A1 -> ., 1.0), (A -> . A1, A -> ., 1.0), (A -> . A B, A -> . B, 0.29999999999999993), (ROOT -> . A, ROOT -> ., 0.29999999999999993)]\nD, [(B -> . D E, B -> . E, 1.0), (B -> . C, B -> ., 0.7446808510638298), (A -> . C, A -> ., 0.7446808510638298), (C -> . D, C -> ., 1.0), (A -> . B, A -> ., 0.14893617021276595), (A -> . B C, A -> . C, 0.14893617021276595), (C -> . B, C -> ., 0.14893617021276595)]\nE, [(B -> . E, B -> ., 1.0)]\n");    
   }
 }

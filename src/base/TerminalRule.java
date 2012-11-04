@@ -4,9 +4,9 @@ import java.util.List;
 
 import edu.stanford.nlp.util.Index;
 
-public class TerminalRule extends Rule {
+public class TerminalRule extends ProbRule {
 
-  public TerminalRule(BaseEdge edge, double score) {
+  public TerminalRule(Rule edge, double score) {
     super(edge, score);
     // TODO Auto-generated constructor stub
   }
@@ -24,10 +24,10 @@ public class TerminalRule extends Rule {
 
   // X->[_a _b _c] : 0.1
   public String toString(Index<String> motherIndex, Index<String> childIndex) {
-    return edge.lhsString(motherIndex) + "->[" + edge.rhsString(childIndex, true) + "] : " + score;
+    return rule.lhsString(motherIndex) + "->[" + rule.rhsString(childIndex, true) + "] : " + score;
   }
   
   public String schemeString(Index<String> motherIndex, Index<String> childIndex) {
-    return edge.schemeString(motherIndex, childIndex, true);
+    return rule.schemeString(motherIndex, childIndex, true);
   }
 }

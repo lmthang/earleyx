@@ -6,7 +6,8 @@ import java.util.Collection;
 import java.util.List;
 
 import base.ClosureMatrix;
-import base.Rule;
+import base.Edge;
+import base.ProbRule;
 
 import util.Operator;
 import util.Util;
@@ -47,7 +48,7 @@ public class Prediction {
    * in which predictions[stateIndex] list all possible predictions we could make
    * for the left child of the active edge associated with stateIndex
    */
-  public static Prediction[][] constructPredictions(Collection<Rule> rules,
+  public static Prediction[][] constructPredictions(Collection<ProbRule> rules,
       ClosureMatrix leftCornerClosures, 
       EdgeSpace stateSpace, Index<String> tagIndex, List<Integer> nonterminals, Operator operator){
     // Note: we used list for nonterminals instead of set, to ensure a fixed order for debug purpose
@@ -76,7 +77,7 @@ public class Prediction {
       
       /** Make prediction **/
       List<Prediction> thesePredictions = new ArrayList<Prediction>();
-      for (Rule r:rules) { // go through each rule, Y -> . \beta, TODO: speed up here, keep track of indices with positive left-closure scores
+      for (ProbRule r:rules) { // go through each rule, Y -> . \beta, TODO: speed up here, keep track of indices with positive left-closure scores
         if (r.isUnary()) {
           continue;
         }
@@ -85,7 +86,7 @@ public class Prediction {
         double rewriteScore = operator.getScore(r.getScore());
         
         int predictedCategoryMotherIndex = r.getMother();
-        int predictedState = stateSpace.indexOf(r.toEdge());
+        int predictedState = stateSpace.indexOf(r.getEdge());
         double leftCornerClosureScore = leftCornerClosures.get(viaCategoryIndex, predictedCategoryMotherIndex); // P_L (Z -> Y)
         
         if (leftCornerClosureScore != operator.zero()) {
@@ -114,16 +115,12 @@ public class Prediction {
     /** construct complete predictions **/
     Prediction[][] predictions = new Prediction[stateSpace.size()][];
     for (int predictorState = 0; predictorState < stateSpace.size(); predictorState++) {
-      int viaState = stateSpace.via(predictorState);
-      
-      if (viaState == -1){ // tag -> []
+      Edge edgeObj = stateSpace.get(predictorState);
+      if (edgeObj.numRemainingChildren()==0){ // tag -> []
         predictions[predictorState] = NO_PREDICTION;
       } else {
-        int viaCategoryIndex = stateSpace.get(viaState).getMother();
-        assert(stateSpace.get(viaState).numChildren()==0);
-        assert(stateSpace.get(predictorState).getChildAfterDot(0) == viaCategoryIndex);
+        int viaCategoryIndex = edgeObj.getChildAfterDot(0);
         
-        //if (activeIndices.contains(viaCategoryIndex)){
         if (nonterminals.contains(viaCategoryIndex)){
           predictions[predictorState] = predictionsVia[viaCategoryIndex];
           

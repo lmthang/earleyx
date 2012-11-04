@@ -2,7 +2,7 @@ package parser;
 
 import base.ClosureMatrix;
 import base.RelationMatrix;
-import base.Rule;
+import base.ProbRule;
 import cern.colt.matrix.DoubleMatrix2D;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
@@ -37,7 +37,6 @@ public class Grammar {
   //private Completion[][] completionsArray; // completions[i] is the set of Completion instances for the state i
   private Map<Integer, Completion[]> passiveEdge2completionsMap;
   private Prediction[][] predictionsArray; // predictions[i] is the set of Prediction instances for the state i
-  private EdgeSpace edgeSpace; // consist of all the rules
 
   private Index<String> wordIndex;
   private Index<String> tagIndex;
@@ -52,7 +51,6 @@ public class Grammar {
     this.nonterminalMap = nonterminals;
     this.operator = operator;
     
-    edgeSpace = new EdgeSpace(tagIndex);
     if(operator instanceof LogProbOperator){
       ruleTrie = new TrieSurprisal(true); // log prob
     } else {
@@ -64,10 +62,8 @@ public class Grammar {
   /**
    * learns all the grammar stuff.  Note that rootRule must be a unary contained in rules.
    */
-  public void learnGrammar(Collection<Rule> rules, Collection<Rule> extendedRules) { // , Collection<Rule> extendedRules, , Rule rootRule    
-    /* set up state space. */
-    edgeSpace.build(rules);
-    
+  public void learnGrammar(Collection<ProbRule> rules, 
+      Collection<ProbRule> extendedRules, EdgeSpace edgeSpace) {    
     /*** Compute reflective and transitive left-corner and unit-production matrices ***/
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     
@@ -83,7 +79,7 @@ public class Grammar {
     /*** Extended rules ***/
     /* !!! Important: this needs to be added after closure matrix construction
      *  and before predictions and combinations */
-    processExtendedRules(extendedRules);
+    processExtendedRules(extendedRules, edgeSpace);
     
     /*** construct predictions ***/
     predictionsArray = Prediction.constructPredictions(rules, leftCornerClosures, edgeSpace, tagIndex, 
@@ -96,18 +92,16 @@ public class Grammar {
 //    completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
     passiveEdge2completionsMap = Completion.constructCompletions(unaryClosures, edgeSpace, 
         tagIndex, operator);
-    
-    assert Completion.checkCompletions(passiveEdge2completionsMap, edgeSpace, tagIndex);
   }
 
-  private void processExtendedRules(Collection<Rule> extendedRules){
+  private void processExtendedRules(Collection<ProbRule> extendedRules, EdgeSpace edgeSpace){
     if (verbose >= 1) {
       System.err.println("\n# Processing extended rules ...");
       Timing.startTime();
     }
     
     int numExtendedRules = 0;
-    for (Rule extendedRule : extendedRules) {
+    for (ProbRule extendedRule : extendedRules) {
       List<Integer> children = extendedRule.getChildren();
       int motherState = edgeSpace.indexOfTag(extendedRule.getMother()); 
       assert(motherState == edgeSpace.indexOf(extendedRule.getMotherEdge()));
@@ -139,9 +133,17 @@ public class Grammar {
   public TrieSurprisal getRuleTrie() {
     return ruleTrie;
   }
-  public Completion[] getCompletions(int edge) {
-    if(passiveEdge2completionsMap.containsKey(edge)){
-      return passiveEdge2completionsMap.get(edge);
+//  public Completion[] getCompletions(int edge) {
+//    if(passiveEdge2completionsMap.containsKey(edge)){
+//      return passiveEdge2completionsMap.get(edge);
+//    } else {
+//      return Completion.NO_COMPLETION;
+//    }
+//  }
+
+  public Completion[] getCompletions1(int tag) {
+    if(passiveEdge2completionsMap.containsKey(tag)){
+      return passiveEdge2completionsMap.get(tag);
     } else {
       return Completion.NO_COMPLETION;
     }
@@ -149,10 +151,6 @@ public class Grammar {
 
   public Prediction[] getPredictions(int pos) {
     return predictionsArray[pos];
-  }
-
-  public EdgeSpace getEdgeSpace() {
-    return edgeSpace;
   }
   
   public ClosureMatrix getLeftCornerClosures() {

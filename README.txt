@@ -1,3 +1,16 @@
+Features from Levy's parser
+* Smoothing
+* Strings to integers
+* Complete rewrite
+* Scaling parsing long sentences
+* Normal prob & log-prob
+* Support parsing for dense and sparse grammars
+* Handle grammars with high fan-out
+
+Concepts:
+* Tags: nonterminals + preterminals
+* Edge space
+* Edge
 
 Minh-Thang Luong, 2012
 

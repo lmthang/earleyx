@@ -8,48 +8,46 @@ import edu.stanford.nlp.util.Index;
 
 /**
  * Represent an active edge used in Earley algorithms, e.g X -> a b . c
- * IMPORTANT: When comparing active edges, we ignore the part before the dot, i.e. X -> a b . c is equal to X -> d e . c 
- * This results in the aggregating effect in computing probabilities for rules.
  * 
  * @author Minh-Thang Luong, 2012
  */
 public class Edge {
-  protected BaseEdge edge; // rule being expanded
+  protected Rule rule; // rule being expanded
   protected int dot; // number of children found so far, right = left + dot
   
   
-  public Edge(BaseEdge edge, int dot) {
+  public Edge(Rule rule, int dot) {
     super();
-    this.edge = edge;
+    this.rule = rule;
     this.dot = dot;
-    assert(dot<=edge.numChildren());
+    assert(dot<=rule.numChildren());
   }
 
   public void setMother(int mother){
-    edge.setMother(mother);
+    rule.setMother(mother);
   }
   
   /* Getters */
-  public BaseEdge getEdge() {
-    return edge;
+  public Rule getRule() {
+    return rule;
   }
   public int getDot() {
     return dot;
   }
   public int getMother(){
-    return edge.getMother();
+    return rule.getMother();
   }
   public int numChildren(){
-    return edge.numChildren();
+    return rule.numChildren();
   }
   public int numRemainingChildren(){
-    return edge.numChildren()-dot;
+    return rule.numChildren()-dot;
   }
   public List<Integer> getChildrenAfterDot(int pos){
-    return edge.getChildren(dot+pos);
+    return rule.getChildren(dot+pos);
   }
   public int getChildAfterDot(int pos){
-    return edge.getChild(dot+pos);
+    return rule.getChild(dot+pos);
   }
   
   /** 
@@ -57,7 +55,7 @@ public class Edge {
   * @return
   */
   public Edge getMotherEdge(){
-    return new Edge(new BaseEdge(edge.getMother(), new ArrayList<Integer>()), 0);
+    return new Edge(new Rule(rule.getMother(), new ArrayList<Integer>()), 0);
   }
 
   /** 
@@ -65,9 +63,17 @@ public class Edge {
   * @return
   */
   public Edge getViaEdge(){ // first child after the dot
-    return new Edge(new BaseEdge(edge.getChildren().get(dot), new ArrayList<Integer>()), 0);
+    return new Edge(new Rule(rule.getChildren().get(dot), new ArrayList<Integer>()), 0);
   }
-
+  
+  /** 
+   * to edge: mother -> [second children onwards]
+   * @return
+   */
+   public Edge getToEdge(){
+     return new Edge(new Rule(rule.getMother(), rule.getChildren(dot+1)), 0);
+   }
+   
   public boolean equals(Object o) {
     if (this == o){ // compare pointer
       return true;
@@ -77,30 +83,30 @@ public class Edge {
       return false;
     } 
 
-    Edge otherActiveEdge = (Edge) o;
+    Edge otherEdge = (Edge) o;
     
-//    // compare dot position
-//    if (this.dot != otherActiveEdge.getDot()){
-//      return false;
-//    }
+    // compare dot position & children
+    if (this.dot != otherEdge.getDot() || !rule.equals(otherEdge.getRule())){
+      return false;
+    }
     
     // compare children
-    return edge.equals(otherActiveEdge.getEdge(), dot, otherActiveEdge.getDot());
+    return true;
   }
 
   public int hashCode() {
-    return edge.hashCode(dot); //  << 8 + dot
+    return rule.hashCode()<< 8 + dot;
   }
   
   // create a tag edge: tag -> []
   public static Edge createTagEdge(int tag){
-    return new Edge(new BaseEdge(tag, new ArrayList<Integer>()), 0);
+    return new Edge(new Rule(tag, new ArrayList<Integer>()), 0);
   }
   
   public String toString(Index<String> motherIndex, Index<String> childIndex){
     StringBuffer sb = new StringBuffer();
-    sb.append(edge.lhsString(motherIndex) + " -> ");
-    List<Integer> children = edge.getChildren();
+    sb.append(rule.lhsString(motherIndex) + " -> ");
+    List<Integer> children = rule.getChildren();
     for (int i = 0; i < dot; i++) {
       sb.append(childIndex.get(children.get(i)) + " ");
     }

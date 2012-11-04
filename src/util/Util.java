@@ -20,7 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import base.Rule;
+import base.Edge;
+import base.ProbRule;
 import base.TerminalRule;
 
 import cern.colt.matrix.DoubleMatrix2D;
@@ -101,9 +102,9 @@ public class Util {
   /**
    * returns a collection of scored rules corresponding to all non-terminal productions from a collection of trees.
    */
-  public static Collection<Rule> rulesFromTrees(Collection<Tree> trees, 
+  public static Collection<ProbRule> rulesFromTrees(Collection<Tree> trees, 
       Index<String> motherIndex, Index<String> childIndex, Map<Integer, Integer> nonterminalMap) {
-    Collection<Rule> rules = new ArrayList<Rule>();
+    Collection<ProbRule> rules = new ArrayList<ProbRule>();
     TwoDimensionalCounter<Integer, List<Integer>> ruleCounts = 
       new TwoDimensionalCounter<Integer, List<Integer>>();
     
@@ -131,7 +132,7 @@ public class Util {
       Distribution<List<Integer>> normalizedChildren = 
         Distribution.getDistribution(ruleCounts.getCounter(mother));
       for(List<Integer> childList : normalizedChildren.keySet()){
-        rules.add(new Rule(mother, childList, normalizedChildren.getCount(childList)));
+        rules.add(new ProbRule(mother, childList, normalizedChildren.getCount(childList)));
       }
     }
 
@@ -209,11 +210,11 @@ public class Util {
   /**
    * extract rules and words from trees
    */
-  public static Pair<Collection<Rule>, Collection<IntTaggedWord>> extractRulesWordsFromTreebank(
+  public static Pair<Collection<ProbRule>, Collection<IntTaggedWord>> extractRulesWordsFromTreebank(
       Treebank treebank, Index<String> wordIndex, Index<String> tagIndex,
       Map<Integer, Integer> nonterminalMap) {
     Collection<IntTaggedWord> intTaggedWords = new ArrayList<IntTaggedWord>();
-    Collection<Rule> rules = new ArrayList<Rule>();
+    Collection<ProbRule> rules = new ArrayList<ProbRule>();
     
     Collection<Tree> trees = new ArrayList<Tree>();
     for (Iterator<Tree> i = treebank.iterator(); i.hasNext();) {
@@ -229,7 +230,7 @@ public class Util {
     // build rules
     rules.addAll(Util.rulesFromTrees(trees, tagIndex, tagIndex, nonterminalMap));
     
-    return new Pair<Collection<Rule>, Collection<IntTaggedWord>>(rules, intTaggedWords);
+    return new Pair<Collection<ProbRule>, Collection<IntTaggedWord>>(rules, intTaggedWords);
   }
   
   /**
@@ -311,6 +312,19 @@ public class Util {
     return sb.toString();
   }
   
+  public static String sprint(Index<Edge> edgeIndex, Index<String> motherIndex, Index<String> childIndex){
+    StringBuffer sb = new StringBuffer("[");
+    
+    if(edgeIndex.size() > 0){
+      for (int i = 0; i < edgeIndex.size(); i++) {
+        sb.append(edgeIndex.get(i).toString(motherIndex, childIndex) + ", ");
+      }
+    }
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
+    return sb.toString();
+  }
+  
   public static String sprint(Map<Integer, Double> valueMap, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer("(");
     
@@ -367,9 +381,9 @@ public class Util {
     return sb.toString();
   }
   
-  public static String sprint(Collection<Rule> rules, Index<String> wordIndex, Index<String> tagIndex){
+  public static String sprint(Collection<ProbRule> rules, Index<String> wordIndex, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer("");
-    for(Rule rule : rules){
+    for(ProbRule rule : rules){
       if(rule instanceof TerminalRule){
         sb.append(rule.toString(tagIndex, wordIndex) + "\n");
       } else {
@@ -379,9 +393,9 @@ public class Util {
     return sb.toString();
   }
   
-  public static String schemeSprint(Collection<Rule> rules, Index<String> wordIndex, Index<String> tagIndex){
+  public static String schemeSprint(Collection<ProbRule> rules, Index<String> wordIndex, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer("[");
-    for(Rule rule : rules){
+    for(ProbRule rule : rules){
       if(rule instanceof TerminalRule){
         sb.append(rule.schemeString(tagIndex, wordIndex) + ", ");
       } else {

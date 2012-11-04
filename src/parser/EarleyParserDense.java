@@ -12,21 +12,26 @@ import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Timing;
 
 public class EarleyParserDense extends EarleyParser{
-  protected boolean[][] chartEntries; // chartEntries[linear[leftEdge][rightEdge]][categoryNumber]
-  protected double[][] forwardProb;   // forwardProb[linear[leftEdge][rightEdge]][categoryNumber]
-  protected double[][] innerProb;     // innerProb[linear[leftEdge][rightEdge]][categoryNumber]
+  protected boolean[][] chartEntries; // chartEntries[linear[left][right]][edge]
+  protected double[][] forwardProb;   // forwardProb[linear[left][right]][edge]
+  protected double[][] innerProb;     // innerProb[linear[left][right]][edge]
   protected int[] chartCount; // chartCount[linear[left][right]]: how many categories at the cell [left, right]
   
-  public EarleyParserDense(Treebank treebank, String rootSymbol, boolean isScaling, boolean isLogProb){
-    super(treebank, rootSymbol, isScaling, isLogProb);
+  public EarleyParserDense(BufferedReader br, String rootSymbol,
+      boolean isScaling, boolean isLogProb, boolean isLeftWildcard) {
+    super(br, rootSymbol, isScaling, isLogProb, isLeftWildcard);
   }
-  public EarleyParserDense(String grammarFile, String rootSymbol, boolean isScaling, boolean isLogProb){
-    super(grammarFile, rootSymbol, isScaling, isLogProb);
+
+  public EarleyParserDense(String grammarFile, String rootSymbol,
+      boolean isScaling, boolean isLogProb, boolean isLeftWildcard) {
+    super(grammarFile, rootSymbol, isScaling, isLogProb, isLeftWildcard);
   }
-  public EarleyParserDense(BufferedReader br, String rootSymbol, boolean isScaling, boolean isLogProb){
-    super(br, rootSymbol, isScaling, isLogProb);    
+
+  public EarleyParserDense(Treebank treebank, String rootSymbol,
+      boolean isScaling, boolean isLogProb, boolean isLeftWildcard) {
+    super(treebank, rootSymbol, isScaling, isLogProb, isLeftWildcard);
   }
-  
+
   protected void sentInit(){
     super.sentInit();
     
@@ -127,68 +132,46 @@ public class EarleyParserDense extends EarleyParser{
   protected DoubleList[] theseInnerProb = new DoubleList[edgeSpaceSize];
   
   @Override
-  protected void completeAll(int right) {
-    boolean flag = false;
-    for (int left = right - 1; left >= 0; left--) {
-      for (int middle = right - 1; middle >= left; middle--) {
-        int mrIndex = linear[middle][right]; // middle right index
-        
-        // init
-        theseChartEntries = new boolean[edgeSpaceSize];
-        if(verbose>=3){
-          System.err.println("\n# Complete all [" + left + "," + middle + "," + right + "]: chartCount[" 
-              + middle + "," + right + "]=" + chartCount[mrIndex]);
-        }
-        for (int i = 0; i < edgeSpaceSize; i++) {
-          theseForwardProb[i] = new DoubleList();
-          theseInnerProb[i] = new DoubleList();
-        }
-        
-        // we try to find other completed states that end at middle
-        // so that we could generate new states ending at right
-        // when middle == right-1, we will attempt to update the prefix probability
-        if (chartCount[mrIndex]>0){ // there're active edges for the span [middle, right]
-          flag = true;
-          // check which categories have finished expanding [middle, right]
-          //for (int edge = edgeSpaceSize - 1; edge >= 0; edge--) { // TODO: we could be faster here by going through only passive edges, Thang: why do we go back ward in edge ??
-          for(int edge : edgeSpace.getPassiveEdges()){
-            if (chartEntries[mrIndex][edge]) { // right: middle Y -> _ .
-              double inner = innerProb[mrIndex][edge];
-              complete(left, middle, right, edge, inner); // in completion the forward prob of Y -> _ . is ignored
-            }
-          }
-        }
-        
-        /** Handle extended rules **/
-        Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(wordIndices.subList(middle, right));
-        
-        if(valueMap != null){
-          if(verbose >= 2){
-            System.err.println("# AG prefix " + Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
-                ": " + Util.sprint(valueMap, parserTagIndex));
-          }
-          for(Entry<Integer, Double> entry : valueMap.entrySet()){
-            int tag = entry.getKey();
-            double score = entry.getValue();
-            addPrefixProbExtendedRule(left, middle, right, tag, score);
-          }
-          
-        }
+  protected void completeAll(int left, int middle, int right) {
+    int mrIndex = linear[middle][right]; // middle right index
     
-        // completions yield edges: right: left X -> _ Y . _
-        int lrIndex = linear[left][right];
-        Pair<boolean[], Integer> pair = booleanUnion(chartEntries[lrIndex], theseChartEntries);;
-        chartEntries[lrIndex] = pair.first;
-        chartCount[lrIndex] = pair.second;
-        storeProbs(theseForwardProb, forwardProb, lrIndex);
-        storeProbs(theseInnerProb, innerProb, lrIndex);
-      } // end middle
-    } // end left
-    
-    storePrefixProb(right);
-    if(verbose>=3 && flag){
-      dumpChart();
+    // init
+    theseChartEntries = new boolean[edgeSpaceSize];
+    if(verbose>=3){
+      System.err.println("\n# Complete all [" + left + "," + middle + "," + right + "]: chartCount[" 
+          + middle + "," + right + "]=" + chartCount[mrIndex]);
     }
+    for (int i = 0; i < edgeSpaceSize; i++) {
+      theseForwardProb[i] = new DoubleList();
+      theseInnerProb[i] = new DoubleList();
+    }
+    
+    // tag completions
+    tagComplete(left, middle, right);
+    
+    /** Handle extended rules **/
+    Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(wordIndices.subList(middle, right));
+    
+    if(valueMap != null){
+      if(verbose >= 2){
+        System.err.println("# AG prefix " + Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
+            ": " + Util.sprint(valueMap, parserTagIndex));
+      }
+      for(Entry<Integer, Double> entry : valueMap.entrySet()){
+        int tag = entry.getKey();
+        double score = entry.getValue();
+        addPrefixProbExtendedRule(left, middle, right, tag, score);
+      }
+      
+    }
+
+    // completions yield edges: right: left X -> _ Y . _
+    int lrIndex = linear[left][right];
+    Pair<boolean[], Integer> pair = booleanUnion(chartEntries[lrIndex], theseChartEntries);;
+    chartEntries[lrIndex] = pair.first;
+    chartCount[lrIndex] = pair.second;
+    storeProbs(theseForwardProb, forwardProb, lrIndex);
+    storeProbs(theseInnerProb, innerProb, lrIndex);
   }
   
   // each agenda item is an int[3] corresponding to a <left,right,edge> triple
@@ -201,13 +184,12 @@ public class EarleyParserDense extends EarleyParser{
    * Thang: completion. Given a completed state, passive, from [middle, end]
    * what other new states could be generated
    */
-  protected void complete(int left, int middle, int right, int passive, double inner) {
+  protected void complete(int left, int middle, int right, int tag, double inner) {
     // we already completed the edge, right: middle Y -> _ ., where passive represents for Y
-    Completion[] completions = g.getCompletions(passive);
+    Completion[] completions = g.getCompletions1(tag);
     
     if (verbose>=3 && completions.length>0){
-      System.err.println("End edge " + edgeInfo(middle, right, passive) 
-          + ", completions: " + Util.sprint(completions, g.getEdgeSpace(), parserTagIndex, operator));
+      System.err.println(completionInfo(left, middle, right, tag, inner, completions));
     }
     
     int lmIndex = linear[left][middle]; // left middle index
@@ -223,12 +205,15 @@ public class EarleyParserDense extends EarleyParser{
         theseChartEntries[completion.completedEdge] = true;
         theseForwardProb[completion.completedEdge].add(newForwardProb);
         theseInnerProb[completion.completedEdge].add(newInnerProb);
-       
+        
+        // store inside probs
+        storeInsideProb(left, right, completion.completedEdge, newInnerProb);
+        
         if (verbose >= 3) {
-          System.err.println("  start " + edgeInfo(left, middle, completion.activeEdge) 
-              + " -> new " + edgeInfo(left, right, completion.completedEdge, newForwardProb, newInnerProb));
+          System.err.println("  start edge " + completion.activeEdge + ", "+ edgeInfo(left, middle, completion.activeEdge) 
+              + " -> new edge " + completion.completedEdge + ", " + edgeInfo(left, right, completion.completedEdge, newForwardProb, newInnerProb));
 
-          if (completion.completedEdge == goalEdge) {
+          if (isGoalEdge(completion.completedEdge)) {
             System.err.println("# String prob +=" + Math.exp(newInnerProb));
           }
         }
@@ -251,17 +236,14 @@ public class EarleyParserDense extends EarleyParser{
     }
   }
   
-  
   private void addPrefixProbExtendedRule(int left, int middle, int right, int tag, double inner) {    
-    int passive = g.getEdgeSpace().indexOfTag(tag);
-    Completion[] completions = g.getCompletions(passive);
+    //int passive = edgeSpace.indexOfTag(tag);
+    Completion[] completions = g.getCompletions1(tag);
     
     if (verbose>=3 && completions.length>0){
-      System.err.println("  End edge " + edgeInfo(middle, right, passive) 
-          + ", completions: " + Util.sprint(completions, g.getEdgeSpace(), parserTagIndex, operator));
+      System.err.println(completionInfo(left, middle, right, tag, inner, completions));
     }
    
-
     if (isScaling){
       assert(containsExtendedRule);
       inner = operator.multiply(inner, scalingMatrix[linear[middle][right]]);
@@ -335,28 +317,14 @@ public class EarleyParserDense extends EarleyParser{
     }
     return new Pair<boolean[], Integer>(result, count);
   }
-  
-  /**
-   * Returns the total probability of complete parses for the string prefix parsed so far.
-   */
-  public double stringProbability(int right) {
-    int index = linear[0][right];
-    double prefixProb = operator.zero();
-    if (chartEntries[index][goalEdge]) {
-      prefixProb = innerProb[index][goalEdge];
-      assert((prefixProb - forwardProb[index][goalEdge]) < 1e-5);
-    }
-    
-    return operator.getProb(prefixProb);
-  }
 
   /** Output debug info **/
   public String edgeInfo(int left, int right, int edge){
     return edgeInfo(left, right, edge, forwardProb[linear[left][right]][edge], innerProb[linear[left][right]][edge]);
   }
   
-  protected void dumpInnerChart() {
-    System.err.println("# Inner chat");
+  protected void dumpInsideChart() {
+    System.err.println("# Inside chart");
     
     for(int length=1; length<=numWords; length++){ // length
       for (int left = 0; left <= numWords-length; left++) {
@@ -368,13 +336,14 @@ public class EarleyParserDense extends EarleyParser{
             scalingFactor += scaling[i];
           }
         }
-        if(chartCount[linear[left][right]]>0){ // there're active states
+        
+        int lrIndex = linear[left][right];
+        Map<Integer, Double> insideCell = insideChart.get(lrIndex); 
+        if(insideCell.size()>0){ // there're active states
           System.err.println("cell " + left + "-" + right);
-          for (int edge = 0; edge < chartEntries[linear[left][right]].length; edge++) {
-            if (chartEntries[linear[left][right]][edge] && edgeSpace.isPassive(edge)) {
-              System.err.println(" " + g.getEdgeSpace().get(edge).toString(parserTagIndex, parserTagIndex) 
-                  + ": " + operator.getProb(innerProb[linear[left][right]][edge]-scalingFactor));
-            }
+          for(int iT : insideCell.keySet()){
+            System.err.println(" " + parserTagIndex.get(iT) 
+                + ": " + operator.getProb(insideCell.get(iT)-scalingFactor));
           }
         }
       }
@@ -392,7 +361,7 @@ public class EarleyParserDense extends EarleyParser{
               + " (" + df1.format(chartCount[lrIndex]*100.0/edgeSpaceSize) + "%)");
           for (int edge = 0; edge < chartEntries[lrIndex].length; edge++) {
             if (chartEntries[lrIndex][edge]) {
-              System.err.println("  " + g.getEdgeSpace().get(edge).toString(parserTagIndex, parserTagIndex) 
+              System.err.println("  " + edgeSpace.get(edge).toString(parserTagIndex, parserTagIndex) 
                   + ": " + df.format(operator.getProb(forwardProb[lrIndex][edge])) 
                   + " " + df.format(operator.getProb(innerProb[lrIndex][edge])));
             }
@@ -404,6 +373,26 @@ public class EarleyParserDense extends EarleyParser{
 }
 
 /** Unused code **/
+//if (chartCount[mrIndex]>0){ // there're active edges for the span [middle, right]
+//  // check which categories have finished expanding [middle, right]
+//  //for (int edge = edgeSpaceSize - 1; edge >= 0; edge--) { // TODO: we could be faster here by going through only passive edges, Thang: why do we go back ward in edge ??
+//  for(int edge : edgeSpace.getPassiveEdges()){
+//    if (chartEntries[mrIndex][edge]) { // right: middle Y -> _ .
+//      double inner = innerProb[mrIndex][edge];
+//      complete(left, middle, right, edge, inner); // in completion the forward prob of Y -> _ . is ignored
+//    }
+//  }
+//}
+
+//if(isLeftWildcard){
+//if (chartEntries[index][goalEdge]) {
+//prefixProb = innerProb[index][goalEdge];
+//assert((prefixProb - forwardProb[index][goalEdge]) < 1e-5);
+//}
+//} else {
+//
+//}
+
 //logForward = operator.add(logForward, 
 //    forwardMap.get(edge));
 //logInner = operator.add(logInner, 

@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import base.BaseEdge;
-import base.Edge;
-import base.Rule;
+import base.ProbRule;
 import base.TerminalRule;
 
+import parser.EdgeSpace;
 import parser.Grammar;
+import parser.LeftWildcardEdgeSpace;
 
 
 import util.LogProbOperator;
@@ -49,8 +49,8 @@ public class GrammarTest extends TestCase{
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     
-    Collection<Rule> rules = new ArrayList<Rule>();
-    Collection<Rule> extendedRules = new ArrayList<Rule>();
+    Collection<ProbRule> rules = new ArrayList<ProbRule>();
+    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
@@ -67,24 +67,28 @@ public class GrammarTest extends TestCase{
       e.printStackTrace();
     }
   
+    EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex);
+    edgeSpace.build(rules);
+    
     Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
-    g.learnGrammar(rules, extendedRules);
+    g.learnGrammar(rules, extendedRules, edgeSpace);
+    
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\nd:prefix={A=-0.9}\n e:prefix={A=-0.9}, end={A=-0.9}");
  
   }
   
   public void testBasic1(){
-    Collection<Rule> rules = new ArrayList<Rule>();
+    Collection<ProbRule> rules = new ArrayList<ProbRule>();
     Index<String> tagIndex = new HashIndex<String>();
     Index<String> wordIndex = new HashIndex<String>();
-    Rule s = new Rule("S", Arrays.asList(new String[]{"NP", "VP"}), 1.0, tagIndex, tagIndex);
-    Rule vp = new Rule("VP", Arrays.asList(new String[]{"V", "NP"}), 0.9, tagIndex, tagIndex);
-    Rule np1 = new Rule("NP", Arrays.asList(new String[]{"NP", "PP"}), 0.4, tagIndex, tagIndex);
-    Rule np2 = new Rule("NP", Arrays.asList(new String[]{"DT", "NN"}), 0.2, tagIndex, tagIndex);
-    Rule np3 = new Rule("NP", Arrays.asList(new String[]{"PP"}), 0.1, tagIndex, tagIndex);
-    Rule pp = new Rule("PP", Arrays.asList(new String[]{"P", "NP"}), 0.6, tagIndex, tagIndex);
-    Rule pp1 = new Rule("PP", Arrays.asList(new String[]{"NP"}), 0.4, tagIndex, tagIndex); 
-    Rule root = new Rule("ROOT", Arrays.asList(new String[]{"S"}), 1.0, tagIndex, tagIndex); 
+    ProbRule s = new ProbRule("S", Arrays.asList(new String[]{"NP", "VP"}), 1.0, tagIndex, tagIndex);
+    ProbRule vp = new ProbRule("VP", Arrays.asList(new String[]{"V", "NP"}), 0.9, tagIndex, tagIndex);
+    ProbRule np1 = new ProbRule("NP", Arrays.asList(new String[]{"NP", "PP"}), 0.4, tagIndex, tagIndex);
+    ProbRule np2 = new ProbRule("NP", Arrays.asList(new String[]{"DT", "NN"}), 0.2, tagIndex, tagIndex);
+    ProbRule np3 = new ProbRule("NP", Arrays.asList(new String[]{"PP"}), 0.1, tagIndex, tagIndex);
+    ProbRule pp = new ProbRule("PP", Arrays.asList(new String[]{"P", "NP"}), 0.6, tagIndex, tagIndex);
+    ProbRule pp1 = new ProbRule("PP", Arrays.asList(new String[]{"NP"}), 0.4, tagIndex, tagIndex); 
+    ProbRule root = new ProbRule("ROOT", Arrays.asList(new String[]{"S"}), 1.0, tagIndex, tagIndex); 
 
     rules.add(s);
     rules.add(vp);
@@ -95,12 +99,12 @@ public class GrammarTest extends TestCase{
     rules.add(pp1);
     rules.add(root);
     
-    Rule achefNP = new TerminalRule("NP", Arrays.asList(new String[]{"a", "chef"}), 0.15, tagIndex, wordIndex);
-    Rule thechefNP = new TerminalRule("NP", Arrays.asList(new String[]{"the", "chef"}), 0.1, tagIndex, wordIndex);
-    Rule asoupNP = new TerminalRule("NP", Arrays.asList(new String[]{"a", "soup"}), 0.05, tagIndex, wordIndex);
-    Rule cooksoupVP = new TerminalRule("VP", Arrays.asList(new String[]{"cook", "soup"}), 0.1, tagIndex, wordIndex);
+    ProbRule achefNP = new TerminalRule("NP", Arrays.asList(new String[]{"a", "chef"}), 0.15, tagIndex, wordIndex);
+    ProbRule thechefNP = new TerminalRule("NP", Arrays.asList(new String[]{"the", "chef"}), 0.1, tagIndex, wordIndex);
+    ProbRule asoupNP = new TerminalRule("NP", Arrays.asList(new String[]{"a", "soup"}), 0.05, tagIndex, wordIndex);
+    ProbRule cooksoupVP = new TerminalRule("VP", Arrays.asList(new String[]{"cook", "soup"}), 0.1, tagIndex, wordIndex);
 
-    Collection<Rule> extendedRules = new ArrayList<Rule>();
+    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     extendedRules.add(achefNP);
     extendedRules.add(thechefNP);
     extendedRules.add(asoupNP);
@@ -115,14 +119,16 @@ public class GrammarTest extends TestCase{
       }
     }
 
+    EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex);
+    edgeSpace.build(rules);
+    
     Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
-    g.learnGrammar(rules, extendedRules);
+    g.learnGrammar(rules, extendedRules, edgeSpace);
     
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\na:prefix={NP=-1.6}\n chef:prefix={NP=-1.9}, end={NP=-1.9}\n soup:prefix={NP=-3.0}, end={NP=-3.0}\nthe:prefix={NP=-2.3}\n chef:prefix={NP=-2.3}, end={NP=-2.3}\ncook:prefix={VP=-2.3}\n soup:prefix={VP=-2.3}, end={VP=-2.3}");
  
-    Edge r = new Edge(new BaseEdge("PP", new ArrayList<String>(), tagIndex, wordIndex), 0);
-    assertEquals(Util.sprint(g.getCompletions(g.getEdgeSpace().indexOf(r)), g.getEdgeSpace(), 
-        tagIndex, operator), "[(NP -> NP . PP, NP -> ., 1.0416666666666667), (VP -> V . NP, VP -> ., 0.1041666666666667), (NP -> . NP PP, NP -> NP . PP, 0.1041666666666667), (PP -> P . NP, PP -> ., 0.1041666666666667), (S -> . NP VP, S -> NP . VP, 0.1041666666666667)]");
+    assertEquals(Util.sprint(g.getCompletions1(tagIndex.indexOf("PP")), edgeSpace, 
+        tagIndex, operator), "[(NP -> . PP, NP -> ., 1.0416666666666667), (VP -> . NP, VP -> ., 0.1041666666666667), (NP -> . NP PP, NP -> . PP, 0.1041666666666667), (PP -> . NP, PP -> ., 0.1041666666666667), (S -> . NP VP, S -> . VP, 0.1041666666666667)]");
 
   }
 }

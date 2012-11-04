@@ -14,6 +14,7 @@ import parser.Completion;
 import parser.EarleyParser;
 import parser.EarleyParserDense;
 import parser.EarleyParserSparse;
+import parser.EarleyParserSparseIO;
 import parser.EdgeSpace;
 import parser.Grammar;
 import parser.Prediction;
@@ -21,12 +22,19 @@ import util.Util;
 
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
-  private int parserOpt = 1; // 0: dense, 1: sparse
-  private boolean isScaling = true;
-  private boolean isLogProb = false; 
-
+  private int parserOpt = 1; // 0: dense, 1: sparse, 2: sparse IO
+  private boolean isScaling = false;
+  private boolean isLogProb = true; 
+  boolean isLeftWildcard = true; //     false; // 
+  
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 
   "ROOT->[_a _b] : 0.1\n" +
+  "A->[_a] : 1.0\n" +
+  "B->[_b] : 1.0\n";
+  
+  String basicUnaryGrammarString = "ROOT->[X] : 1.0\n" +
+  "X->[A B] : 0.9\n" + 
+  "X->[_a _b] : 0.1\n" +
   "A->[_a] : 1.0\n" +
   "B->[_b] : 1.0\n";
   
@@ -83,18 +91,24 @@ public class EarleyParserTest extends TestCase {
   
   private void initParserFromFile(String ruleFile){
     if(parserOpt==0){
-      parser = new EarleyParserDense(ruleFile, "ROOT", isScaling, isLogProb);
+      parser = new EarleyParserDense(ruleFile, "ROOT", isScaling, isLogProb, isLeftWildcard);
     } else if(parserOpt==1){
-      parser = new EarleyParserSparse(ruleFile, "ROOT", isScaling, isLogProb);
+      parser = new EarleyParserSparse(ruleFile, "ROOT", isScaling, isLogProb, isLeftWildcard);
+    } else if(parserOpt==2){
+      parser = new EarleyParserSparseIO(ruleFile, "ROOT", isScaling, isLogProb, isLeftWildcard);
+    } else {
+      assert(false);
     }
   }
   
   private void initParserFromString(String grammarString){
     try {
       if(parserOpt==0){
-        parser= new EarleyParserDense(Util.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb);
+        parser= new EarleyParserDense(Util.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb, isLeftWildcard);
       } else if(parserOpt==1){    
-        parser= new EarleyParserSparse(Util.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb);
+        parser= new EarleyParserSparse(Util.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb, isLeftWildcard);
+      } else if(parserOpt==2){ 
+        parser= new EarleyParserSparseIO(Util.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb, isLeftWildcard);
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -127,6 +141,31 @@ public class EarleyParserTest extends TestCase {
     }
   }
   
+  public void testBasicUnary(){
+    initParserFromString(basicUnaryGrammarString);
+    
+    String inputSentence = "a b";
+    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
+    assertEquals(resultLists.size(), 4);
+    List<Double> surprisalList = resultLists.get(0);
+    List<Double> stringProbList = resultLists.get(3);
+    
+    
+    for (int i = 0; i < surprisalList.size(); i++) {
+      System.err.println(i + "\t" + surprisalList.get(i));
+    }
+    
+    assertEquals(surprisalList.size(), 2);
+    assertEquals(0.0, surprisalList.get(0), 1e-5);
+    assertEquals(0.0, surprisalList.get(1), 1e-5);
+    
+    if(!isScaling){
+      assertEquals(stringProbList.size(), 2);
+      assertEquals(0.0, stringProbList.get(0), 1e-5);
+      assertEquals(1.0, stringProbList.get(1), 1e-5);
+    }
+  }
   
   public void testLeftInfiniteGrammar(){
     double p = 0.1;
@@ -196,17 +235,17 @@ public class EarleyParserTest extends TestCase {
     assert(surprisalList.size() == numSymbols);
     
     // string x: string prob[1] = p, prefix prob[1] = 1.0, surprisal = -log(1)=0
-    System.err.println(0 + "\tsurprisal " + surprisalList.get(0));
+//    System.err.println(0 + "\tsurprisal " + surprisalList.get(0));
     assertEquals(0, surprisalList.get(0), 1e-10);
     if(!isScaling){
       assert(stringProbList.size()==numSymbols);
-      System.err.println(0 + "\tstring prob " + stringProbList.get(0));
+//      System.err.println(0 + "\tstring prob " + stringProbList.get(0));
       assertEquals(p, stringProbList.get(0), 1e-10);
     }
     
     /// TO THINK: by right if p<q, the total prob string < 1, should prefix prob[1] < 1.0 ?
     //double totalStringProb = Math.min(1, p/q); // see "The Linguist's Guide to Statistics", section 4.6
-    
+    // ANSWER: Stolcke's approach only handles left-corner recursion and will be incorrect for the Catalan grammar
     int[][] c = Util.permutationMatrix(2*numSymbols);
     
     double prevPrefixProb = 1.0;

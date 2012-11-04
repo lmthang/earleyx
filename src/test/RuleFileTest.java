@@ -10,7 +10,7 @@ import java.util.Set;
 
 import parser.SmoothLexicon;
 
-import base.Rule;
+import base.ProbRule;
 
 import junit.framework.TestCase;
 
@@ -54,8 +54,8 @@ public class RuleFileTest extends TestCase{
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     
-    Collection<Rule> rules = new ArrayList<Rule>();
-    Collection<Rule> extendedRules = new ArrayList<Rule>();
+    Collection<ProbRule> rules = new ArrayList<ProbRule>();
+    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
@@ -89,8 +89,8 @@ public class RuleFileTest extends TestCase{
     Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
-    Collection<Rule> rules = new ArrayList<Rule>();
-    Collection<Rule> extendedRules = new ArrayList<Rule>();
+    Collection<ProbRule> rules = new ArrayList<ProbRule>();
+    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     /* Input */
     try {

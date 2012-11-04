@@ -14,7 +14,7 @@ import java.util.Map;
 
 import base.ClosureMatrix;
 import base.RelationMatrix;
-import base.Rule;
+import base.ProbRule;
 
 
 import util.RuleFile;
@@ -66,7 +66,7 @@ public class Main {
     System.err.println("\t\tout: output prefix to name output files");
     System.err.println();
     System.err.println("\t\t-root rootSymbol: specify the start symbol of sentences (default \"ROOT\")");
-    System.err.println("\t\toption: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse");
+    System.err.println("\t\toption: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse, 2 -- EarleyParserSparseIO");
     System.err.println("\t\tprob: 0 -- log-prob (default), 1 -- normal prob");
     System.err.println("\t\tscale: 0 -- no rescaling (default), 1 -- rescaling");
     System.err.println("\t\tverbose: -1 -- no debug info (default), " + 
@@ -209,6 +209,7 @@ public class Main {
     /******************/
     /* grammar option */
     /******************/
+    boolean isLeftWildcard = false;
     if (argsMap.keySet().contains("-grammar") && argsMap.keySet().contains("-treebank")){
       printHelp(args, "-grammar and -treebank are mutually exclusive");
     } else if (argsMap.keySet().contains("-grammar")) { // read from grammar file
@@ -216,9 +217,13 @@ public class Main {
       System.err.println("In grammar file = " + inGrammarFile);
       
       if(parserOpt==0){ // dense
-        parser = new EarleyParserDense(inGrammarFile, rootSymbol, isScaling, isLogProb);
+        parser = new EarleyParserDense(inGrammarFile, rootSymbol, isScaling, isLogProb, isLeftWildcard);
       } else if(parserOpt==1){ // sparse
-        parser = new EarleyParserSparse(inGrammarFile, rootSymbol, isScaling, isLogProb);
+        parser = new EarleyParserSparse(inGrammarFile, rootSymbol, isScaling, isLogProb, isLeftWildcard);
+      } else if(parserOpt==2){ // sparse IO
+        parser = new EarleyParserSparseIO(inGrammarFile, rootSymbol, isScaling, isLogProb, isLeftWildcard);
+      } else {
+        assert(false);
       }
       
     } else if (argsMap.keySet().contains("-treebank")) { // read from treebank file      
@@ -227,9 +232,13 @@ public class Main {
       MemoryTreebank treebank = Util.transformTrees(treeFile, transformerClassName, treebankPackClassName);
       
       if(parserOpt==0){ // dense
-        parser = new EarleyParserDense(treebank, rootSymbol, isScaling, isLogProb);
+        parser = new EarleyParserDense(treebank, rootSymbol, isScaling, isLogProb, isLeftWildcard);
       } else if(parserOpt==1){ // sparse
-        parser = new EarleyParserSparse(treebank, rootSymbol, isScaling, isLogProb);
+        parser = new EarleyParserSparse(treebank, rootSymbol, isScaling, isLogProb, isLeftWildcard);
+      } else if(parserOpt==2){ // sparse IO
+        parser = new EarleyParserSparseIO(treebank, rootSymbol, isScaling, isLogProb, isLeftWildcard);
+      } else {
+        assert(false);
       }
       
       // save grammar
@@ -239,9 +248,9 @@ public class Main {
       boolean isExp = true;      
       try {
         // ignore root rule
-        Collection<Rule> newRules = new ArrayList<Rule>();
-        Rule rootRule = parser.getRootRule();
-        for(Rule rule : parser.getRules()){
+        Collection<ProbRule> newRules = new ArrayList<ProbRule>();
+        ProbRule rootRule = parser.getRootRule();
+        for(ProbRule rule : parser.getRules()){
           if(!rule.equals(rootRule)){
             newRules.add(rule);
           }

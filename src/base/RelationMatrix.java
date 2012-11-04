@@ -31,7 +31,7 @@ public class RelationMatrix {
    * @param categories
    * @return pl (sparse matrix)
    */
-  public DoubleMatrix2D getPL(Collection<Rule> rules, Map<Integer, Integer> nonterminalMap) {
+  public DoubleMatrix2D getPL(Collection<ProbRule> rules, Map<Integer, Integer> nonterminalMap) {
     int numRows = nonterminalMap.size(); //tagIndex.size(); // categories.size();
     DoubleMatrix2D pl = new RCDoubleMatrix2D(numRows, numRows);
     
@@ -44,7 +44,7 @@ public class RelationMatrix {
     }
     
     int numRules = 0;
-    for (Rule r:rules) {
+    for (ProbRule r:rules) {
       int firstChild = r.getChild(0); //categories.indexOf(stateSpace.indexOf(r.getChildEdge(0)));
       if (nonterminalMap.containsKey(firstChild)) { // if the first child is a non-terminal
         assert(nonterminalMap.containsKey(r.getMother()));
@@ -89,7 +89,7 @@ public class RelationMatrix {
    * @param allNontermCategories
    * @return pu (sparse matrix)
    */
-  public DoubleMatrix2D getPU(Collection<Rule> rules){ //, Index<Integer> allNontermCategories){
+  public DoubleMatrix2D getPU(Collection<ProbRule> rules){ //, Index<Integer> allNontermCategories){
     int numRows = tagIndex.size(); //allNontermCategories.size();
     DoubleMatrix2D pu = new RCDoubleMatrix2D(numRows, numRows);
     int numUnaryRules = 0;
@@ -102,7 +102,7 @@ public class RelationMatrix {
       }
     }
     
-    for (Rule r:rules) {
+    for (ProbRule r:rules) {
       if (r.isUnary()) {
         numUnaryRules++;
         assert(r.getScore()>=0);

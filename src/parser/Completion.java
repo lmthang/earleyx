@@ -55,63 +55,62 @@ public class Completion {
       Timing.startTime();
     }
     
-    Map<Integer, Set<Completion>> passiveEdge2completionsMap = new HashMap<Integer, Set<Completion>>();
+    Map<Integer, Set<Completion>> tag2completionsMap = new HashMap<Integer, Set<Completion>>();
     
 
     // init
-    for(int passiveEdge : edgeSpace.getPassiveEdges()){ // go through passive states, Y -> []
-      passiveEdge2completionsMap.put(passiveEdge, new HashSet<Completion>());
+    for(int tag=0; tag<tagIndex.size(); tag++){ // go through passive states, Y -> []
+      tag2completionsMap.put(tag, new HashSet<Completion>());
     }
     
-    
     for(int activeEdge : edgeSpace.getActiveEdges()){ // go through active states, X -> Z \alpha      
-      int viaEdge = edgeSpace.via(activeEdge);
-      int viaCategoryIndex = edgeSpace.get(viaEdge).getMother(); // Z
-      assert(viaEdge>=0 && viaCategoryIndex>=0 && edgeSpace.get(viaEdge).numChildren()==0);
+      int viaTag = edgeSpace.get(activeEdge).getChildAfterDot(0); // Z
      
-      if(unaryClosures.containsRow(viaCategoryIndex)){ // non-zero rows in closure matrix, there exists some Y that R(Z->Y) is non-zero 
-        for(int passiveEdge : edgeSpace.getPassiveEdges()){ // go through passive edges, Y -> []
-          int passiveCategoryIndex = edgeSpace.get(passiveEdge).getMother(); 
-          assert(passiveCategoryIndex >= 0);
-          double unaryClosureScore = unaryClosures.get(viaCategoryIndex, passiveCategoryIndex); // R(Z -> Y)
+      if(unaryClosures.containsRow(viaTag)){ // non-zero rows in closure matrix, there exists some Y that R(Z->Y) is non-zero 
+        // go through passive edges, Y -> []
+        for(int tag=0; tag<tagIndex.size(); tag++){
+          double unaryClosureScore = unaryClosures.get(viaTag, tag); // R(Z -> Y)
           
           if (unaryClosureScore != operator.zero()) {
             Completion completion = new Completion(activeEdge, edgeSpace.to(activeEdge), unaryClosureScore);
-            passiveEdge2completionsMap.get(passiveEdge).add(completion);
+
+            tag2completionsMap.get(tag).add(completion);
      
             if(verbose >= 3){
-              System.err.println("Edge " + tagIndex.get(edgeSpace.get(passiveEdge).getMother())
+              System.err.println("Edge " + tagIndex.get(tag)
                   + ": completion " + completion.toString(edgeSpace, tagIndex, operator));
             }
           }
         }
       } else { // for zero row, there is only passive state, which is the via state Z -> []
         Completion completion = new Completion(activeEdge, edgeSpace.to(activeEdge), operator.one());
-        passiveEdge2completionsMap.get(viaEdge).add(completion);
+        tag2completionsMap.get(viaTag).add(completion);
         
         if(verbose >= 3){
-          System.err.println("Edge " + tagIndex.get(edgeSpace.get(viaEdge).getMother())
+          System.err.println("Edge " + tagIndex.get(viaTag)
               + ": completion " + completion.toString(edgeSpace, tagIndex, operator));
         }
       }
     }
 
-    Map<Integer, Completion[]> returnPassiveEdge2completionsMap = new HashMap<Integer, Completion[]>();
-    for(int edge : edgeSpace.getPassiveEdges()){ // go through passive states, Y -> []
-      List<Completion> l = new ArrayList<Completion>(passiveEdge2completionsMap.get(edge));
-      returnPassiveEdge2completionsMap.put(edge, (Completion[]) l.toArray(NO_COMPLETION));
+    Map<Integer, Completion[]> returnTag2completionsMap = new HashMap<Integer, Completion[]>();
+    // for(int edge : edgeSpace.getPassiveEdges()){ // go through passive states, Y -> []
+    for(int iT=0; iT<tagIndex.size(); iT++){
+      List<Completion> l = new ArrayList<Completion>(tag2completionsMap.get(iT));
+      returnTag2completionsMap.put(iT, (Completion[]) l.toArray(NO_COMPLETION));
     }
     
     if (verbose >= 1) {
       Timing.tick("Done with completion");
     }
     
-    return returnPassiveEdge2completionsMap;
+    assert checkCompletions(returnTag2completionsMap, edgeSpace, tagIndex, operator);
+    return returnTag2completionsMap;
   }
   
   /* check to see if any of the completions are invalid*/
-  public static boolean checkCompletions(Map<Integer, Completion[]> passiveEdge2completionsMap
-      , EdgeSpace edgeSpace, Index<String> tagIndex) {
+  private static boolean checkCompletions(Map<Integer, Completion[]> passiveEdge2completionsMap
+      , EdgeSpace edgeSpace, Index<String> tagIndex, Operator operator) {
     boolean satisfied = true;
     for (int passiveEdge : passiveEdge2completionsMap.keySet()) {
       Completion[] completions = passiveEdge2completionsMap.get(passiveEdge);
@@ -122,14 +121,15 @@ public class Completion {
         
         // compare mother
         if (active.getMother() != result.getMother()) {
-          System.err.println("Error -- mother categories of active edge " + active.toString(tagIndex, tagIndex) 
+          System.err.println("Error " + completion.toString(edgeSpace, tagIndex, operator) + "-- mother categories of active edge " + 
+              active.toString(tagIndex, tagIndex) 
               + " " + active + " and result " + result.toString(tagIndex, tagIndex) + " " + result + " are not identical");
           satisfied = false;
         }
         
         // compare children: children of active shifted 1 to the right should be equal to those of result
         if (!active.getChildrenAfterDot(1).equals(result.getChildrenAfterDot(0))) {
-          System.err.println("Error -- dtrs lists of active edge " + active.toString(tagIndex, tagIndex)  + 
+          System.err.println("Error " + completion.toString(edgeSpace, tagIndex, operator) + "-- dtrs lists of active edge " + active.toString(tagIndex, tagIndex)  + 
               active + " and result " + result.toString(tagIndex, tagIndex) + result + " are not consistent.");
           satisfied = false;
         }
@@ -168,6 +168,17 @@ public class Completion {
 }
 
 /** Unused code **/
+//for(int passiveEdge : edgeSpace.getPassiveEdges()){ 
+//passiveEdge2completionsMap.put(passiveEdge, new HashSet<Completion>());
+//for(int passiveEdge : edgeSpace.getPassiveEdges()){ 
+//  int passiveCategoryIndex = edgeSpace.get(passiveEdge).getMother();
+//  assert(passiveCategoryIndex >= 0);
+//passiveEdge2completionsMap.get(passiveEdge).add(completion);
+//passiveEdge2completionsMap.get(viaEdge).add(completion);
+//List<Completion> l = new ArrayList<Completion>(passiveEdge2completionsMap.get(edge));
+//returnPassiveEdge2completionsMap.put(edge, (Completion[]) l.toArray(NO_COMPLETION));
+
+
 //double unaryClosureScore = Double.NEGATIVE_INFINITY;
 //if (passiveCategoryIndex >= 0){
 //unaryClosureScore = unaryClosures.get(viaCategoryIndex, passiveCategoryIndex); // R(Z -> Y)

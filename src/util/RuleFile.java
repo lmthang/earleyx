@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 import parser.SmoothLexicon;
 
-import base.Rule;
+import base.ProbRule;
 import base.TerminalRule;
 
 
@@ -35,8 +35,8 @@ public class RuleFile {
   private static Pattern p = Pattern.compile("(.+?)->\\[(.+?)\\] : ([0-9.\\+\\-Ee]+)");
   //private static String UNK = "UNK";
     
-  public static void parseRuleFile(BufferedReader br, Collection<Rule> rules, 
-      Collection<Rule> extendedRules, // e.g. adaptor grammar rules, i.e. approximating pcfg with sequence of terminals on the rhs
+  public static void parseRuleFile(BufferedReader br, Collection<ProbRule> rules, 
+      Collection<ProbRule> extendedRules, // e.g. adaptor grammar rules, i.e. approximating pcfg with sequence of terminals on the rhs
       Map<Integer, Counter<Integer>> tag2wordsMap,
       Map<Integer, Set<IntTaggedWord>> word2tagsMap,
       Map<Integer, Integer> nonterminalMap,
@@ -101,10 +101,10 @@ public class RuleFile {
           assert(numTerminals==0 || numTerminals==childIndices.size()); // either all terminals or all tags
           
           if (numTerminals==childIndices.size()){ // process extended rule X -> _a _b _c
-            Rule rule = new TerminalRule(iT, childIndices, prob);
+            ProbRule rule = new TerminalRule(iT, childIndices, prob);
             extendedRules.add(rule);
           } else {
-            Rule rule = new Rule(iT, childIndices, prob);
+            ProbRule rule = new ProbRule(iT, childIndices, prob);
             rules.add(rule);
           }
           
@@ -159,7 +159,7 @@ public class RuleFile {
    * Thang v110901: output rules to file
    * @throws IOException 
    **/
-  public static void printRules(String ruleFile, Collection<Rule> rules
+  public static void printRules(String ruleFile, Collection<ProbRule> rules
       , Map<Integer, Counter<Integer>> origTag2wordsMap, Index<String> wordIndex, Index<String> tagIndex, boolean isExp) throws IOException{
     System.err.println("# Output rules to file " + (new File(ruleFile)).getAbsolutePath());
     BufferedWriter bw = new BufferedWriter(new FileWriter(ruleFile));
@@ -205,8 +205,8 @@ public class RuleFile {
    * Thang v110901: output rules to file
    * @throws IOException 
    **/
-  public static void printRulesSchemeFormat(String prefixFile, Collection<Rule> rules
-      , Collection<Rule> extendedRules
+  public static void printRulesSchemeFormat(String prefixFile, Collection<ProbRule> rules
+      , Collection<ProbRule> extendedRules
       , Map<Integer, Counter<Integer>> tag2wordsMap 
       , Index<String> wordIndex, Index<String> tagIndex) throws IOException{
     String ruleFile = prefixFile + ".forms.txt";
@@ -278,8 +278,8 @@ public class RuleFile {
     Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
-    Collection<Rule> rules = new ArrayList<Rule>();
-    Collection<Rule> extendedRules = new ArrayList<Rule>();
+    Collection<ProbRule> rules = new ArrayList<ProbRule>();
+    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     /* Input */
     try {
