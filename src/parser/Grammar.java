@@ -35,7 +35,7 @@ public class Grammar {
   // while a pair of X, state id, and rule score is a value associated to the key
   private TrieSurprisal ruleTrie;  
   //private Completion[][] completionsArray; // completions[i] is the set of Completion instances for the state i
-  private Map<Integer, Completion[]> passiveEdge2completionsMap;
+  private Map<Integer, Completion[]> tag2completionsMap;
   private Prediction[][] predictionsArray; // predictions[i] is the set of Prediction instances for the state i
 
   private Index<String> wordIndex;
@@ -90,7 +90,7 @@ public class Grammar {
     // here state space does implies new states added from extended rules
     // we purposely use the old nontermPretermIndexer
 //    completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
-    passiveEdge2completionsMap = Completion.constructCompletions(unaryClosures, edgeSpace, 
+    tag2completionsMap = Completion.constructCompletions(unaryClosures, edgeSpace, 
         tagIndex, operator);
   }
 
@@ -103,9 +103,6 @@ public class Grammar {
     int numExtendedRules = 0;
     for (ProbRule extendedRule : extendedRules) {
       List<Integer> children = extendedRule.getChildren();
-      int motherState = edgeSpace.indexOfTag(extendedRule.getMother()); 
-      assert(motherState == edgeSpace.indexOf(extendedRule.getMotherEdge()));
-      assert(motherState >= 0);
       ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), 
           operator.getScore(extendedRule.getScore()))); 
       
@@ -133,17 +130,10 @@ public class Grammar {
   public TrieSurprisal getRuleTrie() {
     return ruleTrie;
   }
-//  public Completion[] getCompletions(int edge) {
-//    if(passiveEdge2completionsMap.containsKey(edge)){
-//      return passiveEdge2completionsMap.get(edge);
-//    } else {
-//      return Completion.NO_COMPLETION;
-//    }
-//  }
 
-  public Completion[] getCompletions1(int tag) {
-    if(passiveEdge2completionsMap.containsKey(tag)){
-      return passiveEdge2completionsMap.get(tag);
+  public Completion[] getCompletions(int tag) {
+    if(tag2completionsMap.containsKey(tag)){
+      return tag2completionsMap.get(tag);
     } else {
       return Completion.NO_COMPLETION;
     }

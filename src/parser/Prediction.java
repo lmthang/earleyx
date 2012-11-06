@@ -69,8 +69,6 @@ public class Prediction {
     //Set<Integer> activeIndices = stateSpace.getActiveIndices(); // those that has at least 1 non-terminal left-corner child 
     //for (int viaCategoryIndex : activeIndices) { // Z
     for (int viaCategoryIndex : nonterminals) { // Z
-      //System.err.println(viaCategoryIndex + "\t" + stateSpace.get(viaCategoryIndex).numChildren() + "\t" + stateSpace.get(stateSpace.indexOfTag(viaCategoryIndex)).getMother());
-      assert(stateSpace.get(stateSpace.indexOfTag(viaCategoryIndex)).getMother()==viaCategoryIndex);
       if(verbose >= 2){
         System.err.println("# via: " + tagIndex.get(viaCategoryIndex));
       }

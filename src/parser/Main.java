@@ -60,15 +60,18 @@ public class Main {
   public static void printHelp(String[] args, String message){
     System.err.println("! " + message);
     System.err.println("Main -in inFile -out outPrefix " + 
-        "(-grammar grammarFile | -treebank treebankFile) " + 
-        "[-id indexFileName] [-opt option] [-prob probOpt] [-scale scaleOpt] [-root rootSymbol]");
+        "(-grammar grammarFile | -treebank treebankFile) [-root rootSymbol] " + 
+        "[-id indexFileName] [-opt option] [-prob probOpt] " + 
+        "[-scale scaleOpt] [-edge edgeOption]");
     System.err.println("\t\tin: input filename");
     System.err.println("\t\tout: output prefix to name output files");
     System.err.println();
-    System.err.println("\t\t-root rootSymbol: specify the start symbol of sentences (default \"ROOT\")");
+    System.err.println("\t\troot rootSymbol: specify the start symbol of sentences (default \"ROOT\")");
     System.err.println("\t\toption: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse, 2 -- EarleyParserSparseIO");
     System.err.println("\t\tprob: 0 -- log-prob (default), 1 -- normal prob");
     System.err.println("\t\tscale: 0 -- no rescaling (default), 1 -- rescaling");
+    System.err.println("\t\tedge: 0 -- standard (default), 1 -- left wildcard: " + 
+        "Earley edges having the same parent and expecting children (children on the right of the dot) are collapsed into the same edge X -> * . \\alpha");
     System.err.println("\t\tverbose: -1 -- no debug info (default), " + 
         "0: surprisal per word, 1-4 -- increasing more details");
     System.exit(1);
@@ -93,18 +96,24 @@ public class Main {
     flags.put("-out", new Integer(1)); // output prefix name
     flags.put("-grammar", new Integer(1)); // input grammar file
     flags.put("-treebank", new Integer(1)); // input treebank file, mutually exclusive with -grammar
+    flags.put("-root", new Integer(1)); // root symbol
     
     // optional
     flags.put("-id", new Integer(1)); // sentence indices
     flags.put("-opt", new Integer(1)); // 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)
     flags.put("-prob", new Integer(1)); // 0 -- log-prob (default), 1 -- normal prob
     flags.put("-scale", new Integer(1)); // 0 -- no rescaling (default), 1 -- rescaling
-    flags.put("-root", new Integer(1)); // root symbol
+    flags.put("-edge", new Integer(1)); // 0 -- standard (default), 1 -- left wildcard
     flags.put("-verbose", new Integer(1));     // 0: no debug info (default), 1: progress info, 2: closure matrices, combine/predict parsing info, 3: details edge/rule info, parser chart, prediction/completion list info, trie
     flags.put("-debug", new Integer(1));
     
     Map<String, String[]> argsMap = StringUtils.argsToMap(args, flags);
     args = argsMap.get(null);
+    
+    /* root symbol */
+    if (argsMap.keySet().contains("-root")) {
+      rootSymbol = argsMap.get("-root")[0];
+    }
     
     /* verbose option */
     int verbose = -1;
@@ -143,16 +152,22 @@ public class Main {
         isScaling = true;
       }
     }
-    
-    /* root symbol */
-    if (argsMap.keySet().contains("-root")) {
-      rootSymbol = argsMap.get("-root")[0];
+
+    /* edge opt */
+    int edgeOpt = 0; // 0: default
+    boolean isLeftWildcard = false;
+    if (argsMap.keySet().contains("-edge")) {
+      edgeOpt = Integer.parseInt(argsMap.get("-edge")[0]);
+      if(edgeOpt == 1){// left wildcard
+        isLeftWildcard = true;
+      }
     }
     
+    System.err.println("# Root symbol = " + rootSymbol);
     System.err.println("# Parser opt = " + parserOpt);
     System.err.println("# Prob opt = " + probOpt + ", isLogProb = " + isLogProb);
     System.err.println("# Scale opt = " + scaleOpt + ", isScaling = " + isScaling);
-    System.err.println("# Root symbol = " + rootSymbol);
+    System.err.println("# Edge opt = " + edgeOpt + ", isLeftWildcard = " + isLeftWildcard);
     System.err.println("# Verbose opt = " + verbose);
 
     /******************/
@@ -209,7 +224,7 @@ public class Main {
     /******************/
     /* grammar option */
     /******************/
-    boolean isLeftWildcard = false;
+    
     if (argsMap.keySet().contains("-grammar") && argsMap.keySet().contains("-treebank")){
       printHelp(args, "-grammar and -treebank are mutually exclusive");
     } else if (argsMap.keySet().contains("-grammar")) { // read from grammar file

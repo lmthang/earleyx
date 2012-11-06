@@ -49,6 +49,9 @@ public class Edge {
   public int getChildAfterDot(int pos){
     return rule.getChild(dot+pos);
   }
+  public int getChild(int pos){
+    return rule.getChild(pos);
+  }
   
   /** 
   * create mother edge which doesn't have any children, mother -> []
@@ -98,11 +101,6 @@ public class Edge {
     return rule.hashCode()<< 8 + dot;
   }
   
-  // create a tag edge: tag -> []
-  public static Edge createTagEdge(int tag){
-    return new Edge(new Rule(tag, new ArrayList<Integer>()), 0);
-  }
-  
   public String toString(Index<String> motherIndex, Index<String> childIndex){
     StringBuffer sb = new StringBuffer();
     sb.append(rule.lhsString(motherIndex) + " -> ");
@@ -119,6 +117,10 @@ public class Edge {
 }
 
 /*** Unused code ***/
+//// create a tag edge: tag -> []
+//public static Edge createTagEdge(int tag){
+//  return new Edge(new Rule(tag, new ArrayList<Integer>()), 0);
+//}
 
 //
 ///** 

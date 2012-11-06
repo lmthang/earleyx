@@ -58,36 +58,22 @@ public abstract class EdgeSpace {
         }
       }
     }
-    
-    
-    
+     
     // add preterminals that we haven't seen
-    for (int iT = 0; iT < tagIndex.size(); iT++) {
-      if(indexOfTag(iT) == -1){ // add preterminal -> []
+    for (int tag = 0; tag < tagIndex.size(); tag++) {
+      if(indexOfTag(tag) == -1){ // add preterminal -> []
         if(verbose>=3){
-          System.err.println("Add preterminal " + tagIndex.get(iT) + " to edge space");
+          System.err.println("Add preterminal " + tagIndex.get(tag) + " to edge space");
         }
-        addEdge(Edge.createTagEdge(iT));
+        addEdge(new Edge(new Rule(tag, new ArrayList<Integer>()), 0));
       }
     }
-     
     if (verbose >= 1) {
       Timing.tick("Done! Num rules=" + numRules + ", state space size=" + size);
     }
   }
   
   protected abstract Edge getToEdge(Edge e);
-  
-  /**
-  * Index of edge tag -> []
-  * @param tag
-  * @return
-  */
-  private Edge dummyEdge = new Edge(new Rule(0, new ArrayList<Integer>()), 0);
-  public int indexOfTag(int iT) {
-   dummyEdge.setMother(iT);
-   return edgeIndex.indexOf(dummyEdge);
-  }
   
   /*
    * add edge (represent a rule) and keep track of mother, via, to edges
@@ -108,8 +94,9 @@ public abstract class EdgeSpace {
       activeEdges.add(state);
       
       // via edge: first child -> []
+//    int viaState = addEdge(e.getViaEdge());
       addEdge(e.getViaEdge());
-//      int viaState = addEdge(e.getViaEdge()); 
+ 
       
       // to edge: mother -> [second child onwards]
       assert(e.getDot()<e.numChildren());
@@ -134,6 +121,17 @@ public abstract class EdgeSpace {
     return edgeIndex.indexOf(edge);
   }
 
+  /**
+  * Index of edge tag -> []
+  * @param tag
+  * @return
+  */
+  private Edge dummyEdge = new Edge(new Rule(0, new ArrayList<Integer>()), 0);
+  public int indexOfTag(int tag) {
+    dummyEdge.setMother(tag);
+    return edgeIndex.indexOf(dummyEdge);
+  }
+  
   public int size() {
     return size;
   }

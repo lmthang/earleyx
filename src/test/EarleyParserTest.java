@@ -25,7 +25,7 @@ public class EarleyParserTest extends TestCase {
   private int parserOpt = 1; // 0: dense, 1: sparse, 2: sparse IO
   private boolean isScaling = false;
   private boolean isLogProb = true; 
-  boolean isLeftWildcard = true; //     false; // 
+  boolean isLeftWildcard = false; // true; //                  
   
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 
   "ROOT->[_a _b] : 0.1\n" +
@@ -86,7 +86,7 @@ public class EarleyParserTest extends TestCase {
     Grammar.verbose = 0;
     Prediction.verbose = 0;
     Completion.verbose = 0;
-    EarleyParser.verbose = 0;
+    EarleyParser.verbose = 4;
   }
   
   private void initParserFromFile(String ruleFile){
@@ -125,11 +125,6 @@ public class EarleyParserTest extends TestCase {
     List<Double> surprisalList = resultLists.get(0);
     List<Double> stringProbList = resultLists.get(3);
     
-    
-    for (int i = 0; i < surprisalList.size(); i++) {
-      System.err.println(i + "\t" + surprisalList.get(i));
-    }
-    
     assertEquals(surprisalList.size(), 2);
     assertEquals(0.0, surprisalList.get(0), 1e-5);
     assertEquals(0.0, surprisalList.get(1), 1e-5);
@@ -139,6 +134,10 @@ public class EarleyParserTest extends TestCase {
       assertEquals(0.0, stringProbList.get(0), 1e-5);
       assertEquals(1.0, stringProbList.get(1), 1e-5);
     }
+    
+    // outside computation
+//    parser.dumpInnerProb();
+//    parser.computeOutsideProbs();
   }
   
   public void testBasicUnary(){
