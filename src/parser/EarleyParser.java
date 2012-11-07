@@ -101,9 +101,10 @@ public abstract class EarleyParser {
   protected double[] scaling; 
   protected double[] scalingMatrix; // used for extended rules, scalingMatrix[left][right] = sum/log-sum scaling[left+1] ... scaling[right]
   
-  /** outside **/
+  /** inside-outside **/
   // completedEdges.get(linear[left][right]): set of completed edges
   protected Map<Integer, Set<Integer>> completedEdges;
+  protected Map<Integer, Double> expectedCounts;
   
   /** current sentence info **/
   protected int[][] linear; // convert matrix indices [left][right] into linear indices
@@ -424,6 +425,20 @@ public abstract class EarleyParser {
         System.err.println(dumpOuterProb());
         System.err.println(dumpOutsideChart());
       }
+      
+      // estimate expected rule count
+      double fullStringProb = stringProbability(numWords);
+      for(ProbRule rule : rules){
+        Edge edgeObj = rule.getEdge();
+        int edge = edgeSpace.indexOf(edgeObj);
+        
+        if(expectedCounts.containsKey(edge)){
+          double score = operator.divide(expectedCounts.get(edge), fullStringProb);
+          System.err.println("Expected count " + edgeObj.toString(parserTagIndex, parserTagIndex) + "\t" + operator.getProb(score));
+        } else {
+          System.err.println("Zero count " + edgeObj.toString(parserTagIndex, parserTagIndex));  
+        }
+      }
     }
     
     // compile result lists
@@ -669,6 +684,7 @@ public abstract class EarleyParser {
     
     if(isComputeOutside){
       completedEdges = new HashMap<Integer, Set<Integer>>();
+      expectedCounts = new HashMap<Integer, Double>();
       
       for (int i = 0; i < numCells; i++) {
         completedEdges.put(i, new HashSet<Integer>());

@@ -22,7 +22,7 @@ import util.Util;
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
   private String rootSymbol = "ROOT";
-  private int parserOpt = 0; // 0: dense, 1: sparse, 2: sparse IO
+  private int parserOpt = 1; // 0: dense, 1: sparse, 2: sparse IO
   private boolean isScaling = false; // true; //
   private boolean isLogProb = true; 
   boolean isComputeOutside = true; // false; //  
@@ -88,7 +88,7 @@ public class EarleyParserTest extends TestCase {
     Grammar.verbose = 0;
     Prediction.verbose = 0;
     Completion.verbose = 0;
-    EarleyParser.verbose = 0;
+    EarleyParser.verbose = 3;
   }
   
   private void initParserFromFile(String ruleFile){

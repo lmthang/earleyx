@@ -405,11 +405,11 @@ public class EarleyParserSparse extends EarleyParser {
       }
     }
     configurations.get(linear[start][end]).add(rootEdge); // add starting edge
-    
+
     // outside
     for(int length=end-start; length>=0; length--){
-      for (int left=0; left<=end-length; left++){
-        int right = left+length;
+      for (int left=0; left<=end-length; left++){ // left
+        int right = left+length; // right
         
         Set<Integer> edges = configurations.get(linear[left][right]);
         while(edges.size()>0){ // while there're still edges to consider
@@ -418,8 +418,17 @@ public class EarleyParserSparse extends EarleyParser {
           for(int edge : copyEdges){
             double parentOutside = outerProb.get(linear[left][right]).get(edge);
             Edge edgeObj = edgeSpace.get(edge);
-            
-            if(edgeObj.getDot()>0){ // X -> _ Z . \alpha
+
+            if(left==right){ // predicted edges: X -> . \alpha
+              assert(edgeObj.getDot()==0);
+              // add expected counts
+              double parentInside = innerProb.get(linear[left][right]).get(edge);
+              double expectedCount = operator.multiply(parentOutside, parentInside);
+              if(verbose>=3){
+                System.err.println("    add expected count " + expectedCount + " to " + edgeInfo(left, right, edge));
+              }
+              addScore(expectedCounts, edge, expectedCount);
+            } else if(edgeObj.getDot()>0){ // X -> _ Z . \alpha
               if(verbose>=3){
                 System.err.println("## " + outsideInfo(left, right, edge));
               }
@@ -431,7 +440,7 @@ public class EarleyParserSparse extends EarleyParser {
                 System.err.println("  prev edge " + prevEdgeObj.toString(parserTagIndex, parserTagIndex));
               }
               
-              for(int middle=right-1; middle>=0; middle--){ // middle
+              for(int middle=right-1; middle>=left; middle--){ // middle
                 if(innerProb.get(linear[left][middle]).containsKey(prevEdge)){
                   double leftInside = innerProb.get(linear[left][middle]).get(prevEdge);
                   if(verbose>=4){
@@ -464,14 +473,9 @@ public class EarleyParserSparse extends EarleyParser {
                       // if it has no, that means it was constructed directly from terminals
                       
                       // recursive call
-                      if(middle>left){
-                        assert(middle != right || prevEdge != edge);
-                        configurations.get(linear[left][middle]).add(prevEdge);
-                      }
-                      if(right>middle){ //  && nextEdgeObj.numChildren()>0 
-                        assert(middle != left || nextEdge != edge);
-                        configurations.get(linear[middle][right]).add(nextEdge);
-                      }
+                      configurations.get(linear[left][middle]).add(prevEdge);
+                      assert(middle != left || nextEdge != edge);
+                      configurations.get(linear[middle][right]).add(nextEdge);
                     }
                   } // end nextEdge
                 }
