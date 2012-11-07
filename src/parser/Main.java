@@ -59,21 +59,33 @@ public class Main {
 
   public static void printHelp(String[] args, String message){
     System.err.println("! " + message);
-    System.err.println("Main -in inFile -out outPrefix " + 
-        "(-grammar grammarFile | -treebank treebankFile) [-root rootSymbol] " + 
-        "[-id indexFileName] [-opt option] [-prob probOpt] " + 
-        "[-scale scaleOpt] [-edge edgeOption]");
-    System.err.println("\t\tin: input filename");
-    System.err.println("\t\tout: output prefix to name output files");
+    System.err.println("Main -in inFile -out outPrefix " + "(-grammar grammarFile | -treebank treebankFile) \n" + 
+        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-io] [-verbose opt]");
+    // [-leftwildcard] 
+    // [-id indexFileName] 
+    
+    // compulsory
+    System.err.println("\tCompulsory:");
+    System.err.println("\t\t in \t\t input filename, i.e. sentences to parse");
+    System.err.println("\t\tgrammar|treebank \t\t either read directly from a grammar file or from a treebank." +
+    		"For the latter, a grammar file will be output as outPrefix.grammar .");
+    System.err.println("\t\t out \t\t output prefix to name output files");
     System.err.println();
-    System.err.println("\t\troot rootSymbol: specify the start symbol of sentences (default \"ROOT\")");
-    System.err.println("\t\toption: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse, 2 -- EarleyParserSparseIO");
-    System.err.println("\t\tprob: 0 -- log-prob (default), 1 -- normal prob");
-    System.err.println("\t\tscale: 0 -- no rescaling (default), 1 -- rescaling");
-    System.err.println("\t\tedge: 0 -- standard (default), 1 -- left wildcard: " + 
-        "Earley edges having the same parent and expecting children (children on the right of the dot) are collapsed into the same edge X -> * . \\alpha");
-    System.err.println("\t\tverbose: -1 -- no debug info (default), " + 
+    
+    // optional
+    System.err.println("\t Optional:");
+    System.err.println("\t\t root \t\t specify the start symbol of sentences (default \"ROOT\")");
+    System.err.println("\t\t sparse \t\t optimize for sparse grammars (default: run with dense grammars)");
+    System.err.println("\t\t normalprob \t\t if specified, perform numeric computation in normal prob (cf. log-prob). This switch is best to be used with -scale.");
+    System.err.println("\t\t scale \t\t if specified, perform rescaling");
+    System.err.println("\t\t io \t\t if specified, inside-outside: compute outside probabilities to estimate expected rule probabilities. By default, the program compute inner/forward probabilities as well as surprisal values");
+    System.err.println("\t\t verbose \t\t -1 -- no debug info (default), " + 
         "0: surprisal per word, 1-4 -- increasing more details");
+    
+//    System.err.println("\t\t leftwildcard \t\t if specified, using left wildcard to group edges: " + 
+//        "Earley edges having the same parent and expecting children " +
+//        "(children on the right of the dot) are collapsed into the same edge X -> * . \\alpha");
+    
     System.exit(1);
   }
   
@@ -83,8 +95,7 @@ public class Main {
     }
     System.err.println("EarleyParser invoked with arguments " + Arrays.asList(args));
     
-    /* Default parameters */
-    String rootSymbol = "ROOT";        
+    /* Default parameters */        
     String transformerClassName = null;
     String treebankPackClassName = "edu.stanford.nlp.parser.lexparser.EnglishTreebankParserParams";
     EarleyParser parser = null;
@@ -100,17 +111,17 @@ public class Main {
     
     // optional
     flags.put("-id", new Integer(1)); // sentence indices
-    flags.put("-opt", new Integer(1)); // 0 -- EarleyParserDense (default), 1 -- EarleyParserSparse (todo)
-    flags.put("-prob", new Integer(1)); // 0 -- log-prob (default), 1 -- normal prob
-    flags.put("-scale", new Integer(1)); // 0 -- no rescaling (default), 1 -- rescaling
-    flags.put("-edge", new Integer(1)); // 0 -- standard (default), 1 -- left wildcard
-    flags.put("-verbose", new Integer(1));     // 0: no debug info (default), 1: progress info, 2: closure matrices, combine/predict parsing info, 3: details edge/rule info, parser chart, prediction/completion list info, trie
-    flags.put("-debug", new Integer(1));
+    flags.put("-sparse", new Integer(0)); // optimize for sparse grammars
+    flags.put("-normalprob", new Integer(0)); // normal prob 
+    flags.put("-scale", new Integer(0)); // scaling
+    flags.put("-io", new Integer(0)); // inside-outside computation 
+    flags.put("-verbose", new Integer(1)); 
     
     Map<String, String[]> argsMap = StringUtils.argsToMap(args, flags);
     args = argsMap.get(null);
     
     /* root symbol */
+    String rootSymbol = "ROOT";
     if (argsMap.keySet().contains("-root")) {
       rootSymbol = argsMap.get("-root")[0];
     }
@@ -127,47 +138,35 @@ public class Main {
       EarleyParser.verbose = verbose;
     }
     
-    /* parser opt */
-    int parserOpt = 0; // 0: default
-    if (argsMap.keySet().contains("-opt")) {
-      parserOpt = Integer.parseInt(argsMap.get("-opt")[0]);
+    /* sparse opt */
+    int parserOpt = 0; // dense
+    if (argsMap.keySet().contains("-sparse")) {
+      parserOpt = 1; // sparse
     }
     
-    /* prob opt */
-    int probOpt = 0; // 0: default
+    /* normalprob */
     boolean isLogProb = true;
-    if (argsMap.keySet().contains("-prob")) {
-      probOpt = Integer.parseInt(argsMap.get("-prob")[0]);
-      if(probOpt == 1){// normal prob
-        isLogProb = false;
-      }
+    if (argsMap.keySet().contains("-normalprob")) {
+      isLogProb = false;
     }
     
     /* scale opt */
-    int scaleOpt = 0; // 0: default
     boolean isScaling = false;
     if (argsMap.keySet().contains("-scale")) {
-      scaleOpt = Integer.parseInt(argsMap.get("-scale")[0]);
-      if(scaleOpt == 1){// scailing
-        isScaling = true;
-      }
+      isScaling = true;
     }
-
-    /* edge opt */
-    int edgeOpt = 0; // 0: default
-    boolean isLeftWildcard = false;
-    if (argsMap.keySet().contains("-edge")) {
-      edgeOpt = Integer.parseInt(argsMap.get("-edge")[0]);
-      if(edgeOpt == 1){// left wildcard
-        isLeftWildcard = true;
-      }
+    
+    /* io opt */
+    boolean isComputeOutside = false;
+    if (argsMap.keySet().contains("-io")) {
+      isComputeOutside = true;
     }
     
     System.err.println("# Root symbol = " + rootSymbol);
-    System.err.println("# Parser opt = " + parserOpt);
-    System.err.println("# Prob opt = " + probOpt + ", isLogProb = " + isLogProb);
-    System.err.println("# Scale opt = " + scaleOpt + ", isScaling = " + isScaling);
-    System.err.println("# Edge opt = " + edgeOpt + ", isLeftWildcard = " + isLeftWildcard);
+    System.err.println("# isSparse = " + (parserOpt==1));
+    System.err.println("# isLogProb = " + isLogProb);
+    System.err.println("# isScaling = " + isScaling);
+    System.err.println("# isComputeOutside = " + isComputeOutside);
     System.err.println("# Verbose opt = " + verbose);
 
     /******************/
@@ -232,11 +231,11 @@ public class Main {
       System.err.println("In grammar file = " + inGrammarFile);
       
       if(parserOpt==0){ // dense
-        parser = new EarleyParserDense(inGrammarFile, rootSymbol, isScaling, isLogProb, isLeftWildcard);
+        parser = new EarleyParserDense(inGrammarFile, rootSymbol, isScaling, 
+            isLogProb, isComputeOutside);
       } else if(parserOpt==1){ // sparse
-        parser = new EarleyParserSparse(inGrammarFile, rootSymbol, isScaling, isLogProb, isLeftWildcard);
-      } else if(parserOpt==2){ // sparse IO
-        parser = new EarleyParserSparseIO(inGrammarFile, rootSymbol, isScaling, isLogProb, isLeftWildcard);
+        parser = new EarleyParserSparse(inGrammarFile, rootSymbol, isScaling, 
+            isLogProb, isComputeOutside);
       } else {
         assert(false);
       }
@@ -247,11 +246,11 @@ public class Main {
       MemoryTreebank treebank = Util.transformTrees(treeFile, transformerClassName, treebankPackClassName);
       
       if(parserOpt==0){ // dense
-        parser = new EarleyParserDense(treebank, rootSymbol, isScaling, isLogProb, isLeftWildcard);
+        parser = new EarleyParserDense(treebank, rootSymbol, isScaling, 
+            isLogProb, isComputeOutside);
       } else if(parserOpt==1){ // sparse
-        parser = new EarleyParserSparse(treebank, rootSymbol, isScaling, isLogProb, isLeftWildcard);
-      } else if(parserOpt==2){ // sparse IO
-        parser = new EarleyParserSparseIO(treebank, rootSymbol, isScaling, isLogProb, isLeftWildcard);
+        parser = new EarleyParserSparse(treebank, rootSymbol, isScaling, 
+            isLogProb, isComputeOutside);
       } else {
         assert(false);
       }
@@ -297,6 +296,12 @@ public class Main {
 }
 
 /************* Unused code ************/
+///* leftwildcard opt */
+//boolean isLeftWildcard = false;
+//if (argsMap.keySet().contains("-leftwildcard")) {
+//isLeftWildcard = true;
+//}
+
 // String encoding = "UTF-8";
 //flags.put("-encoding", new Integer(1));
 //flags.put("-tr", new Integer(1));

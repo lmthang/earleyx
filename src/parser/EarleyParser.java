@@ -45,7 +45,7 @@ import util.Util;
 public abstract class EarleyParser { 
   protected boolean isScaling = false;
   protected boolean isLogProb = true;
-  protected boolean isComputeOutside = true;
+  protected boolean isComputeOutside = true; // false;
   
   protected Operator operator; // either ProbOperator or LogProbOperator
   
@@ -117,11 +117,12 @@ public abstract class EarleyParser {
   public static int verbose = -1;
   protected static DecimalFormat df = new DecimalFormat("0.0000");
   protected static DecimalFormat df1 = new DecimalFormat("0.00");
+  protected static DecimalFormat df2 = new DecimalFormat("0.00000000");
   
   // constructors with scailing
   public EarleyParser(Treebank treebank, String rootSymbol, boolean isScaling, 
-      boolean isLogProb, boolean isLeftWildcard){
-    preInit(rootSymbol, isScaling, isLogProb, isLeftWildcard);
+      boolean isLogProb, boolean isComputeOutside){
+    preInit(rootSymbol, isScaling, isLogProb, isComputeOutside);
     Pair<Collection<ProbRule>, Collection<IntTaggedWord>> rules_itws = 
       Util.extractRulesWordsFromTreebank(treebank, parserWordIndex, parserTagIndex, parserNonterminalMap);
     rules.addAll(rules_itws.first());
@@ -131,8 +132,8 @@ public abstract class EarleyParser {
     postInit(rootSymbol);
   }
   public EarleyParser(String grammarFile, String rootSymbol, boolean isScaling, 
-      boolean isLogProb, boolean isLeftWildcard){
-    preInit(rootSymbol, isScaling, isLogProb, isLeftWildcard);
+      boolean isLogProb, boolean isComputeOutside){
+    preInit(rootSymbol, isScaling, isLogProb, isComputeOutside);
     try{
       init(Util.getBufferedReaderFromFile(grammarFile), rootSymbol);
     } catch(FileNotFoundException e){
@@ -142,16 +143,18 @@ public abstract class EarleyParser {
     postInit(rootSymbol);
   }
   public EarleyParser(BufferedReader br, String rootSymbol, boolean isScaling, 
-      boolean isLogProb, boolean isLeftWildcard){
-    preInit(rootSymbol, isScaling, isLogProb, isLeftWildcard);
+      boolean isLogProb, boolean isComputeOutside){
+    preInit(rootSymbol, isScaling, isLogProb, isComputeOutside);
     init(br, rootSymbol);
     postInit(rootSymbol);
   }
   
   // preInit
-  private void preInit(String rootSymbol, boolean isScaling, boolean isLogProb, boolean isLeftWildcard){
+  private void preInit(String rootSymbol, boolean isScaling, boolean isLogProb, 
+      boolean isComputeOutside){
     this.isScaling = isScaling;
     this.isLogProb = isLogProb;
+    this.isComputeOutside = isComputeOutside;
     
     if(isLogProb){
       operator = new LogProbOperator();
@@ -163,7 +166,10 @@ public abstract class EarleyParser {
     parserTagIndex = new HashIndex<String>();
     parserNonterminalMap = new HashMap<Integer, Integer>();
     
-    if(isLeftWildcard){
+    if(!isComputeOutside){
+      // Earley edges having the same parent and expecting children 
+      // (children on the right of the dot) are collapsed into the same edge X -> * . \\alpha.
+      // This speeds up parsing time if we only care about inner/forward probs + surprisal values
       edgeSpace = new LeftWildcardEdgeSpace(parserTagIndex);
     } else {
       edgeSpace = new StandardEdgeSpace(parserTagIndex);
@@ -406,13 +412,20 @@ public abstract class EarleyParser {
     }
 
     if(verbose>=4){
-      dumpInsideChart();
+      dumpChart();
+      System.err.println(dumpInnerProb());
+      System.err.println(dumpInsideChart());
+    }
+    
+    if(isComputeOutside){
+      computeOutsideProbs();
       
-      if(isComputeOutside){
-        computeOutsideProbs();
-        dumpOutsideChart();
+      if(verbose>=4){
+        System.err.println(dumpOuterProb());
+        System.err.println(dumpOutsideChart());
       }
     }
+    
     // compile result lists
     List<List<Double>> resultLists = new ArrayList<List<Double>>();
     resultLists.add(surprisalList);
@@ -562,13 +575,15 @@ public abstract class EarleyParser {
   }
   
   public void computeOutsideProbs(){
-    System.err.println("# Completed edges:");
-    for (int left = 0; left <= numWords; left++) {
-      for (int right = left; right <= numWords; right++) {
-        int lrIndex = linear[left][right];
-        
-        for(int edge : completedEdges.get(lrIndex)){
-          System.err.println(edgeInfo(left, right, edge));
+    if(verbose>=4){
+      System.err.println("# Completed edges:");
+      for (int left = 0; left <= numWords; left++) {
+        for (int right = left; right <= numWords; right++) {
+          int lrIndex = linear[left][right];
+          
+          for(int edge : completedEdges.get(lrIndex)){
+            System.err.println(edgeInfo(left, right, edge));
+          }
         }
       }
     }
@@ -598,23 +613,25 @@ public abstract class EarleyParser {
   protected abstract void predictFromEdge(int left, int right, int edge);
   
   protected abstract void completeAll(int left, int middle, int right);
-  protected abstract void complete(int left, int middle, int right, int passive, double inner);
-  
+  protected abstract void complete(int left, int middle, int right, int passiveEdge, double inner);
+  protected abstract void addPrefixProbExtendedRule(int left, int middle, int right, int edge, double inner);
+
   // inside
   protected abstract double getInsideScore(int left, int right, int edge);
   protected abstract void addInsideScore(int left, int right, int edge, double score);
   
   // outside
-  protected abstract void outside(int left, int right, int edge);
+  protected abstract void outside(int start, int end, int rootEdge);
+  protected abstract double getOutsideScore(int left, int right, int edge);
   protected abstract void addOutsideScore(int left, int right, int edge, double score);
   
   // debug
   public abstract String edgeScoreInfo(int left, int right, int edge);
   protected abstract void dumpChart(); // print both inner and forward probs
-  public abstract void dumpInnerProb();
-  public abstract void dumpOuterProb();
-  public abstract void dumpInsideChart();
-  public abstract void dumpOutsideChart();
+  public abstract String dumpInnerProb();
+  public abstract String dumpOuterProb();
+  public abstract String dumpInsideChart();
+  public abstract String dumpOutsideChart();
   
   /*******************/
   /** Other methods **/
@@ -729,9 +746,15 @@ public abstract class EarleyParser {
     df.format(operator.getProb(inner)) + "]";
   }
   
+  protected String outsideInfo(int left, int right, int edge){
+    return "outside ([" + left + ", " + right + "], " 
+        + edgeSpace.get(edge).toString(parserTagIndex, parserTagIndex) + ", " + 
+        operator.getProb(getOutsideScore(left, right, edge)) + ")";
+  }
+  
   protected String completionInfo(int left, int middle, int right, 
-      int tag, double inner, Completion[] completions){
-    return "Tag " + parserTagIndex.get(tag) + " [" + middle + ", " + right + "] "  
+      int edge, double inner, Completion[] completions){
+    return "Completed " + edgeInfo(middle, right, edge)  
     + ", inside=" + df.format(operator.getProb(inner))  
     + " -> completions: " + Util.sprint(completions, edgeSpace, parserTagIndex, operator);
   }

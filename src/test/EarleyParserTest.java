@@ -14,7 +14,6 @@ import parser.Completion;
 import parser.EarleyParser;
 import parser.EarleyParserDense;
 import parser.EarleyParserSparse;
-import parser.EarleyParserSparseIO;
 import parser.EdgeSpace;
 import parser.Grammar;
 import parser.Prediction;
@@ -22,10 +21,12 @@ import util.Util;
 
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
-  private int parserOpt = 1; // 0: dense, 1: sparse, 2: sparse IO
-  private boolean isScaling = false;
+  private String rootSymbol = "ROOT";
+  private int parserOpt = 0; // 0: dense, 1: sparse, 2: sparse IO
+  private boolean isScaling = false; // true; //
   private boolean isLogProb = true; 
-  boolean isLeftWildcard = false; // true; //                  
+  boolean isComputeOutside = true; // false; //  
+  
   
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 
   "ROOT->[_a _b] : 0.1\n" +
@@ -76,6 +77,7 @@ public class EarleyParserTest extends TestCase {
   "D->[_UNK] : 0.1\n";
   
   String wsj500RuleFile = "grammars/WSJ.500/WSJ.500.AG-PCFG.extendedRules";
+  String markGrammarFile = "grammars/testengger.grammar";
   
   @Before
   public void setUp(){    
@@ -86,16 +88,16 @@ public class EarleyParserTest extends TestCase {
     Grammar.verbose = 0;
     Prediction.verbose = 0;
     Completion.verbose = 0;
-    EarleyParser.verbose = 4;
+    EarleyParser.verbose = 0;
   }
   
   private void initParserFromFile(String ruleFile){
     if(parserOpt==0){
-      parser = new EarleyParserDense(ruleFile, "ROOT", isScaling, isLogProb, isLeftWildcard);
+      parser = new EarleyParserDense(ruleFile, rootSymbol, isScaling, 
+          isLogProb, isComputeOutside);
     } else if(parserOpt==1){
-      parser = new EarleyParserSparse(ruleFile, "ROOT", isScaling, isLogProb, isLeftWildcard);
-    } else if(parserOpt==2){
-      parser = new EarleyParserSparseIO(ruleFile, "ROOT", isScaling, isLogProb, isLeftWildcard);
+      parser = new EarleyParserSparse(ruleFile, rootSymbol, isScaling, 
+          isLogProb, isComputeOutside);
     } else {
       assert(false);
     }
@@ -104,11 +106,11 @@ public class EarleyParserTest extends TestCase {
   private void initParserFromString(String grammarString){
     try {
       if(parserOpt==0){
-        parser= new EarleyParserDense(Util.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb, isLeftWildcard);
+        parser= new EarleyParserDense(Util.getBufferedReaderFromString(grammarString), 
+            rootSymbol, isScaling, isLogProb, isComputeOutside);
       } else if(parserOpt==1){    
-        parser= new EarleyParserSparse(Util.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb, isLeftWildcard);
-      } else if(parserOpt==2){ 
-        parser= new EarleyParserSparseIO(Util.getBufferedReaderFromString(grammarString), "ROOT", isScaling, isLogProb, isLeftWildcard);
+        parser= new EarleyParserSparse(Util.getBufferedReaderFromString(grammarString), 
+            rootSymbol, isScaling, isLogProb, isComputeOutside);
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -134,12 +136,47 @@ public class EarleyParserTest extends TestCase {
       assertEquals(0.0, stringProbList.get(0), 1e-5);
       assertEquals(1.0, stringProbList.get(1), 1e-5);
     }
-    
-    // outside computation
-//    parser.dumpInnerProb();
-//    parser.computeOutsideProbs();
   }
-  
+
+  public void testIO(){
+    rootSymbol = "S";
+    initParserFromFile(markGrammarFile);
+    
+    int numSentences = 1;
+    String[] inputSentences = new String[numSentences];
+    inputSentences[0] = "the dog bites a cat";
+    
+    String inputSentence = inputSentences[0];
+    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
+    assertEquals(resultLists.size(), 4);
+    List<Double> surprisalList = resultLists.get(0);
+    List<Double> stringProbList = resultLists.get(3);
+    
+    assertEquals(surprisalList.size(), 5);
+    System.err.println(surprisalList);
+    assertEquals(1.9459104490553583, surprisalList.get(0), 1e-5);
+    assertEquals(1.9459104490553583, surprisalList.get(1), 1e-5);
+    assertEquals(1.9459104490553583, surprisalList.get(2), 1e-5);
+    assertEquals(2.1690540003695684, surprisalList.get(3), 1e-5);
+    assertEquals(1.9459104490553583, surprisalList.get(4), 1e-5);
+
+    if(!isScaling){
+      assertEquals(stringProbList.size(), 5);
+      System.err.println(stringProbList);
+      assertEquals(0.0, stringProbList.get(0), 1e-5);
+      assertEquals(0.0, stringProbList.get(1), 1e-5);
+      assertEquals(5.83089854227563E-4, stringProbList.get(2), 1e-5);
+      assertEquals(0.0, stringProbList.get(3), 1e-5);
+      assertEquals(2.3799571607089895E-5, stringProbList.get(4), 1e-5);
+    }
+    
+    assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n Det: 0.14285710\n N: 0.14285710\n V: 0.14285710\ncell 1-2\n Det: 0.14285710\n N: 0.14285710\n V: 0.14285710\ncell 2-3\n Det: 0.14285710\n N: 0.14285710\n V: 0.14285710\ncell 3-4\n Det: 0.14285710\n N: 0.14285710\n V: 0.14285710\ncell 4-5\n Det: 0.14285710\n N: 0.14285710\n V: 0.14285710\ncell 0-2\n NP: 0.02040815\ncell 2-4\n NP: 0.02040815\ncell 3-5\n NP: 0.02040815\ncell 0-3\n : 0.00058309\n S: 0.00058309\ncell 2-5\n VP: 0.00116618\ncell 0-5\n : 0.00002380\n S: 0.00002380\n");
+    if(isComputeOutside){
+      assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n Det: 0.00008330\n N: 0.00008330\ncell 1-2\n Det: 0.00008330\n N: 0.00008330\ncell 2-3\n Det: 0.00004165\n N: 0.00004165\n V: 0.00008330\ncell 3-4\n Det: 0.00008330\n N: 0.00008330\ncell 4-5\n Det: 0.00004165\n N: 0.00004165\n V: 0.00008330\ncell 0-2\n NP: 0.00116618\ncell 2-4\n NP: 0.00058309\ncell 3-5\n NP: 0.00058309\ncell 2-5\n VP: 0.02040815\ncell 0-5\n : 1.00000000\n S: 1.00000000\n");
+    }
+  }
+
   public void testBasicUnary(){
     initParserFromString(basicUnaryGrammarString);
     
