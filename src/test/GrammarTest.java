@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 import base.ProbRule;
+import base.RuleSet;
+import base.TagRule;
 import base.TerminalRule;
 
 import parser.EdgeSpace;
@@ -49,7 +51,8 @@ public class GrammarTest extends TestCase{
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     
-    Collection<ProbRule> rules = new ArrayList<ProbRule>();
+    RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
+    Collection<ProbRule> tagRules = new ArrayList<ProbRule>();
     Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
@@ -60,18 +63,18 @@ public class GrammarTest extends TestCase{
     
     try {
       RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
-          rules, extendedRules, tag2wordsMap, word2tagsMap, 
+          ruleSet, tagRules, extendedRules, tag2wordsMap, word2tagsMap, 
           nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
     }
   
-    EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex);
-    edgeSpace.build(rules);
+    EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex, wordIndex);
+    edgeSpace.build(tagRules);
     
     Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
-    g.learnGrammar(rules, extendedRules, edgeSpace);
+    g.learnGrammar(tagRules, extendedRules, edgeSpace);
     
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\nd:prefix={A=-0.9}\n e:prefix={A=-0.9}, end={A=-0.9}");
  
@@ -81,14 +84,14 @@ public class GrammarTest extends TestCase{
     Collection<ProbRule> rules = new ArrayList<ProbRule>();
     Index<String> tagIndex = new HashIndex<String>();
     Index<String> wordIndex = new HashIndex<String>();
-    ProbRule s = new ProbRule("S", Arrays.asList(new String[]{"NP", "VP"}), 1.0, tagIndex, tagIndex);
-    ProbRule vp = new ProbRule("VP", Arrays.asList(new String[]{"V", "NP"}), 0.9, tagIndex, tagIndex);
-    ProbRule np1 = new ProbRule("NP", Arrays.asList(new String[]{"NP", "PP"}), 0.4, tagIndex, tagIndex);
-    ProbRule np2 = new ProbRule("NP", Arrays.asList(new String[]{"DT", "NN"}), 0.2, tagIndex, tagIndex);
-    ProbRule np3 = new ProbRule("NP", Arrays.asList(new String[]{"PP"}), 0.1, tagIndex, tagIndex);
-    ProbRule pp = new ProbRule("PP", Arrays.asList(new String[]{"P", "NP"}), 0.6, tagIndex, tagIndex);
-    ProbRule pp1 = new ProbRule("PP", Arrays.asList(new String[]{"NP"}), 0.4, tagIndex, tagIndex); 
-    ProbRule root = new ProbRule("ROOT", Arrays.asList(new String[]{"S"}), 1.0, tagIndex, tagIndex); 
+    ProbRule s = new ProbRule(new TagRule("S", Arrays.asList(new String[]{"NP", "VP"}), tagIndex), 1.0);
+    ProbRule vp = new ProbRule(new TagRule("VP", Arrays.asList(new String[]{"V", "NP"}), tagIndex), 0.9);
+    ProbRule np1 = new ProbRule(new TagRule("NP", Arrays.asList(new String[]{"NP", "PP"}), tagIndex), 0.4);
+    ProbRule np2 = new ProbRule(new TagRule("NP", Arrays.asList(new String[]{"DT", "NN"}), tagIndex), 0.2);
+    ProbRule np3 = new ProbRule(new TagRule("NP", Arrays.asList(new String[]{"PP"}), tagIndex), 0.1);
+    ProbRule pp = new ProbRule(new TagRule("PP", Arrays.asList(new String[]{"P", "NP"}), tagIndex), 0.6);
+    ProbRule pp1 = new ProbRule(new TagRule("PP", Arrays.asList(new String[]{"NP"}), tagIndex), 0.4); 
+    ProbRule root = new ProbRule(new TagRule("ROOT", Arrays.asList(new String[]{"S"}), tagIndex), 1.0); 
 
     rules.add(s);
     rules.add(vp);
@@ -99,10 +102,10 @@ public class GrammarTest extends TestCase{
     rules.add(pp1);
     rules.add(root);
     
-    ProbRule achefNP = new TerminalRule("NP", Arrays.asList(new String[]{"a", "chef"}), 0.15, tagIndex, wordIndex);
-    ProbRule thechefNP = new TerminalRule("NP", Arrays.asList(new String[]{"the", "chef"}), 0.1, tagIndex, wordIndex);
-    ProbRule asoupNP = new TerminalRule("NP", Arrays.asList(new String[]{"a", "soup"}), 0.05, tagIndex, wordIndex);
-    ProbRule cooksoupVP = new TerminalRule("VP", Arrays.asList(new String[]{"cook", "soup"}), 0.1, tagIndex, wordIndex);
+    ProbRule achefNP = new ProbRule(new TerminalRule("NP", Arrays.asList(new String[]{"a", "chef"}), tagIndex, wordIndex), 0.15);
+    ProbRule thechefNP = new ProbRule(new TerminalRule("NP", Arrays.asList(new String[]{"the", "chef"}), tagIndex, wordIndex), 0.1);
+    ProbRule asoupNP = new ProbRule(new TerminalRule("NP", Arrays.asList(new String[]{"a", "soup"}), tagIndex, wordIndex), 0.05);
+    ProbRule cooksoupVP = new ProbRule(new TerminalRule("VP", Arrays.asList(new String[]{"cook", "soup"}), tagIndex, wordIndex), 0.1);
 
     Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     extendedRules.add(achefNP);
@@ -119,7 +122,7 @@ public class GrammarTest extends TestCase{
       }
     }
 
-    EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex);
+    EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex, wordIndex);
     edgeSpace.build(rules);
     
     Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
@@ -128,7 +131,7 @@ public class GrammarTest extends TestCase{
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\na:prefix={NP=-1.6}\n chef:prefix={NP=-1.9}, end={NP=-1.9}\n soup:prefix={NP=-3.0}, end={NP=-3.0}\nthe:prefix={NP=-2.3}\n chef:prefix={NP=-2.3}, end={NP=-2.3}\ncook:prefix={VP=-2.3}\n soup:prefix={VP=-2.3}, end={VP=-2.3}");
  
     assertEquals(Util.sprint(g.getCompletions(tagIndex.indexOf("PP")), edgeSpace, 
-        tagIndex, operator), "[(NP -> . PP, NP -> ., 1.0416666666666667), (VP -> . NP, VP -> ., 0.1041666666666667), (NP -> . NP PP, NP -> . PP, 0.1041666666666667), (PP -> . NP, PP -> ., 0.1041666666666667), (S -> . NP VP, S -> . VP, 0.1041666666666667)]");
+        tagIndex, wordIndex, operator), "[(NP -> . PP, NP -> ., 1.0416666666666667), (VP -> . NP, VP -> ., 0.1041666666666667), (NP -> . NP PP, NP -> . PP, 0.1041666666666667), (PP -> . NP, PP -> ., 0.1041666666666667), (S -> . NP VP, S -> . VP, 0.1041666666666667)]");
 
   }
 }

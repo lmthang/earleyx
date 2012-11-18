@@ -48,7 +48,7 @@ public class RelationMatrix {
       int firstChild = r.getChild(0); //categories.indexOf(stateSpace.indexOf(r.getChildEdge(0)));
       if (nonterminalMap.containsKey(firstChild)) { // if the first child is a non-terminal
         assert(nonterminalMap.containsKey(r.getMother()));
-        assert(r.getScore()>=0);
+        assert(r.getProb()>=0);
         
         numRules++;
         int mother = r.getMother(); //categories.indexOf(stateSpace.indexOf(r.getMotherEdge()));
@@ -57,7 +57,7 @@ public class RelationMatrix {
         int newFirstChild = nonterminalMap.get(firstChild);
         int newMother = nonterminalMap.get(mother);
         //pl.set(mother, firstChild, pl.get(mother, firstChild) + r.getScore()); // note of + sign here
-        pl.set(newMother, newFirstChild, pl.get(newMother, newFirstChild) + r.getScore()); // note of + sign here
+        pl.set(newMother, newFirstChild, pl.get(newMother, newFirstChild) + r.getProb()); // note of + sign here
         
         if(verbose >= 1){
           if(numRules % 10000 == 0){
@@ -105,10 +105,10 @@ public class RelationMatrix {
     for (ProbRule r:rules) {
       if (r.isUnary()) {
         numUnaryRules++;
-        assert(r.getScore()>=0);
+        assert(r.getProb()>=0);
         int mother = r.getMother(); //allNontermCategories.indexOf(stateSpace.indexOf(r.getMotherEdge()));
         int onlyChild = r.getChild(0); //allNontermCategories.indexOf(stateSpace.indexOf(r.getChildEdge(0)));
-        pu.set(mother, onlyChild, pu.get(mother, onlyChild) + r.getScore()); // note of + sign here
+        pu.set(mother, onlyChild, pu.get(mother, onlyChild) + r.getProb()); // note of + sign here
         
         if(verbose >= 1){
           if(numUnaryRules % 100 == 0){

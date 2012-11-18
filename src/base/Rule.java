@@ -1,21 +1,26 @@
+/**
+ * 
+ */
 package base;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import edu.stanford.nlp.util.Index;
 
 /**
- * An Edge represent a rule without any probability associated, e.g X -> [a b c]
+ * Represent a rule without any probability associated, e.g X -> [Y Z] or X -> [_a _b _c]
  * Memory saving is achieved by using integers.
  * @author Minh-Thang Luong, 2012
  *
  */
-public class Rule {
+public abstract class Rule {
   protected int mother;
   protected List<Integer> children;
   
-  public Rule(String motherStr, List<String> childStrs, 
+  protected Rule(String motherStr, List<String> childStrs, 
       Index<String> motherIndex, Index<String> childIndex) {
     this.mother = motherIndex.indexOf(motherStr, true);
     this.children = new ArrayList<Integer>(childStrs.size());
@@ -24,7 +29,7 @@ public class Rule {
     }
   }
   
-  public Rule(int mother, List<Integer> children){
+  protected Rule(int mother, List<Integer> children){
     this.mother = mother;
     this.children = new ArrayList<Integer>(children.size());
     for(int child:children){
@@ -75,31 +80,25 @@ public class Rule {
     return children.size();
   }
   
-  public boolean equals(Object o) {
-    if (this == o){ // compare pointer
-      return true;
-    }
-    
-    if (!(o instanceof Rule)) { // check class
-      return false;
-    } 
-
-    Rule otherEdge = (Rule) o;
-    
+  public boolean equals(Object o){
+    throw new NotImplementedException();
+  }
+  
+  protected boolean equals(Rule otherRule){
     // compare mother
-    if (mother != otherEdge.getMother()){
+    if (mother != otherRule.getMother()){
       return false;
     }
     
     // compare children
     List<Integer> thisChildren = getChildren();
-    List<Integer> otherChildren = otherEdge.getChildren();
+    List<Integer> otherChildren = otherRule.getChildren();
     if (thisChildren == null || otherChildren == null || 
         thisChildren.size() != otherChildren.size()) {
       return false;
     } 
     for (int i = 0; i < thisChildren.size(); i++) { // compare individual child
-      if (thisChildren.get(i) != otherChildren.get(i)){
+      if ((int) thisChildren.get(i) != (int) otherChildren.get(i)){
         return false;
       }
     } 
@@ -120,15 +119,11 @@ public class Rule {
     return motherIndex.get(mother);
   }
   
-  // a b c or _a _b _c (if isTerminal is true)
-  public String rhsString(Index<String> childIndex, boolean isTerminal){
+  // Y Z
+  protected String rhsString(Index<String> childIndex){
     StringBuffer sb = new StringBuffer();
     for (int child : children){
-      if (isTerminal){
-        sb.append("_" + childIndex.get(child) + " ");
-      } else {
-        sb.append(childIndex.get(child) + " ");    
-      }
+      sb.append(getChildStr(childIndex, child) + " ");   
     }
     if(children.size() > 0){
       sb.delete(sb.length()-1, sb.length());
@@ -136,15 +131,15 @@ public class Rule {
     return sb.toString();
   }
   
-  // (X (_ a) (_ b) (_ c)) or (X (_ _a) (_ _b) (_ _c)) (if isTerminal is true) 
-  public String schemeString(Index<String> motherIndex, Index<String> childIndex, boolean isTerminal) {
+  // (X (_ Y) (_ Z)) for TagRule or (X (_ _a) (_ _b) (_ _c)) for TerminalRule 
+  public String schemeString(Index<String> tagIndex, Index<String> wordIndex) {
     StringBuffer sb = new StringBuffer();
-    sb.append("(" + motherIndex.get(mother) + " ");
+    sb.append("(" + tagIndex.get(mother) + " ");
     for (int child : children){
-      if (isTerminal){
-        sb.append("(_ _" + childIndex.get(child) + ") ");
+      if(this instanceof TagRule){
+        sb.append("(_ " + getChildStr(tagIndex, child) + ") ");
       } else {
-        sb.append("(_ " + childIndex.get(child) + ") ");
+        sb.append("(_ " + getChildStr(wordIndex, child) + ") ");
       }
     }
     
@@ -154,4 +149,32 @@ public class Rule {
     }
     return sb.toString();
   }
+  
+  // String read by Mark's IO code
+  // X --> Y Z, or X --> a b c
+  public String markString(Index<String> tagIndex, Index<String> wordIndex) {
+    StringBuffer sb = new StringBuffer();
+    sb.append(tagIndex.get(mother) + " -->");
+    for (int child : children){
+      if(this instanceof TagRule){
+        sb.append(" " + tagIndex.get(child));
+      } else {
+        sb.append(" _" + wordIndex.get(child));
+      }
+    }
+    
+    return sb.toString();
+  }
+  
+  // X->[Y Z] for TagRule or X->[_a _b _c] for TerminalRule
+  public String toString(Index<String> tagIndex, Index<String> wordIndex){
+    if(this instanceof TagRule){
+      return lhsString(tagIndex) + "->[" + rhsString(tagIndex) + "]";
+    } else {
+      return lhsString(tagIndex) + "->[" + rhsString(wordIndex) + "]";
+    }
+    
+  }
+  
+  protected abstract String getChildStr(Index<String> childIndex, int child);
 }

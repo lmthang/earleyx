@@ -5,17 +5,14 @@ package parser;
 
 import java.io.BufferedReader;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import base.Edge;
 
 import util.Util;
 
-import edu.stanford.nlp.trees.Treebank;
 import edu.stanford.nlp.util.DoubleList;
 import edu.stanford.nlp.util.Timing;
 
@@ -27,28 +24,20 @@ public class EarleyParserSparse extends EarleyParser {
   protected Map<Integer, Map<Integer, Double>> forwardProb;   // forwardProb.get(linear[left][right]).get(edge)
   protected Map<Integer, Map<Integer, Double>> innerProb;     // innerProb.get(linear[left][right]).get(edge)
 
-  // insideChart.get(linear[left][right]).get(tagIndex) 
-  protected Map<Integer, Map<Integer, Double>> insideChart;
-  protected Map<Integer, Map<Integer, Double>> outsideChart;
-  
   /* for inside-outside computation, currently works when isLeftWildcard=false */
   protected Map<Integer, Map<Integer, Double>> outerProb;     // innerProb.get(linear[left][right]).get(edge)
-  
+
   public EarleyParserSparse(BufferedReader br, String rootSymbol,
-      boolean isScaling, boolean isLogProb, boolean isComputeOutside) {
-    super(br, rootSymbol, isScaling, isLogProb, isComputeOutside);
+      boolean isScaling, boolean isLogProb, int insideOutsideOpt) {
+    super(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt);
     // TODO Auto-generated constructor stub
   }
 
-  public EarleyParserSparse(String grammarFile, String rootSymbol,
-      boolean isScaling, boolean isLogProb, boolean isComputeOutside) {
-    super(grammarFile, rootSymbol, isScaling, isLogProb, isComputeOutside);
-    // TODO Auto-generated constructor stub
-  }
-
-  public EarleyParserSparse(Treebank treebank, String rootSymbol,
-      boolean isScaling, boolean isLogProb, boolean isComputeOutside) {
-    super(treebank, rootSymbol, isScaling, isLogProb, isComputeOutside);
+  public EarleyParserSparse(String grammarFile, int inGrammarType,
+      String rootSymbol, boolean isScaling, boolean isLogProb,
+      int insideOutsideOpt) {
+    super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
+        insideOutsideOpt);
     // TODO Auto-generated constructor stub
   }
 
@@ -69,7 +58,7 @@ public class EarleyParserSparse extends EarleyParser {
     }
     
     // compute outside
-    if(isComputeOutside){
+    if(insideOutsideOpt>0){
       outerProb = new HashMap<Integer, Map<Integer,Double>>();
       
       for (int i = 0; i < numCells; i++) {
@@ -146,6 +135,7 @@ public class EarleyParserSparse extends EarleyParser {
       int newEdge = p.predictedState;
       double newForwardProb = operator.multiply(forwardProb.get(linear[left][right]).get(edge), p.forwardProbMultiplier);
       double newInnerProb = p.innerProbMultiplier;
+      //System.err.println(forwardProb.get(linear[left][right]).get(edge) + "\t" + p.forwardProbMultiplier + "\t" + p.innerProbMultiplier);
       
       // add to tmp map
       if (!predictedForwardProb.containsKey(newEdge)){ // new edge not in map
@@ -159,18 +149,9 @@ public class EarleyParserSparse extends EarleyParser {
       }
     }
   }
-
-  /** Used as holding zones for completions **/
-  protected Map<Integer, DoubleList> theseForwardProb;
-  protected Map<Integer, DoubleList> theseInnerProb;
-  protected Map<Integer, DoubleList> tempInsideProbs; // to avoid concurrently modify insideChart while performing completions
   
   protected void completeAll(int left, int middle, int right){
     int mrIndex = linear[middle][right]; // middle right index
-    if(!forwardProb.containsKey(mrIndex)){
-      forwardProb.put(mrIndex, new HashMap<Integer, Double>());
-      innerProb.put(mrIndex, new HashMap<Integer, Double>());
-    }
     
     // there're active edges for the span [middle, right]
     if(verbose>=3){
@@ -216,80 +197,6 @@ public class EarleyParserSparse extends EarleyParser {
     }
     storeProbs(theseForwardProb, forwardProb.get(lrIndex));
     storeProbs(theseInnerProb, innerProb.get(lrIndex));
-  }
-  
-  protected void complete(int left, int middle, int right, int edge, double inner) {
-    int tag = edgeSpace.get(edge).getMother();
-    assert(edgeSpace.get(edge).numRemainingChildren()==0);
-    
-    // we already completed the edge, right: middle Y -> _ ., where passive represents for Y
-    Completion[] completions = g.getCompletions(tag);
-    
-    if (verbose>=3 && completions.length>0){
-      System.err.println(completionInfo(left, middle, right, edge, inner, completions));
-    }
-    
-    int lmIndex = linear[left][middle]; // left middle index
-    assert(forwardProb.containsKey(lmIndex));
-    Map<Integer, Double> forwardMap = forwardProb.get(lmIndex);
-    Map<Integer, Double> innerMap = innerProb.get(lmIndex);
-    
-    for (int x = 0, n = completions.length; x < n; x++) { // go through all completions we could finish
-      Completion completion = completions[x];
-      
-      if (forwardMap.containsKey(completion.activeEdge)) { // middle: left X -> _ . Y _
-        double updateScore = operator.multiply(completion.score, inner);
-        double newForwardProb = operator.multiply(forwardMap.get(completion.activeEdge), updateScore);
-        double newInnerProb = operator.multiply(innerMap.get(completion.activeEdge), updateScore);
-        
-        
-        // add edge, right: left X -> _ Y . _, to tmp storage
-        if(!theseForwardProb.containsKey(completion.completedEdge)){
-          theseForwardProb.put(completion.completedEdge, new DoubleList());
-          theseInnerProb.put(completion.completedEdge, new DoubleList());
-        }
-        theseForwardProb.get(completion.completedEdge).add(newForwardProb);
-        theseInnerProb.get(completion.completedEdge).add(newInnerProb);
-    
-        
-        // info to help outside computation later
-        if(isComputeOutside){
-          Edge edgeObj = edgeSpace.get(completion.completedEdge);
-          
-          if(edgeObj.numRemainingChildren()==0){ // complete right: left X -> _ Y .
-            completedEdges.get(linear[left][right]).add(completion.completedEdge);
-            
-            if(verbose>=3){
-              System.err.println("# Add completed edge for outside computation " + edgeInfo(left, right, completion.completedEdge));
-            }
-          }
-        }
-        
-        if (verbose >= 3) {
-          System.err.println("  start " + edgeScoreInfo(left, middle, completion.activeEdge) 
-              + " -> new " + edgeScoreInfo(left, right, completion.completedEdge, newForwardProb, newInnerProb));
-
-          if (isGoalEdge(completion.completedEdge)) {
-            System.err.println("# String prob +=" + Math.exp(newInnerProb));
-          }
-        }
-
-        //also a careful addition to the prefix probabilities -- is this right?
-        if (middle == right - 1) {
-          thisPrefixProb.add(newForwardProb);
-          double synProb = operator.divide(newForwardProb, inner);
-          thisSynPrefixProb.add(synProb); // minus the lexical score
-          if (verbose >= 2) {
-            System.err.println("# Prefix prob += " + operator.getProb(newForwardProb) + "=" + 
-                operator.getProb(forwardMap.get(completion.activeEdge)) + "*" + 
-                operator.getProb(completion.score) + "*" + operator.getProb(inner) + "\t" + left + "\t" + middle + "\t" + completion.activeEdge);
-            System.err.println("# Syn prefix prob += " + operator.getProb(synProb) + "=" + 
-                operator.getProb(newForwardProb) + "/" + 
-                operator.getProb(inner));
-          }
-        }
-      }
-    }
   }
   
   protected void addPrefixProbExtendedRule(int left, int middle, int right, int edge, double inner) {    
@@ -358,12 +265,58 @@ public class EarleyParserSparse extends EarleyParser {
     }    
   }
   
-
-  protected void addInsideScore(int left, int right, int edge, double score){
-    addScore(innerProb.get(linear[left][right]), edge, score);
+  @Override
+  protected boolean containsEdge(int left, int right, int edge) {
+    return forwardProb.get(linear[left][right]).containsKey(edge);
   }
   
-  protected double getInsideScore(int left, int right, int edge){
+  /****************************/
+  /** Temporary prob methods **/
+  /***************************/
+  /** Used as holding zones for completions **/
+  protected Map<Integer, DoubleList> theseForwardProb;
+  protected Map<Integer, DoubleList> theseInnerProb;
+  protected Map<Integer, DoubleList> tempInsideProbs; // to avoid concurrently modify insideChart while performing completions
+  
+  
+  @Override
+  protected void initTmpScores(int edge) {
+    if(!theseForwardProb.containsKey(edge)){
+      theseForwardProb.put(edge, new DoubleList());
+      theseInnerProb.put(edge, new DoubleList());
+    }
+  }
+
+  @Override
+  protected void addTmpForwardScore(int edge, double score) {
+    theseForwardProb.get(edge).add(score);
+  }
+
+  @Override
+  protected void addTmpInnerScore(int edge, double score) {
+    theseInnerProb.get(edge).add(score);
+  }
+
+  /****************************/
+  /** Forward probabilities **/
+  /***************************/
+  protected double getForwardScore(int left, int right, int edge){
+    if(!forwardProb.get(linear[left][right]).containsKey(edge)){
+      return operator.zero();
+    } else {
+      return forwardProb.get(linear[left][right]).get(edge);
+    }
+  }
+  
+  protected void addForwardScore(int left, int right, int edge, double score){
+    addScore(forwardProb.get(linear[left][right]), edge, score);
+  }
+  
+  
+  /*************************/
+  /** Inner probabilities **/
+  /*************************/
+  protected double getInnerScore(int left, int right, int edge){
     if(!innerProb.get(linear[left][right]).containsKey(edge)){
       return operator.zero();
     } else {
@@ -371,18 +324,14 @@ public class EarleyParserSparse extends EarleyParser {
     }
   }
   
-  protected void addScore(Map<Integer, Double> probMap, int edge, double score){
-    if(!probMap.containsKey(edge)){
-      probMap.put(edge, score);
-    } else {
-      probMap.put(edge, operator.add(probMap.get(edge), score));
-    }
+  protected void addInnerScore(int left, int right, int edge, double score){
+    addScore(innerProb.get(linear[left][right]), edge, score);
   }
   
   /*************************/
   /** Outside computation **/
   /*************************/
-  protected double getOutsideScore(int left, int right, int edge){
+  protected double getOuterScore(int left, int right, int edge){
     if(!outerProb.get(linear[left][right]).containsKey(edge)){
       return operator.zero();
     } else {
@@ -390,114 +339,53 @@ public class EarleyParserSparse extends EarleyParser {
     }
   }
   
-  protected void outside(int start, int end, int rootEdge){
-    assert(start<end);
-
-    // configurations.get(linear[left][right]): set of edges to compute outside
-    Map<Integer, Set<Integer>> configurations = new HashMap<Integer, Set<Integer>>();
-    
-    // init
-    for(int length=end-start; length>=0; length--){
-      for (int left=0; left<=end-length; left++){
-        int right = left+length;
-        
-        configurations.put(linear[left][right], new HashSet<Integer>());
-      }
-    }
-    configurations.get(linear[start][end]).add(rootEdge); // add starting edge
-
-    // outside
-    for(int length=end-start; length>=0; length--){
-      for (int left=0; left<=end-length; left++){ // left
-        int right = left+length; // right
-        
-        Set<Integer> edges = configurations.get(linear[left][right]);
-        while(edges.size()>0){ // while there're still edges to consider
-          Integer[] copyEdges = edges.toArray(new Integer[0]);
-          
-          for(int edge : copyEdges){
-            double parentOutside = outerProb.get(linear[left][right]).get(edge);
-            Edge edgeObj = edgeSpace.get(edge);
-
-            if(left==right){ // predicted edges: X -> . \alpha
-              assert(edgeObj.getDot()==0);
-              // add expected counts
-              double parentInside = innerProb.get(linear[left][right]).get(edge);
-              double expectedCount = operator.multiply(parentOutside, parentInside);
-              if(verbose>=3){
-                System.err.println("    add expected count " + expectedCount + " to " + edgeInfo(left, right, edge));
-              }
-              addScore(expectedCounts, edge, expectedCount);
-            } else if(edgeObj.getDot()>0){ // X -> _ Z . \alpha
-              if(verbose>=3){
-                System.err.println("## " + outsideInfo(left, right, edge));
-              }
-              
-              int prevTag = edgeObj.getChild(edgeObj.getDot()-1); // Z
-              Edge prevEdgeObj = new Edge(edgeObj.getRule(), edgeObj.getDot()-1); // X -> _ . Z \alpha
-              int prevEdge = edgeSpace.indexOf(prevEdgeObj);
-              if(verbose>=4){
-                System.err.println("  prev edge " + prevEdgeObj.toString(parserTagIndex, parserTagIndex));
-              }
-              
-              for(int middle=right-1; middle>=left; middle--){ // middle
-                if(innerProb.get(linear[left][middle]).containsKey(prevEdge)){
-                  double leftInside = innerProb.get(linear[left][middle]).get(prevEdge);
-                  if(verbose>=4){
-                    System.err.println("  left inside [" + left + ", " + middle + "] " + operator.getProb(leftInside));
-                  }
-                  
-                  for(int nextEdge : completedEdges.get(linear[middle][right])){ // Y -> v .
-                    Edge nextEdgeObj = edgeSpace.get(nextEdge);
-                    int nextTag = nextEdgeObj.getMother();
-                    double unaryScore = g.getUnaryClosures().get(prevTag, nextTag);
-                    
-                    if(unaryScore > operator.zero()) { // positive R(Z -> Y)
-                      double rightInside = innerProb.get(linear[middle][right]).get(nextEdge);
-                      
-                      if(verbose>=4) {
-                        System.err.println("    next edge [" + middle + ", " + right + "] " + 
-                            nextEdgeObj.toString(parserTagIndex, parserTagIndex) + 
-                            ", right inside " + operator.getProb(rightInside) + 
-                            ", unary(" + parserTagIndex.get(prevTag) + "->" 
-                            + parserTagIndex.get(nextTag) + ")=" + operator.getProb(unaryScore));
-                      }
-                      
-                      // left outside = parent outside * right inside
-                      addOutsideScore(left, middle, prevEdge, operator.multiply(parentOutside, rightInside));
-                      
-                      // right outside = parent outside * left inside * unary score
-                      addOutsideScore(middle, right, nextEdge, operator.multiply(operator.multiply(parentOutside, leftInside), unaryScore));
-                      
-                      // to backtrack we might want to check if completedEdge has any children
-                      // if it has no, that means it was constructed directly from terminals
-                      
-                      // recursive call
-                      configurations.get(linear[left][middle]).add(prevEdge);
-                      assert(middle != left || nextEdge != edge);
-                      configurations.get(linear[middle][right]).add(nextEdge);
-                    }
-                  } // end nextEdge
-                }
-              } // end for middle
-            }
-            
-            edges.remove(edge);
-          } // end for edge
-        } // end while
-      } // start
-    } // length
-    
-  }
-  
-  protected void addOutsideScore(int left, int right, int edge, double score){
+  protected void addOuterScore(int left, int right, int edge, double score){
     addScore(outerProb.get(linear[left][right]), edge, score);
-        
-    if(verbose>=3){
-      System.err.println("      after adding " + operator.getProb(score) + ", " + outsideInfo(left, right, edge));
-    }
   }
   
+  protected Map<Integer, Map<Integer,Double>> computeOutsideChart(){
+    if(outsideChart==null){
+      outsideChart = new HashMap<Integer, Map<Integer,Double>>();
+      for (int i = 0; i < numCells; i++) {
+        outsideChart.put(i, new HashMap<Integer, Double>());
+      }
+      
+      for(int length=1; length<=numWords; length++){ // length
+        for (int left = 0; left <= numWords-length; left++) {
+          int right = left+length;
+
+          // scaling
+          double scalingFactor = 0;
+          if(isScaling){
+            for(int i=left+1; i<=right; i++){
+              scalingFactor += scaling[i];
+            }
+          }
+          
+          int lrIndex = linear[left][right];
+          Map<Integer, Double> valueMap = outerProb.get(lrIndex);
+          Map<Integer, Double> tagMap = outsideChart.get(lrIndex);
+          // accumulate score for categories
+          for (int edge : valueMap.keySet()) { // edge
+            Edge edgeObj = edgeSpace.get(edge);
+            if(edgeObj.numRemainingChildren()==0){ // completed edge
+              int tag = edgeObj.getMother();
+              
+              double score = operator.divide(valueMap.get(edge), scalingFactor);
+              if(!tagMap.containsKey(tag)){ // new tag
+                tagMap.put(tag, score);
+              } else { // old tag
+                assert(tagMap.get(tag) == score); // outside probs for paths X -> * . Y are all the same despite the part on the left of the dot
+              }
+            }
+          }
+        }
+      }  
+    }
+    
+    return outsideChart;
+  }
+
   
   /****************/
   /** Debug info **/
@@ -524,18 +412,18 @@ public class EarleyParserSparse extends EarleyParser {
         }
         
         int lrIndex = linear[left][right];
-        Map<Integer, Double> insideMap = chart.get(lrIndex);
-        if(insideMap.size()>0){ // there're active states
+        Map<Integer, Double> valueMap = chart.get(lrIndex);
+        if(valueMap.size()>0){ // there're active states
           if(isOnlyCategory){ // print by tags (completed edges)
             Map<Integer, Double> tagMap = new TreeMap<Integer, Double>(); // sort keys
             
             // accumulate score for categories
-            for (int edge : insideMap.keySet()) { // edge
+            for (int edge : valueMap.keySet()) { // edge
               Edge edgeObj = edgeSpace.get(edge);
               if(edgeObj.numRemainingChildren()==0){ // completed edge
                 int tag = edgeObj.getMother();
                 
-                double score = operator.divide(insideMap.get(edge), scalingFactor);
+                double score = operator.divide(valueMap.get(edge), scalingFactor);
                 if(!tagMap.containsKey(tag)){ // new tag
                   tagMap.put(tag, score);
                 } else { // old tag
@@ -559,13 +447,13 @@ public class EarleyParserSparse extends EarleyParser {
                   + ": " + df2.format(operator.getProb(tagMap.get(tag))) + "\n");
             }
           } else { // print by edge
-            int count = insideMap.size();
+            int count = valueMap.size();
             sb.append("[" + left + "," + right + "]: " + count  
                 + " (" + df1.format(count*100.0/edgeSpaceSize) + "%)\n");
             
-            for (int edge : insideMap.keySet()) { // edge
-              sb.append("  " + edgeSpace.get(edge).toString(parserTagIndex, parserTagIndex) 
-                  + ": " + df.format(operator.getProb(operator.divide(insideMap.get(edge), scalingFactor))) + "\n");
+            for (int edge : valueMap.keySet()) { // edge
+              sb.append("  " + edgeSpace.get(edge).toString(parserTagIndex, parserWordIndex) 
+                  + ": " + df.format(operator.getProb(operator.divide(valueMap.get(edge), scalingFactor))) + "\n");
             }
           }
         }
@@ -591,7 +479,7 @@ public class EarleyParserSparse extends EarleyParser {
           System.err.println("[" + left + "," + right + "]: " + count  
               + " (" + df1.format(count*100.0/edgeSpaceSize) + "%)");
           for (int edge : forwardProb.get(lrIndex).keySet()) {
-            System.err.println("  " + edgeSpace.get(edge).toString(parserTagIndex, parserTagIndex) 
+            System.err.println("  " + edgeSpace.get(edge).toString(parserTagIndex, parserWordIndex) 
                 + ": " + df.format(operator.getProb(forwardProb.get(lrIndex).get(edge))) 
                 + " " + df.format(operator.getProb(innerProb.get(lrIndex).get(edge))));
           }
@@ -610,18 +498,64 @@ public class EarleyParserSparse extends EarleyParser {
   
   @Override
   public String dumpInsideChart() {
-    return dumpChart(innerProb, true, false, "Inside");
+    if(insideOutsideOpt==2){
+      return dumpCatChart(insideChart, "Inside");
+    } else {
+      return dumpChart(innerProb, true, false, "Inside");
+    }
   }
   
   @Override
   public String dumpOutsideChart() {
-    return dumpChart(outerProb, true, true, "Outside");
+    if(insideOutsideOpt==2){
+      return dumpCatChart(computeOutsideChart(), "Outside");
+    } else {
+      return dumpChart(outerProb, true, true, "Outside");
+    }
+  }
+
+  @Override
+  protected void standardOutside(int start, int end, int rootEdge,
+      double rootInsideScore) {
+    // TODO Auto-generated method stub
+    
   }
   
   
 }
 
 ///** Unused code **/
+//// insideChart.get(linear[left][right]).get(tagIndex) 
+//protected Map<Integer, Map<Integer, Double>> insideChart;
+//protected Map<Integer, Map<Integer, Double>> outsideChart;
+//
+
+//if(nextEdgeObj.numChildren()==0) { // right: middle tag -> words
+//  Edge terminalEdgeObj = new Edge(new TerminalRule(
+//      parserTagIndex.get(edgeSpace.get(nextEdge).getMother()), 
+//      words.subList(middle, right), parserTagIndex, parserWordIndex), 0);
+//  int terminalEdge = edgeSpace.addEdge(terminalEdgeObj);
+//
+//  double terminalOutside = outerProb.get(mrIndex).get(nextEdge);
+//  double terminalInside = innerProb.get(mrIndex).get(nextEdge);
+//  double expectedCount = operator.multiply(terminalOutside, terminalInside);
+//  addScore(expectedCounts, terminalEdge, expectedCount);
+//  if(verbose>=3){
+//    System.err.println("    " + edgeInfo(middle, right, terminalEdge) 
+//        + ", outside += " + df.format(operator.getProb(expectedCount)) + 
+//        "= o " + df.format(operator.getProb(terminalOutside))  + 
+//        " * i " + df.format(operator.getProb(terminalInside)));
+//  }          
+//}
+
+//if(left!=right){ // tag -> terminal(s)
+//assert(right>left);
+//Edge terminalEdge = new Edge(new TerminalRule(parserTagIndex.get(edgeSpace.get(edge).getMother()), 
+//    words.subList(left, right), parserTagIndex, parserWordIndex), 0);
+//edge = edgeSpace.addEdge(terminalEdge);
+//
+//}
+
 //protected void outside(int left, int right, int edge){
 //  assert(left<right);
 //  double parentOutside = outerProb.get(linear[left][right]).get(edge);
@@ -693,23 +627,7 @@ public class EarleyParserSparse extends EarleyParser {
 //  }
 //}
 
-//@Override
-//protected void addToIOChart(int left, int right, int tag, double inner) {
-//  int lrIndex = linear[left][right]; // left right index
-//  
-//  assert(!insideChart.get(lrIndex).containsKey(tag));
-//  insideChart.get(lrIndex).put(tag, inner);
-//  
-//  if(isComputeOutside){
-//    int edge = edgeSpace.indexOfTag(tag);
-//    completedEdges.get(linear[left][right]).add(edge);
-//    
-//    if(verbose>=3){
-//      System.err.println("# Add completed edge for outside computation [" + left + ", " + right + "] " 
-//          + edgeSpace.get(edge).toString(parserTagIndex, parserTagIndex));
-//    }
-//  }
-//}
+
 
 ///* (non-Javadoc)
 // * @see parser.EarleyParser#dumpInnerChart()

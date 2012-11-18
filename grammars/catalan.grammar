@@ -1,0 +1,3 @@
+ROOT->[X] : 0.1
+ROOT->[ROOT ROOT] : 0.9
+X->[_x] : 1.0

@@ -15,8 +15,8 @@ public class StandardEdgeSpace extends EdgeSpace {
   /**
    * @param tagIndex
    */
-  public StandardEdgeSpace(Index<String> tagIndex) {
-    super(tagIndex);
+  public StandardEdgeSpace(Index<String> tagIndex, Index<String> wordIndex) {
+    super(tagIndex, wordIndex);
   }
 
   @Override

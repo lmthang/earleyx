@@ -11,6 +11,7 @@ import java.util.Set;
 import parser.SmoothLexicon;
 
 import base.ProbRule;
+import base.RuleSet;
 
 import junit.framework.TestCase;
 
@@ -54,7 +55,8 @@ public class RuleFileTest extends TestCase{
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     
-    Collection<ProbRule> rules = new ArrayList<ProbRule>();
+    RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
+    Collection<ProbRule> tagRules = new ArrayList<ProbRule>();
     Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
@@ -65,7 +67,7 @@ public class RuleFileTest extends TestCase{
     
     try {
       RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
-          rules, extendedRules, tag2wordsMap, word2tagsMap, 
+          ruleSet, tagRules, extendedRules, tag2wordsMap, word2tagsMap, 
           nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
@@ -75,7 +77,7 @@ public class RuleFileTest extends TestCase{
     assertEquals(tagIndex.toString(), "[0=ROOT,1=A,2=B,3=C,4=D]");
     assertEquals(wordIndex.toString(), "[0=b,1=c,2=d,3=UNK,4=UNK-1]");
     
-    assertEquals(Util.sprint(rules, wordIndex, tagIndex), "ROOT->[A] : 1.0\nA->[B C] : 0.4\nA->[D B] : 0.4\n");
+    assertEquals(Util.sprint(tagRules, wordIndex, tagIndex), "ROOT->[A] : 1.0\nA->[B C] : 0.4\nA->[D B] : 0.4\n");
     assertEquals(Util.sprint(extendedRules, wordIndex, tagIndex), "A->[_b _c] : 0.1\nA->[_d _b] : 0.1\n");
     
     assertEquals(Util.sprint(tagIndex, nonterminalMap.keySet()), "[ROOT, A]");
@@ -89,12 +91,15 @@ public class RuleFileTest extends TestCase{
     Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
-    Collection<ProbRule> rules = new ArrayList<ProbRule>();
+    
+    RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
+    Collection<ProbRule> tagRules = new ArrayList<ProbRule>();
     Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     /* Input */
     try {
-      RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleStringNoSmooth), rules, extendedRules, tag2wordsMap, 
+      RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleStringNoSmooth), 
+          ruleSet, tagRules, extendedRules, tag2wordsMap, 
           word2tagsMap, nonterminalMap, wordIndex, tagIndex); // we don't care much about extended rules, just treat them as rules
       //rules.addAll(extendedRules);
     } catch (IOException e){
@@ -103,7 +108,7 @@ public class RuleFileTest extends TestCase{
     }
     System.err.println(ruleStringNoSmooth);
     
-    assertEquals(Util.sprint(rules, wordIndex, tagIndex), "ROOT->[A] : 5.0\nA->[B C] : 4.0\nA->[D B] : 4.0\n");
+    assertEquals(Util.sprint(tagRules, wordIndex, tagIndex), "ROOT->[A] : 5.0\nA->[B C] : 4.0\nA->[D B] : 4.0\n");
     
     /* Smooth */
     assertEquals(Util.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0}, C={C=1.0}, D={d=1.0}");
@@ -115,7 +120,7 @@ public class RuleFileTest extends TestCase{
     
     
     // test scheme print
-    rules.addAll(extendedRules);
-    assertEquals(Util.schemeSprint(rules, wordIndex, tagIndex), "[(ROOT (_ A)), (A (_ B) (_ C)), (A (_ D) (_ B)), (A (_ _b) (_ _c)), (A (_ _d) (_ _b))]");
+    tagRules.addAll(extendedRules);
+    assertEquals(Util.schemeSprint(tagRules, wordIndex, tagIndex), "[(ROOT (_ A)), (A (_ B) (_ C)), (A (_ D) (_ B)), (A (_ _b) (_ _c)), (A (_ _d) (_ _b))]");
   }
 }

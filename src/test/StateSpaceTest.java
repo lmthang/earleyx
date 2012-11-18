@@ -2,7 +2,7 @@ package test;
 
 import java.util.Arrays;
 
-import base.Rule;
+import base.TagRule;
 import base.Edge;
 
 import parser.EdgeSpace;
@@ -17,11 +17,12 @@ import junit.framework.TestCase;
 public class StateSpaceTest extends TestCase{
   public void testBasic(){
     Index<String> tagIndex = new HashIndex<String>();
-    Rule r1 = new Rule("X", Arrays.asList("a", "b", "c"), tagIndex, tagIndex);
-    Rule r2 = new Rule("X", Arrays.asList("a", "b", "d"), tagIndex, tagIndex);
-    Rule r3 = new Rule("Y", Arrays.asList("a", "b", "c"), tagIndex, tagIndex);
+    Index<String> wordIndex = new HashIndex<String>();
+    TagRule r1 = new TagRule("X", Arrays.asList("a", "b", "c"), tagIndex);
+    TagRule r2 = new TagRule("X", Arrays.asList("a", "b", "d"), tagIndex);
+    TagRule r3 = new TagRule("Y", Arrays.asList("a", "b", "c"), tagIndex);
     assertEquals(r1.equals(r3), false);
-    EdgeSpace ss = new LeftWildcardEdgeSpace(tagIndex);
+    EdgeSpace ss = new LeftWildcardEdgeSpace(tagIndex, wordIndex);
     assertEquals(ss.toString(), "");
     
     Edge e1 = new Edge(r1, 0);

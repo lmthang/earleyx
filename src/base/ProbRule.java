@@ -13,19 +13,11 @@ import edu.stanford.nlp.util.Index;
 
 public class ProbRule {
   protected Rule rule; // X->[a b c]
-  protected double score;
+  protected double prob;
   
-  public ProbRule(Rule rule, double score){
+  public ProbRule(Rule rule, double prob){
     this.rule = rule;
-    this.score = score;
-  }
-  public ProbRule(String motherStr, List<String> childStrs, double score, 
-      Index<String> motherIndex, Index<String> childIndex) {
-    this(new Rule(motherStr, childStrs, motherIndex, childIndex), score);
-  }
-  
-  public ProbRule(int mother, List<Integer> children, double score){
-    this(new Rule(mother, children), score);
+    this.prob = prob;
   }
   
   public Rule getRule(){
@@ -51,8 +43,12 @@ public class ProbRule {
     return rule.isUnary();
   }
   
-  public double getScore(){
-    return score;
+  public void setProb(double prob){
+    this.prob = prob;
+  }
+  
+  public double getProb(){
+    return prob;
   }
   
   public boolean equals(Object o) {
@@ -67,22 +63,27 @@ public class ProbRule {
     ProbRule otherRule = (ProbRule) o;
     
     // compare edge, score
-    if (!rule.equals(otherRule.getRule()) || score!=otherRule.getScore()){
+    if (!rule.equals(otherRule.getRule()) || prob!=otherRule.getProb()){
       return false;
     }
     return true;
   }
 
   public int hashCode() {
-    return rule.hashCode() + (int) score << 16;
+    return rule.hashCode() + (int) prob << 16;
   }
   
   // X->[a b c] : 0.1
-  public String toString(Index<String> motherIndex, Index<String> childIndex) {
-    return rule.lhsString(motherIndex) + "->[" + rule.rhsString(childIndex, false) + "] : " + score;
+  public String toString(Index<String> tagIndex, Index<String> wordIndex) {
+    return rule.toString(tagIndex, wordIndex) + " : " + prob;
   }
-  public String schemeString(Index<String> motherIndex, Index<String> childIndex) {
-    return rule.schemeString(motherIndex, childIndex, false);
+  
+  public String schemeString(Index<String> tagIndex, Index<String> wordIndex) {
+    return rule.schemeString(tagIndex, wordIndex);
+  }
+  
+  public String markString(Index<String> tagIndex, Index<String> wordIndex) {
+    return prob + " " + rule.markString(tagIndex, wordIndex);
   }
 }
 
@@ -93,4 +94,13 @@ public class ProbRule {
 //
 //public Edge getMotherEdge(){
 //return Edge.createTagEdge(rule.getMother());
+//}
+
+//public ProbRule(String motherStr, List<String> childStrs, double score, 
+//Index<String> motherIndex, Index<String> childIndex) {
+//this(new Rule(motherStr, childStrs, motherIndex, childIndex), score);
+//}
+//
+//public ProbRule(int mother, List<Integer> children, double score){
+//this(new Rule(mother, children), score);
 //}

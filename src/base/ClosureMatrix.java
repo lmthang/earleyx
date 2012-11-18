@@ -155,6 +155,8 @@ public class ClosureMatrix {
     }
     DoubleMatrix2D invSubMatrix = alg.inverse(subRelationMatrix);
     if (verbose >= 1) {
+      System.err.println("Inverted matrix");
+      System.err.println(invSubMatrix);
       System.err.println("Computing full matrix ... ");
     }
     
@@ -177,6 +179,16 @@ public class ClosureMatrix {
 
         if(colId == rowId){ // add I
           value += 1.0;
+        }
+
+        if(value<0 && value >-1E-10){ // too small and close to 0.0, make it 0.0
+          System.err.println("! Change value closure matrix (" + rowId + ", " + colId + ") "
+              + "from " + value + " to 0.0");
+          value = 0.0;
+        }
+        if(value<0){
+          System.err.println("! negative value closure matrix (" + rowId + ", " + colId + ") " + value);
+          System.exit(1);
         }
         
         value = operator.getScore(value);

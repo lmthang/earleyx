@@ -10,6 +10,7 @@ import java.util.Set;
 import base.ClosureMatrix;
 import base.RelationMatrix;
 import base.ProbRule;
+import base.RuleSet;
 
 import cern.colt.matrix.DoubleMatrix2D;
 
@@ -50,7 +51,8 @@ public class PredictionTest extends TestCase {
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     
-    Collection<ProbRule> rules = new ArrayList<ProbRule>();
+    RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
+    Collection<ProbRule> tagRules = new ArrayList<ProbRule>();
     Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
@@ -61,7 +63,7 @@ public class PredictionTest extends TestCase {
     
     try {
       RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
-          rules, extendedRules, tag2wordsMap, word2tagsMap, 
+          ruleSet, tagRules, extendedRules, tag2wordsMap, word2tagsMap, 
           nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
@@ -69,20 +71,22 @@ public class PredictionTest extends TestCase {
     }
 
     // statespace
-    EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex);
-    edgeSpace.build(rules);
+    EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex, wordIndex);
+    edgeSpace.build(tagRules);
     
     // closure matrix
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
-    DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminalMap);
+    DoubleMatrix2D pl = relationMatrix.getPL(tagRules, nonterminalMap);
     ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator);
     leftCornerClosures.changeIndices(nonterminalMap);
     
-    Prediction[][] predictions = Prediction.constructPredictions(rules, leftCornerClosures, edgeSpace, tagIndex,
+    Prediction[][] predictions = Prediction.constructPredictions(tagRules, leftCornerClosures, edgeSpace
+        , tagIndex, wordIndex,
         Util.getNonterminals(nonterminalMap), operator);
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < predictions.length; i++) {
-      sb.append(edgeSpace.get(i).toString(tagIndex, tagIndex) + ", " + Util.sprint(predictions[i], edgeSpace, tagIndex, operator) + "\n");
+      sb.append(edgeSpace.get(i).toString(tagIndex, wordIndex) + ", " + 
+          Util.sprint(predictions[i], edgeSpace, tagIndex, wordIndex, operator) + "\n");
     }
     assertEquals(sb.toString(), "ROOT -> . A, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nA -> ., ()\nROOT -> ., ()\nA -> . A B, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nA -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nB -> ., ()\nA -> . B C, ((B -> . D E,f=0.8511,i=0.8000))\nA -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nC -> ., ()\nA -> . A1, ()\nA1 -> ., ()\nA1 -> . A2, ()\nA2 -> ., ()\nB -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nB -> . D E, ()\nD -> ., ()\nB -> . E, ()\nE -> ., ()\nC -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nC -> . D, ()\n");    
   }

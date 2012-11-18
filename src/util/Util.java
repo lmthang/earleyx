@@ -2,7 +2,6 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,7 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +21,8 @@ import java.util.Set;
 
 import base.Edge;
 import base.ProbRule;
+import base.Rule;
+import base.TagRule;
 import base.TerminalRule;
 
 import cern.colt.matrix.DoubleMatrix2D;
@@ -30,26 +31,63 @@ import parser.Completion;
 import parser.EdgeSpace;
 import parser.Prediction;
 
-import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
-import edu.stanford.nlp.parser.lexparser.TreebankLangParserParams;
+import edu.stanford.nlp.stats.ClassicCounter;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.stats.Distribution;
 import edu.stanford.nlp.stats.TwoDimensionalCounter;
-import edu.stanford.nlp.trees.MemoryTreebank;
 import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.trees.TreeTransformer;
-import edu.stanford.nlp.trees.Treebank;
 import edu.stanford.nlp.util.Index;
-import edu.stanford.nlp.util.Pair;
 
 public class Util {
   public static DecimalFormat df = new DecimalFormat("0.0");
   public static DecimalFormat df1 = new DecimalFormat("0.0000");
   public static DecimalFormat df3 = new DecimalFormat("000");
 
-  public static BufferedReader getBufferedReaderFromFile(String inFile) throws FileNotFoundException{
-    return new BufferedReader(new InputStreamReader(new FileInputStream(inFile)));
+  public static void categorizeAllRules(Collection<ProbRule> allRules, 
+      Collection<ProbRule> tagRules, 
+      Collection<ProbRule> extendedRules, // e.g. adaptor grammar rules, i.e. approximating pcfg with sequence of terminals on the rhs
+      Map<Integer, Counter<Integer>> tag2wordsMap,
+      Map<Integer, Set<IntTaggedWord>> word2tagsMap){
+    for(ProbRule probRule : allRules){
+      Rule rule = probRule.getRule();
+      if(rule instanceof TagRule){ // X -> Y Z
+        tagRules.add(probRule);
+      } else {
+        assert(rule instanceof TerminalRule);
+        if (rule.numChildren()>1){ // X -> _a _b _c
+          extendedRules.add(probRule);
+        } else { // X -> _a
+          assert(rule.numChildren()==1);
+          int iT = rule.getMother();
+          int iW = rule.getChild(0);
+          
+          // tag2wordsMap
+          if(!tag2wordsMap.containsKey(iT)){
+            tag2wordsMap.put(iT, new ClassicCounter<Integer>());
+          }
+          assert(!tag2wordsMap.get(iT).containsKey(iW));
+          tag2wordsMap.get(iT).setCount(iW, probRule.getProb()); // log prob
+          
+          if(!word2tagsMap.containsKey(iW)){
+            word2tagsMap.put(iW, new HashSet<IntTaggedWord>());
+          }
+          IntTaggedWord iTW = new IntTaggedWord(iW, iT);
+          assert(!word2tagsMap.get(iW).contains(iTW));
+          word2tagsMap.get(iW).add(iTW);
+        }
+      }
+    }
+  }
+  
+  public static BufferedReader getBufferedReaderFromFile(String inFile){
+    BufferedReader br = null;
+    try {
+      br = new BufferedReader(new InputStreamReader(new FileInputStream(inFile)));
+    } catch (FileNotFoundException e) {
+      System.err.println("! File not found: " + inFile);
+    } 
+    return br;
   }
   
   public static BufferedReader getBufferedReaderFromString(String str) throws FileNotFoundException{
@@ -102,7 +140,7 @@ public class Util {
   /**
    * returns a collection of scored rules corresponding to all non-terminal productions from a collection of trees.
    */
-  public static Collection<ProbRule> rulesFromTrees(Collection<Tree> trees, 
+  public static Collection<ProbRule> tagRulesFromTrees(Collection<Tree> trees, 
       Index<String> motherIndex, Index<String> childIndex, Map<Integer, Integer> nonterminalMap) {
     Collection<ProbRule> rules = new ArrayList<ProbRule>();
     TwoDimensionalCounter<Integer, List<Integer>> ruleCounts = 
@@ -132,7 +170,7 @@ public class Util {
       Distribution<List<Integer>> normalizedChildren = 
         Distribution.getDistribution(ruleCounts.getCounter(mother));
       for(List<Integer> childList : normalizedChildren.keySet()){
-        rules.add(new ProbRule(mother, childList, normalizedChildren.getCount(childList)));
+        rules.add(new ProbRule(new TagRule(mother, childList), normalizedChildren.getCount(childList)));
       }
     }
 
@@ -147,90 +185,6 @@ public class Util {
       children.add(childIndex.indexOf(tree.value(), true));
     }
     return children;
-  }
-  /**
-   * transform trees into a form that could be processed by the system
-   * @param treeFile
-   * @param transformerClassName
-   * @param treebankPackClassName
-   * @param pennWriter
-   * @return
-   */
-  public static MemoryTreebank transformTrees(String treeFile, String transformerClassName, String treebankPackClassName){
-    /* transformer */
-    TreeTransformer transformer = null;
-    if(transformerClassName != null){
-      try {
-        transformer = (TreeTransformer) Class.forName(transformerClassName).newInstance();
-      } catch (InstantiationException e) {
-        e.printStackTrace();
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      } catch (ClassNotFoundException e) {
-        e.printStackTrace();
-      }
-    } else { // default transformer
-      transformer = new TreeTransformer() {
-        public Tree transformTree(Tree t) {
-          return t;
-        }
-      };
-    }
-    
-    /* initialize trees & transformedTrees */
-    TreebankLangParserParams tlpp = null;
-    try {
-      tlpp = (TreebankLangParserParams) Class.forName(treebankPackClassName).newInstance();
-    } catch (InstantiationException e) {
-      e.printStackTrace();
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-    Treebank trees = tlpp.memoryTreebank();
-    MemoryTreebank transformedTrees = tlpp.memoryTreebank();
-    
-    
-    /* load tree file */
-    System.err.print("# Loading tree file " + (new File(treeFile)).getAbsolutePath() + " ... ");
-    trees.loadPath(treeFile);
-    System.err.println("Done!");
-
-    /* transform trees */
-    for (Tree t : trees) {
-      Tree newTree = transformer.transformTree(t);
-      transformedTrees.add(newTree); //transformTree(t, tf));
-    }
-    
-    return transformedTrees;
-  }
-
-  
-  /**
-   * extract rules and words from trees
-   */
-  public static Pair<Collection<ProbRule>, Collection<IntTaggedWord>> extractRulesWordsFromTreebank(
-      Treebank treebank, Index<String> wordIndex, Index<String> tagIndex,
-      Map<Integer, Integer> nonterminalMap) {
-    Collection<IntTaggedWord> intTaggedWords = new ArrayList<IntTaggedWord>();
-    Collection<ProbRule> rules = new ArrayList<ProbRule>();
-    
-    Collection<Tree> trees = new ArrayList<Tree>();
-    for (Iterator<Tree> i = treebank.iterator(); i.hasNext();) {
-      Tree t = i.next();
-      
-      // int tagged words
-      for(TaggedWord tw : t.taggedYield()){
-        intTaggedWords.add(new IntTaggedWord(tw.word(), tw.tag(), wordIndex, tagIndex));
-      }
-      trees.add(t); 
-    }
-    
-    // build rules
-    rules.addAll(Util.rulesFromTrees(trees, tagIndex, tagIndex, nonterminalMap));
-    
-    return new Pair<Collection<ProbRule>, Collection<IntTaggedWord>>(rules, intTaggedWords);
   }
   
   /**
@@ -344,10 +298,10 @@ public class Util {
   
   // print Prediction[]
   public static String sprint(Prediction[] predictions, EdgeSpace edgeSpace, 
-      Index<String> tagIndex, Operator operator){
+      Index<String> tagIndex, Index<String> wordIndex, Operator operator){
     StringBuffer sb = new StringBuffer("(");
     for(Prediction prediction : predictions){
-      sb.append(prediction.toString(edgeSpace, tagIndex, operator) + ", ");
+      sb.append(prediction.toString(edgeSpace, tagIndex, wordIndex, operator) + ", ");
     }
     if (predictions.length > 0) {
       sb.delete(sb.length()-2, sb.length());
@@ -358,10 +312,10 @@ public class Util {
 
   // print Completion[]
   public static String sprint(Completion[] completions, EdgeSpace edgeSpace, 
-      Index<String> tagIndex, Operator operator){
+      Index<String> tagIndex, Index<String> wordIndex, Operator operator){
     StringBuffer sb = new StringBuffer("[");
     for(Completion completion : completions){
-      sb.append(completion.toString(edgeSpace, tagIndex, operator) + ", ");
+      sb.append(completion.toString(edgeSpace, tagIndex, wordIndex, operator) + ", ");
     }
     if (completions.length > 0) {
       sb.delete(sb.length()-2, sb.length());
@@ -381,14 +335,33 @@ public class Util {
     return sb.toString();
   }
   
+  public static String sprint(Map<Integer, Map<Integer, Double>> unaryEdgeMap, 
+      EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex){
+    StringBuffer sb = new StringBuffer("{");
+    for(int tag : unaryEdgeMap.keySet()){
+      //sb.append("(" + index + ", " + tagIndex.get(index) + ") ");
+      sb.append(tagIndex.get(tag) + "={");
+      for(int edge : unaryEdgeMap.get(tag).keySet()){
+        sb.append(edgeSpace.get(edge).toString(tagIndex, wordIndex) + 
+            "=" + unaryEdgeMap.get(tag).get(edge) + ", ");
+      }
+      if(unaryEdgeMap.get(tag).keySet().size()>0){
+        sb.delete(sb.length()-2, sb.length());
+      }
+      sb.append("}, ");
+    }
+    
+    if(unaryEdgeMap.keySet().size()>0){
+      sb.delete(sb.length()-2, sb.length());
+    }
+    sb.append("}");
+    return sb.toString();
+  }
+  
   public static String sprint(Collection<ProbRule> rules, Index<String> wordIndex, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer("");
     for(ProbRule rule : rules){
-      if(rule instanceof TerminalRule){
-        sb.append(rule.toString(tagIndex, wordIndex) + "\n");
-      } else {
-        sb.append(rule.toString(tagIndex, tagIndex) + "\n");
-      }
+      sb.append(rule.toString(tagIndex, wordIndex) + "\n");
     }
     return sb.toString();
   }
@@ -396,11 +369,7 @@ public class Util {
   public static String schemeSprint(Collection<ProbRule> rules, Index<String> wordIndex, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer("[");
     for(ProbRule rule : rules){
-      if(rule instanceof TerminalRule){
-        sb.append(rule.schemeString(tagIndex, wordIndex) + ", ");
-      } else {
-        sb.append(rule.schemeString(tagIndex, tagIndex) + ", ");
-      }
+      sb.append(rule.schemeString(tagIndex, wordIndex) + ", ");
     }
     sb.delete(sb.length()-2, sb.length());
     sb.append("]");

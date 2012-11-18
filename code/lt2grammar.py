@@ -54,6 +54,22 @@ def clean_line(input_line):
   input_line = re.sub('(^\s+|\s$)', '', input_line);
   return input_line
 
+def process_rule_line(eachline):
+  eachline = clean_line(eachline)
+  tokens = re.split('\s+', eachline)
+
+  if re.search('^[0-9\.eE\+\-]+$', tokens[0]): # Dirichlet prior params
+    assert re.search('^[0-9\.eE\+\-]+$', tokens[1]) # second token should be a number too
+    assert len(tokens)>=5, '! wrong num tokens: %s\n' % eachline
+    tag = tokens[2]
+    children = tokens[4:len(tokens)]
+  else:
+    assert re.search('^[0-9\.eE\+\-]+$', tokens[0])==None # second token should be a number too
+    assert len(tokens)>=3, '! wrong num tokens: %s\n' % eachline
+    tag = tokens[0]
+    children = tokens[2:len(tokens)]
+  return (tag, children)
+
 def process_files(in_file, out_file):
   """
   Read data from in_file, and output to out_file
@@ -61,25 +77,13 @@ def process_files(in_file, out_file):
 
   print >>sys.stderr, "# in_file = %s, out_file = %s\n" % (in_file, out_file)
   inf = open(in_file, 'r')
-  ouf = open(out_file, 'w')
   line_id = 0
   sys.stderr.write('# Processing file %s ...\n' % (in_file))
 
-  rules = {} # rules[tag][children]
+  ruleHash = {} # ruleHash[tag][children]
+  rules = [] # rules[i] = {'tag' => ..., 'children' => ....} 
   for eachline in inf:
-    eachline = clean_line(eachline)
-    tokens = re.split('\s+', eachline)
-
-    if re.search('^[0-9\.eE\+\-]+$', tokens[0]): # Dirichlet prior params
-      assert re.search('^[0-9\.eE\+\-]+$', tokens[1]) # second token should be a number too
-      assert len(tokens)>=5, '! wrong num tokens: %s\n' % eachline
-      tag = tokens[2]
-      children = tokens[4:len(tokens)]
-    else:
-      assert re.search('^[0-9\.eE\+\-]+$', tokens[0])==None # second token should be a number too
-      assert len(tokens)>=3, '! wrong num tokens: %s\n' % eachline
-      tag = tokens[0]
-      children = tokens[2:len(tokens)]
+    (tag, children) = process_rule_line(eachline)
 
     # write children
     num_children = len(children)
@@ -96,33 +100,45 @@ def process_files(in_file, out_file):
           new_children.append(child_tag)
 
           # add new preterminal -> terminal rule if any
-          if child_tag not in rules:
-            rules[child_tag] = {}
-            assert new_child not in rules[child_tag]
-            rules[child_tag][new_child] = 1
+          if child_tag not in ruleHash:
+            ruleHash[child_tag] = {}
+            assert new_child not in ruleHash[child_tag]
+            ruleHash[child_tag][new_child] = 1
           else:
-            assert new_child in rules[child_tag], '%s\t%s\n' % (child_tag, str(rules[child_tag]))
-            assert len(rules[child_tag]) == 1
+            assert new_child in ruleHash[child_tag], '%s\t%s\n' % (child_tag, str(ruleHash[child_tag]))
+            assert len(ruleHash[child_tag]) == 1
         else: # single terminal
           new_children.append(new_child)
 
     # add rule
-    if tag not in rules:
-      rules[tag] = {}
-    rules[tag][' '.join(new_children)] = 1
+    if tag not in ruleHash:
+      ruleHash[tag] = {}
+    ruleHash[tag][' '.join(new_children)] = 1
+    aRule = {}
+    aRule['tag'] = tag
+    aRule['children'] = ' '.join(new_children)
+    rules.append(aRule)
 
     line_id = line_id + 1
     if (line_id % 10000 == 0):
       sys.stderr.write(' (%d) ' % line_id)
+  inf.close()
 
-  for tag in rules:
-    prob = 1.0/len(rules[tag].keys()) # uniform prob
-    for children in rules[tag]:
-      ouf.write('%s->[%s] : %e\n' % (tag, children, prob))
+  for tag in ruleHash:
+    prob = 1.0/len(ruleHash[tag].keys()) # uniform prob
+    for children in ruleHash[tag]:
+      ruleHash[tag][children] = prob
 
   sys.stderr.write('Done! Num lines = %d\n' % line_id)
+  
+  # output
+  sys.stderr.write('# Output to %s ...\n' % (out_file))
+  ouf = open(out_file, 'w')
+  for rule in rules:
+    tag = rule['tag']
+    children = rule['children']
+    ouf.write('%s->[%s] : %e\n' % (tag, children, ruleHash[tag][children]))
 
-  inf.close()
   ouf.close()
 
 def main(argv=None):

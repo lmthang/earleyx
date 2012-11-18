@@ -7,7 +7,7 @@ import java.util.Set;
 
 import base.Edge;
 import base.ProbRule;
-import base.Rule;
+import base.TagRule;
 
 import util.Util;
 
@@ -32,8 +32,11 @@ public abstract class EdgeSpace {
   protected int[] to;  // relate X -> A . B C to X -> A B . C   
 
   protected Index<String> tagIndex; // map tag strings to tag integers
-  public EdgeSpace(Index<String> tagIndex){
+  protected Index<String> wordIndex; // map tag strings to tag integers
+  public EdgeSpace(Index<String> tagIndex, Index<String> wordIndex){
     this.tagIndex = tagIndex;
+    this.wordIndex = wordIndex;
+    
     edgeIndex = new HashIndex<Edge>();
     activeEdges = new HashSet<Integer>();
     
@@ -45,7 +48,7 @@ public abstract class EdgeSpace {
       System.err.println("\n## Setting up edge space ...");
     }
     if(verbose >= 3){
-      System.err.println("Rules: " + Util.sprint(rules, tagIndex, tagIndex));
+      System.err.println("Rules: " + Util.sprint(rules, wordIndex, tagIndex));
     }
     
     int numRules = 0;
@@ -65,7 +68,7 @@ public abstract class EdgeSpace {
         if(verbose>=3){
           System.err.println("Add preterminal " + tagIndex.get(tag) + " to edge space");
         }
-        addEdge(new Edge(new Rule(tag, new ArrayList<Integer>()), 0));
+        addEdge(new Edge(new TagRule(tag, new ArrayList<Integer>()), 0));
       }
     }
     if (verbose >= 1) {
@@ -85,16 +88,14 @@ public abstract class EdgeSpace {
     
     // store current edge
     int state = storeEdgeInIndex(e);
-        
+      
     // check children
     if (e.numRemainingChildren() == 0) { // passive edge, no children
       to[state] = -1;
-    } else { // active edge
-//      activeIndices.add(motherIndex); // motherIndex has at least one nonterminal left-corner child
+    } else if(e.getRule() instanceof TagRule){ // tag rule, active edge
       activeEdges.add(state);
       
       // via edge: first child -> []
-//    int viaState = addEdge(e.getViaEdge());
       addEdge(e.getViaEdge());
  
       
@@ -105,12 +106,9 @@ public abstract class EdgeSpace {
       int toState = addEdge(getToEdge(e)); // recursively add edge 
       to[state] = toState; // NOTE: it would be wrong to combine this line with the above line
       
-      // move dot position, this is where we have some saving
-      //int toState = addEdge(new Edge(e.getRule(), e.getDot()+1)); // recursively add edge
-      
       if (verbose >= 3){
-        System.err.println("Add edge " + state + "=" + e.toString(tagIndex, tagIndex) +  
-            ", to " + to[state] + "=" + get(to[state]).toString(tagIndex, tagIndex));
+        System.err.println("Add edge " + state + "=" + e.toString(tagIndex, wordIndex) +  
+            ", to " + to[state] + "=" + get(to[state]).toString(tagIndex, wordIndex));
       }
     }
    
@@ -126,7 +124,7 @@ public abstract class EdgeSpace {
   * @param tag
   * @return
   */
-  private Edge dummyEdge = new Edge(new Rule(0, new ArrayList<Integer>()), 0);
+  private Edge dummyEdge = new Edge(new TagRule(0, new ArrayList<Integer>()), 0);
   public int indexOfTag(int tag) {
     dummyEdge.setMother(tag);
     return edgeIndex.indexOf(dummyEdge);
@@ -171,10 +169,10 @@ public abstract class EdgeSpace {
     StringBuffer sb = new StringBuffer("");
     for (int i = 0; i < size; i++) {
       if (get(i).numRemainingChildren()==0) {
-        sb.append("<passive=" + i + " (" + get(i).toString(tagIndex, tagIndex) + ")>\n");
+        sb.append("<passive=" + i + " (" + get(i).toString(tagIndex, wordIndex) + ")>\n");
       } else {
         sb.append("<active=" + i + ", to=" + to[i] + //", mother=" + mother[i] + 
-            " (" + get(i).toString(tagIndex, tagIndex) + ")>\n");
+            " (" + get(i).toString(tagIndex, wordIndex) + ")>\n");
       }
     }
     return sb.toString();

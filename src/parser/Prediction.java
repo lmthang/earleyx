@@ -23,7 +23,7 @@ import edu.stanford.nlp.util.Timing;
  *
  */
 public class Prediction {
-  private static final Prediction[] NO_PREDICTION = new Prediction[0];
+  public static final Prediction[] NO_PREDICTION = new Prediction[0];
   private static DecimalFormat df = new DecimalFormat("0.0000");
   public static int verbose = 0;
   
@@ -50,7 +50,8 @@ public class Prediction {
    */
   public static Prediction[][] constructPredictions(Collection<ProbRule> rules,
       ClosureMatrix leftCornerClosures, 
-      EdgeSpace stateSpace, Index<String> tagIndex, List<Integer> nonterminals, Operator operator){
+      EdgeSpace stateSpace, Index<String> tagIndex, Index<String> wordIndex, 
+      List<Integer> nonterminals, Operator operator){
     // Note: we used list for nonterminals instead of set, to ensure a fixed order for debug purpose
     
     // indexed by non-terminal index, predictions for Z
@@ -80,8 +81,8 @@ public class Prediction {
           continue;
         }
         
-        assert(r.getScore()>=0 && r.getScore()<=1);
-        double rewriteScore = operator.getScore(r.getScore());
+        assert(r.getProb()>=0 && r.getProb()<=1);
+        double rewriteScore = operator.getScore(r.getProb());
         
         int predictedCategoryMotherIndex = r.getMother();
         int predictedState = stateSpace.indexOf(r.getEdge());
@@ -91,7 +92,7 @@ public class Prediction {
           Prediction p = new Prediction(predictedState, operator.multiply(rewriteScore, leftCornerClosureScore), rewriteScore);
           thesePredictions.add(p);
           if (verbose>=2){
-            System.err.println("Predict: " + p.toString(stateSpace, tagIndex, operator) 
+            System.err.println("Predict: " + p.toString(stateSpace, tagIndex, wordIndex, operator) 
                 + ", left-corner=" + df.format(operator.getProb(leftCornerClosureScore))
                 + ", rewrite=" + df.format(operator.getProb(rewriteScore)));
           }
@@ -123,8 +124,10 @@ public class Prediction {
           predictions[predictorState] = predictionsVia[viaCategoryIndex];
           
           if(verbose>=4){
-            System.err.println("Edge " + predictorState + ", " + stateSpace.get(predictorState).toString(tagIndex, tagIndex)
-                + ": predictions " + Util.sprint(predictions[predictorState], stateSpace, tagIndex, operator));
+            System.err.println("Edge " + predictorState + ", " 
+                + stateSpace.get(predictorState).toString(tagIndex, wordIndex)
+                + ": predictions " + Util.sprint(predictions[predictorState], 
+                    stateSpace, tagIndex, wordIndex, operator));
           }
         } else {
           predictions[predictorState] = NO_PREDICTION;
@@ -197,10 +200,9 @@ public class Prediction {
     return result1;
   }
 
-  public String toString(EdgeSpace stateSpace, Index<String> tagIndex, Operator operator) {
-    //assert(forwardProbMultiplier<=0);
-    //assert(innerProbMultiplier<=0);
-    return "(" + stateSpace.get(predictedState).toString(tagIndex, tagIndex) 
+  public String toString(EdgeSpace stateSpace, Index<String> tagIndex, 
+      Index<String> wordIndex, Operator operator) {
+    return "(" + stateSpace.get(predictedState).toString(tagIndex, wordIndex) 
     + ",f=" + df.format(operator.getProb(forwardProbMultiplier)) + ",i=" 
     + df.format(operator.getProb(innerProbMultiplier)) + ")";
   }

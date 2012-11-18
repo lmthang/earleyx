@@ -1,6 +1,5 @@
 package parser;
 
-import edu.stanford.nlp.trees.MemoryTreebank;
 import edu.stanford.nlp.util.StringUtils;
 
 import java.io.File;
@@ -60,7 +59,7 @@ public class Main {
   public static void printHelp(String[] args, String message){
     System.err.println("! " + message);
     System.err.println("Main -in inFile -out outPrefix " + "(-grammar grammarFile | -treebank treebankFile) \n" + 
-        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-io] [-verbose opt]");
+        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-io opt] [-verbose opt]");
     // [-leftwildcard] 
     // [-id indexFileName] 
     
@@ -96,8 +95,6 @@ public class Main {
     System.err.println("EarleyParser invoked with arguments " + Arrays.asList(args));
     
     /* Default parameters */        
-    String transformerClassName = null;
-    String treebankPackClassName = "edu.stanford.nlp.parser.lexparser.EnglishTreebankParserParams";
     EarleyParser parser = null;
         
     /* Define flags */
@@ -114,7 +111,7 @@ public class Main {
     flags.put("-sparse", new Integer(0)); // optimize for sparse grammars
     flags.put("-normalprob", new Integer(0)); // normal prob 
     flags.put("-scale", new Integer(0)); // scaling
-    flags.put("-io", new Integer(0)); // inside-outside computation 
+    flags.put("-io", new Integer(1)); // inside-outside computation 
     flags.put("-verbose", new Integer(1)); 
     
     Map<String, String[]> argsMap = StringUtils.argsToMap(args, flags);
@@ -157,16 +154,16 @@ public class Main {
     }
     
     /* io opt */
-    boolean isComputeOutside = false;
+    int insideOutsideOpt = 0;
     if (argsMap.keySet().contains("-io")) {
-      isComputeOutside = true;
+      insideOutsideOpt = Integer.parseInt(argsMap.get("-io")[0]);
     }
     
     System.err.println("# Root symbol = " + rootSymbol);
     System.err.println("# isSparse = " + (parserOpt==1));
     System.err.println("# isLogProb = " + isLogProb);
     System.err.println("# isScaling = " + isScaling);
-    System.err.println("# isComputeOutside = " + isComputeOutside);
+    System.err.println("# insideOutsideOpt = " + insideOutsideOpt);
     System.err.println("# Verbose opt = " + verbose);
 
     /******************/
@@ -184,7 +181,7 @@ public class Main {
         System.exit(1);
       }
     } else {
-      printHelp(args, "No inpu file, -in option");
+      printHelp(args, "No input file, -in option");
     }
     
     /* input indices */
@@ -223,38 +220,33 @@ public class Main {
     /******************/
     /* grammar option */
     /******************/
-    
+    String inGrammarFile = null;
+    int inGrammarType = 0; // 1: grammar, 2: treebank
     if (argsMap.keySet().contains("-grammar") && argsMap.keySet().contains("-treebank")){
       printHelp(args, "-grammar and -treebank are mutually exclusive");
     } else if (argsMap.keySet().contains("-grammar")) { // read from grammar file
-      String inGrammarFile = argsMap.get("-grammar")[0];
+      inGrammarFile = argsMap.get("-grammar")[0];
+      inGrammarType = 1;
       System.err.println("In grammar file = " + inGrammarFile);
-      
-      if(parserOpt==0){ // dense
-        parser = new EarleyParserDense(inGrammarFile, rootSymbol, isScaling, 
-            isLogProb, isComputeOutside);
-      } else if(parserOpt==1){ // sparse
-        parser = new EarleyParserSparse(inGrammarFile, rootSymbol, isScaling, 
-            isLogProb, isComputeOutside);
-      } else {
-        assert(false);
-      }
-      
-    } else if (argsMap.keySet().contains("-treebank")) { // read from treebank file      
-      // transform trees
-      String treeFile = argsMap.get("-treebank")[0];
-      MemoryTreebank treebank = Util.transformTrees(treeFile, transformerClassName, treebankPackClassName);
-      
-      if(parserOpt==0){ // dense
-        parser = new EarleyParserDense(treebank, rootSymbol, isScaling, 
-            isLogProb, isComputeOutside);
-      } else if(parserOpt==1){ // sparse
-        parser = new EarleyParserSparse(treebank, rootSymbol, isScaling, 
-            isLogProb, isComputeOutside);
-      } else {
-        assert(false);
-      }
-      
+    } else if (argsMap.keySet().contains("-treebank")) { // read from treebank file
+      inGrammarFile = argsMap.get("-treebank")[0];
+      inGrammarType = 2;
+      System.err.println("In treebank file = " + inGrammarFile);
+    } else {
+      printHelp(args, "No -grammar or -treebank option");
+    }
+    
+    if(parserOpt==0){ // dense
+      parser = new EarleyParserDense(inGrammarFile, inGrammarType, rootSymbol, isScaling, 
+          isLogProb, insideOutsideOpt);
+    } else if(parserOpt==1){ // sparse
+      parser = new EarleyParserSparse(inGrammarFile, inGrammarType, rootSymbol, isScaling, 
+          isLogProb, insideOutsideOpt);
+    } else {
+      assert(false);
+    }
+    
+    if(inGrammarType==2){
       // save grammar
       String outGrammarFile = outPrefix + ".grammar"; //argsMap.get("-saveGrammar")[0];
       System.err.println("Out grammar file = " + outGrammarFile);
@@ -275,8 +267,6 @@ public class Main {
         System.err.println("! Main: error printing rules to " + outGrammarFile);
         System.exit(1);
       }
-    } else {
-      printHelp(args, "No -grammar or -treebank option");
     }
         
     /***********/

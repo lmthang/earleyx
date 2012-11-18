@@ -47,7 +47,7 @@ public class Completion {
    * @return
    */
   public static Map<Integer, Completion[]> constructCompletions(ClosureMatrix unaryClosures, 
-      EdgeSpace edgeSpace, Index<String> tagIndex, Operator operator){
+      EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex, Operator operator){
     
     /* do completion Set[] */
     if(verbose > 0){
@@ -78,7 +78,7 @@ public class Completion {
      
             if(verbose >= 3){
               System.err.println("Edge " + tagIndex.get(tag)
-                  + ": completion " + completion.toString(edgeSpace, tagIndex, operator));
+                  + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
             }
           }
         }
@@ -88,7 +88,7 @@ public class Completion {
         
         if(verbose >= 3){
           System.err.println("Edge " + tagIndex.get(viaTag)
-              + ": completion " + completion.toString(edgeSpace, tagIndex, operator));
+              + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
         }
       }
     }
@@ -104,13 +104,13 @@ public class Completion {
       Timing.tick("Done with completion");
     }
     
-    assert checkCompletions(returnTag2completionsMap, edgeSpace, tagIndex, operator);
+    assert checkCompletions(returnTag2completionsMap, edgeSpace, tagIndex, wordIndex, operator);
     return returnTag2completionsMap;
   }
   
   /* check to see if any of the completions are invalid*/
   private static boolean checkCompletions(Map<Integer, Completion[]> passiveEdge2completionsMap
-      , EdgeSpace edgeSpace, Index<String> tagIndex, Operator operator) {
+      , EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex, Operator operator) {
     boolean satisfied = true;
     for (int passiveEdge : passiveEdge2completionsMap.keySet()) {
       Completion[] completions = passiveEdge2completionsMap.get(passiveEdge);
@@ -121,16 +121,16 @@ public class Completion {
         
         // compare mother
         if (active.getMother() != result.getMother()) {
-          System.err.println("Error " + completion.toString(edgeSpace, tagIndex, operator) + "-- mother categories of active edge " + 
-              active.toString(tagIndex, tagIndex) 
-              + " " + active + " and result " + result.toString(tagIndex, tagIndex) + " " + result + " are not identical");
+          System.err.println("Error " + completion.toString(edgeSpace, tagIndex, wordIndex, operator) + "-- mother categories of active edge " + 
+              active.toString(tagIndex, wordIndex) 
+              + " " + active + " and result " + result.toString(tagIndex, wordIndex) + " " + result + " are not identical");
           satisfied = false;
         }
         
         // compare children: children of active shifted 1 to the right should be equal to those of result
         if (!active.getChildrenAfterDot(1).equals(result.getChildrenAfterDot(0))) {
-          System.err.println("Error " + completion.toString(edgeSpace, tagIndex, operator) + "-- dtrs lists of active edge " + active.toString(tagIndex, tagIndex)  + 
-              active + " and result " + result.toString(tagIndex, tagIndex) + result + " are not consistent.");
+          System.err.println("Error " + completion.toString(edgeSpace, tagIndex, wordIndex, operator) + "-- dtrs lists of active edge " + active.toString(tagIndex, tagIndex)  + 
+              active + " and result " + result.toString(tagIndex, wordIndex) + result + " are not consistent.");
           satisfied = false;
         }
       }
@@ -159,9 +159,9 @@ public class Completion {
     return (int)score<<16 + activeEdge;
   }
 
-  public String toString(EdgeSpace edgeSpace, Index<String> tagIndex, Operator operator) {
-    return "(" + edgeSpace.get(activeEdge).toString(tagIndex, tagIndex) 
-    + ", " + edgeSpace.get(completedEdge).toString(tagIndex, tagIndex) + ", " 
+  public String toString(EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex, Operator operator) {
+    return "(" + edgeSpace.get(activeEdge).toString(tagIndex, wordIndex) 
+    + ", " + edgeSpace.get(completedEdge).toString(tagIndex, wordIndex) + ", " 
     + operator.getProb(score) + ")"; //df.format()
   }
 

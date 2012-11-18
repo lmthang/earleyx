@@ -82,7 +82,8 @@ public class Grammar {
     processExtendedRules(extendedRules, edgeSpace);
     
     /*** construct predictions ***/
-    predictionsArray = Prediction.constructPredictions(rules, leftCornerClosures, edgeSpace, tagIndex, 
+    predictionsArray = Prediction.constructPredictions(rules, leftCornerClosures, 
+        edgeSpace, tagIndex, wordIndex, 
         Util.getNonterminals(nonterminalMap), operator); 
     assert Prediction.checkPredictions(predictionsArray, edgeSpace);
 
@@ -91,7 +92,7 @@ public class Grammar {
     // we purposely use the old nontermPretermIndexer
 //    completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
     tag2completionsMap = Completion.constructCompletions(unaryClosures, edgeSpace, 
-        tagIndex, operator);
+        tagIndex, wordIndex, operator);
   }
 
   private void processExtendedRules(Collection<ProbRule> extendedRules, EdgeSpace edgeSpace){
@@ -104,7 +105,7 @@ public class Grammar {
     for (ProbRule extendedRule : extendedRules) {
       List<Integer> children = extendedRule.getChildren();
       ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), 
-          operator.getScore(extendedRule.getScore()))); 
+          operator.getScore(extendedRule.getProb()))); 
       
       if (verbose >= 4) {
         System.err.println("Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
@@ -140,7 +141,11 @@ public class Grammar {
   }
 
   public Prediction[] getPredictions(int pos) {
-    return predictionsArray[pos];
+    if(pos>=predictionsArray.length){
+      return Prediction.NO_PREDICTION;
+    } else {
+      return predictionsArray[pos];
+    }
   }
   
   public ClosureMatrix getLeftCornerClosures() {

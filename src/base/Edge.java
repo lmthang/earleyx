@@ -37,6 +37,9 @@ public class Edge {
   public int getMother(){
     return rule.getMother();
   }
+  public List<Integer> getChildren(){
+    return rule.getChildren();
+  }
   public int numChildren(){
     return rule.numChildren();
   }
@@ -52,13 +55,15 @@ public class Edge {
   public int getChild(int pos){
     return rule.getChild(pos);
   }
-  
+  public boolean isTerminalEdge(){
+    return (rule instanceof TerminalRule);
+  }
   /** 
   * create mother edge which doesn't have any children, mother -> []
   * @return
   */
   public Edge getMotherEdge(){
-    return new Edge(new Rule(rule.getMother(), new ArrayList<Integer>()), 0);
+    return new Edge(new TagRule(rule.getMother(), new ArrayList<Integer>()), 0);
   }
 
   /** 
@@ -66,7 +71,11 @@ public class Edge {
   * @return
   */
   public Edge getViaEdge(){ // first child after the dot
-    return new Edge(new Rule(rule.getChildren().get(dot), new ArrayList<Integer>()), 0);
+    if(rule instanceof TagRule){
+      return new Edge(new TagRule(rule.getChildren().get(dot), new ArrayList<Integer>()), 0);
+    } else {
+      return null;
+    }
   }
   
   /** 
@@ -74,7 +83,7 @@ public class Edge {
    * @return
    */
    public Edge getToEdge(){
-     return new Edge(new Rule(rule.getMother(), rule.getChildren(dot+1)), 0);
+     return new Edge(new TagRule(rule.getMother(), rule.getChildren(dot+1)), 0);
    }
    
   public boolean equals(Object o) {
@@ -101,16 +110,25 @@ public class Edge {
     return rule.hashCode()<< 8 + dot;
   }
   
-  public String toString(Index<String> motherIndex, Index<String> childIndex){
+  public String toString(Index<String> tagIndex, Index<String> wordIndex){
     StringBuffer sb = new StringBuffer();
-    sb.append(rule.lhsString(motherIndex) + " -> ");
+    sb.append(rule.lhsString(tagIndex) + " -> ");
     List<Integer> children = rule.getChildren();
     for (int i = 0; i < dot; i++) {
-      sb.append(childIndex.get(children.get(i)) + " ");
+      if(rule instanceof TagRule){
+        sb.append(tagIndex.get(children.get(i)) + " ");
+      } else {
+        sb.append("_" + wordIndex.get(children.get(i)) + " ");
+      }
     }
     sb.append(".");
     for (int i = dot; i < children.size(); i++) {
-      sb.append(" " + childIndex.get(children.get(i)));
+      if(rule instanceof TagRule){        
+        sb.append(" " + tagIndex.get(children.get(i)));
+      } else {
+        sb.append(" " + wordIndex.get(children.get(i)));
+      }
+      
     }
     return sb.toString();
   }
