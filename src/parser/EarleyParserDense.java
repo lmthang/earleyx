@@ -1,8 +1,10 @@
 package parser;
 
 import java.io.BufferedReader;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import base.Edge;
@@ -205,7 +207,6 @@ public class EarleyParserDense extends EarleyParser{
     }
    
     if (isScaling){
-      assert(containsExtendedRule);
       inner = operator.multiply(inner, scalingMatrix[linear[middle][right]]);
     }
     
@@ -280,6 +281,24 @@ public class EarleyParserDense extends EarleyParser{
   @Override
   protected boolean containsEdge(int left, int right, int edge) {
     return chartEntries[linear[left][right]][edge];
+  }
+
+  
+  @Override
+  protected int chartCount(int left, int right) {
+    return chartCount[linear[left][right]];
+  }
+
+  
+  @Override
+  protected Set<Integer> listEdges(int left, int right) {
+    Set<Integer> edges = new HashSet<Integer>();
+    for (int edge = 0; edge < edgeSpaceSize; edge++) {
+      if(containsEdge(left, right, edge)){
+        edges.add(edge);
+      }
+    }
+    return edges;
   }
 
   /****************************/
@@ -364,11 +383,9 @@ public class EarleyParserDense extends EarleyParser{
         int right = left+length;
         
         // scaling
-        double scalingFactor = 0;
-        if(isScaling){
-          for(int i=left+1; i<=right; i++){
-            scalingFactor += scaling[i];
-          }
+        double scalingFactor = operator.one();
+        if (isScaling){
+          scalingFactor = scalingMatrix[linear[left][right]];
         }
   
         int lrIndex = linear[left][right];
@@ -422,30 +439,6 @@ public class EarleyParserDense extends EarleyParser{
     }
     
     return sb.toString();
-  }
-
-  // print both inner and forward probs
-  protected void dumpChart() {
-    System.err.println("# Chart snapshot, edge space size = " + edgeSpaceSize);
-    for(int length=1; length<=numWords; length++){ // length
-      for (int left = 0; left <= numWords-length; left++) {
-        int right = left+length;
-
-        int lrIndex = linear[left][right];
-        
-        if(chartCount[lrIndex]>0){ // there're active states
-          System.err.println("[" + left + "," + right + "]: " + chartCount[lrIndex]  
-              + " (" + df1.format(chartCount[lrIndex]*100.0/edgeSpaceSize) + "%)");
-          for (int edge = 0; edge < chartEntries[lrIndex].length; edge++) {
-            if (chartEntries[lrIndex][edge]) {
-              System.err.println("  " + edgeSpace.get(edge).toString(parserTagIndex, parserWordIndex) 
-                  + ": " + df.format(operator.getProb(forwardProb[lrIndex][edge])) 
-                  + " " + df.format(operator.getProb(innerProb[lrIndex][edge])));
-            }
-          }
-        }
-      }
-    }
   }
   
   public String dumpInnerProb(){

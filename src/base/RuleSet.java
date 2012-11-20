@@ -12,6 +12,8 @@ import java.util.Map;
 import edu.stanford.nlp.util.Index;
 
 /**
+ * Keep track of all rules and their probabilities.
+ * 
  * @author Minh-Thang Luong, 2012
  *
  */
@@ -22,9 +24,16 @@ public class RuleSet {
   private int numRules = 0;
   private List<ProbRule> allRules;
   
+  // sublists of all rules
+  protected List<ProbRule> tagRules; // X -> Y Z, contains unary rules
+  protected Collection<ProbRule> terminalRules; // X -> _a
+  protected Collection<ProbRule> multiTerminalRules; // X -> _a _b _c
+  
+  // unary rules
+  protected List<ProbRule> unaryRules;
+
   private Map<Rule, Integer> ruleMap; // map Rule to indices in allRules
   private Map<Integer, List<Integer>> tag2ruleIndices; // map tag to a set of rule indices
-  
   
   public RuleSet(Index<String> tagIndex, Index<String> wordIndex){
     this.tagIndex = tagIndex;
@@ -33,6 +42,14 @@ public class RuleSet {
     allRules = new ArrayList<ProbRule>();
     ruleMap = new HashMap<Rule, Integer>();
     tag2ruleIndices = new HashMap<Integer, List<Integer>>();
+    
+    // sublists of all rules
+    tagRules = new ArrayList<ProbRule>();
+    terminalRules = new ArrayList<ProbRule>();
+    multiTerminalRules = new ArrayList<ProbRule>();
+    
+    // unary rules
+    unaryRules = new ArrayList<ProbRule>();
   }
   
   public int add(ProbRule probRule){
@@ -65,6 +82,22 @@ public class RuleSet {
     }
     tag2ruleIndices.get(tag).add(ruleId);
     
+    // sublist of all rules
+    if(rule instanceof TerminalRule){
+      if (rule.numChildren()==1){ // terminal
+        terminalRules.add(probRule);
+      } else { // multiple terminals
+        multiTerminalRules.add(probRule);
+      }
+    } else { // tag
+      assert(rule instanceof TagRule);
+      tagRules.add(probRule);
+      
+      if(rule.numChildren()==1){
+        unaryRules.add(probRule);
+      }
+    }
+    
     return ruleId;
   }
   
@@ -74,13 +107,27 @@ public class RuleSet {
     }
   }
 
+  public boolean hasMultiTerminalRule(){
+    return (multiTerminalRules.size()>0);
+  }
+  
   public double getProb(int ruleId){
     return allRules.get(ruleId).getProb();
   }
   
-  public void setProb(int ruleId, double newProb){
-    allRules.get(ruleId).setProb(newProb);
+  public void setProb(int ruleId, double prob){
+    allRules.get(ruleId).setProb(prob);
   }
+  
+  public void setProb(Rule rule, double prob){
+    if(!ruleMap.containsKey(rule)){
+      System.err.println("! setProb: ruleSet doesn't contain rule " + rule.toString(tagIndex, wordIndex));
+      System.exit(1);
+    }
+    int ruleId = ruleMap.get(rule);
+    setProb(ruleId, prob);
+  }
+  
   public int size(){
     return numRules;
   }
@@ -96,7 +143,10 @@ public class RuleSet {
       return -1;
     }
   }
-  
+
+  /************************/
+  /** Getters & Setters **/
+  /************************/
   public ProbRule get(int i){
     return allRules.get(i);
   }
@@ -107,5 +157,33 @@ public class RuleSet {
   
   public Map<Integer, List<Integer>> getTag2ruleIndices(){
     return tag2ruleIndices;
+  }
+
+  public int getMother(int ruleId){
+    return allRules.get(ruleId).getMother();
+  }
+
+  public List<ProbRule> getTagRules() {
+    return tagRules;
+  }
+
+  public Collection<ProbRule> getTerminalRules() {
+    return terminalRules;
+  }
+
+  public Collection<ProbRule> getMultiTerminalRules() {
+    return multiTerminalRules;
+  }
+
+  public List<ProbRule> getUnaryRules() {
+    return unaryRules;
+  }
+  
+  public String toString(Index<String> tagIndex, Index<String> wordIndex){
+    StringBuffer sb = new StringBuffer("\n# Ruleset\n");
+    for (ProbRule probRule : allRules) {
+      sb.append(probRule.toString(tagIndex, wordIndex) + "\n");
+    }
+    return sb.toString();
   }
 }

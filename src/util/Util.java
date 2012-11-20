@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +20,7 @@ import java.util.Set;
 
 import base.Edge;
 import base.ProbRule;
-import base.Rule;
 import base.TagRule;
-import base.TerminalRule;
 
 import cern.colt.matrix.DoubleMatrix2D;
 
@@ -32,7 +29,6 @@ import parser.EdgeSpace;
 import parser.Prediction;
 
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
-import edu.stanford.nlp.stats.ClassicCounter;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.stats.Distribution;
 import edu.stanford.nlp.stats.TwoDimensionalCounter;
@@ -43,42 +39,6 @@ public class Util {
   public static DecimalFormat df = new DecimalFormat("0.0");
   public static DecimalFormat df1 = new DecimalFormat("0.0000");
   public static DecimalFormat df3 = new DecimalFormat("000");
-
-  public static void categorizeAllRules(Collection<ProbRule> allRules, 
-      Collection<ProbRule> tagRules, 
-      Collection<ProbRule> extendedRules, // e.g. adaptor grammar rules, i.e. approximating pcfg with sequence of terminals on the rhs
-      Map<Integer, Counter<Integer>> tag2wordsMap,
-      Map<Integer, Set<IntTaggedWord>> word2tagsMap){
-    for(ProbRule probRule : allRules){
-      Rule rule = probRule.getRule();
-      if(rule instanceof TagRule){ // X -> Y Z
-        tagRules.add(probRule);
-      } else {
-        assert(rule instanceof TerminalRule);
-        if (rule.numChildren()>1){ // X -> _a _b _c
-          extendedRules.add(probRule);
-        } else { // X -> _a
-          assert(rule.numChildren()==1);
-          int iT = rule.getMother();
-          int iW = rule.getChild(0);
-          
-          // tag2wordsMap
-          if(!tag2wordsMap.containsKey(iT)){
-            tag2wordsMap.put(iT, new ClassicCounter<Integer>());
-          }
-          assert(!tag2wordsMap.get(iT).containsKey(iW));
-          tag2wordsMap.get(iT).setCount(iW, probRule.getProb()); // log prob
-          
-          if(!word2tagsMap.containsKey(iW)){
-            word2tagsMap.put(iW, new HashSet<IntTaggedWord>());
-          }
-          IntTaggedWord iTW = new IntTaggedWord(iW, iT);
-          assert(!word2tagsMap.get(iW).contains(iTW));
-          word2tagsMap.get(iW).add(iTW);
-        }
-      }
-    }
-  }
   
   public static BufferedReader getBufferedReaderFromFile(String inFile){
     BufferedReader br = null;

@@ -47,4 +47,10 @@ public class LogProbOperator extends Operator {
     return a-b;
   }
 
+  @Override
+  public double getLogProb(double score) {
+    return score;
+  }
+  
+
 }

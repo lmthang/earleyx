@@ -6,6 +6,7 @@ package parser;
 import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -211,7 +212,6 @@ public class EarleyParserSparse extends EarleyParser {
    
 
     if (isScaling){
-      assert(containsExtendedRule);
       inner = operator.multiply(inner, scalingMatrix[linear[middle][right]]);
     }
     
@@ -270,6 +270,16 @@ public class EarleyParserSparse extends EarleyParser {
     return forwardProb.get(linear[left][right]).containsKey(edge);
   }
   
+  @Override
+  protected int chartCount(int left, int right) {
+    return forwardProb.get(linear[left][right]).size();
+  }
+  
+  @Override
+  protected Set<Integer> listEdges(int left, int right) {
+    return forwardProb.get(linear[left][right]).keySet();
+  }
+
   /****************************/
   /** Temporary prob methods **/
   /***************************/
@@ -355,11 +365,9 @@ public class EarleyParserSparse extends EarleyParser {
           int right = left+length;
 
           // scaling
-          double scalingFactor = 0;
-          if(isScaling){
-            for(int i=left+1; i<=right; i++){
-              scalingFactor += scaling[i];
-            }
+          double scalingFactor = operator.one();
+          if (isScaling){ // outside prob has a scaling factor for [0,left][right, numWords]
+            scalingFactor = operator.multiply(scalingMatrix[linear[0][left]], scalingMatrix[linear[right][numWords]]);
           }
           
           int lrIndex = linear[left][right];
@@ -386,7 +394,6 @@ public class EarleyParserSparse extends EarleyParser {
     return outsideChart;
   }
 
-  
   /****************/
   /** Debug info **/
   /****************/
@@ -404,10 +411,12 @@ public class EarleyParserSparse extends EarleyParser {
         int right = left+length;
 
         // scaling
-        double scalingFactor = 0;
-        if(isScaling){
-          for(int i=left+1; i<=right; i++){
-            scalingFactor += scaling[i];
+        double scalingFactor = operator.one();
+        if (isScaling){
+          if (isOutsideProb){ // outside prob has a scaling factor for [0,left][right, numWords]
+            scalingFactor = operator.multiply(scalingMatrix[linear[0][left]], scalingMatrix[linear[right][numWords]]);
+          } else {
+            scalingFactor = scalingMatrix[linear[left][right]];
           }
         }
         
@@ -461,31 +470,6 @@ public class EarleyParserSparse extends EarleyParser {
     }  
     
     return sb.toString();
-  }
-
-  @Override
-  protected void dumpChart() {
-    System.err.println("# Chart snapshot, edge space size = " + edgeSpaceSize);
-    for(int length=1; length<=numWords; length++){ // length
-      for (int left = 0; left <= numWords-length; left++) {
-        int right = left+length;
-
-        int lrIndex = linear[left][right];
-        
-        int count = forwardProb.containsKey(lrIndex) ? forwardProb.get(lrIndex).size() : 0;
-        if(count>0){ // there're active states
-          assert(forwardProb.get(lrIndex).size()>0);
-          
-          System.err.println("[" + left + "," + right + "]: " + count  
-              + " (" + df1.format(count*100.0/edgeSpaceSize) + "%)");
-          for (int edge : forwardProb.get(lrIndex).keySet()) {
-            System.err.println("  " + edgeSpace.get(edge).toString(parserTagIndex, parserWordIndex) 
-                + ": " + df.format(operator.getProb(forwardProb.get(lrIndex).get(edge))) 
-                + " " + df.format(operator.getProb(innerProb.get(lrIndex).get(edge))));
-          }
-        }
-      }
-    }
   }
   
   public String dumpInnerProb(){

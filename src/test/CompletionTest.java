@@ -1,7 +1,6 @@
 package test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,8 +53,6 @@ public class CompletionTest extends TestCase{
     Index<String> tagIndex = new HashIndex<String>();
     
     RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
-    Collection<ProbRule> tagRules = new ArrayList<ProbRule>();
-    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
@@ -65,13 +62,15 @@ public class CompletionTest extends TestCase{
     
     try {
       RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
-          ruleSet, tagRules, extendedRules, tag2wordsMap, word2tagsMap, 
+          ruleSet, tag2wordsMap, word2tagsMap, 
           nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
     }
 
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
+    
     // statespace
     EdgeSpace stateSpace = new LeftWildcardEdgeSpace(tagIndex, wordIndex);
     stateSpace.build(tagRules);

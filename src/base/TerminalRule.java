@@ -13,17 +13,12 @@ public class TerminalRule extends Rule {
       Index<String> tagIndex, Index<String> wordIndex) {
     super(motherStr, childStrs, tagIndex, wordIndex);
   }
-
-  protected String getChildStr(Index<String> childIndex, int child){
-    return "_" + childIndex.get(child);
-  }
   
   public boolean equals(Object o) {
     if (this == o){ // compare pointer
       return true;
     }
     
-//    System.err.print(" TR ");
     if (!(o instanceof TerminalRule)) { // check class
       return false;
     } 

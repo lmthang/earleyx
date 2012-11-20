@@ -15,7 +15,7 @@ import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;
 
 
-public class ActiveEdgeTest extends TestCase{
+public class EdgeTest extends TestCase{
   public void testBasic(){
     Index<String> tagIndex = new HashIndex<String>();
     Index<String> childIndex = new HashIndex<String>();
@@ -68,7 +68,10 @@ public class ActiveEdgeTest extends TestCase{
     assertEquals(e9.getMotherEdge().hashCode() == e10.hashCode(), true);
     assertEquals(e5.toString(tagIndex, childIndex), "X -> A B . D");
     
-    // test index of ActiveEdge
+    // test getPrevEdge
+    assertEquals(e9.getPrevEdge().getPrevEdge().getPrevEdge().equals(e1), true);
+    
+    // test index of Edge
     Index<Edge> index = new HashIndex<Edge>();
     index.addAll(Arrays.asList(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10));
     System.err.println(Util.sprint(index, tagIndex, childIndex));

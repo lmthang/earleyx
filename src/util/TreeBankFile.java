@@ -14,6 +14,7 @@ import java.util.Map;
 import parser.SmoothLexicon;
 import base.BaseLexicon;
 import base.ProbRule;
+import base.RuleSet;
 import base.TerminalRule;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
@@ -93,7 +94,7 @@ public class TreeBankFile {
    * extract rules and words from trees
    */
   public static void extractRulesWordsFromTreebank(
-      Treebank treebank, Collection<ProbRule> tagRules, Collection<IntTaggedWord> intTaggedWords, 
+      Treebank treebank, RuleSet ruleSet, Collection<IntTaggedWord> intTaggedWords, 
       Index<String> wordIndex, Index<String> tagIndex,
       Map<Integer, Integer> nonterminalMap) {
     Collection<Tree> trees = new ArrayList<Tree>();
@@ -108,10 +109,10 @@ public class TreeBankFile {
     }
     
     // build rules
-    tagRules.addAll(Util.tagRulesFromTrees(trees, tagIndex, tagIndex, nonterminalMap));
+    ruleSet.addAll(Util.tagRulesFromTrees(trees, tagIndex, tagIndex, nonterminalMap));
   }
   
-  public static void processTreebank(String treeFile, Collection<ProbRule> tagRules,
+  public static void processTreebank(String treeFile, RuleSet ruleSet,
       Collection<IntTaggedWord> intTaggedWords, 
       Index<String> tagIndex, Index<String> wordIndex, 
       Map<Integer, Integer> nonterminalMap){
@@ -119,7 +120,7 @@ public class TreeBankFile {
     MemoryTreebank treebank =  transformTrees(treeFile, transformerClassName, treebankPackClassName);
     
     // process
-    extractRulesWordsFromTreebank(treebank, tagRules, intTaggedWords, wordIndex, tagIndex, nonterminalMap);
+    extractRulesWordsFromTreebank(treebank, ruleSet, intTaggedWords, wordIndex, tagIndex, nonterminalMap);
   }
   
   public static void printHelp(String[] args, String message){
@@ -185,29 +186,27 @@ public class TreeBankFile {
     Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
-    Collection<ProbRule> tagRules = new ArrayList<ProbRule>();
+    RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
+    
     Collection<IntTaggedWord> intTaggedWords = new ArrayList<IntTaggedWord>();
     
-    processTreebank(ruleFile, tagRules, intTaggedWords, tagIndex, wordIndex, nonterminalMap);
+    processTreebank(ruleFile, ruleSet, intTaggedWords, tagIndex, wordIndex, nonterminalMap);
     
     BaseLexicon lex = new SmoothLexicon(wordIndex, tagIndex);
     lex.train(intTaggedWords);
     
-    Collection<ProbRule> allRules = new ArrayList<ProbRule>();
-    allRules.addAll(tagRules);
     Map<Integer, Counter<Integer>> tag2wordsMap = lex.getTag2wordsMap();
     for(int iT : tag2wordsMap.keySet()){
       Counter<Integer> counter = tag2wordsMap.get(iT);
       for(int iW : counter.keySet()){
-        allRules.add(new ProbRule(new TerminalRule(iT, Arrays.asList(iW)), 
+        ruleSet.add(new ProbRule(new TerminalRule(iT, Arrays.asList(iW)), 
             Math.exp(counter.getCount(iW))));
       }
     }
-    assert(allRules.size()>tagRules.size());
     
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter(outRuleFile));
-      for(ProbRule rule : allRules){
+      for(ProbRule rule : ruleSet.getAllRules()){
         bw.write(rule.toString(tagIndex, wordIndex) + "\n");
       }
       bw.close();

@@ -52,8 +52,6 @@ public class GrammarTest extends TestCase{
     Index<String> tagIndex = new HashIndex<String>();
     
     RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
-    Collection<ProbRule> tagRules = new ArrayList<ProbRule>();
-    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
@@ -63,18 +61,19 @@ public class GrammarTest extends TestCase{
     
     try {
       RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
-          ruleSet, tagRules, extendedRules, tag2wordsMap, word2tagsMap, 
+          ruleSet, tag2wordsMap, word2tagsMap, 
           nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
     }
-  
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
+    
     EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex, wordIndex);
     edgeSpace.build(tagRules);
     
     Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
-    g.learnGrammar(tagRules, extendedRules, edgeSpace);
+    g.learnGrammar(ruleSet, edgeSpace);
     
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\nd:prefix={A=-0.9}\n e:prefix={A=-0.9}, end={A=-0.9}");
  
@@ -126,7 +125,10 @@ public class GrammarTest extends TestCase{
     edgeSpace.build(rules);
     
     Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
-    g.learnGrammar(rules, extendedRules, edgeSpace);
+    RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
+    ruleSet.addAll(rules);
+    ruleSet.addAll(extendedRules);
+    g.learnGrammar(ruleSet, edgeSpace);
     
     assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\na:prefix={NP=-1.6}\n chef:prefix={NP=-1.9}, end={NP=-1.9}\n soup:prefix={NP=-3.0}, end={NP=-3.0}\nthe:prefix={NP=-2.3}\n chef:prefix={NP=-2.3}, end={NP=-2.3}\ncook:prefix={VP=-2.3}\n soup:prefix={VP=-2.3}, end={VP=-2.3}");
  

@@ -119,11 +119,11 @@ public abstract class Rule {
     return motherIndex.get(mother);
   }
   
-  // Y Z
-  protected String rhsString(Index<String> childIndex){
+  // Y Z or _a _b _c
+  protected String rhsString(Index<String> tagIndex, Index<String> wordIndex){
     StringBuffer sb = new StringBuffer();
     for (int child : children){
-      sb.append(getChildStr(childIndex, child) + " ");   
+      sb.append(getChildStr(tagIndex, wordIndex, child) + " ");   
     }
     if(children.size() > 0){
       sb.delete(sb.length()-1, sb.length());
@@ -136,11 +136,7 @@ public abstract class Rule {
     StringBuffer sb = new StringBuffer();
     sb.append("(" + tagIndex.get(mother) + " ");
     for (int child : children){
-      if(this instanceof TagRule){
-        sb.append("(_ " + getChildStr(tagIndex, child) + ") ");
-      } else {
-        sb.append("(_ " + getChildStr(wordIndex, child) + ") ");
-      }
+      sb.append("(_ " + getChildStr(tagIndex, wordIndex, child) + ") ");
     }
     
     if(children.size() > 0){
@@ -151,30 +147,27 @@ public abstract class Rule {
   }
   
   // String read by Mark's IO code
-  // X --> Y Z, or X --> a b c
+  // X --> Y Z, or X --> _a _b _c
   public String markString(Index<String> tagIndex, Index<String> wordIndex) {
-    StringBuffer sb = new StringBuffer();
-    sb.append(tagIndex.get(mother) + " -->");
-    for (int child : children){
-      if(this instanceof TagRule){
-        sb.append(" " + tagIndex.get(child));
-      } else {
-        sb.append(" _" + wordIndex.get(child));
-      }
-    }
-    
-    return sb.toString();
+    return lhsString(tagIndex) + " --> " + rhsString(tagIndex, wordIndex);
+  }
+  
+  // String read by Tim's IO code
+  // X Y Z, or X _a _b _c
+  public String timString(Index<String> tagIndex, Index<String> wordIndex) {
+    return lhsString(tagIndex) + " " + rhsString(tagIndex, wordIndex);
   }
   
   // X->[Y Z] for TagRule or X->[_a _b _c] for TerminalRule
   public String toString(Index<String> tagIndex, Index<String> wordIndex){
-    if(this instanceof TagRule){
-      return lhsString(tagIndex) + "->[" + rhsString(tagIndex) + "]";
-    } else {
-      return lhsString(tagIndex) + "->[" + rhsString(wordIndex) + "]";
-    }
-    
+    return lhsString(tagIndex) + "->[" + rhsString(tagIndex, wordIndex) + "]";
   }
-  
-  protected abstract String getChildStr(Index<String> childIndex, int child);
+
+  protected String getChildStr(Index<String> tagIndex, Index<String> wordIndex, int child){
+    if(this instanceof TagRule){
+      return tagIndex.get(child);
+    } else {
+      return "_" + wordIndex.get(child);  
+    }
+  }
 }

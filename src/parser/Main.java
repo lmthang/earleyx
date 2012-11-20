@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -251,18 +250,15 @@ public class Main {
       String outGrammarFile = outPrefix + ".grammar"; //argsMap.get("-saveGrammar")[0];
       System.err.println("Out grammar file = " + outGrammarFile);
       
-      boolean isExp = true;      
       try {
+        List<ProbRule> allRules = parser.getAllRules();
+        
         // ignore root rule
-        Collection<ProbRule> newRules = new ArrayList<ProbRule>();
         ProbRule rootRule = parser.getRootRule();
-        for(ProbRule rule : parser.getRules()){
-          if(!rule.equals(rootRule)){
-            newRules.add(rule);
-          }
-        }
-        RuleFile.printRules(outGrammarFile, newRules, parser.getLexicon().getTag2wordsMap(), 
-            parser.getParserWordIndex(), parser.getParserTagIndex(), isExp);
+        assert(allRules.get(0).equals(rootRule));
+        allRules.remove(0);
+        
+        RuleFile.printRules(outGrammarFile, allRules, parser.getParserWordIndex(), parser.getParserTagIndex());
       } catch (IOException e) {
         System.err.println("! Main: error printing rules to " + outGrammarFile);
         System.exit(1);

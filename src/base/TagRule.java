@@ -19,10 +19,6 @@ public class TagRule extends Rule {
     super(motherStr, childStrs, tagIndex, tagIndex);
   }
   
-  protected String getChildStr(Index<String> childIndex, int child){
-    return childIndex.get(child);
-  }
-  
   public boolean equals(Object o) {
     if (this == o){ // compare pointer
       return true;

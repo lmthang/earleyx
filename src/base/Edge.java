@@ -58,6 +58,15 @@ public class Edge {
   public boolean isTerminalEdge(){
     return (rule instanceof TerminalRule);
   }
+  
+  public Edge getPrevEdge(){
+    if(dot>=1){
+      return new Edge(rule, dot-1);
+    } else {
+      return null;
+    }
+  }
+  
   /** 
   * create mother edge which doesn't have any children, mother -> []
   * @return

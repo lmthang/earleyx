@@ -46,4 +46,8 @@ public class ProbOperator extends Operator {
     return a/b;
   }
 
+  @Override
+  public double getLogProb(double score) {
+    return Math.log(score);
+  }
 }

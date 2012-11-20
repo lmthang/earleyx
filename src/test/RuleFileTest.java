@@ -1,8 +1,6 @@
 package test;
 
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,8 +54,6 @@ public class RuleFileTest extends TestCase{
     Index<String> tagIndex = new HashIndex<String>();
     
     RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
-    Collection<ProbRule> tagRules = new ArrayList<ProbRule>();
-    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
@@ -67,18 +63,20 @@ public class RuleFileTest extends TestCase{
     
     try {
       RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
-          ruleSet, tagRules, extendedRules, tag2wordsMap, word2tagsMap, 
+          ruleSet, tag2wordsMap, word2tagsMap, 
           nonterminalMap, wordIndex, tagIndex);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
     }
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
+    Collection<ProbRule> multiTerminalRules = ruleSet.getMultiTerminalRules();
     
     assertEquals(tagIndex.toString(), "[0=ROOT,1=A,2=B,3=C,4=D]");
     assertEquals(wordIndex.toString(), "[0=b,1=c,2=d,3=UNK,4=UNK-1]");
     
     assertEquals(Util.sprint(tagRules, wordIndex, tagIndex), "ROOT->[A] : 1.0\nA->[B C] : 0.4\nA->[D B] : 0.4\n");
-    assertEquals(Util.sprint(extendedRules, wordIndex, tagIndex), "A->[_b _c] : 0.1\nA->[_d _b] : 0.1\n");
+    assertEquals(Util.sprint(multiTerminalRules, wordIndex, tagIndex), "A->[_b _c] : 0.1\nA->[_d _b] : 0.1\n");
     
     assertEquals(Util.sprint(tagIndex, nonterminalMap.keySet()), "[ROOT, A]");
     assertEquals(Util.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=0.9, UNK=0.1}, C={c=0.9, UNK=0.1}, D={d=0.8, UNK=0.1, UNK-1=0.1}");
@@ -93,20 +91,18 @@ public class RuleFileTest extends TestCase{
     Index<String> tagIndex = new HashIndex<String>();
     
     RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
-    Collection<ProbRule> tagRules = new ArrayList<ProbRule>();
-    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
-    
     /* Input */
     try {
       RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleStringNoSmooth), 
-          ruleSet, tagRules, extendedRules, tag2wordsMap, 
+          ruleSet, tag2wordsMap, 
           word2tagsMap, nonterminalMap, wordIndex, tagIndex); // we don't care much about extended rules, just treat them as rules
       //rules.addAll(extendedRules);
     } catch (IOException e){
       System.err.println("Can't read rule string: " + ruleString);
       e.printStackTrace();
     }
-    System.err.println(ruleStringNoSmooth);
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
+    Collection<ProbRule> multiTerminalRules = ruleSet.getMultiTerminalRules();
     
     assertEquals(Util.sprint(tagRules, wordIndex, tagIndex), "ROOT->[A] : 5.0\nA->[B C] : 4.0\nA->[D B] : 4.0\n");
     
@@ -117,10 +113,8 @@ public class RuleFileTest extends TestCase{
     
     assertEquals(Util.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, d=[d/D}, b1=[b1/B}, b2=[b2/B}, b3=[b3/B}, C=[C/C}, UNK=[UNK/D, UNK/C, UNK/B}, UNK-LC-DIG=[UNK-LC-DIG/B}, UNK-ALLC=[UNK-ALLC/C}, UNK-LC=[UNK-LC/D}");
     
-    
-    
     // test scheme print
-    tagRules.addAll(extendedRules);
+    tagRules.addAll(multiTerminalRules);
     assertEquals(Util.schemeSprint(tagRules, wordIndex, tagIndex), "[(ROOT (_ A)), (A (_ B) (_ C)), (A (_ D) (_ B)), (A (_ _b) (_ _c)), (A (_ _d) (_ _b))]");
   }
 }

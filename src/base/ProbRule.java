@@ -82,8 +82,14 @@ public class ProbRule {
     return rule.schemeString(tagIndex, wordIndex);
   }
   
+  // format read by Mark's code
   public String markString(Index<String> tagIndex, Index<String> wordIndex) {
     return prob + " " + rule.markString(tagIndex, wordIndex);
+  }
+
+  // format read by Tim's code
+  public String timString(Index<String> tagIndex, Index<String> wordIndex) {
+    return Math.log(prob) + " " + rule.timString(tagIndex, wordIndex);
   }
 }
 

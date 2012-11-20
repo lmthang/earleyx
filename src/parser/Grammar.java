@@ -3,6 +3,7 @@ package parser;
 import base.ClosureMatrix;
 import base.RelationMatrix;
 import base.ProbRule;
+import base.RuleSet;
 import cern.colt.matrix.DoubleMatrix2D;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
@@ -62,27 +63,26 @@ public class Grammar {
   /**
    * learns all the grammar stuff.  Note that rootRule must be a unary contained in rules.
    */
-  public void learnGrammar(Collection<ProbRule> rules, 
-      Collection<ProbRule> extendedRules, EdgeSpace edgeSpace) {    
+  public void learnGrammar(RuleSet ruleSet, EdgeSpace edgeSpace) {    
     /*** Compute reflective and transitive left-corner and unit-production matrices ***/
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     
     /* do left-corner closures matrix */
-    DoubleMatrix2D pl = relationMatrix.getPL(rules, nonterminalMap);
+    DoubleMatrix2D pl = relationMatrix.getPL(ruleSet.getTagRules(), nonterminalMap);
     leftCornerClosures = new ClosureMatrix(pl, operator);
     leftCornerClosures.changeIndices(nonterminalMap);
     
     /* do unary closure matrix */
-    DoubleMatrix2D pu = relationMatrix.getPU(rules); //, nontermPretermIndexer);
+    DoubleMatrix2D pu = relationMatrix.getPU(ruleSet.getTagRules()); //, nontermPretermIndexer);
     unaryClosures = new ClosureMatrix(pu, operator);
     
     /*** Extended rules ***/
     /* !!! Important: this needs to be added after closure matrix construction
      *  and before predictions and combinations */
-    processExtendedRules(extendedRules, edgeSpace);
+    processMultiTerminalRules(ruleSet.getMultiTerminalRules(), edgeSpace);
     
     /*** construct predictions ***/
-    predictionsArray = Prediction.constructPredictions(rules, leftCornerClosures, 
+    predictionsArray = Prediction.constructPredictions(ruleSet.getTagRules(), leftCornerClosures, 
         edgeSpace, tagIndex, wordIndex, 
         Util.getNonterminals(nonterminalMap), operator); 
     assert Prediction.checkPredictions(predictionsArray, edgeSpace);
@@ -95,7 +95,7 @@ public class Grammar {
         tagIndex, wordIndex, operator);
   }
 
-  private void processExtendedRules(Collection<ProbRule> extendedRules, EdgeSpace edgeSpace){
+  private void processMultiTerminalRules(Collection<ProbRule> extendedRules, EdgeSpace edgeSpace){
     if (verbose >= 1) {
       System.err.println("\n# Processing extended rules ...");
       Timing.startTime();

@@ -145,7 +145,7 @@ def main(argv=None):
   args = process_command_line(argv)
   
   if args.debug == True:
-    print 'Debug mode\n'
+    print('Debug mode\n')
 
   process_files(args.in_file, args.out_file)
 

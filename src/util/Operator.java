@@ -16,4 +16,5 @@ public abstract class Operator {
   public abstract double one();
   public abstract double getProb(double score); // exp: if LogProbOperator, return same value if ProbOperator
   public abstract double getScore(double prob); // log: if LogProbOperator, return same value if ProbOperator
+  public abstract double getLogProb(double score);
 }

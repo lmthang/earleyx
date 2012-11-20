@@ -30,11 +30,13 @@ public class RuleTest extends TestCase{
     assertEquals(r1.toString(tagIndex, wordIndex), "X->[_a _b _c] : 0.1");
     assertEquals(r1.schemeString(tagIndex, wordIndex), "(X (_ _a) (_ _b) (_ _c))");
     assertEquals(r1.markString(tagIndex, wordIndex), "0.1 X --> _a _b _c");
+    assertEquals(r1.timString(tagIndex, wordIndex), "-2.3025850929940455 X _a _b _c");
     
     ProbRule r6 = new ProbRule(new TagRule("X", Arrays.asList("Y", "Z"), tagIndex), 1.0);
     assertEquals(r6.toString(tagIndex, wordIndex), "X->[Y Z] : 1.0");
     assertEquals(r6.schemeString(tagIndex, wordIndex), "(X (_ Y) (_ Z))");
     assertEquals(r6.markString(tagIndex, wordIndex), "1.0 X --> Y Z");
+    assertEquals(r6.timString(tagIndex, wordIndex), "0.0 X Y Z");
     
     Rule r7 = new TerminalRule("X", Arrays.asList("a", "b", "c"), tagIndex, wordIndex);
     Rule r8 = new TerminalRule("X", Arrays.asList("a", "b", "c"), tagIndex, wordIndex);

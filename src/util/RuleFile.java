@@ -23,13 +23,9 @@ import base.RuleSet;
 import base.TagRule;
 import base.TerminalRule;
 
-
-
-
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.ClassicCounter;
 import edu.stanford.nlp.stats.Counter;
-import edu.stanford.nlp.stats.Counters;
 import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.StringUtils;
@@ -40,8 +36,6 @@ public class RuleFile {
   //private static String UNK = "UNK";
   
   public static void parseRuleFile(BufferedReader br, RuleSet ruleSet, 
-      Collection<ProbRule> tagRules, 
-      Collection<ProbRule> extendedRules, // e.g. adaptor grammar rules, i.e. approximating pcfg with sequence of terminals on the rhs
       Map<Integer, Counter<Integer>> tag2wordsMap,
       Map<Integer, Set<IntTaggedWord>> word2tagsMap,
       Map<Integer, Integer> nonterminalMap,
@@ -55,7 +49,6 @@ public class RuleFile {
     }
     
     int count = 0;
-    int numTerminalRules = 0;
     while ((inputLine = br.readLine()) != null){
       count++;
 
@@ -88,7 +81,6 @@ public class RuleFile {
           addWord(iW, iT, prob, tag2wordsMap, word2tagsMap);
           
           ruleSet.add(new ProbRule(new TerminalRule(iT, Arrays.asList(iW)), prob));
-          numTerminalRules++;
         } else { // rule
           if(!nonterminalMap.containsKey(iT)){
             nonterminalMap.put(iT, nonterminalMap.size());
@@ -111,10 +103,8 @@ public class RuleFile {
           ProbRule rule = null;
           if (numTerminals==childIndices.size()){ // process extended rule X -> _a _b _c
             rule = new ProbRule(new TerminalRule(iT, childIndices), prob);
-            extendedRules.add(rule);
           } else {
             rule = new ProbRule(new TagRule(iT, childIndices), prob);
-            tagRules.add(rule);
           }
           ruleSet.add(rule);
         }
@@ -130,20 +120,15 @@ public class RuleFile {
       }
     }
     
-//    Util.categorizeAllRules(allRules, tagRules, extendedRules, tag2wordsMap, word2tagsMap);    
     if (verbose>=1){
       System.err.println(" Done! Total lines = " + count);
     }
     if (verbose>=4){
       System.err.println("# ruleSet " + ruleSet.size() + "\n" + Util.sprint(ruleSet.getAllRules(), wordIndex, tagIndex));
-      System.err.println("# tagRules " + tagRules.size() + "\n" + Util.sprint(tagRules, wordIndex, tagIndex));
-      System.err.println("# extendedRules " + extendedRules.size() + "\n" + Util.sprint(extendedRules, wordIndex, tagIndex));
       System.err.println(Util.sprint(tag2wordsMap, tagIndex, wordIndex));
-      System.err.println("# Num terminal rules = " + numTerminalRules);
     }
     
     br.close();
-    assert(ruleSet.size() == (tagRules.size() + extendedRules.size() + numTerminalRules));
   }
   
   private static void addWord(int iW, int iT, double prob, 
@@ -179,44 +164,11 @@ public class RuleFile {
    * @throws IOException 
    **/
   public static void printRules(String ruleFile, Collection<ProbRule> rules
-      , Map<Integer, Counter<Integer>> origTag2wordsMap, Index<String> wordIndex, Index<String> tagIndex, boolean isExp) throws IOException{
+      , Index<String> wordIndex, Index<String> tagIndex) throws IOException{
     System.err.println("# Output rules to file " + (new File(ruleFile)).getAbsolutePath());
     BufferedWriter bw = new BufferedWriter(new FileWriter(ruleFile));
     
-    Map<Integer, Counter<Integer>> tag2wordsMap;
-    if (isExp){ // exp
-      tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
-      for(Integer iT : origTag2wordsMap.keySet()){
-        Counter<Integer> counter = Counters.getCopy(origTag2wordsMap.get(iT));
-        Counters.expInPlace(counter);
-        
-        tag2wordsMap.put(iT, counter);
-      }
-    } else {
-      tag2wordsMap = origTag2wordsMap;
-    }
-    
-    // rules: non-terminal->[terminal] : prob
-    for(Integer iT : tag2wordsMap.keySet()) { //Entry<Integer, Counter<Integer>> mapEntry : tag2wordsMap.entrySet()){
-      String prefix = tagIndex.get(iT) + "->[_";
-      Counter<Integer> counter = tag2wordsMap.get(iT);
-      
-      for(Integer iW : counter.keySet()){
-        double prob = counter.getCount(iW);
-        if(isExp && prob < 0){
-          System.err.println("Prob < 0: " + prefix + "\t" + wordIndex.get(iW) + "\t" + prob);
-          System.exit(1);
-        }
-        bw.write(prefix + wordIndex.get(iW) + "] : " + prob + "\n");
-      }
-    }
-    
-    // rules: non-terminal -> non-terminals
     bw.write(Util.sprint(rules, wordIndex, tagIndex));
-//    for(Rule rule : rules){
-//      bw.write(rule + "\n");
-//    }
-    
     bw.close();
   }
   
@@ -224,8 +176,7 @@ public class RuleFile {
    * Thang v110901: output rules to file
    * @throws IOException 
    **/
-  public static void printRulesSchemeFormat(String prefixFile, Collection<ProbRule> rules
-      , Collection<ProbRule> extendedRules
+  public static void printUnkLexiconSchemeFormat(String prefixFile
       , Map<Integer, Counter<Integer>> tag2wordsMap 
       , Index<String> wordIndex, Index<String> tagIndex) throws IOException{
     String ruleFile = prefixFile + ".forms.txt";
@@ -243,19 +194,11 @@ public class RuleFile {
         String word = wordIndex.get(iW);
         if (word.startsWith("UNK")){
           int count = (int) counter.getCount(iW);
-          System.err.println("(" + tag + " _" + word + ")\t" + count);
           bw.write("(" + tag + " _" + word + ")\n");
           bwCount.write(count + "\n");
         }
       }
     }
-    
-    // print rules
-//    rules.addAll(extendedRules);
-//    for(Rule rule : rules){
-//      bw.write(rule.schemeString() + "\n");
-//      bwCount.write((int) rule.score + "\n"); 
-//    }
     
     bw.close();
     bwCount.close();
@@ -287,7 +230,8 @@ public class RuleFile {
     System.err.println("\t\t in \t\t input grammar");
     System.err.println("\t\t out \t\t output file");
     System.err.println("\t\t opt \t\t 1 -- smooth output to format read by Tim's program, " + 
-        "2 -- output to format read by Mark's IO code");
+        "2 -- output to format read by Mark's IO code, " + 
+        "3 -- output to format read by Tim's code");
     System.err.println();
     System.exit(1);
   }
@@ -344,12 +288,10 @@ public class RuleFile {
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
-    Collection<ProbRule> tagRules = new ArrayList<ProbRule>();
-    Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     
     /* Input */
     try {
-      RuleFile.parseRuleFile(Util.getBufferedReaderFromFile(ruleFile), ruleSet, tagRules, extendedRules, tag2wordsMap, 
+      RuleFile.parseRuleFile(Util.getBufferedReaderFromFile(ruleFile), ruleSet, tag2wordsMap, 
           word2tagsMap, nonterminalMap, wordIndex, tagIndex); //, tagHash, seenEnd); // we don't care much about extended rules, just treat them as rules
       //rules.addAll(extendedRules);
     } catch (IOException e){
@@ -364,16 +306,20 @@ public class RuleFile {
       /* Output */
       try {
         //RuleFile.printRules(outRuleFile, rules, newWordCounterTagMap);
-        RuleFile.printRulesSchemeFormat(outRuleFile, tagRules, extendedRules, tag2wordsMap, wordIndex, tagIndex);
+        RuleFile.printUnkLexiconSchemeFormat(outRuleFile, tag2wordsMap, wordIndex, tagIndex);
       } catch (IOException e){
         System.err.println("Can't write to: " + outRuleFile);
         e.printStackTrace();
       }
-    } else if (option==2){ // Output in format that could be read by Mark's IO code
+    } else { 
       try {
         BufferedWriter bw = new BufferedWriter(new FileWriter(outRuleFile));
         for(ProbRule rule : ruleSet.getAllRules()){
-          bw.write("0.0 " + rule.markString(tagIndex, wordIndex) + "\n");
+          if (option==2){ // Output in format that could be read by Mark's IO code
+            bw.write("0.0 " + rule.markString(tagIndex, wordIndex) + "\n");
+          } else if (option==3){ // Output in format that could be read by Tim's code
+            bw.write(rule.timString(tagIndex, wordIndex) + "\n");
+          }
         }
         
         bw.close();
@@ -389,6 +335,48 @@ public class RuleFile {
 }
 
 /** Unused code **/
+//public static void printRules(String ruleFile, Collection<ProbRule> rules
+//    , Map<Integer, Counter<Integer>> origTag2wordsMap, Index<String> wordIndex, Index<String> tagIndex, boolean isExp) throws IOException{
+//  System.err.println("# Output rules to file " + (new File(ruleFile)).getAbsolutePath());
+//  BufferedWriter bw = new BufferedWriter(new FileWriter(ruleFile));
+//  
+//  Map<Integer, Counter<Integer>> tag2wordsMap;
+//  if (isExp){ // exp
+//    tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
+//    for(Integer iT : origTag2wordsMap.keySet()){
+//      Counter<Integer> counter = Counters.getCopy(origTag2wordsMap.get(iT));
+//      Counters.expInPlace(counter);
+//      
+//      tag2wordsMap.put(iT, counter);
+//    }
+//  } else {
+//    tag2wordsMap = origTag2wordsMap;
+//  }
+//  
+//  // rules: non-terminal->[terminal] : prob
+//  for(Integer iT : tag2wordsMap.keySet()) { //Entry<Integer, Counter<Integer>> mapEntry : tag2wordsMap.entrySet()){
+//    String prefix = tagIndex.get(iT) + "->[_";
+//    Counter<Integer> counter = tag2wordsMap.get(iT);
+//    
+//    for(Integer iW : counter.keySet()){
+//      double prob = counter.getCount(iW);
+//      if(isExp && prob < 0){
+//        System.err.println("Prob < 0: " + prefix + "\t" + wordIndex.get(iW) + "\t" + prob);
+//        System.exit(1);
+//      }
+//      bw.write(prefix + wordIndex.get(iW) + "] : " + prob + "\n");
+//    }
+//  }
+//  
+//  // rules: non-terminal -> non-terminals
+//  bw.write(Util.sprint(rules, wordIndex, tagIndex));
+////  for(Rule rule : rules){
+////    bw.write(rule + "\n");
+////  }
+//  
+//  bw.close();
+//}
+
 //public static void processRuleFile(String grammarFile) throws IOException{
 //  BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(grammarFile)));
 //  String inputLine;
