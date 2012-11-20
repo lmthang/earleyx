@@ -485,42 +485,42 @@ public abstract class EarleyParser implements Parser {
       stringLogProbList.add(stringLogProbability);
       
       StringBuffer sb = new StringBuffer(); 
-      if(verbose>=0){
+      if(verbose>=1){
         sb.append(Util.sprint(parserWordIndex, wordIndices.subList(0, right)) + "\n"
             + "String logprob: " + stringLogProbability + "\n");
       }
       
-      if(!isScaling){
-        // surprisals
-        double prefixProbabilityRatio = prefixProbability / lastProbability;
-        assert prefixProbabilityRatio <= 1.0 + 1e-10;
-        surprisalList.add(-Math.log(prefixProbabilityRatio));
-        
-        // syntatic/lexical surprisals
-        double synPrefixProbability = getSynPrefixProb(right);
-        synSurprisalList.add(-Math.log(synPrefixProbability/lastProbability));
-        lexSurprisalList.add(-Math.log(prefixProbability/synPrefixProbability));
-
-        // print info
-        if(verbose>=0){
-          sb.append("Prefix probability: " + prefixProbability + "\n" +
-          "Surprisal: " + surprisalList.get(wordId) + " = -log(" + 
-          prefixProbability + "/" + lastProbability + ")\n");
-        }
-        lastProbability = prefixProbability;
-      } else {
-        // surprisals
-        // note: prefix prob is scaled, and equal to P(w0..w_(right-1))/P(w0..w_(right-2))
-        surprisalList.add(-Math.log(prefixProbability));
-        
-        if(verbose>=0){
-          sb.append("Scaled prefix probability: " + prefixProbability + "\n" +
-          "Scaling: " + scalingMatrix[linear[right-1][right]] + "\n" + 
-          "Surprisal: " + surprisalList.get(wordId) + " = -log(" + prefixProbability + ")\n");
+      // surprisals
+      if(objectives.contains(SURPRISAL_OBJ)){
+        if(!isScaling){
+          double prefixProbabilityRatio = prefixProbability / lastProbability;
+          assert prefixProbabilityRatio <= 1.0 + 1e-10;
+          surprisalList.add(-Math.log(prefixProbabilityRatio));
+          
+          // syntatic/lexical surprisals
+  //        double synPrefixProbability = getSynPrefixProb(right);
+  //        synSurprisalList.add(-Math.log(synPrefixProbability/lastProbability));
+  //        lexSurprisalList.add(-Math.log(prefixProbability/synPrefixProbability));
+  
+          if(verbose>=0){
+            sb.append("Prefix probability: " + prefixProbability + "\n" +
+            "Surprisal: " + surprisalList.get(wordId) + " = -log(" + 
+            prefixProbability + "/" + lastProbability + ")\n");
+          }
+          lastProbability = prefixProbability;
+        } else {
+          // note: prefix prob is scaled, and equal to P(w0..w_(right-1))/P(w0..w_(right-2))
+          surprisalList.add(-Math.log(prefixProbability));
+          
+          if(verbose>=0){
+            sb.append("Scaled prefix probability: " + prefixProbability + "\n" +
+            "Scaling: " + scalingMatrix[linear[right-1][right]] + "\n" + 
+            "Surprisal: " + surprisalList.get(wordId) + " = -log(" + prefixProbability + ")\n");
+          }
         }
       }
       
-      if(verbose>=0){
+      if(verbose>=1){
         System.err.println(sb.toString());
       }
     }
@@ -916,7 +916,7 @@ public abstract class EarleyParser implements Parser {
  
     // outside
     for(int length=end-start; length>0; length--){
-      if(verbose>=0){
+      if(verbose>=1){
         System.err.println("# Outside length " + length + "");
       }
       for (int left=0; left<=end-length; left++){ // left
