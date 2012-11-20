@@ -18,46 +18,81 @@ Minh-Thang Luong, 2012
 /* Files */
 /*********/
 README.TXT      - this file
+build.xml		- Java compile file
 src/            - source code
 lib/            - necessary libraries (stanford javanlp-core, colt, junit)
 data/           - sample data
+grammars/		- sample grammars
   
 /********************************/
 /* Main class to run the parser */
 /********************************/
-parser.Main -in inFile -out outPrefix (-grammar grammarFile | -treebank treebankFile) [-id indexFileName] [-opt option] [-prob probHandling]
-     in: input filename
-     out: output prefix to name output files
 
-     option: 0 -- run with dense grammar, EarleyParserDense (default), 1 -- EarleyParserSparse (todo)
-     prob: 0 -- normal (default), 1 -- scaling
-     verbose: -1 -- no debug info (default), 0: surprisal per word, 1-4 -- increasing more details
+Main -in inFile  -out outPrefix (-grammar grammarFile | -treebank treebankFile) -obj objectives
+	[-root rootSymbol] [-io] [-sparse] [-normalprob] [-scale] [-verbose opt]
+	Compulsory:
+		in              	input filename, i.e. sentences to parse
+		out             	output prefix to name output files.
+		grammar|treebank    either read directly from a grammar file or from a treebank.For the 
+							latter, a grammar file will be output as outPrefix.grammar .
+		obj             	a comma separated list consitsing of any of the following values: 
+							surprisal, stringprob, viterbi. Default is "surprisal,stringprob,viterbi" if -io is not specified, and "" if -io is specified. Output files will be outPrefix.obj .
+
+	 Optional:
+		root            specify the start symbol of sentences (default "ROOT")
+		io              run inside-outside algorithm, output final grammar to outPrefix.io.grammar
+		sparse          optimize for sparse grammars (default: run with dense grammars)
+		normalprob      perform numeric computation in normal prob (cf. log-prob). 
+						This switch is best to be used with -scale.
+		scale           rescaling approach to parse extremely long sentences
+		verbose         -1 -- no debug info (default), 0: surprisal per word, 1-4 -- increasing more details
 
 /*******************/
 /* Running example */
 /*******************/
 * To run the code, run ant to generate earleyx.jar
 
+/** Standard usages **/
 * The following command expects an input file and a treebank file (see data/):
   java -classpath "earleyx.jar;lib/*" parser.Main -in data/dundee.full-text.tokenized.1 -treebank data/WSJ-processed.MRG.500 -out output/result -verbose 0
 
 After running the above command, the parser will generate the following files in the output/ directory:
-  result.srprsl: surprisal values
-  result.string: string probabilities
-  result.SynSp: syntactic surprisal values
-  result.LexSp: lexical surprisal values
+  result.surprisal: surprisal values
+  result.stringprob: string probabilities
+  result.viterbi: viterbi parses
   result.grammar: the grammar extracted from the treebank
 
 * To run parser from an existing grammar rather than a tree bank, use the following command:
   java -classpath "earleyx.jar;lib/*" parser.Main -in data/dundee.full-text.tokenized.1 -grammar output/result.grammar -out newOutput/result -verbose 0
 
 The results generated should be the same as before:
-  diff output/result.srprsl newOutput/result.srprsl
-  diff output/result.string newOutput/result.string
-  diff output/result.SynSp newOutput/result.SynSp
-  diff output/result.LexSp newOutput/result.LexSp
+  diff output/result.surprisal newOutput/result.surprisal
+  diff output/result.stringprob newOutput/result.stringprob
+  diff output/result.viterbi newOutput/result.viterbi
+
+* To compute only surprisal values: add the option
+-obj "surprisal"
+By default, we have -obj "surprisal,stringprob,viterbi"
+
+/** Inside-outside algorithm **/
+* Use -io switch and -sparse (currently IO only work with EarleyParserSparse)
+Since the root symbol of the grammar is "S", we add the option -root "S".
+
+java -classpath "earleyx.jar;lib/*" parser.Main -in data/testeng.yld.a -grammar grammars/testengger.grammar -out output/result -io -sparse -root "S"
+
+You should see the same results as below:
+# iteration 1, numRules=28, sumNegLogProb = 68.46002594157635
+# iteration 2, numRules=28, sumNegLogProb = 58.51055584306548
+# iteration 3, numRules=28, sumNegLogProb = 55.220924477124214
+# iteration 4, numRules=28, sumNegLogProb = 53.7010153144059
+# iteration 5, numRules=27, sumNegLogProb = 52.26369575985821
+# iteration 6, numRules=23, sumNegLogProb = 50.759354005056494
+# iteration 7, numRules=23, sumNegLogProb = 50.63455865171508
+# iteration 8, numRules=19, sumNegLogProb = 50.63452160196377
+# iteration 9, numRules=19, sumNegLogProb = 50.63452160196377
+
+The final grammar is outputed into output/result.iogrammar .
 
 /********/
 /* Note */
 /********/
-* For adaptor grammar rules, please ignore syntactic and lexical surprisals.

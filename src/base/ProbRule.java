@@ -75,7 +75,7 @@ public class ProbRule {
   
   // X->[a b c] : 0.1
   public String toString(Index<String> tagIndex, Index<String> wordIndex) {
-    return rule.toString(tagIndex, wordIndex) + " : " + prob;
+    return String.format("%s : %e", rule.toString(tagIndex, wordIndex), prob);
   }
   
   public String schemeString(Index<String> tagIndex, Index<String> wordIndex) {

@@ -25,18 +25,18 @@ public class EarleyParserDense extends EarleyParser{
   // outside
   protected double[][] outerProb;
 
-
   public EarleyParserDense(BufferedReader br, String rootSymbol,
-      boolean isScaling, boolean isLogProb, int insideOutsideOpt) {
-    super(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt);
+      boolean isScaling, boolean isLogProb, int insideOutsideOpt,
+      String objString) {
+    super(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
     // TODO Auto-generated constructor stub
   }
 
   public EarleyParserDense(String grammarFile, int inGrammarType,
       String rootSymbol, boolean isScaling, boolean isLogProb,
-      int insideOutsideOpt) {
+      int insideOutsideOpt, String objString) {
     super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
-        insideOutsideOpt);
+        insideOutsideOpt, objString);
     // TODO Auto-generated constructor stub
   }
 

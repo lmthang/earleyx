@@ -29,16 +29,17 @@ public class EarleyParserSparse extends EarleyParser {
   protected Map<Integer, Map<Integer, Double>> outerProb;     // innerProb.get(linear[left][right]).get(edge)
 
   public EarleyParserSparse(BufferedReader br, String rootSymbol,
-      boolean isScaling, boolean isLogProb, int insideOutsideOpt) {
-    super(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt);
+      boolean isScaling, boolean isLogProb, int insideOutsideOpt,
+      String objString) {
+    super(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
     // TODO Auto-generated constructor stub
   }
 
   public EarleyParserSparse(String grammarFile, int inGrammarType,
       String rootSymbol, boolean isScaling, boolean isLogProb,
-      int insideOutsideOpt) {
+      int insideOutsideOpt, String objString) {
     super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
-        insideOutsideOpt);
+        insideOutsideOpt, objString);
     // TODO Auto-generated constructor stub
   }
 

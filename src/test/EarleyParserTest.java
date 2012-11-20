@@ -30,7 +30,7 @@ public class EarleyParserTest extends TestCase {
   private boolean isScaling = true; // 
   private boolean isLogProb = true; 
   private int insideOutsideOpt = 1; // false; //          
-  private int decodeOpt = 1; // 1: Viterbi
+  private String objString = "surprisal,stringprob,viterbi";
   
   @Before
   public void setUp(){    
@@ -102,31 +102,27 @@ public class EarleyParserTest extends TestCase {
     int inGrammarType = 1; // read from grammar
     if(parserOpt==0){
       parser = new EarleyParserDense(ruleFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, insideOutsideOpt);
+          isLogProb, insideOutsideOpt, objString);
     } else if(parserOpt==1){
       parser = new EarleyParserSparse(ruleFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, insideOutsideOpt);
+          isLogProb, insideOutsideOpt, objString);
     } else {
       assert(false);
     }
-    
-    parser.setDecodeOpt(decodeOpt);
   }
   
   private void initParserFromString(String grammarString){
     try {
       if(parserOpt==0){
         parser= new EarleyParserDense(Util.getBufferedReaderFromString(grammarString), 
-            rootSymbol, isScaling, isLogProb, insideOutsideOpt);
+            rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
       } else if(parserOpt==1){    
         parser= new EarleyParserSparse(Util.getBufferedReaderFromString(grammarString), 
-            rootSymbol, isScaling, isLogProb, insideOutsideOpt);
+            rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
-    
-    parser.setDecodeOpt(decodeOpt);
   }
   
   public void testBasic(){
@@ -134,14 +130,10 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "a b";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     
     assertEquals(surprisalList.size(), 2);
     assertEquals(0.0, surprisalList.get(0), 1e-5);
@@ -172,15 +164,11 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "the dog bites a cat";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
+    parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
-        
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
+    
     assertEquals(surprisalList.size(), 5);
     assertEquals(1.9459104490553583, surprisalList.get(0), 1e-5);
     assertEquals(1.9459104490553583, surprisalList.get(1), 1e-5);
@@ -197,7 +185,7 @@ public class EarleyParserTest extends TestCase {
     
     assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n Det: 0.14285710\n N: 0.14285710\n V: 0.14285710\ncell 1-2\n Det: 0.14285710\n N: 0.14285710\n V: 0.14285710\ncell 2-3\n Det: 0.14285710\n N: 0.14285710\n V: 0.14285710\ncell 3-4\n Det: 0.14285710\n N: 0.14285710\n V: 0.14285710\ncell 4-5\n Det: 0.14285710\n N: 0.14285710\n V: 0.14285710\ncell 0-2\n NP: 0.02040815\ncell 2-4\n NP: 0.02040815\ncell 3-5\n NP: 0.02040815\ncell 0-3\n : 0.00058309\n S: 0.00058309\ncell 2-5\n VP: 0.00116618\ncell 0-5\n : 0.00002380\n S: 0.00002380\n");
     
-    if(decodeOpt==1){
+    if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
       assertEquals(tree.toString(), "( (S (NP ( the) ( dog)) (VP ( bites) (NP ( a) ( cat)))))");
     }
@@ -250,15 +238,10 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "a b";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    parser.parseSentence(inputSentence);
     
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -293,14 +276,10 @@ public class EarleyParserTest extends TestCase {
     String inputSentence = sb.toString();
     
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     
     assert(surprisalList.size() == numSymbols);
     
@@ -364,23 +343,16 @@ public class EarleyParserTest extends TestCase {
     String inputSentence = sb.toString();
     
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    parser.parseSentence(inputSentence);
     
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     assert(surprisalList.size() == numSymbols);
     
     // string x: string prob[1] = p, prefix prob[1] = 1.0, surprisal = -log(1)=0
-//    System.err.println(0 + "\tsurprisal " + surprisalList.get(0));
     assertEquals(0, surprisalList.get(0), 1e-10);
     if(!isScaling){
       assert(stringProbList.size()==numSymbols);
-//      System.err.println(0 + "\tstring prob " + stringProbList.get(0));
       assertEquals(p, stringProbList.get(0), 1e-10);
     }
     
@@ -397,8 +369,6 @@ public class EarleyParserTest extends TestCase {
       // prefix prob[i+1] = prefix prob[i]-string prob[i]
       double currentStringProb = (c[2*i][i]/(i+1.0))*Math.pow(p,i+1)*Math.pow(q, i);
       assertEquals(currentStringProb, stringProbList.get(i), 1e-10);
-      
-      
       
       double currentPrefixProb = prevPrefixProb - prevStringProb;
       assertEquals(-Math.log(currentPrefixProb/prevPrefixProb), surprisalList.get(i), 1e-10);
@@ -438,17 +408,13 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "b c";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    parser.parseSentence(inputSentence);
     
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> synSurprisalList = parser.getSynSurprisalList();
+    List<Double> lexSurprisalList = parser.getLexSurprisalList();
+    
+    List<Double> stringProbList = parser.getStringProbList();
   
     assertEquals(surprisalList.size(), 2);
     assertEquals(0.7985076959756138, surprisalList.get(0), 1e-5);
@@ -473,20 +439,16 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "a";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
     
     assertEquals(surprisalList.size(), 1);
     assertEquals(2.3025851249694824, surprisalList.get(0), 1e-5);
     
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    List<Double> synSurprisalList = parser.getSynSurprisalList();
+    List<Double> lexSurprisalList = parser.getLexSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     
     if(!isScaling){
       assertEquals(synSurprisalList.size(), 1);
@@ -502,9 +464,9 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "d e";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -515,13 +477,9 @@ public class EarleyParserTest extends TestCase {
     assertEquals(2.3025851249694824, surprisalList.get(1), 1e-5);
     
     
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    List<Double> synSurprisalList = parser.getSynSurprisalList();
+    List<Double> lexSurprisalList = parser.getLexSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
 
     if(!isScaling){
       assertEquals(synSurprisalList.size(), 2);
@@ -539,9 +497,9 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "d d b c";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
   
     assertEquals(surprisalList.size(), 4);
     assertEquals(0.8649974339457559, surprisalList.get(0), 1e-5);
@@ -549,13 +507,9 @@ public class EarleyParserTest extends TestCase {
     assertEquals(0.17185025338581103, surprisalList.get(2), 1e-5);
     assertEquals(2.052896986215565, surprisalList.get(3), 1e-5);
     
-    List<Double> synSurprisalList = resultLists.get(1);
-    List<Double> lexSurprisalList = resultLists.get(2);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    List<Double> synSurprisalList = parser.getSynSurprisalList();
+    List<Double> lexSurprisalList = parser.getLexSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
 
     if(!isScaling){
       assertEquals(synSurprisalList.toString(), "[0.6418538861723948, 2.9444389791664407, -0.05129329438755048, 1.9475364707998972]");
@@ -592,15 +546,10 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = inputSentences[1];
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
-
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     
     // Note: scores here are slightly different from those of previous version
     // that is because RoarkBaseLexicon.score returns float instead of double
@@ -641,15 +590,10 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "The two young sea-lions took not the slightest interest in our arrival .";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
-
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     
     // Note: scores here are slightly different from those of previous version
     // that is because RoarkBaseLexicon.score returns float instead of double
@@ -693,14 +637,10 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "The two young sea-lions .";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     
     assertEquals(surprisalList.size(), 5);
     assertEquals(3.3767245251434295, surprisalList.get(0), 1e-5);
@@ -730,9 +670,9 @@ public class EarleyParserTest extends TestCase {
     String inputSentence = "b c";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
     
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -754,9 +694,9 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "b c";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -781,14 +721,10 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "b c";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -832,16 +768,11 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "b c d";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
-
+    parser.parseSentence(inputSentence);
     
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
+
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
     }
@@ -880,14 +811,10 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "a b c";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -935,14 +862,10 @@ public class EarleyParserTest extends TestCase {
     
     String inputSentence = "a b c";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
-    List<List<Double>> resultLists = parser.parseSentence(inputSentence);
-    assertEquals(resultLists.size(), 4);
-    List<Double> surprisalList = resultLists.get(0);
-    List<Double> stringLogProbList = resultLists.get(3);
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
     
     // test left-corner closure
     // a = zeros(6,6); a(1,2)=1.0; a(2,3)=0.01; a(3,3)=0.89;a(3,4)=0.11;a(4,3)=0.21;a(4,5)=0.22;

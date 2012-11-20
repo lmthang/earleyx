@@ -19,70 +19,39 @@ import util.RuleFile;
 import util.Util;
 
 /**
- * An implementation of the Stolcke 1995 chart parsing algorithm that calculates the prefix probability
- * of a string S with respect to a probabilistic context-free grammar G.  The prefix probability is defined as the
- * total probability of the set of all trees T such that S is a prefix of T.  As a side effect,
- * the parser also calculates the total probability of S being a complete sentence in G.
- * <p/>
- * <p/>
- * <p/>
- * The intended usage is as follows: a PrefixProbabilityParser is vended by the {@link EarleyParser#getParser()}
- * method of a a {@link EarleyParser} generator instance, which in turn is obtained by training a generator on a collection of context-free trees (see the
- * {@link EarleyParser#getGenerator(edu.stanford.nlp.trees.Treebank, java.lang.String)} method).
- * Then use the {@link #loadSentence(java.util.List)} method to load a sentence (a {@link List} of words (Strings)) into the parser.
- * The parse chart for the string can then be incrementally constructed with the {@link #parseNextWord()} method.
- * At any time, the current prefix probability and string probability of the words parsed so far can be accessed with the
- * {@link #prefixProbability()} and {@link #stringProbability()} methods respectively.  See the source code of the main method
- * of this class for further details of use.
+ * An implementation of the Stolcke 1995 chart parsing algorithm.
  *
- * @author Original code based on Roger Levy
- * @author Minh-Thang Luong 2012
+ * @author Original code based on Roger Levy 2004
+ * @author Rewritten by Minh-Thang Luong 2012 with many other features (see README)
+ * 
  */
 public class Main {
-
-  /* note that we use the following conventions:
- *
- * o in an edge combination, <i,j,k> are the leftmost, center, and rightmost parts of the edge
- * combination.  This is in contrast to Stolcke's usage; he uses <k,j,i>
- *
- * o we always use log-probs
- *
- * o unary rules never get actively involved in the chart parsing, so the result of an (i,i) edge
- * combined with an (i,k) edge must be active, not passive.
- *
- * Another note: because we're not doing bona-fide scanning, we tabulate prefix probabilities
- * a bit unorthodoxly.
- *
- */
-
   public static void printHelp(String[] args, String message){
     System.err.println("! " + message);
-    System.err.println("Main -in inFile -out outPrefix " + "(-grammar grammarFile | -treebank treebankFile) \n" + 
-        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-io opt] [-verbose opt]");
-    // [-leftwildcard] 
-    // [-id indexFileName] 
+    System.err.println("Main -in inFile  -out outPrefix (-grammar grammarFile | -treebank treebankFile) " +
+        "-obj objectives\n" + 
+        "\t[-root rootSymbol] [-io] [-sparse] [-normalprob] [-scale] [-verbose opt]");
     
     // compulsory
     System.err.println("\tCompulsory:");
     System.err.println("\t\t in \t\t input filename, i.e. sentences to parse");
+    System.err.println("\t\t out \t\t output prefix to name output files. ");
     System.err.println("\t\tgrammar|treebank \t\t either read directly from a grammar file or from a treebank." +
     		"For the latter, a grammar file will be output as outPrefix.grammar .");
-    System.err.println("\t\t out \t\t output prefix to name output files");
+    System.err.println("\t\t obj \t\t a comma separated list consitsing of any of the following values: " + 
+        "surprisal, stringprob, viterbi. Default is \"surprisal,stringprob,viterbi\" if -io is not specified, " + 
+        "and \"\" if -io is specified. Output files will be outPrefix.obj .");
     System.err.println();
-    
+
     // optional
     System.err.println("\t Optional:");
     System.err.println("\t\t root \t\t specify the start symbol of sentences (default \"ROOT\")");
+    System.err.println("\t\t io \t\t run inside-outside algorithm, output final grammar to outPrefix.io.grammar");
     System.err.println("\t\t sparse \t\t optimize for sparse grammars (default: run with dense grammars)");
-    System.err.println("\t\t normalprob \t\t if specified, perform numeric computation in normal prob (cf. log-prob). This switch is best to be used with -scale.");
-    System.err.println("\t\t scale \t\t if specified, perform rescaling");
-    System.err.println("\t\t io \t\t if specified, inside-outside: compute outside probabilities to estimate expected rule probabilities. By default, the program compute inner/forward probabilities as well as surprisal values");
+    System.err.println("\t\t normalprob \t\t perform numeric computation in normal prob (cf. log-prob). This switch is best to be used with -scale.");
+    System.err.println("\t\t scale \t\t rescaling approach to parse extremely long sentences");
     System.err.println("\t\t verbose \t\t -1 -- no debug info (default), " + 
         "0: surprisal per word, 1-4 -- increasing more details");
-    
-//    System.err.println("\t\t leftwildcard \t\t if specified, using left wildcard to group edges: " + 
-//        "Earley edges having the same parent and expecting children " +
-//        "(children on the right of the dot) are collapsed into the same edge X -> * . \\alpha");
     
     System.exit(1);
   }
@@ -103,14 +72,15 @@ public class Main {
     flags.put("-out", new Integer(1)); // output prefix name
     flags.put("-grammar", new Integer(1)); // input grammar file
     flags.put("-treebank", new Integer(1)); // input treebank file, mutually exclusive with -grammar
-    flags.put("-root", new Integer(1)); // root symbol
+    flags.put("-obj", new Integer(1)); // objective values
     
     // optional
+    flags.put("-root", new Integer(1)); // root symbol
+    flags.put("-io", new Integer(0)); // inside-outside computation
     flags.put("-id", new Integer(1)); // sentence indices
     flags.put("-sparse", new Integer(0)); // optimize for sparse grammars
     flags.put("-normalprob", new Integer(0)); // normal prob 
-    flags.put("-scale", new Integer(0)); // scaling
-    flags.put("-io", new Integer(1)); // inside-outside computation 
+    flags.put("-scale", new Integer(0)); // scaling 
     flags.put("-verbose", new Integer(1)); 
     
     Map<String, String[]> argsMap = StringUtils.argsToMap(args, flags);
@@ -155,10 +125,25 @@ public class Main {
     /* io opt */
     int insideOutsideOpt = 0;
     if (argsMap.keySet().contains("-io")) {
-      insideOutsideOpt = Integer.parseInt(argsMap.get("-io")[0]);
+      insideOutsideOpt = 1;
+    }
+    
+    /* obj opt */
+    String objString = "";
+    if (argsMap.keySet().contains("-obj")) {
+      objString = argsMap.get("-obj")[0];
+    }
+    if(insideOutsideOpt>0){
+      if(!objString.equals("")){
+        printHelp(args, "! For -io, no need to specify -obj\n");
+      }
+    } else {
+      // default values
+      objString = EarleyParser.SURPRISAL_OBJ + "," + EarleyParser.STRINGPROB_OBJ + "," + EarleyParser.VITERBI_OBJ;
     }
     
     System.err.println("# Root symbol = " + rootSymbol);
+    System.err.println("# Objectives = " + objString);
     System.err.println("# isSparse = " + (parserOpt==1));
     System.err.println("# isLogProb = " + isLogProb);
     System.err.println("# isScaling = " + isScaling);
@@ -237,27 +222,20 @@ public class Main {
     
     if(parserOpt==0){ // dense
       parser = new EarleyParserDense(inGrammarFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, insideOutsideOpt);
+          isLogProb, insideOutsideOpt, objString);
     } else if(parserOpt==1){ // sparse
       parser = new EarleyParserSparse(inGrammarFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, insideOutsideOpt);
+          isLogProb, insideOutsideOpt, objString);
     } else {
       assert(false);
     }
     
     if(inGrammarType==2){
       // save grammar
-      String outGrammarFile = outPrefix + ".grammar"; //argsMap.get("-saveGrammar")[0];
-      System.err.println("Out grammar file = " + outGrammarFile);
+      String outGrammarFile = outPrefix + ".grammar";
       
       try {
         List<ProbRule> allRules = parser.getAllRules();
-        
-        // ignore root rule
-        ProbRule rootRule = parser.getRootRule();
-        assert(allRules.get(0).equals(rootRule));
-        allRules.remove(0);
-        
         RuleFile.printRules(outGrammarFile, allRules, parser.getParserWordIndex(), parser.getParserTagIndex());
       } catch (IOException e) {
         System.err.println("! Main: error printing rules to " + outGrammarFile);
@@ -269,7 +247,16 @@ public class Main {
     /* Parsing */
     /***********/
     try {
-      parser.parseSentences(sentences, indices, outPrefix);
+      if(insideOutsideOpt==0){
+        parser.parseSentences(sentences, indices, outPrefix);
+      } else if(insideOutsideOpt==1){
+        parser.insideOutside(sentences);
+        
+        // output rule prob
+        List<ProbRule> allRules = parser.getAllRules();
+        String outGrammarFile = outPrefix + ".iogrammar"; //argsMap.get("-saveGrammar")[0];
+        RuleFile.printRules(outGrammarFile, allRules, parser.getParserWordIndex(), parser.getParserTagIndex());
+      }
     } catch (IOException e) {
       System.err.println("! Main: error printing output during parsing to outprefix " + outPrefix);
       System.exit(1);

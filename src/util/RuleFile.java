@@ -168,7 +168,12 @@ public class RuleFile {
     System.err.println("# Output rules to file " + (new File(ruleFile)).getAbsolutePath());
     BufferedWriter bw = new BufferedWriter(new FileWriter(ruleFile));
     
-    bw.write(Util.sprint(rules, wordIndex, tagIndex));
+    for(ProbRule rule : rules){
+      if(rule.getProb()>0.0){
+        bw.write(rule.toString(tagIndex, wordIndex) + "\n");
+      }
+    }
+    
     bw.close();
   }
   

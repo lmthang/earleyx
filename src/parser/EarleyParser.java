@@ -1,12 +1,13 @@
 package parser;
 
+import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.ling.Tag;
 import edu.stanford.nlp.ling.Word;
+import edu.stanford.nlp.parser.Parser;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.trees.LabeledScoredTreeNode;
-import edu.stanford.nlp.trees.SimpleTree;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.DoubleList;
 import edu.stanford.nlp.util.HashIndex;
@@ -31,6 +32,7 @@ import base.BackTrack;
 import base.BaseLexicon;
 import base.Edge;
 import base.ProbRule;
+import base.Rule;
 import base.RuleSet;
 import base.TagRule;
 import base.TerminalRule;
@@ -50,7 +52,11 @@ import util.Util;
  * @author Minh-Thang Luong, 2012
  */
 
-public abstract class EarleyParser { 
+public abstract class EarleyParser implements Parser { 
+  public static final String SURPRISAL_OBJ = "surprisal";
+  public static final String STRINGPROB_OBJ = "stringprob";
+  public static final String VITERBI_OBJ = "viterbi";
+  
   protected boolean isScaling = false;
   protected boolean isLogProb = true;
   protected int insideOutsideOpt = 0; // 1: Earley way, 2: traditional way
@@ -137,10 +143,17 @@ public abstract class EarleyParser {
   protected int[][] linear; // convert matrix indices [left][right] into linear indices
   protected int numCells; // numCells==((numWords+2)*(numWords+1)/2)
   
-  protected List<String> words;
-  protected List<Integer> wordIndices;
+  protected List<? extends HasWord> words;
+  protected List<Integer> wordIndices; // indices from parserWordIndex
   protected int numWords = 0;
 
+  /** results **/
+  private Set<String> objectives;
+  protected List<Double> surprisalList;
+  protected List<Double> synSurprisalList;
+  protected List<Double> lexSurprisalList;
+  protected List<Double> stringLogProbList;
+  
   public static int verbose = -1;
   protected static DecimalFormat df = new DecimalFormat("0.000000");
   protected static DecimalFormat df1 = new DecimalFormat("0.00");
@@ -148,12 +161,12 @@ public abstract class EarleyParser {
   
   public EarleyParser(String grammarFile, int inGrammarType, String rootSymbol, 
       boolean isScaling, 
-      boolean isLogProb, int insideOutsideOpt){
+      boolean isLogProb, int insideOutsideOpt, String objString){
     if(inGrammarType==1){ // grammar file
       construct(Util.getBufferedReaderFromFile(grammarFile), rootSymbol, isScaling, 
-          isLogProb, insideOutsideOpt);
+          isLogProb, insideOutsideOpt, objString);
     } else if(inGrammarType==2){ // treebank file
-      preInit(rootSymbol, isScaling, isLogProb, insideOutsideOpt);
+      preInit(rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
       
       Collection<IntTaggedWord> intTaggedWords = new ArrayList<IntTaggedWord>();
       TreeBankFile.processTreebank(grammarFile, ruleSet, intTaggedWords, parserTagIndex, 
@@ -180,22 +193,23 @@ public abstract class EarleyParser {
     }
   }
   public EarleyParser(BufferedReader br, String rootSymbol, boolean isScaling, 
-      boolean isLogProb, int insideOutsideOpt){
-    construct(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt);
+      boolean isLogProb, int insideOutsideOpt, String objString){
+    construct(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
   }
   
   private void construct(BufferedReader br, String rootSymbol, boolean isScaling, 
-      boolean isLogProb, int insideOutsideOpt){
-    preInit(rootSymbol, isScaling, isLogProb, insideOutsideOpt);
+      boolean isLogProb, int insideOutsideOpt, String objString){
+    preInit(rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
     init(br, rootSymbol);
     postInit(rootSymbol);
   }
   // preInit
   private void preInit(String rootSymbol, boolean isScaling, boolean isLogProb, 
-      int insideOutsideOpt){
+      int insideOutsideOpt, String objString){
     this.isScaling = isScaling;
     this.isLogProb = isLogProb;
     this.insideOutsideOpt = insideOutsideOpt;
+    setObjectives(objString); 
     
     if(isLogProb){
       operator = new LogProbOperator();
@@ -221,14 +235,26 @@ public abstract class EarleyParser {
     ruleSet.add(rootRule);
     
     // inside-outside
-    if(insideOutsideOpt == 0){
+    if(insideOutsideOpt>0){
+      expectedCounts = new HashMap<Integer, Double>();
+    }
+    
+    // edgespace
+    if(insideOutsideOpt > 0 || decodeOpt > 0){
+      if(verbose>=0){
+        System.err.println("# Standard EdgeSpace");
+      }
+      edgeSpace = new StandardEdgeSpace(parserTagIndex, parserWordIndex);
+    } else {
+      if(verbose>=0){
+        System.err.println("# Left Wildcard EdgeSpace");
+      }
+      
+      // edgespace
       // Earley edges having the same parent and expecting children 
       // (children on the right of the dot) are collapsed into the same edge X -> * . \\alpha.
       // This speeds up parsing time if we only care about inner/forward probs + surprisal values
       edgeSpace = new LeftWildcardEdgeSpace(parserTagIndex, parserWordIndex);
-    } else {
-      edgeSpace = new StandardEdgeSpace(parserTagIndex, parserWordIndex);
-      expectedCounts = new HashMap<Integer, Double>();
     }
   }
   
@@ -270,6 +296,10 @@ public abstract class EarleyParser {
     // root
     startEdge = edgeSpace.indexOf(rootRule.getEdge());
     goalEdge = edgeSpace.to(startEdge);
+    if(verbose>=3){
+      System.err.println("# Start edge " + edgeSpace.get(startEdge).toString(parserTagIndex, parserWordIndex));
+      System.err.println("# Goal edge " + edgeSpace.get(goalEdge).toString(parserTagIndex, parserWordIndex));
+    }
     
     edgeSpaceSize = edgeSpace.size();
     numCategories = parserTagIndex.size();
@@ -352,53 +382,58 @@ public abstract class EarleyParser {
   public List<Double> parseSentences(List<String> sentences, List<String> indices, 
       String outPrefix) throws IOException {
     assert(sentences.size() == indices.size());
-    BufferedWriter outWriter = outPrefix.equals("") ? null : new BufferedWriter(new FileWriter(outPrefix + ".srprsl"));
-    BufferedWriter synOutWriter = outPrefix.equals("") ? null : new BufferedWriter(new FileWriter(outPrefix + ".SynSp"));
-    BufferedWriter lexOutWriter = outPrefix.equals("") ? null : new BufferedWriter(new FileWriter(outPrefix + ".LexSp"));
-    BufferedWriter stringOutWriter = outPrefix.equals("") ? null : new BufferedWriter(new FileWriter(outPrefix + ".string"));
+    BufferedWriter surprisalWriter = (!outPrefix.equals("") && objectives.contains(SURPRISAL_OBJ)) ? 
+        new BufferedWriter(new FileWriter(outPrefix + "." + SURPRISAL_OBJ)) : null;
+    BufferedWriter stringprobWriter = (!outPrefix.equals("") && objectives.contains(STRINGPROB_OBJ)) ? 
+        new BufferedWriter(new FileWriter(outPrefix + "." + STRINGPROB_OBJ)) : null;
+    BufferedWriter viterbiWriter = (!outPrefix.equals("") && objectives.contains(VITERBI_OBJ)) ? 
+        new BufferedWriter(new FileWriter(outPrefix + "." + VITERBI_OBJ)) : null;
     
     List<Double> sentLogProbs = new ArrayList<Double>();
     for (int i = 0; i < sentences.size(); i++) {
       String sentenceString = sentences.get(i);
       String id = indices.get(i);
-      
+
+      // start
       if(verbose>=0){
         System.err.println("\n### Sent " + i + ": id=" + id + ", "+ sentenceString);
-      
-        // start
         Timing.startTime();
       }
       
-      List<List<Double>> resultLists = parseSentence(sentenceString);
-      assert(resultLists.size() == 4);
-      List<Double> surprisalList = resultLists.get(0);
-      List<Double> synSurprisalList = resultLists.get(1);
-      List<Double> lexSurprisalList = resultLists.get(2);
-      List<Double> stringLogProbList = resultLists.get(3);
-      List<Double> stringProbList = new ArrayList<Double>();
-      for(double logProb : stringLogProbList){
-        stringProbList.add(Math.exp(logProb));
-      }
+      // parse sentence
+      parseSentence(sentenceString);
       sentLogProbs.add(stringLogProbability(numWords));
       
       // end
       if(verbose>=0){
-        Timing.tick("NegLogProb=" + stringLogProbability(numWords) + ". finished parsing sentence. ");
+        Timing.tick("NegLogProb=" + -stringLogProbability(numWords) + ". finished parsing sentence. ");
       }
       
-      if(outWriter != null){ // output
-        outWriter.write("# " + id + "\n");
-        Util.outputSentenceResult(sentenceString, outWriter, surprisalList);
-
-        if(!isScaling){
-          synOutWriter.write("# " + id + "\n");
-          lexOutWriter.write("# " + id + "\n");
-          stringOutWriter.write("# " + id + "\n");
-          Util.outputSentenceResult(sentenceString, synOutWriter, synSurprisalList);
-          Util.outputSentenceResult(sentenceString, lexOutWriter, lexSurprisalList);
-          Util.outputSentenceResult(sentenceString, stringOutWriter, stringProbList);
-        }
+      // output
+      if(surprisalWriter != null){ // surprisal
+        surprisalWriter.write("# " + id + "\n");
+        Util.outputSentenceResult(sentenceString, surprisalWriter, surprisalList);
       }
+      if(stringprobWriter != null){ // string prob
+        stringprobWriter.write("# " + id + "\n");
+        Util.outputSentenceResult(sentenceString, stringprobWriter, getStringProbList());
+      }
+      
+      if(viterbiWriter != null){ // string prob
+        Tree viterbiParse = viterbiParse();
+        viterbiWriter.write(viterbiParse.toString() + "\n");
+      }
+    }
+    
+    // close
+    if(surprisalWriter != null){ // surprisal
+      surprisalWriter.close();
+    }
+    if(stringprobWriter != null){ // stringprob
+      stringprobWriter.close();
+    }
+    if(viterbiWriter != null){ // viterbi
+      viterbiWriter.close();
     }
     
     return sentLogProbs;
@@ -407,26 +442,23 @@ public abstract class EarleyParser {
   /**
    * Parse a single sentence
    * @param sentenceString
-   * @return various values: surprisal, syntactic, lexical, and string probability.
    * 
    * @throws IOException
    */
-  public List<List<Double>> parseSentence(String sentenceString){
-    words = Arrays.asList(sentenceString.split("\\s+"));
-    numWords = words.size();
-    wordIndices = new ArrayList<Integer>();
-    for (String word : words) {
-      wordIndices.add(parserWordIndex.indexOf(word, true));
+  public boolean parseSentence(String sentenceString){
+    List<Word> words = new ArrayList<Word>();
+    for(String token : Arrays.asList(sentenceString.split("\\s+"))){
+      words.add(new Word(token));
     }
-    
-    List<Double> surprisalList = new ArrayList<Double>();
-    List<Double> synSurprisalList = new ArrayList<Double>();
-    List<Double> lexSurprisalList = new ArrayList<Double>();
-    List<Double> stringLogProbList = new ArrayList<Double>();
+    return parse(words);
+  }
+
+  public boolean parse(List<? extends HasWord> words) {
+    this.words = words;
     
     // init
     sentInit();
-        
+    
     /* add "" -> . ROOT */
     addToChart(0, 0, startEdge, operator.one(), operator.one());
     predictAll(0); // start expanding from ROOT
@@ -499,8 +531,9 @@ public abstract class EarleyParser {
       System.err.println(dumpInsideChart());
     }
     
-    if(insideOutsideOpt>0){
-      double rootInnerScore = getInnerScore(0, numWords, goalEdge);
+    // inside-outside    
+    double rootInnerScore = getInnerScore(0, numWords, goalEdge);
+    if(insideOutsideOpt>0 && rootInnerScore>operator.zero()){ 
       if(verbose>=0){
         System.err.println("Root prob: " + operator.getProb(rootInnerScore));
       }
@@ -512,13 +545,7 @@ public abstract class EarleyParser {
       }
     }
     
-    // compile result lists
-    List<List<Double>> resultLists = new ArrayList<List<Double>>();
-    resultLists.add(surprisalList);
-    resultLists.add(synSurprisalList);
-    resultLists.add(lexSurprisalList);
-    resultLists.add(stringLogProbList);
-    return resultLists;
+    return (rootInnerScore>operator.zero());
   }
 
   // print expected rule count to string
@@ -544,21 +571,16 @@ public abstract class EarleyParser {
    */
   public void parseWord(int right) { // 
     //initializeTemporaryProbLists();
-    String word = words.get(right-1);
+    String word = words.get(right-1).word();
     wordInitialize();
     
     /** Scaling factors **/
     if(isScaling){ // scaling
       scalingMatrix[linear[right-1][right]] = operator.inverse(prefixProb[right-1]);
-            
-//      System.err.println("# Scaling [" + (right-1) + "][" + right + "] " + 
-//          operator.getProb(scalingMatrix[linear[right-1][right]]));
-      // scaling matrix for extended rules
+           
       for (int i = 0; i < (right-1); i++) {
         scalingMatrix[linear[i][right]] = operator.multiply(scalingMatrix[linear[i][right-1]], 
             scalingMatrix[linear[right-1][right]]);
-//        System.err.println("# Scaling [" + (i) + "][" + right + "] " + 
-//            operator.getProb(scalingMatrix[linear[i][right]]));
       }
     }
     
@@ -579,7 +601,7 @@ public abstract class EarleyParser {
       scanning(right-1, right, itw.tag(), score);
     }
 
-    /** Handle extended rules **/
+    /** Handle multi terminal rules **/
     if(ruleSet.hasMultiTerminalRule()){
       for (int i = right-2; i >= 0; --i) {
         // find all rules that rewrite into word_i ... word_(right-1)
@@ -627,16 +649,17 @@ public abstract class EarleyParser {
    * @param edge
    * @param inner
    */
-  protected void scanning(int left, int right, int tag, double inner){
+  protected void scanning(int left, int right, int tag, double score){
     if(verbose>=1){
       System.err.println("# Scanning [" + left + ", " + right + "]: "
           + parserTagIndex.get(tag) + "->" + 
-          words.subList(left, right) + " : " + operator.getProb(inner));
+          words.subList(left, right) + " : " + operator.getProb(score));
     }
     
     // scaling
+    double inner = score;
     if(isScaling){ 
-      inner = operator.multiply(inner, scalingMatrix[linear[left][right]]);
+      inner = operator.multiply(score, scalingMatrix[linear[left][right]]);
     }
    
     int edge = edgeSpace.indexOfTag(tag);
@@ -658,10 +681,12 @@ public abstract class EarleyParser {
             + edgeSpace.get(edge).toString(parserTagIndex, parserWordIndex));
       }
       
-//      Rule rule = terminalEdge.getRule();
-//      if(!ruleSet.contains(rule)){
-//        System.err.println("Rule " + (new ProbRule(rule, operator.getProb(inner))).toString(parserTagIndex, parserWordIndex));
-//      }
+      Rule rule = terminalEdge.getRule();
+      if(!ruleSet.contains(rule)){
+        ProbRule probRule = new ProbRule(rule, operator.getProb(score));
+        ruleSet.add(probRule);
+        System.err.println("Add ProbRule " + probRule.toString(parserTagIndex, parserWordIndex));
+      }
       
       // inside-outside
       if(insideOutsideOpt==2){
@@ -831,7 +856,7 @@ public abstract class EarleyParser {
   }
 
   public Tree viterbiParse(int left, int right, int edge){
-    if(verbose>=0){
+    if(verbose>=3){
       System.err.println("# Viterbi parse " + edgeInfo(left, right, edge));
     }
 
@@ -840,15 +865,15 @@ public abstract class EarleyParser {
     Label motherLabel = new Tag(parserTagIndex.get(edgeObj.getMother()));
     
     Tree returnTree = null;
-    if(edgeObj.getDot()==0){
+    if(edgeObj.getDot()==0 && edgeObj.numChildren()>0){ // X -> . \alpha
       returnTree = new LabeledScoredTreeNode(motherLabel);
-    } else if(edgeObj.isTerminalEdge()){ // X -> _w1 ... _wn
+    } else if(edgeObj.numChildren() == 0){ // tag -> [], edgeObj.isTerminalEdge()){ // X -> _w1 ... _wn
       List<Tree> daughterTreesList = new ArrayList<Tree>();
       for (int i = left; i < right; i++) {
-        daughterTreesList.add(new LabeledScoredTreeNode(new Word(words.get(i))));
+        daughterTreesList.add(new LabeledScoredTreeNode(new Word(words.get(i).word())));
       }
       
-      returnTree = new SimpleTree(motherLabel, daughterTreesList);
+      returnTree = new LabeledScoredTreeNode(motherLabel, daughterTreesList);
     } else { // X -> \alpha Y . \beta
       assert(edge==goalEdge || edgeObj.numChildren()>1);
       BackTrack backtrack = backtrackChart.get(linear[left][right]).get(edge);
@@ -866,6 +891,9 @@ public abstract class EarleyParser {
       returnTree.addChild(nextTree);
     }
     
+    if(verbose>=3){
+      System.err.println("[" + left + ", " + right + "] " + returnTree);
+    }
     return returnTree;
   }
   
@@ -1219,6 +1247,18 @@ public abstract class EarleyParser {
       System.err.println("# EarleyParser initializing ... ");
     }
     
+    // words
+    if(words == null || words.size()==0){
+      System.err.println("! Empty sentence");
+      System.exit(1);
+    }
+    
+    numWords = words.size();
+    wordIndices = new ArrayList<Integer>();
+    for (HasWord word : words) {
+      wordIndices.add(parserWordIndex.indexOf(word.word(), true));
+    }
+    
     // map matrix indices [left][right] into linear indices
     linear = new int[numWords+1][numWords+1];
     // go in the order of CKY parsing
@@ -1259,6 +1299,13 @@ public abstract class EarleyParser {
         outsideChart = null; // will initialize after computing outside probs
       }
     } 
+    
+    // result lists
+    surprisalList = new ArrayList<Double>();
+    synSurprisalList = new ArrayList<Double>();
+    lexSurprisalList = new ArrayList<Double>();
+    stringLogProbList = new ArrayList<Double>();
+    
     
     // Decode
     if(decodeOpt==1){ // Viterbi parse  
@@ -1358,32 +1405,7 @@ public abstract class EarleyParser {
     + ", inside=" + df.format(operator.getProb(inner))  
     + " -> completions: " + Util.sprint(completions, edgeSpace, parserTagIndex, parserWordIndex, operator);
   }
-  /**
-   * getters
-   */
-  public BaseLexicon getLexicon(){
-    return lex;
-  }
-  public Grammar getGrammar(){
-    return g;
-  }
   
-  public Index<String> getParserWordIndex() {
-    return parserWordIndex;
-  }
-  public Index<String> getParserTagIndex() {
-    return parserTagIndex;
-  }
-  public ProbRule getRootRule() {
-    return rootRule;
-  }
-  public List<ProbRule> getAllRules(){
-    return ruleSet.getAllRules();
-  }
-  
-  public void setDecodeOpt(int decodeOpt) {
-    this.decodeOpt = decodeOpt;
-  }
   
   public List<Double> insideOutside(List<String> sentences){
     int minIteration = 1;
@@ -1397,7 +1419,7 @@ public abstract class EarleyParser {
     double prevSumNegLogProb = Double.POSITIVE_INFINITY;
     while(true){
       numIterations++;
-      if(verbose>=0){
+      if(verbose>=3){
         System.err.println(ruleSet.toString(parserTagIndex, parserWordIndex));
       }
       
@@ -1412,7 +1434,7 @@ public abstract class EarleyParser {
       // update rule probs
       int numRules = updateRuleset(minRuleProb);
 
-      if(verbose>=0){
+      if(verbose>=-1){
         System.err.println("# iteration " + numIterations + ", numRules=" + numRules 
             + ", sumNegLogProb = " + sumNegLogProb);
       }
@@ -1439,7 +1461,7 @@ public abstract class EarleyParser {
       // convergence test
       if(numIterations>=minIteration && numRules==prevNumRules){
         if(maxIteration>0 && numIterations>=maxIteration){ // exceed max iterations
-          if(verbose>=0){
+          if(verbose>=3){
             System.err.println("# Exceed number of iterations " + maxIteration + ", stop");
           }
           
@@ -1565,6 +1587,67 @@ public abstract class EarleyParser {
         }
       }
     }
+  }
+  
+  /**
+   * Getters & Setters
+   */
+  protected void setObjectives(String objString) {
+    objectives = new HashSet<String>();
+    for(String objective : objString.split(",")){
+      objectives.add(objective);
+    }
+    
+    if(objectives.contains("viterbi")){
+      decodeOpt = 1;
+    }
+  }
+  
+  public BaseLexicon getLexicon(){
+    return lex;
+  }
+  public Grammar getGrammar(){
+    return g;
+  }
+  public Index<String> getParserWordIndex() {
+    return parserWordIndex;
+  }
+  public Index<String> getParserTagIndex() {
+    return parserTagIndex;
+  }
+  public ProbRule getRootRule() {
+    return rootRule;
+  }
+  public List<ProbRule> getAllRules(){
+    List<ProbRule> allRules = ruleSet.getAllRules();
+    if(allRules.get(0).equals(rootRule)==true){ // remove root rule
+      return allRules.subList(1, allRules.size());
+    } else {
+      return allRules;
+    }
+  }
+  public List<Double> getSurprisalList() {
+    return surprisalList;
+  }
+  public List<Double> getSynSurprisalList() {
+    return synSurprisalList;
+  }
+  public List<Double> getLexSurprisalList() {
+    return lexSurprisalList;
+  }
+  public List<Double> getStringLogProbList() {
+    return stringLogProbList;
+  }
+  public List<Double> getStringProbList() {
+    List<Double> stringProbList = new ArrayList<Double>();
+    for(double logProb : stringLogProbList){
+      stringProbList.add(Math.exp(logProb));
+    }
+    
+    return stringProbList;
+  }
+  public int getDecodeOpt() {
+    return decodeOpt;
   }
 }
 
