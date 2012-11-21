@@ -57,8 +57,8 @@ public abstract class EarleyParser implements Parser {
   public static final String STRINGPROB_OBJ = "stringprob";
   public static final String VITERBI_OBJ = "viterbi";
   
-  protected boolean isScaling = false;
-  protected boolean isLogProb = true;
+  protected boolean isScaling = true;
+  protected boolean isLogProb = false;
   protected int insideOutsideOpt = 0; // 1: Earley way, 2: traditional way
   protected int decodeOpt = 0; // 1: Viterbi (Label Tree), 2: Label Recall
 
@@ -241,15 +241,8 @@ public abstract class EarleyParser implements Parser {
     
     // edgespace
     if(insideOutsideOpt > 0 || decodeOpt > 0){
-      if(verbose>=0){
-        System.err.println("# Standard EdgeSpace");
-      }
       edgeSpace = new StandardEdgeSpace(parserTagIndex, parserWordIndex);
     } else {
-      if(verbose>=0){
-        System.err.println("# Left Wildcard EdgeSpace");
-      }
-      
       // edgespace
       // Earley edges having the same parent and expecting children 
       // (children on the right of the dot) are collapsed into the same edge X -> * . \\alpha.
@@ -388,7 +381,9 @@ public abstract class EarleyParser implements Parser {
         new BufferedWriter(new FileWriter(outPrefix + "." + STRINGPROB_OBJ)) : null;
     BufferedWriter viterbiWriter = (!outPrefix.equals("") && objectives.contains(VITERBI_OBJ)) ? 
         new BufferedWriter(new FileWriter(outPrefix + "." + VITERBI_OBJ)) : null;
-    
+    BufferedWriter viterbiPrettyWriter = (!outPrefix.equals("") && objectives.contains(VITERBI_OBJ)) ? 
+        new BufferedWriter(new FileWriter(outPrefix + "." + VITERBI_OBJ + ".pretty")) : null; // pretty print
+            
     List<Double> sentLogProbs = new ArrayList<Double>();
     for (int i = 0; i < sentences.size(); i++) {
       String sentenceString = sentences.get(i);
@@ -422,6 +417,7 @@ public abstract class EarleyParser implements Parser {
       if(viterbiWriter != null){ // string prob
         Tree viterbiParse = viterbiParse();
         viterbiWriter.write(viterbiParse.toString() + "\n");
+        viterbiPrettyWriter.write("# " + id + "\n" + viterbiParse.pennString() + "\n");
       }
     }
     
@@ -434,6 +430,7 @@ public abstract class EarleyParser implements Parser {
     }
     if(viterbiWriter != null){ // viterbi
       viterbiWriter.close();
+      viterbiPrettyWriter.close();
     }
     
     return sentLogProbs;
@@ -498,9 +495,9 @@ public abstract class EarleyParser implements Parser {
           surprisalList.add(-Math.log(prefixProbabilityRatio));
           
           // syntatic/lexical surprisals
-  //        double synPrefixProbability = getSynPrefixProb(right);
-  //        synSurprisalList.add(-Math.log(synPrefixProbability/lastProbability));
-  //        lexSurprisalList.add(-Math.log(prefixProbability/synPrefixProbability));
+          double synPrefixProbability = getSynPrefixProb(right);
+          synSurprisalList.add(-Math.log(synPrefixProbability/lastProbability));
+          lexSurprisalList.add(-Math.log(prefixProbability/synPrefixProbability));
   
           if(verbose>=0){
             sb.append("Prefix probability: " + prefixProbability + "\n" +
@@ -685,7 +682,10 @@ public abstract class EarleyParser implements Parser {
       if(!ruleSet.contains(rule)){
         ProbRule probRule = new ProbRule(rule, operator.getProb(score));
         ruleSet.add(probRule);
-        System.err.println("Add ProbRule " + probRule.toString(parserTagIndex, parserWordIndex));
+   
+        if(verbose>=3){
+          System.err.println("Add ProbRule " + probRule.toString(parserTagIndex, parserWordIndex));
+        }
       }
       
       // inside-outside
@@ -851,8 +851,15 @@ public abstract class EarleyParser implements Parser {
 //    }
 //  }
   
+  public boolean hasParse(){
+    return (numWords>0 && sentLogProb()>Double.NEGATIVE_INFINITY);
+  }
   public Tree viterbiParse(){
-    return viterbiParse(0, numWords, goalEdge);
+    if(hasParse()){
+      return viterbiParse(0, numWords, goalEdge);
+    } else {
+      return null;
+    }
   }
 
   public Tree viterbiParse(int left, int right, int edge){
@@ -867,7 +874,7 @@ public abstract class EarleyParser implements Parser {
     Tree returnTree = null;
     if(edgeObj.getDot()==0 && edgeObj.numChildren()>0){ // X -> . \alpha
       returnTree = new LabeledScoredTreeNode(motherLabel);
-    } else if(edgeObj.numChildren() == 0){ // tag -> [], edgeObj.isTerminalEdge()){ // X -> _w1 ... _wn
+    } else if(edgeObj.isTerminalEdge()){ // X -> _w1 ... _wn
       List<Tree> daughterTreesList = new ArrayList<Tree>();
       for (int i = left; i < right; i++) {
         daughterTreesList.add(new LabeledScoredTreeNode(new Word(words.get(i).word())));
@@ -1376,6 +1383,10 @@ public abstract class EarleyParser implements Parser {
     }
     
     return logProb;
+  }
+  
+  public double sentLogProb(){
+    return stringLogProbability(numWords);
   }
   
   protected boolean isGoalEdge(int edge){

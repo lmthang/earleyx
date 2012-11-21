@@ -28,8 +28,8 @@ public class EarleyParserTest extends TestCase {
   private String rootSymbol = "ROOT";
   private int parserOpt = 1; // 0: dense, 1: sparse, 2: sparse IO
   private boolean isScaling = true; // 
-  private boolean isLogProb = true; 
-  private int insideOutsideOpt = 1; // false; //          
+  private boolean isLogProb = false; 
+  private int insideOutsideOpt = 0; // false; //          
   private String objString = "surprisal,stringprob,viterbi";
   
   @Before
@@ -143,6 +143,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(stringProbList.size(), 2);
     assertEquals(0.0, stringProbList.get(0), 1e-5);
     assertEquals(1.0, stringProbList.get(1), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (ROOT (A a) (B b)))");
+    }
   }
   
   public void testExtendedGrammarIO(){
@@ -187,7 +193,7 @@ public class EarleyParserTest extends TestCase {
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
-      assertEquals(tree.toString(), "( (S (NP ( the) ( dog)) (VP ( bites) (NP ( a) ( cat)))))");
+      assertEquals(tree.toString(), "( (S (NP (Det the) (N dog)) (VP (V bites) (NP (Det a) (N cat)))))");
     }
     
     if(insideOutsideOpt>0){
@@ -254,6 +260,14 @@ public class EarleyParserTest extends TestCase {
     assertEquals(stringProbList.size(), 2);
     assertEquals(0.0, stringProbList.get(0), 1e-5);
     assertEquals(1.0, stringProbList.get(1), 1e-5);
+    
+
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (X (A a) (B b)))");
+    }
+    
   }
   
   public String getLeftInfiniteGrammar(double p){
@@ -432,6 +446,11 @@ public class EarleyParserTest extends TestCase {
     
     assertEquals(stringProbList.toString(), "[0.0, 0.405]");
     
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (A (B b) (C c)))");
+    }
   }
   
   public void testParsing2(){
@@ -490,6 +509,12 @@ public class EarleyParserTest extends TestCase {
     
     assertEquals(stringProbList.toString(), "[0.0, 0.04000000000000001]");
     
+
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (A (D d) (B e)))");
+    }
   }
   
   public void testRecursiveGrammarIO(){
@@ -531,20 +556,19 @@ public class EarleyParserTest extends TestCase {
       assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n D: 0.00216000\ncell 1-2\n D: 0.00216000\ncell 2-3\n B: 0.00216000\ncell 3-4\n C: 0.00192000\ncell 1-3\n A: 0.00360000\ncell 2-4\n A: 0.00160000\ncell 0-3\n A: 0.04500000\ncell 1-4\n A: 0.04000000\ncell 0-4\n : 1.00000000\n A: 1.00000000\n");
       assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n1.000000 ROOT->[A]\n1.000000 A->[B C]\n2.000000 A->[D B]\n2.000000 B->[A]\n1.000000 B->[_b]\n1.000000 C->[_c]\n2.000000 D->[_d]\n");
     }
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (A (D d) (A (A (D d) (B b)) (C c))))");
+    }
   }
   
   
   public void testWSJ500AG(){
     initParserFromFile(wsj500AG);
     
-    int numSentences = 4;
-    String[] inputSentences = new String[numSentences];
-    inputSentences[0] = "Are tourists enticed by these attractions threatening their very existence ?";
-    inputSentences[1] = "The two young sea-lions took not the slightest interest in our arrival .";
-    inputSentences[2] = "A little further on were the blue-footed boobies , birds with brilliant china-blue feet , again unique .";
-    inputSentences[3] = "It was late afternoon on one of the last days of the year , and we had come ashore to scramble round the rough dark lava rocks of Punta Espinosa on the island .";
-    
-    String inputSentence = inputSentences[1];
+    String inputSentence = "The two young sea-lions took not the slightest interest in our arrival .";
     System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
     parser.parseSentence(inputSentence);
     
@@ -583,6 +607,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(0.0, stringProbList.get(10), 1e-5);
     assertEquals(2.4430738209264177E-31, stringProbList.get(11), 1e-5);
     assertEquals(2.267542490039142E-31, stringProbList.get(12), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (S (NP (DT The) (CD two)) (ADJP (JJ young) (PP sea-lions)) (VP (VBD took) (RB not) (NP (DT the) (NNP slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NNS arrival)))) (. .)))");
+    }
   }
   
   public void testWSJ500IO(){
@@ -627,6 +657,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(3.405533303307524E-33, stringProbList.get(11), 1e-5);
     assertEquals(1.8818812758090438E-33, stringProbList.get(12), 1e-5);
     
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (S (NP (DT The) (CD two) (JJ young) (NNS sea-lions)) (VP (VBD took) (RB not) (NP (NP (DT the) (NN slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NN arrival))))) (. .)))");
+    }
+    
     if(insideOutsideOpt>0){
       assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n0.000047 ROOT->[ADJP]\n0.000290 ROOT->[SINV]\n0.000488 ROOT->[X]\n0.998773 ROOT->[S]\n0.000000 ROOT->[SQ]\n0.000096 ROOT->[NP]\n0.000302 ROOT->[FRAG]\n0.000004 ROOT->[SBARQ]\n0.000000 WHPP->[IN WHNP]\n0.000488 X->[NP PP .]\n0.001412 NX->[NN NN]\n0.003223 NX->[NN]\n0.000073 NX->[VBG NN]\n0.000030 NX->[NNP NN]\n0.000111 NX->[NNP]\n0.000335 NX->[NNS]\n0.000000 S->[NP , ADVP , VP .]\n0.000000 S->[S VP]\n0.001259 S->[NP ADVP VP .]\n0.000000 S->[S : S : S .]\n0.000000 S->[ADVP , NP VP .]\n0.000000 S->[PP ADVP NP VP]\n0.000023 S->[VP .]\n0.000000 S->[VP ,]\n0.000000 S->[S , S]\n0.000015 S->[NP ADVP VP]\n0.000000 S->[NP , NP VP .]\n0.001566 S->[NP ADJP]\n0.000205 S->[NP ADVP]\n0.000031 S->[NP VP S]\n0.000390 S->[NP NP]\n0.012594 S->[NP VP]\n0.002583 S->[NP PP]\n0.000000 S->[SBAR PRN NP VP .]\n0.003361 S->[NP ADJP VP .]\n0.000008 S->[NP NP VP]\n0.968799 S->[NP VP .]\n0.001547 S->[NP]\n0.002271 S->[VP]\n0.000026 S->[VP PP]\n0.000126 S->[ADJP]\n0.000000 S->[NP VP :]\n0.004123 S->[ADVP NP VP .]\n0.000000 S->[ADVP , NP VP]\n0.000015 S->[S CC S .]\n0.000039 S->[ADVP VP]\n0.000004 S->[: VP]\n0.000000 S->[`` NP '' VP]\n0.000434 S->[S : S .]\n0.000000 S->[NP VP ,]\n0.000000 S->[PP VP]\n0.000000 S->[CC ADVP NP ADVP VP .]\n0.000000 S->[SBAR , NP ADVP VP .]\n0.000001 S->[S : S]\n0.000000 S->[-LRB- VP -RRB-]\n0.000000 S->[SBAR , NP VP]\n0.000597 S->[ADVP NP VP]\n0.000000 S->[NP VBZ ADVP ADVP VP]\n0.000000 S->[CC NP VP .]\n0.000005 S->[PP NP VP .]\n0.000002 S->[`` VP]\n0.001152 S->[NP NP VP .]\n0.000121 S->[S NP VP .]\n0.000000 S->[CC NP VP]\n0.000000 S->[S , NP PP VP .]\n0.000167 S->[: VP .]\n0.000000 S->[CC NP ADVP VP]\n0.000000 S->[`` NP VP .]\n0.000000 S->[S , NP VP .]\n0.000085 S->[S VP .]\n0.000000 S->[S NP VP]\n0.000004 S->[NP `` VP]\n0.000011 S->[NP PP VP .]\n0.000001 S->[NP : VP]\n0.019368 S->[NP VP PP .]\n0.000000 S->[NP PP VP]\n0.000001 S->[S CC S]\n0.000000 S->[SBAR , NP VP .]\n0.000024 NP->[DT NNP]\n0.000000 NP->[`` S '']\n0.000046 NP->[NNP]\n0.000415 NP->[PRP]\n0.000011 NP->[DT VBG]\n0.000000 NP->[NP CC NP POS]\n0.000021 NP->[DT RB]\n0.000325 NP->[DT NNS]\n0.000017 NP->[NNPS]\n0.002377 NP->[DT]\n0.000001 NP->[NP CC NP .]\n0.008986 NP->[NN]\n0.000581 NP->[CD]\n0.022386 NP->[DT CD]\n0.000108 NP->[JJ]\n0.000064 NP->[DT NNPS]\n0.000133 NP->[DT JJ]\n0.031463 NP->[DT NN]\n0.000000 NP->[DT ADJP QP]\n0.000002 NP->[NP : NP .]\n0.000003 NP->[VBZ]\n0.000132 NP->[NNS]\n0.000093 NP->[DT JJR]\n0.000005 NP->[VBG]\n0.007624 NP->[RB]\n0.000070 NP->[PDT]\n0.000090 NP->[JJS]\n0.000700 NP->[DT JJS]\n0.000390 NP->[EX]\n0.000026 NP->[RBR]\n0.000036 NP->[JJR]\n0.000068 NP->[S]\n0.000025 NP->[ADJP]\n0.058329 NP->[DT JJS NN]\n0.001257 NP->[QP]\n0.000030 NP->[DT ADJP NNS]\n0.000001 NP->[ADVP NNP NN]\n0.012646 NP->[DT ADJP NN]\n0.000001 NP->[DT NNS S]\n0.000011 NP->[JJR NN]\n0.000005 NP->[NP PRP$ NNS]\n0.000656 NP->[JJ NN]\n0.000028 NP->[JJ NNP]\n0.001610 NP->[JJ NNS]\n0.000000 NP->[JJ NNS SBAR]\n0.000260 NP->[NN NN]\n0.000022 NP->[NP NNP NN]\n0.000588 NP->[DT NP]\n0.000164 NP->[DT ADJP]\n0.010578 NP->[ADVP DT NN]\n0.000000 NP->[ADJP VBN NN]\n0.000000 NP->[NP `` NP '']\n0.001460 NP->[DT NX]\n0.000011 NP->[NP : NP]\n0.000000 NP->[NP : S]\n0.000000 NP->[NP : PP]\n0.000000 NP->[NN S]\n0.000001 NP->[DT ADJP JJ NN]\n0.000000 NP->[NP : SBARQ]\n0.004610 NP->[DT VBG NN]\n0.000007 NP->[NP NNS]\n0.000002 NP->[DT ADJP NN NN]\n0.000042 NP->[NP , NP]\n0.000001 NP->[NP , VP]\n0.000000 NP->[NP , SBAR]\n0.000000 NP->[NP , PP]\n0.002961 NP->[NP ADJP]\n0.000001 NP->[NNS NN]\n0.003616 NP->[NP NP]\n0.000016 NP->[NP S]\n0.000363 NP->[NP SBAR]\n0.001289 NP->[NP VP]\n0.000000 NP->[NP QP]\n0.442874 NP->[NP PP]\n0.000000 NP->[NP , ADVP]\n0.000000 NP->[NP PRN]\n0.000308 NP->[NP NX]\n0.000003 NP->[JJ NX]\n0.000029 NP->[CD NN]\n0.000203 NP->[DT NNS NN]\n0.346680 NP->[RB DT JJ NN]\n0.000000 NP->[NP , NP ,]\n0.000101 NP->[NP CC NP]\n0.000052 NP->[QP NN]\n0.000000 NP->[NP , VP ,]\n0.008702 NP->[RB DT]\n0.000000 NP->[`` S]\n0.003775 NP->[NP NN NN]\n0.000077 NP->[DT NN S]\n0.000020 NP->[DT NN SBAR]\n0.000000 NP->[NP , SBAR ,]\n0.000000 NP->[`` ADJP]\n0.000001 NP->[NP NN S]\n0.000003 NP->[NP JJ ADJP NN]\n0.018218 NP->[QP JJ NNS]\n0.000000 NP->[NP NP , ADVP]\n0.000000 NP->[NP : NP : NP .]\n0.186913 NP->[DT JJ NN]\n0.002243 NP->[DT CD NN]\n0.006928 NP->[NP JJ NN]\n0.000000 NP->[NNS S]\n0.005771 NP->[NP JJ NNS]\n0.000001 NP->[NP NNP]\n0.000000 NP->[NP PP , PP]\n0.000000 NP->[NP PP , SBAR]\n0.000000 NP->[NP PP , VP]\n0.041631 NP->[NP NN]\n0.000000 NP->[NP PP POS]\n0.000000 NP->[NP PP '']\n0.000024 NP->[NP CD NN]\n0.000446 NP->[CD JJ NNS]\n0.000019 NP->[NP VP PP]\n0.000001 NP->[JJ NN SBAR .]\n0.000001 NP->[NP VP :]\n0.000000 NP->[NP , NP , SBAR]\n0.000306 NP->[NP NP PP]\n0.003378 NP->[DT NNP NN]\n0.000011 NP->[ADVP QP]\n0.000004 NP->[VBG NN]\n0.000001 NP->[QP NX]\n0.000000 NP->[NP NNS S]\n0.286342 NP->[DT NN NN]\n0.000243 NP->[ADJP JJ NN]\n0.000000 NP->[NP CC ADVP NP]\n0.000005 NP->[PDT NP]\n0.000000 NP->[DT ADJP , ADJP NN]\n0.000000 NP->[DT ADJP VBN NN]\n0.017499 NP->[DT JJR NN]\n0.000030 NP->[ADJP NN]\n0.000062 NP->[ADJP NNS]\n0.000000 NP->[NP : NP : NP]\n0.000000 NP->[NP , NP CC NP]\n0.014341 NP->[RB DT NN]\n0.000000 NP->[NP '' PP]\n0.000013 NP->[NP '' NX]\n0.050577 NP->[PRP$ NNS]\n0.842617 NP->[PRP$ NN]\n0.005377 NP->[RB DT ADJP]\n0.103520 NP->[PRP$ JJ]\n0.000000 NP->[JJ NN SBAR]\n0.000015 NP->[VBN NN]\n0.000000 NP->[NP PP PP PP]\n0.000302 NP->[NP ADJP NNS]\n0.000000 NP->[NP PRN PP]\n0.000000 NP->[NP PRN SBAR]\n0.000000 NP->[NP PRN :]\n0.628504 NP->[DT CD JJ NNS]\n0.328455 NP->[DT CD JJ NN]\n0.000391 NP->[NP ADJP NN]\n0.005518 NP->[DT VBN NN]\n0.000000 NP->[NP PP ADVP]\n0.003400 NP->[PRP$ NX]\n0.000000 NP->[NP PP SBAR]\n0.000000 NP->[NP PP VP]\n0.000039 NP->[NP PP PP]\n0.000001 NP->[NNP NN]\n0.000004 NP->[NP PP NP]\n0.000000 NP->[NP PP S]\n0.019795 QP->[DT CD]\n0.000000 PP->[TO NP NP]\n0.000006 PP->[TO NP PP]\n0.000000 PP->[PP CC PP]\n0.000013 PP->[VBN NP]\n0.000000 PP->[IN PP]\n0.978595 PP->[IN NP]\n0.000188 PP->[IN S]\n0.000009 PP->[IN SBAR]\n0.000008 PP->[VBG NP]\n0.016505 PP->[NP IN NP]\n0.000000 PP->[PP CC ADJP NP]\n0.000001 PP->[IN ADJP]\n0.000000 PP->[PP PP NP]\n0.002140 PP->[ADVP IN NP]\n0.000000 PP->[IN ADVP]\n0.000000 PP->[IN NP '' PP]\n0.000263 PP->[JJ NP]\n0.000000 PP->[NP RB PP]\n0.000000 PP->[JJ IN NP]\n0.000057 PP->[IN]\n0.000000 PP->[IN NP CC NP]\n0.000000 PP->[VBG PP]\n0.000001 PP->[ADVP IN S]\n0.000156 PP->[RB PP]\n0.000484 PP->[RB]\n0.000137 PP->[TO NP]\n0.000014 PP->[PP PP]\n0.000000 PP->[JJ TO NP]\n0.000156 PP->[FW NP]\n0.000011 PP->[JJ IN S]\n0.000000 PP->[PP ADVP]\n0.000000 SBAR->[WHPP S]\n0.000000 SBAR->[WHNP S ,]\n0.005407 SBAR->[S]\n0.000123 SBAR->[WHNP S]\n0.000025 SBAR->[ADVP IN S]\n0.004388 SBAR->[RB S]\n0.000085 SBAR->[DT S]\n0.000322 SBAR->[IN S]\n0.000029 SBAR->[NP IN S]\n0.000044 SBAR->[WHADVP S]\n0.000011 SBAR->[SINV]\n0.000000 SBAR->[SBAR CC SBAR]\n0.000000 SBAR->[PP IN S]\n0.000000 VP->[VBG NP SBAR]\n0.000063 VP->[VBG NP PP]\n0.000000 VP->[VBG NP NP]\n0.000000 VP->[ADVP VBG]\n0.000000 VP->[VBG NP VP]\n0.000000 VP->[VBZ ADJP S]\n0.000000 VP->[VP CC VP , SBAR]\n0.000000 VP->[VBG NP S]\n0.000001 VP->[VBG NP ADVP]\n0.000000 VP->[VBZ ADJP ADVP]\n0.000803 VP->[VB NP]\n0.000015 VP->[VB NP ADVP]\n0.000055 VP->[VB S]\n0.000000 VP->[VB NP ADJP]\n0.000003 VP->[ADVP VBD]\n0.000002 VP->[VB PP]\n0.000000 VP->[VB NP PRT PP]\n0.000005 VP->[VB SBAR]\n0.000292 VP->[VB VP]\n0.000126 VP->[VBD NP PP PP]\n0.001366 VP->[VB NP PP]\n0.000000 VP->[VB NP SBAR]\n0.000000 VP->[VB NP VP]\n0.000000 VP->[VB NP NP]\n0.000000 VP->[VB NP S]\n0.000000 VP->[VBD NP PP S]\n0.000000 VP->[NNP]\n0.000079 VP->[VBD]\n0.000000 VP->[VBG PP]\n0.000001 VP->[VBG ADJP]\n0.000014 VP->[VBZ]\n0.000000 VP->[VBG ADVP]\n0.000004 VP->[VBG]\n0.002014 VP->[TO VP]\n0.000025 VP->[ADVP VB NP PP]\n0.000027 VP->[VB]\n0.000027 VP->[VBN]\n0.000000 VP->[VBZ NP , SBAR]\n0.000002 VP->[MD]\n0.000013 VP->[VBP]\n0.000000 VP->[VBZ NP , S]\n0.000005 VP->[VBG SBAR]\n0.000173 VP->[ADJP]\n0.000010 VP->[VBG VP]\n0.000000 VP->[VBP PP NP]\n0.000033 VP->[VBG NP]\n0.000045 VP->[VBG S]\n0.000000 VP->[VBG NP , ADVP]\n0.000004 VP->[VP CC VP PP]\n0.000000 VP->[ADVP VBZ NP]\n0.000000 VP->[VP CC VP NP]\n0.000000 VP->[VB NP ADVP ADVP]\n0.000261 VP->[ADVP VBD NP PP]\n0.000000 VP->[VBG PP PP]\n0.078066 VP->[VBD NP]\n0.000000 VP->[VBD NP , PP]\n0.000000 VP->[VBD NP , SBAR]\n0.000458 VP->[VBD VP]\n0.006939 VP->[VBD S]\n0.000162 VP->[VBD S NP PP]\n0.000000 VP->[VB PP ADVP]\n0.002485 VP->[VBD ADVP]\n0.000000 VP->[VBD S NP SBAR]\n0.000001 VP->[ADVP VBN]\n0.000000 VP->[VB PP SBAR]\n0.002598 VP->[VBD PP]\n0.008775 VP->[VBD SBAR]\n0.000000 VP->[VB S , S]\n0.000000 VP->[VB PP PP]\n0.001854 VP->[VBD ADJP]\n0.000000 VP->[VBD NP ,]\n0.042466 VP->[VBD ADJP NP PP]\n0.104009 VP->[VBD PRT NP PP]\n0.000000 VP->[VBD NP PP PP PP]\n0.000000 VP->[ADVP VBG NP]\n0.000001 VP->[VBD S S]\n0.000000 VP->[MD ADVP ADVP VP]\n0.000179 VP->[VBD S PP]\n0.000004 VP->[PP PP]\n0.000000 VP->[VBZ PP PP SBAR]\n0.000000 VP->[VP , VP , VP]\n0.296122 VP->[VBD NP PP]\n0.000598 VP->[VBD NP SBAR]\n0.000000 VP->[VBD S : SBAR]\n0.006962 VP->[VBD NP NP]\n0.000000 VP->[VBP VP , SBAR]\n0.001482 VP->[VBD NP S]\n0.002406 VP->[VBD NP ADVP]\n0.000000 VP->[VB ADVP]\n0.000042 VP->[VBZ NP PP]\n0.000000 VP->[VBZ NP S]\n0.000080 VP->[VB ADJP]\n0.000012 VP->[NN NP]\n0.000000 VP->[VB ADJP S]\n0.011931 VP->[NN PP]\n0.000000 VP->[VB ADJP SBAR]\n0.000000 VP->[VB ADJP PP]\n0.000000 VP->[VBN NP PP PP]\n0.000000 VP->[NN NP PP PP]\n0.000011 VP->[VBZ S PP]\n0.000000 VP->[VBP ADVP SBAR]\n0.000000 VP->[VBP ADVP VP]\n0.000000 VP->[VBP ADVP S]\n0.000000 VP->[PP VBD VP]\n0.000000 VP->[VBP ADVP ADJP]\n0.000013 VP->[VBD PP SBAR]\n0.000004 VP->[VBD PP PP]\n0.000000 VP->[NNP NP PRT]\n0.000000 VP->[VBN ADVP PP]\n0.000000 VP->[VBD NP NP , SBAR]\n0.000000 VP->[VBN ADVP VP]\n0.000000 VP->[ADVP VP CC VP]\n0.000000 VP->[VBN NP , S]\n0.000000 VP->[VBN NP , SBAR]\n0.000000 VP->[VBP NP S , PP]\n0.000002 VP->[VP : NP]\n0.000025 VP->[VBD NP ADVP PP]\n0.000000 VP->[VB NP NP PP]\n0.000000 VP->[VBN ADVP NP PRN]\n0.000102 VP->[VBD SBAR PP]\n0.000450 VP->[VBD PP NP]\n0.000001 VP->[ADVP VBG NP PP]\n0.000000 VP->[VBD RB VP]\n0.000000 VP->[VBN S SBAR]\n0.004694 VP->[VBD RB PP]\n0.000032 VP->[VBD RB ADJP]\n0.000002 VP->[VBN ADJP]\n0.000000 VP->[VBN ADVP]\n0.000000 VP->[VB NP PP S]\n0.000001 VP->[VBN PP]\n0.000000 VP->[MD ADVP VP]\n0.000000 VP->[VP , VP CC VP]\n0.000038 VP->[VBN NP]\n0.000000 VP->[VB NP PP SBAR]\n0.000043 VP->[VBN S]\n0.000005 VP->[VBN SBAR]\n0.000095 VP->[VBN VP]\n0.000000 VP->[VB NP PP NP]\n0.000000 VP->[ADVP VB PP]\n0.000003 VP->[ADVP VB NP]\n0.000029 VP->[JJ PP]\n0.000000 VP->[VBG ADVP S]\n0.000000 VP->[VBG ADVP PP]\n0.000000 VP->[VB ADVP S]\n0.000001 VP->[VB ADVP NP]\n0.000000 VP->[VB ADVP VP]\n0.000000 VP->[VP CC ADVP VP]\n0.000000 VP->[VBP NP : S]\n0.000000 VP->[VBD S PP SBAR]\n0.000381 VP->[VBP NP PP]\n0.000000 VP->[VBN ADVP SBAR , S]\n0.000002 VP->[POS NP]\n0.000007 VP->[ADVP VBN S]\n0.000352 VP->[VBD PRT PP]\n0.000000 VP->[ADVP VBN PP]\n0.012303 VP->[VBD PRT NP]\n0.000000 VP->[VBZ NP PP S]\n0.002244 VP->[MD VP]\n0.000000 VP->[VB NP S , SBAR]\n0.000000 VP->[VBP NP SBAR]\n0.000000 VP->[VBN PP SBAR]\n0.000000 VP->[VBN PP PP]\n0.000073 VP->[VBD ADJP SBAR]\n0.000048 VP->[VBD ADJP PP]\n0.000000 VP->[VB ADVP NP PP]\n0.000000 VP->[VBN PP NP]\n0.000000 VP->[VBN PP S]\n0.000000 VP->[VBN ADJP SBAR]\n0.000000 VP->[VB NP S S]\n0.000001 VP->[VBD PRT ADVP SBAR]\n0.000000 VP->[VBD PRT ADVP PP]\n0.000033 VP->[VBZ NP]\n0.000033 VP->[VBZ S]\n0.000000 VP->[VBZ ADVP NP]\n0.000000 VP->[VBZ ADVP VP]\n0.363529 VP->[VBD ADVP NP]\n0.000000 VP->[VBZ PP]\n0.000105 VP->[VBN NP PP]\n0.000007 VP->[VBZ SBAR]\n0.000000 VP->[VBN NP SBAR]\n0.000000 VP->[VBZ ADVP S]\n0.000527 VP->[VBZ VP]\n0.062578 VP->[VBD ADVP PP]\n0.000005 VP->[VBZ ADJP]\n0.000431 VP->[VBD ADVP VP]\n0.000000 VP->[VBZ ADVP ADJP]\n0.000014 VP->[VBP SBAR]\n0.000001 VP->[VBP PP]\n0.000309 VP->[VBP NP]\n0.000000 VP->[VB S SBAR]\n0.000423 VP->[VBP VP]\n0.000053 VP->[VBP S]\n0.000021 VP->[VP CC VP]\n0.000000 VP->[VBP ADVP]\n0.000001 VP->[VBN NP ADVP]\n0.000092 VP->[VBP ADJP]\n0.000000 VP->[NNS SBAR]\n0.116666 PRT->[RB]\n0.000000 PRT->[IN]\n0.000000 PRT->[RP]\n0.000000 PRT->[NNP]\n0.000000 ADJP->[RB VBD]\n0.000000 ADJP->[ADVP JJ SBAR]\n0.000025 ADJP->[NP JJR]\n0.000000 ADJP->[JJR PP]\n0.000158 ADJP->[NP JJ SBAR]\n0.016611 ADJP->[JJ]\n0.000076 ADJP->[VBG]\n0.042978 ADJP->[RB]\n0.000054 ADJP->[JJ '' S]\n0.000947 ADJP->[VBN]\n0.000000 ADJP->[ADJP PRN]\n0.000001 ADJP->[VBN PP]\n0.002679 ADJP->[JJR]\n0.001959 ADJP->[CD NN]\n0.000006 ADJP->[VBN S]\n0.000027 ADJP->[ADJP PP]\n0.000014 ADJP->[JJ PP]\n0.000000 ADJP->[ADJP CC ADJP]\n0.000248 ADJP->[QP]\n0.000976 ADJP->[JJ S]\n0.000591 ADJP->[JJ NP]\n0.000641 ADJP->[NN PP]\n0.003726 ADJP->[ADVP NN PP]\n0.000009 ADJP->[QP NN]\n0.000002 ADJP->[ADVP VBN]\n0.000578 ADJP->[NP JJ]\n0.000000 PRN->[-LRB- S -RRB-]\n0.000000 PRN->[: NP :]\n0.000000 PRN->[: S :]\n0.000000 PRN->[, S]\n0.000000 PRN->[, S ,]\n0.000000 PRN->[-LRB- NP -RRB-]\n0.000116 SINV->[ADJP VP NP .]\n0.000045 SINV->[S , VP NP .]\n0.000129 SINV->[S VP NP .]\n0.000000 SINV->[`` S , VP NP .]\n0.000000 SINV->[VP VP NP , PP .]\n0.000001 SINV->[ADVP VP NP .]\n0.000010 SINV->[VBD RB NP VP]\n0.000044 WHADVP->[WRB]\n0.000170 ADVP->[ADVP SBAR]\n0.000088 ADVP->[ADVP PP]\n0.000034 ADVP->[IN]\n0.000272 ADVP->[RBR]\n0.000038 ADVP->[NP RB]\n0.000000 ADVP->[IN PP]\n0.000946 ADVP->[JJ]\n0.058961 ADVP->[RB NP]\n0.002623 ADVP->[IN NP]\n0.000114 ADVP->[RB SBAR]\n0.000106 ADVP->[ADVP JJR]\n0.390880 ADVP->[RB]\n0.000015 ADVP->[JJ RB S]\n0.000254 ADVP->[NP IN]\n0.000335 ADVP->[RBS]\n0.000024 ADVP->[RBR NP]\n0.000001 ADVP->[NNP]\n0.000002 WHNP->[WRB]\n0.000009 WHNP->[IN]\n0.000055 WHNP->[WDT]\n0.000057 WHNP->[WP]\n0.000004 WHNP->[NP PP]\n0.000000 FRAG->[NP : NP : NP .]\n0.000006 FRAG->[NP]\n0.000296 FRAG->[NP .]\n0.000001 FRAG->[NP : NP .]\n0.000000 SQ->[MD VP]\n0.000000 SQ->[VBZ NP S]\n0.000000 SQ->[VP]\n0.000004 SQ->[VBD RB NP VP]\n0.000000 SBARQ->[SBAR , SBARQ .]\n0.000004 SBARQ->[WHNP SQ .]\n0.000000 SBARQ->[WHNP SQ]\n1.000000 VBD->[_took]\n1.000000 DT->[_the]\n1.000000 DT->[_The]\n1.000000 NN->[_interest]\n1.000000 IN->[_in]\n1.000000 JJ->[_young]\n1.000000 CD->[_two]\n1.000000 .->[_.]\n1.000000 RB->[_not]\n0.000000 RP->[_in]\n1.000000 PRP$->[_our]\n0.000435 VBP->[_sea-lions]\n0.000404 PRP->[_sea-lions]\n0.001983 TO->[_sea-lions]\n0.000069 VBG->[_sea-lions]\n0.000133 RBS->[_sea-lions]\n0.000068 PDT->[_sea-lions]\n0.000004 .->[_sea-lions]\n0.000278 VB->[_sea-lions]\n0.000020 JJ->[_sea-lions]\n0.000510 VBD->[_sea-lions]\n0.000000 POS->[_sea-lions]\n0.000074 NNP->[_sea-lions]\n0.000088 JJS->[_sea-lions]\n0.000030 WRB->[_sea-lions]\n0.000156 VBN->[_sea-lions]\n0.000362 RB->[_sea-lions]\n0.000597 :->[_sea-lions]\n0.002211 MD->[_sea-lions]\n0.000032 CD->[_sea-lions]\n0.000036 WDT->[_sea-lions]\n0.000038 WP->[_sea-lions]\n0.000065 IN->[_sea-lions]\n0.000054 ''->[_sea-lions]\n0.000134 RBR->[_sea-lions]\n0.655082 NNS->[_sea-lions]\n0.000584 VBZ->[_sea-lions]\n0.000016 NNPS->[_sea-lions]\n0.000000 FW->[_sea-lions]\n0.000003 ``->[_sea-lions]\n0.000160 JJR->[_sea-lions]\n0.000033 CC->[_sea-lions]\n0.000046 ,->[_sea-lions]\n0.000000 -LRB-->[_sea-lions]\n0.000379 EX->[_sea-lions]\n0.335902 NN->[_sea-lions]\n0.000014 DT->[_sea-lions]\n0.000011 PRP->[_slightest]\n0.000851 VBP->[_slightest]\n0.000174 TO->[_slightest]\n0.004881 VBG->[_slightest]\n0.000007 PDT->[_slightest]\n0.000202 RBS->[_slightest]\n0.000001 .->[_slightest]\n0.000000 -RRB-->[_slightest]\n0.002394 VB->[_slightest]\n0.544928 JJ->[_slightest]\n0.000172 VBD->[_slightest]\n0.000002 POS->[_slightest]\n0.003457 NNP->[_slightest]\n0.000015 WRB->[_slightest]\n0.059031 JJS->[_slightest]\n0.006672 VBN->[_slightest]\n0.001803 RB->[_slightest]\n0.000027 :->[_slightest]\n0.000119 PRP$->[_slightest]\n0.004392 CD->[_slightest]\n0.000035 MD->[_slightest]\n0.000018 WDT->[_slightest]\n0.000739 IN->[_slightest]\n0.000019 WP->[_slightest]\n0.000013 ''->[_slightest]\n0.000189 RBR->[_slightest]\n0.000532 NNS->[_slightest]\n0.000091 VBZ->[_slightest]\n0.000000 RP->[_slightest]\n0.000064 NNPS->[_slightest]\n0.000156 FW->[_slightest]\n0.000003 ``->[_slightest]\n0.020288 JJR->[_slightest]\n0.000109 CC->[_slightest]\n0.000043 ,->[_slightest]\n0.000011 EX->[_slightest]\n0.348430 NN->[_slightest]\n0.000122 DT->[_slightest]\n0.845454 NN->[_arrival]\n0.050914 NNS->[_arrival]\n0.000111 NNP->[_arrival]\n0.103520 JJ->[_arrival]\n");
     }
@@ -656,6 +692,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(5.442039250199556E-7, stringProbList.get(3), 1e-5);
     assertEquals(1.2514394214109883E-7, stringProbList.get(4), 1e-5);
     
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (S (NP (DT The) (VBG two) (NN young)) (VBD sea-lions) (. .)))");
+    }
+    
     assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n DT: 0.12500000\ncell 1-2\n ,: 0.07692308\n .: 0.16666667\n CC: 0.11111111\n VBD: 0.07142857\n VBZ: 0.20000000\n ``: 0.66666667\n TO: 0.33333333\n VB: 0.33333333\n NN: 0.03030303\n DT: 0.06250000\n JJ: 0.09090909\n NNPS: 0.16666667\n NNP: 0.02777778\n NNS: 0.11111111\n PRP: 0.40000000\n CD: 0.09090909\n POS: 0.33333333\n VBG: 0.33333333\n IN: 0.11764706\n $: 0.33333333\n RB: 0.33333333\n '': 0.66666667\ncell 2-3\n ,: 0.07692308\n .: 0.16666667\n CC: 0.11111111\n VBD: 0.07142857\n VBZ: 0.20000000\n ``: 0.66666667\n TO: 0.33333333\n VB: 0.33333333\n NN: 0.03030303\n DT: 0.06250000\n JJ: 0.09090909\n NNPS: 0.16666667\n NNP: 0.02777778\n NNS: 0.11111111\n PRP: 0.20000000\n CD: 0.09090909\n POS: 0.33333333\n VBG: 0.33333333\n IN: 0.05882353\n $: 0.33333333\n RB: 0.33333333\n '': 0.66666667\ncell 3-4\n ,: 0.07692308\n .: 0.16666667\n CC: 0.11111111\n VBD: 0.07142857\n VBZ: 0.20000000\n ``: 0.66666667\n TO: 0.33333333\n VB: 0.33333333\n NN: 0.03030303\n DT: 0.06250000\n JJ: 0.09090909\n NNPS: 0.16666667\n NNP: 0.02777778\n NNS: 0.11111111\n PRP: 0.20000000\n CD: 0.09090909\n POS: 0.33333333\n VBG: 0.33333333\n IN: 0.05882353\n $: 0.33333333\n RB: 0.33333333\n '': 0.66666667\ncell 4-5\n .: 0.83333333\ncell 0-2\n NP: 0.00053163\ncell 2-4\n VP: 0.00119865\n PP: 0.00099655\ncell 0-3\n : 0.00000253\n S: 0.00000316\n NP: 0.00002531\ncell 1-4\n QP: 0.00275482\ncell 0-4\n : 0.00000054\n S: 0.00000068\n NP: 0.00000627\ncell 0-5\n : 0.00000013\n S: 0.00000016\n");
     if(insideOutsideOpt>0){
       assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n DT: 0.00000100\ncell 1-2\n NN: 0.00000297\n VBG: 0.00000011\ncell 2-3\n VBD: 0.00000012\n VBZ: 0.00000010\n TO: 0.00000007\n VB: 0.00000010\n NN: 0.00000127\n NNS: 0.00000001\ncell 3-4\n VBD: 0.00000090\n NN: 0.00000006\n NNPS: 0.00000006\n NNP: 0.00000038\n NNS: 0.00000006\n PRP: 0.00000013\n CD: 0.00000006\ncell 4-5\n .: 0.00000015\ncell 0-2\n NP: 0.00016325\ncell 2-4\n VP: 0.00007088\ncell 0-3\n NP: 0.00158730\ncell 0-5\n : 1.00000000\n S: 0.80000000\n");
@@ -681,6 +723,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(surprisalList.size(), 2);
     assertEquals(0.3237870745944744, surprisalList.get(0), 1e-5);
     assertEquals(0.24544930825601569, surprisalList.get(1), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (A (B b) (C c)))");
+    }
   }
 
   public void testSimpleExtendedRule(){
@@ -705,6 +753,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(surprisalList.size(), 2);
     assertEquals(-Math.log(x), surprisalList.get(0), 1e-5);
     assertEquals(0.0, surprisalList.get(1), 1e-5); // -ln(1)
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (A b c))");
+    }
   }
   
   public void testSimpleExtendedRule1(){
@@ -737,6 +791,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(stringProbList.size(), 2);
     assertEquals(x*y, stringProbList.get(0), 1e-5);
     assertEquals(1-x*y, stringProbList.get(1), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (A b c))");
+    }
   }
   
   public void testComplexAG(){
@@ -786,6 +846,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(x1*y1, stringProbList.get(0), 1e-5);
     assertEquals(x1*y2 + x2, stringProbList.get(1), 1e-5);
     assertEquals(x4 + x1*y4, stringProbList.get(2), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (A b c d))");
+    }
   }
   
   public void testComplexAG1(){
@@ -829,6 +895,12 @@ public class EarleyParserTest extends TestCase {
     assertEquals(0.0, stringProbList.get(0), 1e-5);
     assertEquals(0.0, stringProbList.get(1), 1e-5);
     assertEquals(1.0, stringProbList.get(2), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (ROOT a b c))");
+    }
   }
   
   // @TODO: TRY THIS TEST!!!
@@ -895,5 +967,11 @@ public class EarleyParserTest extends TestCase {
     assertEquals(3.8284368922100536E-4, stringProbList.get(0), 1e-5);
     assertEquals(0.0, stringProbList.get(1), 1e-5);
     assertEquals(0.9901606659305786, stringProbList.get(2), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (ROOT a b c))");
+    }
   }
 }
