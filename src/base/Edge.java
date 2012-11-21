@@ -55,8 +55,9 @@ public class Edge {
   public int getChild(int pos){
     return rule.getChild(pos);
   }
+  
   public boolean isTerminalEdge(){
-    return (rule instanceof TerminalRule);
+    return (rule instanceof TerminalRule) || numChildren()==0;
   }
   
   public Edge getPrevEdge(){
