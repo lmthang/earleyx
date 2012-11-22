@@ -1300,7 +1300,11 @@ public abstract class EarleyParser implements Parser {
   
   // linear index of cell[left][right]
   protected int linear(int left, int right){
-    return right*(right+1)/2 + right-left;
+    if(right%2==0){
+      return (right/2)*(right+1) + right-left;
+    } else {
+      return ((right+1)/2)*right + right-left;
+    }
   }
   
   /**
@@ -1324,7 +1328,7 @@ public abstract class EarleyParser implements Parser {
     }
     
     // map matrix indices [left][right] into linear indices
-    numCells = (numWords+2)*(numWords+1)/2;
+    numCells = linear(numWords+1, numWords+1);
     System.err.println("# numCells = " + numCells);
     prefixProb = new double[numWords + 1];
     synPrefixProb = new double[numWords + 1];
