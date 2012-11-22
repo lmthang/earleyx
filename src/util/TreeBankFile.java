@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import parser.SmoothLexicon;
@@ -16,10 +17,12 @@ import base.BaseLexicon;
 import base.ProbRule;
 import base.RuleSet;
 import base.TerminalRule;
+import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.parser.lexparser.TreebankLangParserParams;
 import edu.stanford.nlp.stats.Counter;
+import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.MemoryTreebank;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeTransformer;
@@ -112,6 +115,10 @@ public class TreeBankFile {
     ruleSet.addAll(Util.tagRulesFromTrees(trees, tagIndex, tagIndex, nonterminalMap));
   }
   
+  public static Treebank getTreebank(String treeFile){
+    return transformTrees(treeFile, transformerClassName, treebankPackClassName);
+  }
+  
   public static void processTreebank(String treeFile, RuleSet ruleSet,
       Collection<IntTaggedWord> intTaggedWords, 
       Index<String> tagIndex, Index<String> wordIndex, 
@@ -123,6 +130,20 @@ public class TreeBankFile {
     extractRulesWordsFromTreebank(treebank, ruleSet, intTaggedWords, wordIndex, tagIndex, nonterminalMap);
   }
   
+  public static Tree removePseudoNode(Tree tree){
+    Label mother = tree.label();
+    
+    if(mother.value().startsWith("PSEUDO") && tree.numChildren()==1) { // pseudo node
+      return tree.getChild(0);
+    } else {
+      List<Tree> daughterList = new ArrayList<Tree>();
+      for(Tree childTree : tree.getChildrenAsList()){
+        daughterList.add(removePseudoNode(childTree));
+      }
+      return new LabeledScoredTreeNode(mother, daughterList);
+    }
+  }
+  
   public static void printHelp(String[] args, String message){
     System.err.println("! " + message);
     System.err.println("TreeBankFile -in inFile -out outFile"); // -opt option]");
@@ -131,13 +152,13 @@ public class TreeBankFile {
     System.err.println("\tCompulsory:");
     System.err.println("\t\t in \t\t input grammar");
     System.err.println("\t\t out \t\t output file");
-//    System.err.println("\t\t opt \t\t 1 -- smooth output to format read by Tim's program, " + 
-//        "2 -- output to format read by Mark's IO code");
+    System.err.println("\t\t opt \t\t 1 -- extract rules, smooth, and output to a file, " + 
+        "2 -- pretty print, and 3 -- for social program, remove pseudo nodes");
     System.err.println();
     System.exit(1);
   }
   
-  public static void main(String[] args){
+  public static void main(String[] args) throws IOException{
     if(args.length==0){
       printHelp(args, "No argument");
     }
@@ -154,9 +175,9 @@ public class TreeBankFile {
     args = argsMap.get(null);
     
     /* input file */
-    String ruleFile = null;
+    String treeFile = null;
     if (argsMap.keySet().contains("-in")) {
-      ruleFile = argsMap.get("-in")[0];
+      treeFile = argsMap.get("-in")[0];
     } else {
       printHelp(args, "No input file, -in option");
     }
@@ -170,49 +191,64 @@ public class TreeBankFile {
     }
     
     /* option */
-//    int option = -1;
-//    if (argsMap.keySet().contains("-opt")) {
-//      option = Integer.parseInt(argsMap.get("-opt")[0]);
-//    } else {
-//      printHelp(args, "No output file, -opt option");
-//    }
-    
-    
-    System.err.println("# Input file = " + ruleFile);
-    System.err.println("# Output file = " + outRuleFile);
-//    System.err.println("# Option = " + option);
-    
-    // extract rules and taggedWords from treebank file
-    Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
-    Index<String> wordIndex = new HashIndex<String>();
-    Index<String> tagIndex = new HashIndex<String>();
-    RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
-    
-    Collection<IntTaggedWord> intTaggedWords = new ArrayList<IntTaggedWord>();
-    
-    processTreebank(ruleFile, ruleSet, intTaggedWords, tagIndex, wordIndex, nonterminalMap);
-    
-    BaseLexicon lex = new SmoothLexicon(wordIndex, tagIndex);
-    lex.train(intTaggedWords);
-    
-    Map<Integer, Counter<Integer>> tag2wordsMap = lex.getTag2wordsMap();
-    for(int iT : tag2wordsMap.keySet()){
-      Counter<Integer> counter = tag2wordsMap.get(iT);
-      for(int iW : counter.keySet()){
-        ruleSet.add(new ProbRule(new TerminalRule(iT, Arrays.asList(iW)), 
-            Math.exp(counter.getCount(iW))));
-      }
+    int option = -1;
+    if (argsMap.keySet().contains("-opt")) {
+      option = Integer.parseInt(argsMap.get("-opt")[0]);
+    } else {
+      printHelp(args, "No output file, -opt option");
     }
     
-    try {
-      BufferedWriter bw = new BufferedWriter(new FileWriter(outRuleFile));
+    
+    System.err.println("# Input file = " + treeFile);
+    System.err.println("# Output file = " + outRuleFile);
+    System.err.println("# Option = " + option);
+    BufferedWriter bw = new BufferedWriter(new FileWriter(outRuleFile));
+    
+    if(option==1){
+      // extract rules and taggedWords from treebank file
+      Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
+      Index<String> wordIndex = new HashIndex<String>();
+      Index<String> tagIndex = new HashIndex<String>();
+      RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
+      
+      Collection<IntTaggedWord> intTaggedWords = new ArrayList<IntTaggedWord>();
+      
+      processTreebank(treeFile, ruleSet, intTaggedWords, tagIndex, wordIndex, nonterminalMap);
+      
+      BaseLexicon lex = new SmoothLexicon(wordIndex, tagIndex);
+      lex.train(intTaggedWords);
+      
+      Map<Integer, Counter<Integer>> tag2wordsMap = lex.getTag2wordsMap();
+      for(int iT : tag2wordsMap.keySet()){
+        Counter<Integer> counter = tag2wordsMap.get(iT);
+        for(int iW : counter.keySet()){
+          ruleSet.add(new ProbRule(new TerminalRule(iT, Arrays.asList(iW)), 
+              Math.exp(counter.getCount(iW))));
+        }
+      }
+      
       for(ProbRule rule : ruleSet.getAllRules()){
         bw.write(rule.toString(tagIndex, wordIndex) + "\n");
       }
-      bw.close();
-    } catch (IOException e){
-      System.err.println("Can't write to: " + outRuleFile);
-      e.printStackTrace();
+    } else {
+      Treebank treebank = getTreebank(treeFile);
+      
+      if (option==2){ // pretty print
+        int numTree = 0;
+        for (Iterator<Tree> i = treebank.iterator(); i.hasNext();) {
+          Tree t = i.next();
+          bw.write("# " + numTree++ + "\n" + t.pennString() + "\n");
+        }
+      } else if (option==3){ // for social program, remove pseudo nodes
+        for (Iterator<Tree> i = treebank.iterator(); i.hasNext();) {
+          Tree t = i.next();
+          bw.write(removePseudoNode(t) + "\n");
+        }
+      } else {
+        printHelp(args, "! unknown option " + option);
+      }
     }
+    
+    bw.close();
   }
 }

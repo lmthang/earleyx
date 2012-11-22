@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.stanford.nlp.util.Index;
+import edu.stanford.nlp.util.Pair;
 
 /**
  * Keep track of all rules and their probabilities.
@@ -31,7 +32,17 @@ public class RuleSet {
   
   // unary rules
   protected List<ProbRule> unaryRules;
-
+//  protected Map<Integer, Set<Integer>> unaryMap; // unaryMap.get(Y): set of Z for which there's a unary Y -> Z
+  
+  /** for Viterbi decoding **/
+  // list of pairs (X_1->...->X_k, score) in which X_1->...->X_k is the highest-scoring chain
+  // connecting X_1 and X_k together with score
+  protected List<Pair<List<Integer>, Double>> unaryChains;
+  // unaryChainStartMap.get(Z).get(Y): returns the index in unaryChains of the chain Z->Y
+  protected Map<Integer, Map<Integer, Integer>> unaryChainStartMap;
+  // unaryChainEndMap.get(Y).get(Z): returns the index in unaryChains of the chain Z->Y
+  protected Map<Integer, Map<Integer, Integer>> unaryChainEndMap;
+  
   private Map<Rule, Integer> ruleMap; // map Rule to indices in allRules
   private Map<Integer, List<Integer>> tag2ruleIndices; // map tag to a set of rule indices
   
@@ -50,6 +61,12 @@ public class RuleSet {
     
     // unary rules
     unaryRules = new ArrayList<ProbRule>();
+//    unaryMap = new HashMap<Integer, Set<Integer>>();
+    
+    // for Viterbi decoding
+    unaryChains = new ArrayList<Pair<List<Integer>,Double>>();
+    unaryChainStartMap = new HashMap<Integer, Map<Integer,Integer>>();
+    unaryChainEndMap = new HashMap<Integer, Map<Integer,Integer>>();
   }
   
   public int add(ProbRule probRule){
@@ -93,13 +110,111 @@ public class RuleSet {
       assert(rule instanceof TagRule);
       tagRules.add(probRule);
       
-      if(rule.numChildren()==1){
+      if(rule.numChildren()==1){ // unary
         unaryRules.add(probRule);
+        
+//        if(!unaryMap.containsKey(tag)){
+//          unaryMap.put(tag, new HashSet<Integer>());
+//        }
+//        unaryMap.get(tag).add(probRule.getChild(0));
+        
+        // update unary chain
+        List<Integer> chain = new ArrayList<Integer>();
+        chain.add(probRule.getMother());
+        chain.add(probRule.getChild(0));
+        addChain(probRule.getMother(), probRule.getChild(0), chain, probRule.getProb());
+        updateUnaryChain(probRule.getMother(), probRule.getChild(0), chain, probRule.getProb());
       }
     }
     
     return ruleId;
   }
+  
+  private void updateUnaryChain(int Z, int Y, List<Integer> chain, double prob){
+    // go through any chain ends at Z
+    if(unaryChainEndMap.containsKey(Z)){
+      for(int zPrime : unaryChainEndMap.get(Z).keySet()) {// chain Z' -> Z
+        if(zPrime == Y){
+          continue;
+        }
+        
+        // consider new chain Z' -> Z -> Y
+        Pair<List<Integer>, Double> zPrimeZPair = unaryChains.get(unaryChainEndMap.get(Z).get(zPrime));
+        double newProb = zPrimeZPair.second * prob;
+        
+        checkAndAddChain(zPrime, Y, zPrimeZPair.first, chain, newProb);
+      }
+    }
+    
+    // go through any chain starts at Y
+    if(unaryChainStartMap.containsKey(Y)){
+      for(int yPrime : unaryChainStartMap.get(Y).keySet()) {// chain Y -> Y'
+        if(Z == yPrime){
+          continue;
+        }
+        
+        // consider new chain Z -> Y -> Y'
+        Pair<List<Integer>, Double> yYPrimePair = unaryChains.get(unaryChainStartMap.get(Y).get(yPrime));
+        double newProb = prob*yYPrimePair.second;
+        
+        checkAndAddChain(Z, yPrime, chain, yYPrimePair.first, newProb);
+      }
+    }
+  }
+
+  private List<Integer> combineChains(List<Integer> prevChain, List<Integer> nextChain){
+    List<Integer> chain = new ArrayList<Integer>();
+    assert(prevChain.size()>=2 && nextChain.size()>=2);
+    assert(prevChain.get(prevChain.size()-1).equals(nextChain.get(0)));
+    
+    for(int value : prevChain){
+      chain.add(value);
+    }
+    chain.remove(chain.size()-1);
+    
+    for(int value : nextChain){
+      chain.add(value);
+    }
+    
+    return chain;
+  }
+  
+  private void checkAndAddChain(int startTag, int endTag, List<Integer> prevChain, 
+      List<Integer> nextChain, double prob){
+    if(unaryChainStartMap.containsKey(startTag) 
+        && unaryChainStartMap.get(startTag).containsKey(endTag)){ // chain start->end
+      int chainIndex = unaryChainStartMap.get(startTag).get(endTag);
+      
+      if(prob > unaryChains.get(chainIndex).second){ // better chain start->end
+        List<Integer> chain = combineChains(prevChain, nextChain);
+        unaryChains.set(chainIndex, new Pair<List<Integer>, Double>(chain, prob));
+      }
+    } else {
+      List<Integer> chain = combineChains(prevChain, nextChain);
+      addChain(startTag, endTag, chain, prob);
+      updateUnaryChain(startTag, endTag, chain, prob); // recursively update
+    }
+  }
+  
+  private void addChain(int startTag, int endTag, List<Integer> chain, double score){
+//    System.err.println("Add chain: " + unaryChain(chain, tagIndex));
+    int chainIndex = unaryChains.size(); // this line needs to come before add
+    unaryChains.add(new Pair<List<Integer>, Double>(chain, score));
+    
+    addMap(unaryChainStartMap, startTag, endTag, chainIndex);
+    addMap(unaryChainEndMap, endTag, startTag, chainIndex);
+  }
+  
+  private void addMap(Map<Integer, Map<Integer, Integer>> map, int key1, int key2, int value){
+    if(!map.containsKey(key1)){
+      map.put(key1, new HashMap<Integer, Integer>());
+    }
+    map.get(key1).put(key2, value);
+  }
+  
+//  public boolean isUnary(int mother, int child){
+//    return (unaryMap.containsKey(mother) && unaryMap.get(mother).contains(child));
+//  }
   
   public void addAll(Collection<ProbRule> probRules){
     for(ProbRule probRule : probRules){
@@ -177,6 +292,53 @@ public class RuleSet {
 
   public List<ProbRule> getUnaryRules() {
     return unaryRules;
+  }
+  
+  public List<Integer> getUnaryChain(int startTag, int endTag){
+    if(unaryChainStartMap.containsKey(startTag) && unaryChainStartMap.get(startTag).containsKey(endTag)){
+      return unaryChains.get(unaryChainStartMap.get(startTag).get(endTag)).first;
+    } else {
+      return null;
+    }
+  }
+  
+  private String unaryChain(List<Integer> chain, Index<String> tagIndex){
+    StringBuffer sb = new StringBuffer();
+    
+    assert(chain.size()>=2);
+    sb.append(tagIndex.get(chain.get(0)));
+    for (int i = 1; i < chain.size(); i++) {
+      sb.append("->" + tagIndex.get(chain.get(i)));
+    }
+    
+    return sb.toString();
+  }
+  
+  public String sprintUnaryChains(){
+    StringBuffer sb = new StringBuffer("\n# Unary chains\n");
+    for(Pair<List<Integer>, Double> pair : unaryChains){
+      sb.append(unaryChain(pair.first, tagIndex) + " : " + pair.second + "\n");
+    }
+    
+    // Sanity check
+    for(int start : unaryChainStartMap.keySet()){
+      for(int end : unaryChainStartMap.get(start).keySet()){
+        int chainIndex = unaryChainStartMap.get(start).get(end);
+        List<Integer> chain = unaryChains.get(chainIndex).first;
+        assert(start == chain.get(0));
+        assert(end == chain.get(chain.size()-1));
+      }
+    }
+    
+    for(int end : unaryChainEndMap.keySet()){
+      for(int start : unaryChainEndMap.get(end).keySet()){
+        int chainIndex = unaryChainEndMap.get(end).get(start);
+        List<Integer> chain = unaryChains.get(chainIndex).first;
+        assert(start == chain.get(0));
+        assert(end == chain.get(chain.size()-1));
+      }
+    }
+    return sb.toString();
   }
   
   public String toString(Index<String> tagIndex, Index<String> wordIndex){

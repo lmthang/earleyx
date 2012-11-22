@@ -391,7 +391,7 @@ public abstract class EarleyParser implements Parser {
 
       // start
       if(verbose>=0){
-        System.err.println("\n### Sent " + i + ": id=" + id + ", "+ sentenceString);
+        System.err.println("\n### Sent " + i + ": id=" + id);
         Timing.startTime();
       }
       
@@ -451,6 +451,9 @@ public abstract class EarleyParser implements Parser {
   }
 
   public boolean parse(List<? extends HasWord> words) {
+    if(verbose>=0 && words.size()<100){
+      System.err.println("## Parsing: " + words);
+    }
     this.words = words;
     
     // init
@@ -559,6 +562,10 @@ public abstract class EarleyParser implements Parser {
     }
     
     return sb.toString();
+  }
+  
+  public String sprintUnaryChains(){
+    return ruleSet.sprintUnaryChains();
   }
   /**
    * Read in the next word and build the corresponding chart entries
@@ -735,7 +742,7 @@ public abstract class EarleyParser implements Parser {
     for (int x = 0, n = completions.length; x < n; x++) { // go through all completions we could finish
       Completion completion = completions[x];
       
-      if (containsEdge(left, middle, completion.activeEdge)) { // middle: left X -> _ . Y _
+      if (containsEdge(left, middle, completion.activeEdge)) { // middle: left X -> _ . Z _
         double updateScore = operator.multiply(completion.score, inner);
         double newForwardProb = operator.multiply(
             getForwardScore(left, middle, completion.activeEdge), updateScore);
@@ -743,7 +750,7 @@ public abstract class EarleyParser implements Parser {
             getInnerScore(left, middle, completion.activeEdge), updateScore);
         int completedEdge = completion.completedEdge;
         
-        // add edge, right: left X -> _ Y . _, to tmp storage
+        // add edge, right: left X -> _ Z . _, to tmp storage
         initTmpScores(completedEdge);
         addTmpForwardScore(completedEdge, newForwardProb);
         addTmpInnerScore(completedEdge, newInnerProb);
@@ -858,6 +865,7 @@ public abstract class EarleyParser implements Parser {
     if(hasParse()){
       return viterbiParse(0, numWords, goalEdge);
     } else {
+      System.err.println("! No viterbi parse");
       return null;
     }
   }
@@ -885,14 +893,25 @@ public abstract class EarleyParser implements Parser {
       assert(edge==goalEdge || edgeObj.numChildren()>1);
       BackTrack backtrack = backtrackChart.get(linear[left][right]).get(edge);
       
-      // Viterbi parse: X -> \alpha . Y \beta
+      // Viterbi parse: X -> \alpha . Z \beta
       Edge prevEdgeObj = edgeObj.getPrevEdge(); 
       int prevEdge = edgeSpace.indexOf(prevEdgeObj);
+      //System.err.println(edgeInfo(left, backtrack.middle, prevEdge));
       returnTree = viterbiParse(left, backtrack.middle, prevEdge);
       
       // Viterbi parse: Y -> v .
       int nextEdge = backtrack.edge;
+      Edge nextEdgeObj = edgeSpace.get(nextEdge);
       Tree nextTree = viterbiParse(backtrack.middle, right, nextEdge);
+      
+      if(prevEdgeObj.getChildAfterDot(0) != nextEdgeObj.getMother()){ // unary chain
+        List<Integer> chain = ruleSet.getUnaryChain(prevEdgeObj.getChildAfterDot(0), 
+            nextEdgeObj.getMother());
+        for (int i = chain.size()-2; i >= 0; i--) {
+          Label label = new Tag(parserTagIndex.get(chain.get(i)));
+          nextTree = new LabeledScoredTreeNode(label, Arrays.asList(nextTree));
+        }
+      }
       
       // adjoin trees
       returnTree.addChild(nextTree);
@@ -1663,6 +1682,14 @@ public abstract class EarleyParser implements Parser {
 }
 
 /** Unused code **/
+//Edge activeEdgeObj = edgeSpace.get(completion.activeEdge);
+//assert(activeEdgeObj.getDot()<activeEdgeObj.numChildren());
+//int zTag = activeEdgeObj.getChildAfterDot(0);
+//
+//System.err.println("# " + edgeInfo(left, right, completedEdge));
+//if(zTag == tag || ruleSet.isUnary(zTag, tag)) { // Y == Z or there's a unary rule Z -> Y
+//
+//}
 //Map<Integer, List<Integer>> tag2ruleIndices = ruleSet.getTag2ruleIndices();
 //
 //for(int tag : tag2ruleIndices.keySet()){ // go through each tag

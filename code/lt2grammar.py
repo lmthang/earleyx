@@ -42,7 +42,7 @@ def process_command_line(argv):
   parser.add_argument('-d', '--debug', dest='debug', action='store_true', default=False, help='enable debugging mode (default: false)') 
   
   args = parser.parse_args(argv)
-  print >>sys.stderr, "# parsed arguments: ", args
+  sys.stderr.write("# parsed arguments: %s" % str(args))
 
   return args
 
@@ -75,7 +75,7 @@ def process_files(in_file, out_file):
   Read data from in_file, and output to out_file
   """
 
-  print >>sys.stderr, "# in_file = %s, out_file = %s\n" % (in_file, out_file)
+  sys.stderr.write('# in_file = %s, out_file = %s\n' % (in_file, out_file))
   inf = open(in_file, 'r')
   line_id = 0
   sys.stderr.write('# Processing file %s ...\n' % (in_file))
@@ -96,7 +96,7 @@ def process_files(in_file, out_file):
         new_child = '_' + children[i]
 
         if num_children>1: # mix of terminals and non-terminals
-          child_tag = 'P_' + children[i].upper() # make pre-terminal
+          child_tag = 'PSEUDO' + children[i].upper() # make pre-terminal
           new_children.append(child_tag)
 
           # add new preterminal -> terminal rule if any
@@ -145,7 +145,7 @@ def main(argv=None):
   args = process_command_line(argv)
   
   if args.debug == True:
-    print('Debug mode\n')
+    sys.stderr.write('Debug mode\n')
 
   process_files(args.in_file, args.out_file)
 

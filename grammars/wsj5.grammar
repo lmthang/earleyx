@@ -1,0 +1,191 @@
+S->[NP VP] : 5.000000e-01
+S->[PP , NP VP .] : 1.000000e-01
+S->[VP] : 1.000000e-01
+S->[NP VP .] : 2.000000e-01
+S->[S PRN , CC S .] : 1.000000e-01
+ROOT->[S] : 8.000000e-01
+ROOT->[SINV] : 2.000000e-01
+VP->[VBD SBAR] : 8.333333e-02
+VP->[VBD NP PP] : 2.500000e-01
+VP->[VBZ NP] : 8.333333e-02
+VP->[VBD] : 1.666667e-01
+VP->[VBZ `` ADJP] : 8.333333e-02
+VP->[VBD NP] : 8.333333e-02
+VP->[TO VP] : 8.333333e-02
+VP->[VB NP] : 8.333333e-02
+VP->[VBD S] : 8.333333e-02
+NP->[NN NN] : 1.754386e-02
+NP->[DT JJ NNPS NNP NN] : 1.754386e-02
+NP->[NP NNS] : 1.754386e-02
+NP->[NP , NP] : 5.263158e-02
+NP->[NP NN NN] : 1.754386e-02
+NP->[DT NN NN] : 1.754386e-02
+NP->[NNP] : 1.052632e-01
+NP->[JJ JJ NNS] : 1.754386e-02
+NP->[PRP] : 3.508772e-02
+NP->[NNPS CC NNP] : 1.754386e-02
+NP->[NP VP] : 1.754386e-02
+NP->[NP PP] : 1.228070e-01
+NP->[NNPS] : 1.754386e-02
+NP->[NP , NP ,] : 5.263158e-02
+NP->[NN] : 1.754386e-02
+NP->[CD] : 1.754386e-02
+NP->[NP CC NP] : 5.263158e-02
+NP->[NNP POS] : 1.754386e-02
+NP->[NP CC NP POS] : 1.754386e-02
+NP->[DT NN] : 1.403509e-01
+NP->[NNS] : 1.754386e-02
+NP->[DT JJ NN NNS NN] : 1.754386e-02
+NP->[NNP NNP NNP] : 1.754386e-02
+NP->[NNPS CC NNP NNP] : 1.754386e-02
+NP->[NNP CD] : 1.754386e-02
+NP->[DT QP] : 1.754386e-02
+NP->[QP] : 1.754386e-02
+NP->[DT VBG NN] : 1.754386e-02
+NP->[NNP NNP] : 5.263158e-02
+NP->[NNPS NNP] : 1.754386e-02
+PP->[IN NP] : 1.000000e+00
+SBAR->[S] : 1.000000e+00
+SINV->[S VP NP .] : 1.000000e+00
+QP->[$ CD CD] : 1.000000e+00
+ADJP->[RB JJ '' PP] : 1.000000e+00
+PRN->[, S] : 1.000000e+00
+NNP->[_Investcorp] : 5.555556e-02
+NNP->[_New] : 2.777778e-02
+NNP->[_York] : 2.777778e-02
+NNP->[_Brunswick] : 2.777778e-02
+NNP->[_Corp.] : 2.777778e-02
+NNP->[_Recreation] : 8.333333e-02
+NNP->[_Inc.] : 2.777778e-02
+NNP->[_Unlimited] : 5.555556e-02
+NNP->[_UNK-ALLC] : 2.777778e-02
+NNP->[_UNK-INITk] : 5.555556e-02
+NNP->[_UNK-INIT.] : 8.333333e-02
+NNP->[_UNK-INITr] : 2.777778e-02
+NNP->[_Ill] : 2.777778e-02
+NNP->[_Skokie] : 2.777778e-02
+NNP->[_UNK-INIT] : 8.333333e-02
+NNP->[_UNK] : 2.777778e-02
+NNP->[_UNK-INITy] : 2.777778e-02
+NNP->[_UNK-INITa] : 2.777778e-02
+NNP->[_UNK-INITe] : 2.777778e-02
+NNP->[_E.] : 2.777778e-02
+NNP->[_Richardson] : 5.555556e-02
+NNP->[_Oliver] : 2.777778e-02
+NNP->[_Tampa] : 2.777778e-02
+NNP->[_Fla.] : 2.777778e-02
+NNP->[_July] : 2.777778e-02
+NNP->[_Mr.] : 2.777778e-02
+,->[_,] : 9.230769e-01
+,->[_UNK] : 7.692308e-02
+VBD->[_ended] : 7.142857e-02
+VBD->[_said] : 2.142857e-01
+VBD->[_declined] : 7.142857e-02
+VBD->[_UNK] : 7.142857e-02
+VBD->[_purchased] : 7.142857e-02
+VBD->[_UNK-LCt] : 7.142857e-02
+VBD->[_posted] : 7.142857e-02
+VBD->[_UNK-LCd] : 2.857143e-01
+VBD->[_bought] : 7.142857e-02
+PRP->[_he] : 2.000000e-01
+PRP->[_it] : 2.000000e-01
+PRP->[_UNK] : 2.000000e-01
+PRP->[_UNK-LC] : 4.000000e-01
+CC->[_but] : 1.111111e-01
+CC->[_and] : 3.333333e-01
+CC->[_UNK] : 1.111111e-01
+CC->[_UNK-LC] : 1.111111e-01
+CC->[_&] : 3.333333e-01
+DT->[_a] : 1.875000e-01
+DT->[_some] : 6.250000e-02
+DT->[_UNK] : 6.250000e-02
+DT->[_the] : 3.750000e-01
+DT->[_UNK-LC] : 6.250000e-02
+DT->[_The] : 1.250000e-01
+DT->[_UNK-LCe] : 6.250000e-02
+DT->[_an] : 6.250000e-02
+NN->[_sporting] : 3.030303e-02
+NN->[_UNK-LCy] : 3.030303e-02
+NN->[_UNK-LCs] : 3.030303e-02
+NN->[_UNK-LCr] : 1.818182e-01
+NN->[_retailer] : 3.030303e-02
+NN->[_UNK-LCk] : 3.030303e-02
+NN->[_management] : 6.060606e-02
+NN->[_committee] : 3.030303e-02
+NN->[_director] : 3.030303e-02
+NN->[_member] : 3.030303e-02
+NN->[_revenue] : 3.030303e-02
+NN->[_operator] : 3.030303e-02
+NN->[_year] : 3.030303e-02
+NN->[_chain] : 6.060606e-02
+NN->[_company] : 6.060606e-02
+NN->[_UNK] : 3.030303e-02
+NN->[_UNK-LCt] : 3.030303e-02
+NN->[_UNK-LCg] : 3.030303e-02
+NN->[_bank] : 3.030303e-02
+NN->[_UNK-LCe] : 6.060606e-02
+NN->[_investment] : 3.030303e-02
+NN->[_majority] : 3.030303e-02
+NN->[_basis] : 3.030303e-02
+NN->[_shareholder] : 3.030303e-02
+IN->[_UNK-LCm] : 5.882353e-02
+IN->[_In] : 5.882353e-02
+IN->[_for] : 1.176471e-01
+IN->[_UNK-INIT] : 5.882353e-02
+IN->[_UNK] : 5.882353e-02
+IN->[_UNK-LC] : 1.176471e-01
+IN->[_on] : 5.882353e-02
+IN->[_from] : 5.882353e-02
+IN->[_of] : 3.529412e-01
+IN->[_in] : 5.882353e-02
+NNPS->[_UNK] : 1.666667e-01
+NNPS->[_Sports] : 8.333333e-01
+JJ->[_UNK-LCn] : 9.090909e-02
+JJ->[_10-store] : 9.090909e-02
+JJ->[_UNK-LC-DASH-DIG] : 1.818182e-01
+JJ->[_10-year-old] : 9.090909e-02
+JJ->[_UNK] : 9.090909e-02
+JJ->[_profitable] : 9.090909e-02
+JJ->[_UNK-LCe] : 1.818182e-01
+JJ->[_certain] : 9.090909e-02
+JJ->[_passive] : 9.090909e-02
+$->[_$] : 6.666667e-01
+$->[_UNK] : 3.333333e-01
+CD->[_UNK-NUM] : 3.636364e-01
+CD->[_1982] : 9.090909e-02
+CD->[_59] : 9.090909e-02
+CD->[_million] : 1.818182e-01
+CD->[_UNK] : 9.090909e-02
+CD->[_31] : 9.090909e-02
+CD->[_40] : 9.090909e-02
+.->[_UNK] : 1.666667e-01
+.->[_.] : 8.333333e-01
+VBZ->[_UNK-LCs] : 2.000000e-01
+VBZ->[_is] : 2.000000e-01
+VBZ->[_UNK] : 2.000000e-01
+VBZ->[_UNK-LC] : 2.000000e-01
+VBZ->[_becomes] : 2.000000e-01
+NNS->[_numbers] : 1.111111e-01
+NNS->[_goods] : 1.111111e-01
+NNS->[_UNK-LCs] : 4.444444e-01
+NNS->[_UNK] : 1.111111e-01
+NNS->[_managers] : 1.111111e-01
+NNS->[_investors] : 1.111111e-01
+POS->[_UNK] : 3.333333e-01
+POS->[_'s] : 6.666667e-01
+RB->[_UNK-LCy] : 3.333333e-01
+RB->[_UNK] : 3.333333e-01
+RB->[_very] : 3.333333e-01
+``->[_``] : 3.333333e-01
+``->[_UNK] : 6.666667e-01
+VBG->[_UNK] : 3.333333e-01
+VBG->[_UNK-LCg] : 3.333333e-01
+VBG->[_operating] : 3.333333e-01
+''->[_UNK] : 6.666667e-01
+''->[_''] : 3.333333e-01
+VB->[_specify] : 3.333333e-01
+VB->[_UNK-LCy] : 3.333333e-01
+VB->[_UNK] : 3.333333e-01
+TO->[_UNK] : 3.333333e-01
+TO->[_to] : 3.333333e-01
+TO->[_UNK-LC] : 3.333333e-01

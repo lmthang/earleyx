@@ -29,7 +29,7 @@ public class EarleyParserTest extends TestCase {
   private int parserOpt = 1; // 0: dense, 1: sparse, 2: sparse IO
   private boolean isScaling = true; // 
   private boolean isLogProb = false; 
-  private int insideOutsideOpt = 0; // false; //          
+  private int insideOutsideOpt = 1; // false; //          
   private String objString = "surprisal,stringprob,viterbi";
   
   @Before
@@ -96,6 +96,7 @@ public class EarleyParserTest extends TestCase {
   String wsj500AG = "grammars/WSJ.500/WSJ.500.AG-PCFG.extendedRules";
   String wsj500 = "grammars/wsj500unk.grammar";
   String wsj5 = "grammars/wsj5unk.grammar";
+  String social = "grammars/social.iogrammar";
   String markGrammarFile = "grammars/testengger.grammar";
   
   private void initParserFromFile(String ruleFile){
@@ -129,7 +130,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(basicGrammarString);
     
     String inputSentence = "a b";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -160,7 +161,10 @@ public class EarleyParserTest extends TestCase {
     
     if(insideOutsideOpt>0){
       List<Double> sumNegLogProbList = parser.insideOutside(inputSentences);
-      assertEquals(sumNegLogProbList.toString(), "[2.340370037356804, 1.3862943611198908, 1.3862943611198908]");
+      assertEquals(sumNegLogProbList.size()==3, true);
+      assertEquals(2.340370037356804, sumNegLogProbList.get(0), 1e-5);
+      assertEquals(1.3862943611198908, sumNegLogProbList.get(1), 1e-5);
+      assertEquals(1.3862943611198908, sumNegLogProbList.get(2), 1e-5);
     }
   }
 
@@ -169,7 +173,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromFile(markGrammarFile);
     
     String inputSentence = "the dog bites a cat";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -243,7 +247,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(basicUnaryGrammarString);
     
     String inputSentence = "a b";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -265,7 +269,7 @@ public class EarleyParserTest extends TestCase {
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
       System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (X (A a) (B b)))");
+      assertEquals(tree.toString(), "( (ROOT (X (A a) (B b))))");
     }
     
   }
@@ -289,7 +293,7 @@ public class EarleyParserTest extends TestCase {
     }
     String inputSentence = sb.toString();
     
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -322,7 +326,7 @@ public class EarleyParserTest extends TestCase {
     inputSentences.add("x x x x x");
 
     String inputSentence = inputSentences.get(0);
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
 
 //    System.err.println(parser.dumpInsideChart());
@@ -356,7 +360,7 @@ public class EarleyParserTest extends TestCase {
     }
     String inputSentence = sb.toString();
     
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -405,7 +409,7 @@ public class EarleyParserTest extends TestCase {
     inputSentences.add("x x x x x");
 
     String inputSentence = inputSentences.get(0);
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
 
     assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n : 0.10000000\n X: 1.00000000\ncell 1-2\n X: 1.00000000\ncell 2-3\n X: 1.00000000\ncell 3-4\n X: 1.00000000\ncell 4-5\n X: 1.00000000\ncell 5-6\n X: 1.00000000\ncell 6-7\n X: 1.00000000\ncell 7-8\n X: 1.00000000\ncell 8-9\n X: 1.00000000\ncell 9-10\n X: 1.00000000\ncell 0-2\n : 0.00900000\n ROOT: 0.00900000\ncell 1-3\n ROOT: 0.00900000\ncell 2-4\n ROOT: 0.00900000\ncell 3-5\n ROOT: 0.00900000\ncell 4-6\n ROOT: 0.00900000\ncell 5-7\n ROOT: 0.00900000\ncell 6-8\n ROOT: 0.00900000\ncell 7-9\n ROOT: 0.00900000\ncell 8-10\n ROOT: 0.00900000\ncell 0-3\n : 0.00162000\n ROOT: 0.00162000\ncell 1-4\n ROOT: 0.00162000\ncell 2-5\n ROOT: 0.00162000\ncell 3-6\n ROOT: 0.00162000\ncell 4-7\n ROOT: 0.00162000\ncell 5-8\n ROOT: 0.00162000\ncell 6-9\n ROOT: 0.00162000\ncell 7-10\n ROOT: 0.00162000\ncell 0-4\n : 0.00036450\n ROOT: 0.00036450\ncell 1-5\n ROOT: 0.00036450\ncell 2-6\n ROOT: 0.00036450\ncell 3-7\n ROOT: 0.00036450\ncell 4-8\n ROOT: 0.00036450\ncell 5-9\n ROOT: 0.00036450\ncell 6-10\n ROOT: 0.00036450\ncell 0-5\n : 0.00009185\n ROOT: 0.00009185\ncell 1-6\n ROOT: 0.00009185\ncell 2-7\n ROOT: 0.00009185\ncell 3-8\n ROOT: 0.00009185\ncell 4-9\n ROOT: 0.00009185\ncell 5-10\n ROOT: 0.00009185\ncell 0-6\n : 0.00002480\n ROOT: 0.00002480\ncell 1-7\n ROOT: 0.00002480\ncell 2-8\n ROOT: 0.00002480\ncell 3-9\n ROOT: 0.00002480\ncell 4-10\n ROOT: 0.00002480\ncell 0-7\n : 0.00000702\n ROOT: 0.00000702\ncell 1-8\n ROOT: 0.00000702\ncell 2-9\n ROOT: 0.00000702\ncell 3-10\n ROOT: 0.00000702\ncell 0-8\n : 0.00000205\n ROOT: 0.00000205\ncell 1-9\n ROOT: 0.00000205\ncell 2-10\n ROOT: 0.00000205\ncell 0-9\n : 0.00000062\n ROOT: 0.00000062\ncell 1-10\n ROOT: 0.00000062\ncell 0-10\n : 0.00000019\n ROOT: 0.00000019\n");
@@ -421,7 +425,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(grammarString);
     
     String inputSentence = "b c";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -448,8 +452,8 @@ public class EarleyParserTest extends TestCase {
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
-      System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (A (B b) (C c)))");
+      System.err.println(tree.pennString());
+      assertEquals(tree.toString(), "( (ROOT (A (B b) (C c))))");
     }
   }
   
@@ -457,7 +461,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(grammarString);
     
     String inputSentence = "a";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -482,7 +486,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(grammarString);
     
     String inputSentence = "d e";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -512,8 +516,8 @@ public class EarleyParserTest extends TestCase {
 
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
-      System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (A (D d) (B e)))");
+      System.err.println(tree.pennString());
+      assertEquals(tree.toString(), "( (ROOT (A (D d) (B e))))");
     }
   }
   
@@ -521,7 +525,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(recursiveGrammarString);
     
     String inputSentence = "d d b c";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -559,8 +563,8 @@ public class EarleyParserTest extends TestCase {
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
-      System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (A (D d) (A (A (D d) (B b)) (C c))))");
+      System.err.println(tree.pennString());
+      assertEquals(tree.toString(), "( (ROOT (A (D d) (B (A (B (A (D d) (B b))) (C c))))))");
     }
   }
   
@@ -569,7 +573,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromFile(wsj500AG);
     
     String inputSentence = "The two young sea-lions took not the slightest interest in our arrival .";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -610,8 +614,8 @@ public class EarleyParserTest extends TestCase {
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
-      System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (S (NP (DT The) (CD two)) (ADJP (JJ young) (PP sea-lions)) (VP (VBD took) (RB not) (NP (DT the) (NNP slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NNS arrival)))) (. .)))");
+      System.err.println(tree.pennString());
+      assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) (CD two)) (ADJP (JJ young) (PP sea-lions)) (VP (VBD took) (PRT (RB not)) (NP (DT the) (NNP slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NNS arrival)))) (. .))))");
     }
   }
   
@@ -619,7 +623,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromFile(wsj500);
     
     String inputSentence = "The two young sea-lions took not the slightest interest in our arrival .";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -660,7 +664,7 @@ public class EarleyParserTest extends TestCase {
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
       System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (S (NP (DT The) (CD two) (JJ young) (NNS sea-lions)) (VP (VBD took) (RB not) (NP (NP (DT the) (NN slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NN arrival))))) (. .)))");
+      assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) (CD two) (JJ young) (NNS sea-lions)) (VP (VBD took) (ADVP (RB not)) (NP (NP (DT the) (NN slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NN arrival))))) (. .))))");
     }
     
     if(insideOutsideOpt>0){
@@ -672,7 +676,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromFile(wsj5);
     
     String inputSentence = "The two young sea-lions .";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -694,8 +698,8 @@ public class EarleyParserTest extends TestCase {
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
-      System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (S (NP (DT The) (VBG two) (NN young)) (VBD sea-lions) (. .)))");
+      System.err.println(tree.pennString());
+      assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) (VBG two) (NN young)) (VP (VBD sea-lions)) (. .))))");
     }
     
     assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n DT: 0.12500000\ncell 1-2\n ,: 0.07692308\n .: 0.16666667\n CC: 0.11111111\n VBD: 0.07142857\n VBZ: 0.20000000\n ``: 0.66666667\n TO: 0.33333333\n VB: 0.33333333\n NN: 0.03030303\n DT: 0.06250000\n JJ: 0.09090909\n NNPS: 0.16666667\n NNP: 0.02777778\n NNS: 0.11111111\n PRP: 0.40000000\n CD: 0.09090909\n POS: 0.33333333\n VBG: 0.33333333\n IN: 0.11764706\n $: 0.33333333\n RB: 0.33333333\n '': 0.66666667\ncell 2-3\n ,: 0.07692308\n .: 0.16666667\n CC: 0.11111111\n VBD: 0.07142857\n VBZ: 0.20000000\n ``: 0.66666667\n TO: 0.33333333\n VB: 0.33333333\n NN: 0.03030303\n DT: 0.06250000\n JJ: 0.09090909\n NNPS: 0.16666667\n NNP: 0.02777778\n NNS: 0.11111111\n PRP: 0.20000000\n CD: 0.09090909\n POS: 0.33333333\n VBG: 0.33333333\n IN: 0.05882353\n $: 0.33333333\n RB: 0.33333333\n '': 0.66666667\ncell 3-4\n ,: 0.07692308\n .: 0.16666667\n CC: 0.11111111\n VBD: 0.07142857\n VBZ: 0.20000000\n ``: 0.66666667\n TO: 0.33333333\n VB: 0.33333333\n NN: 0.03030303\n DT: 0.06250000\n JJ: 0.09090909\n NNPS: 0.16666667\n NNP: 0.02777778\n NNS: 0.11111111\n PRP: 0.20000000\n CD: 0.09090909\n POS: 0.33333333\n VBG: 0.33333333\n IN: 0.05882353\n $: 0.33333333\n RB: 0.33333333\n '': 0.66666667\ncell 4-5\n .: 0.83333333\ncell 0-2\n NP: 0.00053163\ncell 2-4\n VP: 0.00119865\n PP: 0.00099655\ncell 0-3\n : 0.00000253\n S: 0.00000316\n NP: 0.00002531\ncell 1-4\n QP: 0.00275482\ncell 0-4\n : 0.00000054\n S: 0.00000068\n NP: 0.00000627\ncell 0-5\n : 0.00000013\n S: 0.00000016\n");
@@ -706,11 +710,33 @@ public class EarleyParserTest extends TestCase {
     }
   }
 
+  public void testSocialViterbi(){
+    rootSymbol = "Sentence";
+    initParserFromFile(social);
+    
+    String inputSentence = ".dog kid.eyes mom.eyes # .pig kid.hands # ## and whats that is this a puppy dog";
+
+    parser.parseSentence(inputSentence);    
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      assertEquals(tree.toString(), "( (Sentence (Topic.dog (T.dog (PSEUDO.DOG .dog) (Socials.Topical.kid.eyes (PSEUDOKID.EYES kid.eyes) (Socials.Topical.kid.hands (Socials.Topical.mom.eyes (PSEUDOMOM.EYES mom.eyes) (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None (T.None (PSEUDO.PIG .pig) (Socials.NotTopical.kid.eyes (Socials.NotTopical.kid.hands (PSEUDOKID.HANDS kid.hands) (Socials.NotTopical.mom.eyes (Socials.NotTopical.mom.hands (Socials.NotTopical.mom.point #)))))) (Topic.None ##))) (Words.dog (Word.dog (Word and)) (Words.dog (Word.dog (Word whats)) (Words.dog (Word.dog (Word that)) (Words.dog (Word.dog (Word is)) (Words.dog (Word.dog (Word this)) (Words.dog (Word.dog (Word a)) (Words.dog (Word.dog (Word puppy)) (Words.dog (Word.dog (Word dog))))))))))))");
+      
+    }
+    
+    assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n PSEUDO.DOG: 1.00000000\ncell 1-2\n PSEUDOKID.EYES: 1.00000000\ncell 2-3\n PSEUDOMOM.EYES: 1.00000000\ncell 3-4\n Socials.NotTopical.mom.point: 0.99549190\n Socials.Topical.mom.point: 0.92405510\n PSEUDO#: 1.00000000\ncell 4-5\n PSEUDO.PIG: 1.00000000\ncell 5-6\n PSEUDOKID.HANDS: 1.00000000\ncell 6-7\n Socials.NotTopical.mom.point: 0.99549190\n Socials.Topical.mom.point: 0.92405510\n PSEUDO#: 1.00000000\ncell 7-8\n Topic.None: 0.63920330\ncell 8-9\n Word: 0.00851272\ncell 9-10\n Word: 0.00748251\ncell 10-11\n Word: 0.02309819\ncell 11-12\n Word: 0.01756764\ncell 12-13\n Word: 0.01458548\ncell 13-14\n Word: 0.02347774\ncell 14-15\n Word: 0.00124709\ncell 15-16\n Word: 0.00374126\ncell 2-4\n Socials.Topical.mom.eyes: 0.16067402\n Socials.NotTopical.mom.eyes: 0.02254171\ncell 5-7\n Socials.Topical.kid.hands: 0.12705360\n Socials.NotTopical.kid.hands: 0.14238099\ncell 8-10\n Words.None: 0.00001163\n Words.pig: 0.00001240\n Words.dog: 0.00001246\ncell 9-11\n Words.None: 0.00003154\n Words.pig: 0.00003366\n Words.dog: 0.00003382\ncell 10-12\n Words.None: 0.00007406\n Words.pig: 0.00007902\n Words.dog: 0.00007939\ncell 11-13\n Words.None: 0.00004677\n Words.pig: 0.00004990\n Words.dog: 0.00005013\ncell 12-14\n Words.None: 0.00006250\n Words.pig: 0.00006668\n Words.dog: 0.00006700\ncell 13-15\n Words.None: 0.00000534\n Words.pig: 0.00000570\n Words.dog: 0.00000573\ncell 14-16\n Words.None: 0.00000085\n Words.pig: 0.00000091\n Words.dog: 0.00000091\ncell 1-4\n Socials.Topical.kid.eyes: 0.06265375\n Socials.NotTopical.kid.eyes: 0.00088929\ncell 4-7\n T.None: 0.02151436\n T.pig: 0.03711361\ncell 8-11\n Words.None: 0.00000020\n Words.pig: 0.00000021\n Words.dog: 0.00000021\ncell 9-12\n Words.None: 0.00000042\n Words.pig: 0.00000043\n Words.dog: 0.00000044\ncell 10-13\n Words.None: 0.00000082\n Words.pig: 0.00000085\n Words.dog: 0.00000085\ncell 11-14\n Words.None: 0.00000083\n Words.pig: 0.00000086\n Words.dog: 0.00000086\ncell 12-15\n Words.None: 0.00000006\n Words.pig: 0.00000006\n Words.dog: 0.00000006\ncell 13-16\n Words.None: 0.00000002\n Words.pig: 0.00000002\n Words.dog: 0.00000002\ncell 0-4\n T.dog: 0.06265375\n T.None: 0.00017776\ncell 4-8\n Topic.None: 0.00496169\n Topic.pig: 0.01227555\ncell 8-12\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 9-13\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 10-14\n Words.None: 0.00000001\n Words.pig: 0.00000001\n Words.dog: 0.00000001\ncell 11-15\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 12-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 8-13\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 9-14\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 10-15\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 11-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 8-14\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 9-15\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 10-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 8-15\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 9-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 0-8\n Topic.None: 0.00000032\n Topic.dog: 0.00030248\n Topic.pig: 0.00000105\ncell 8-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 0-9\n : 0.00000010\n Sentence: 0.00000010\ncell 0-10\n : 0.00000000\n Sentence: 0.00000000\ncell 0-11\n : 0.00000000\n Sentence: 0.00000000\ncell 0-12\n : 0.00000000\n Sentence: 0.00000000\ncell 0-13\n : 0.00000000\n Sentence: 0.00000000\ncell 0-14\n : 0.00000000\n Sentence: 0.00000000\ncell 0-15\n : 0.00000000\n Sentence: 0.00000000\ncell 0-16\n : 0.00000000\n Sentence: 0.00000000\n");
+    if(insideOutsideOpt>0){
+      assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n PSEUDO.DOG: 0.00000000\ncell 1-2\n PSEUDOKID.EYES: 0.00000000\ncell 2-3\n PSEUDOMOM.EYES: 0.00000000\ncell 3-4\n Socials.NotTopical.mom.point: 0.00000000\n Socials.Topical.mom.point: 0.00000000\ncell 4-5\n PSEUDO.PIG: 0.00000000\ncell 5-6\n PSEUDOKID.HANDS: 0.00000000\ncell 6-7\n Socials.NotTopical.mom.point: 0.00000000\n Socials.Topical.mom.point: 0.00000000\ncell 7-8\n Topic.None: 0.00000000\ncell 8-9\n Word: 0.00000000\ncell 9-10\n Word: 0.00000000\ncell 10-11\n Word: 0.00000000\ncell 11-12\n Word: 0.00000000\ncell 12-13\n Word: 0.00000000\ncell 13-14\n Word: 0.00000000\ncell 14-15\n Word: 0.00000000\ncell 15-16\n Word: 0.00000000\ncell 2-4\n Socials.Topical.mom.eyes: 0.00000000\n Socials.NotTopical.mom.eyes: 0.00000000\ncell 5-7\n Socials.Topical.kid.hands: 0.00000000\n Socials.NotTopical.kid.hands: 0.00000000\ncell 14-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 1-4\n Socials.Topical.kid.eyes: 0.00000000\n Socials.NotTopical.kid.eyes: 0.00000000\ncell 4-7\n T.None: 0.00000000\n T.pig: 0.00000000\ncell 13-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 0-4\n T.dog: 0.00000000\n T.None: 0.00000000\ncell 4-8\n Topic.None: 0.00000000\n Topic.pig: 0.00000000\ncell 12-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 11-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 10-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000000\ncell 9-16\n Words.None: 0.00000000\n Words.pig: 0.00000000\n Words.dog: 0.00000027\ncell 0-8\n Topic.None: 0.00000000\n Topic.dog: 0.00000000\n Topic.pig: 0.00000000\ncell 8-16\n Words.None: 0.00000003\n Words.pig: 0.00000021\n Words.dog: 0.00004305\ncell 0-16\n : 1.00000000\n Sentence: 1.00000000\n");
+    
+      assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n1.000000 PSEUDO.PIG->[_.pig]\n0.994243 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n0.004899 T.pig->[PSEUDO.PIG Socials.Topical.kid.eyes]\n0.019596 Word.pig->[Word]\n1.000000 Topic.None->[_##]\n0.995959 Topic.None->[T.None Topic.None]\n3.976971 Word.dog->[Word]\n1.000000 PSEUDOKID.HANDS->[_kid.hands]\n0.000858 Words.None->[Word.None]\n0.006007 Words.None->[Word.None Words.None]\n1.000000 PSEUDOKID.EYES->[_kid.eyes]\n1.000858 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n0.994243 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n0.004899 Socials.Topical.kid.hands->[PSEUDOKID.HANDS Socials.Topical.mom.eyes]\n4.003433 Word.None->[Word]\n1.000000 Word->[_that]\n1.000000 Word->[_a]\n1.000000 Word->[_puppy]\n1.000000 Word->[_is]\n1.000000 Word->[_and]\n1.000000 Word->[_dog]\n1.000000 Word->[_this]\n1.000000 Word->[_whats]\n0.999142 Socials.Topical.mom.point->[_#]\n0.995101 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n0.005757 T.None->[PSEUDO.DOG Socials.NotTopical.kid.eyes]\n1.000000 PSEUDO.DOG->[_.dog]\n0.002449 Words.pig->[Word.None]\n0.002449 Words.pig->[Word.pig]\n0.017146 Words.pig->[Word.pig Words.pig]\n0.017146 Words.pig->[Word.None Words.pig]\n0.994243 Topic.dog->[T.dog Topic.None]\n0.004899 Socials.Topical.mom.eyes->[Socials.Topical.mom.hands]\n0.994243 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n0.497121 Words.dog->[Word.dog]\n0.497121 Words.dog->[Word.None]\n3.479850 Words.dog->[Word.None Words.dog]\n3.479850 Words.dog->[Word.dog Words.dog]\n0.999142 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n0.000858 Sentence->[Topic.None Words.None]\n0.994243 Sentence->[Topic.dog Words.dog]\n0.004899 Sentence->[Topic.pig Words.pig]\n0.004899 Socials.Topical.kid.eyes->[Socials.Topical.kid.hands]\n0.994243 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n0.005757 Socials.NotTopical.mom.eyes->[PSEUDOMOM.EYES Socials.NotTopical.mom.hands]\n0.995101 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n0.004899 Topic.pig->[T.pig Topic.None]\n0.004899 Topic.pig->[T.None Topic.pig]\n1.000000 PSEUDOMOM.EYES->[_mom.eyes]\n0.995101 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n0.005757 Socials.NotTopical.kid.eyes->[PSEUDOKID.EYES Socials.NotTopical.kid.hands]\n0.995101 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n0.005757 Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes]\n1.000858 Socials.NotTopical.mom.point->[_#]\n");
+    }
+  }
+  
   public void testExtendedRule(){
     initParserFromString(extendedGrammarString);
     
     String inputSentence = "b c";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     
     parser.parseSentence(inputSentence);
     
@@ -727,7 +753,7 @@ public class EarleyParserTest extends TestCase {
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
       System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (A (B b) (C c)))");
+      assertEquals(tree.toString(), "( (ROOT (A (B b) (C c))))");
     }
   }
 
@@ -741,7 +767,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(simpleExtendedGrammarString);
     
     String inputSentence = "b c";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -756,8 +782,8 @@ public class EarleyParserTest extends TestCase {
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
-      System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (A b c))");
+      System.err.println(tree.pennString());
+      assertEquals(tree.toString(), "( (ROOT (A b c)))");
     }
   }
   
@@ -774,7 +800,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(simpleExtendedGrammarString);
     
     String inputSentence = "b c";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -794,8 +820,8 @@ public class EarleyParserTest extends TestCase {
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
-      System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (A b c))");
+      System.err.println(tree.pennString());
+      assertEquals(tree.toString(), "( (ROOT (A b c)))");
     }
   }
   
@@ -827,7 +853,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(simpleExtendedGrammarString);
     
     String inputSentence = "b c d";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -850,7 +876,7 @@ public class EarleyParserTest extends TestCase {
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
       System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (A b c d))");
+      assertEquals(tree.toString(), "( (ROOT (A b c d)))");
     }
   }
   
@@ -876,7 +902,7 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(complexAGGrammarString);
     
     String inputSentence = "a b c";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
+
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();
@@ -933,7 +959,6 @@ public class EarleyParserTest extends TestCase {
     initParserFromString(simpleExtendedGrammarString);
     
     String inputSentence = "a b c";
-    System.err.println("\n### Run test parsing with string \"" + inputSentence + "\"");
     parser.parseSentence(inputSentence);
     
     List<Double> surprisalList = parser.getSurprisalList();

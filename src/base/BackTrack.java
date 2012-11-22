@@ -3,6 +3,9 @@
  */
 package base;
 
+import parser.EdgeSpace;
+import edu.stanford.nlp.util.Index;
+
 /**
  * we will store for every right: left X -> \alpha Y . \beta
  * a backtrack information (completed edge) right: middle Y -> v .
@@ -21,5 +24,9 @@ public class BackTrack {
     this.edge = edge;
     this.middle = middle;
     this.parentInnerScore = parentInnerScore;
+  }
+  
+  public String toString(Index<String> tagIndex, Index<String> wordIndex, EdgeSpace edgeSpace){
+    return "(" + middle + ", " + edgeSpace.get(edge).toString(tagIndex, wordIndex) + ")";
   }
 }

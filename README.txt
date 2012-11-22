@@ -93,6 +93,45 @@ You should see the same results as below:
 
 The final grammar is outputed into output/result.iogrammar .
 
-/********/
-/* Note */
-/********/
+/*******************/
+/* Other Util code */
+/*******************/
+* Read WSJ-format file, extract grammar rules, smooth, and output to a file
+java -cp "earleyx.jar;lib/*" util.TreeBankFile -in data/WSJ-processed.MRG.5 -out grammars/wsj5.grammar -opt 1
+
+* For social cue data, remove pseudo node
+java -cp "earleyx.jar;lib/*" util.TreeBankFile -in output/social.viterbi -out output/social.viterbi.clean -opt 3
+
+Before:
+( (Sentence (Topic.dog (T.dog (PSEUDO.DOG .dog) (Socials.Topical.kid.eyes (PSEUDOKID.EYES kid.eyes) (Socials.Topical.mom.eyes (PSEUDOMOM.EYES mom.eyes) (Socials.Topical.mom.point #)))) (Topic.None (T.None (PSEUDO.PIG .pig) (Socials.NotTopical.kid.hands (PSEUDOKID.HANDS kid.hands) (Socials.NotTopical.mom.point #))) (Topic.None ##))) (Words.dog (Word and) (Words.dog (Word whats) (Words.dog (Word that) (Words.dog (Word is) (Words.dog (Word this) (Words.dog (Word a) (Words.dog (Word puppy) (Word dog))))))))))
+After:
+(ROOT (Sentence (Topic.dog (T.dog .dog (Socials.Topical.kid.eyes kid.eyes (Socials.Topical.mom.eyes mom.eyes (Socials.Topical.mom.point #)))) (Topic.None (T.None .pig (Socials.NotTopical.kid.hands kid.hands (Socials.NotTopical.mom.point #))) (Topic.None ##))) (Words.dog (Word and) (Words.dog (Word whats) (Words.dog (Word that) (Words.dog (Word is) (Words.dog (Word this) (Words.dog (Word a) (Words.dog (Word puppy) (Word dog))))))))))
+
+* Read WSJ-format file, print pretty trees to file
+java -cp "earleyx.jar;lib/*" util.TreeBankFile -in output/social.viterbi.clean -out output/social.viterbi.clean.pretty -opt 2
+
+Print
+(ROOT
+  (Sentence
+    (Topic.dog
+      (T.dog
+        .dog
+        (Socials.Topical.kid.eyes
+          kid.eyes
+          (Socials.Topical.mom.eyes
+            mom.eyes
+            (Socials.Topical.mom.point #))))
+      (Topic.None
+        (T.None
+          .pig
+          (Socials.NotTopical.kid.hands
+            kid.hands
+            (Socials.NotTopical.mom.point #)))
+        (Topic.None ##)))
+    (Words.dog (Word and)
+      (Words.dog (Word whats)
+        (Words.dog (Word that)
+          (Words.dog (Word is)
+            (Words.dog (Word this)
+              (Words.dog (Word a)
+                (Words.dog (Word puppy) (Word dog))))))))))
