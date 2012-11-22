@@ -523,6 +523,9 @@ public abstract class EarleyParser implements Parser {
       if(verbose>=1){
         System.err.println(sb.toString());
       }
+      if(verbose>=0 && right%100==0){
+        System.err.print(" (" + right + ") ");
+      }
     }
 
     if(verbose>=4){
@@ -533,10 +536,10 @@ public abstract class EarleyParser implements Parser {
     
     // inside-outside    
     double rootInnerScore = getInnerScore(0, numWords, goalEdge);
+    if(verbose>=0){
+      System.err.println("\n# Root prob: " + operator.getProb(rootInnerScore));
+    }
     if(insideOutsideOpt>0 && rootInnerScore>operator.zero()){ 
-      if(verbose>=0){
-        System.err.println("Root prob: " + operator.getProb(rootInnerScore));
-      }
       computeOutsideProbs(rootInnerScore);
       
       if(verbose>=4){
