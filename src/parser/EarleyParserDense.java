@@ -17,10 +17,10 @@ import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Timing;
 
 public class EarleyParserDense extends EarleyParser{
-  protected boolean[][] chartEntries; // chartEntries[linear[left][right]][edge]
+  protected boolean[][] chartEntries; // chartEntries[linear(left, right)][edge]
   protected double[][] forwardProb;
   protected double[][] innerProb;
-  protected int[] chartCount; // chartCount[linear[left][right]]: how many edges at the cell [left, right]
+  protected int[] chartCount; // chartCount[linear(left, right)]: how many edges at the cell [left, right]
   
   // outside
   protected double[][] outerProb;
@@ -82,12 +82,12 @@ public class EarleyParserDense extends EarleyParser{
     
     boolean flag = false;
     for (int left = 0; left <= right; left++) {
-      int lrIndex = linear[left][right]; // left right index
+      int lrIndex = linear(left, right); // left right index
       if (chartCount[lrIndex]==0){ // no active categories
         continue;
       }
       if(verbose>=3){
-        System.err.println("\n# Predict all [" + left + "," + right + "]: chart count=" + chartCount[linear[left][right]]);
+        System.err.println("\n# Predict all [" + left + "," + right + "]: chart count=" + chartCount[linear(left, right)]);
       }
       
       flag = true;
@@ -101,7 +101,7 @@ public class EarleyParserDense extends EarleyParser{
     
     // replace old entries with recently predicted entries
     // all predictions will have the form right: right Y -> _
-    int rrIndex = linear[right][right]; // right right index
+    int rrIndex = linear(right, right); // right right index
     chartEntries[rrIndex] = predictedChartEntries;
     forwardProb[rrIndex] = predictedForwardProb;
     innerProb[rrIndex] = predictedInnerProb;
@@ -122,7 +122,7 @@ public class EarleyParserDense extends EarleyParser{
       
       // spawn new edge
       int newEdge = p.predictedState;
-      double newForwardProb = operator.multiply(forwardProb[linear[left][right]][edge], p.forwardProbMultiplier);
+      double newForwardProb = operator.multiply(forwardProb[linear(left, right)][edge], p.forwardProbMultiplier);
       double newInnerProb = p.innerProbMultiplier;
       
       // add to tmp arrays
@@ -145,7 +145,7 @@ public class EarleyParserDense extends EarleyParser{
   
   @Override
   protected void completeAll(int left, int middle, int right) {
-    int mrIndex = linear[middle][right]; // middle right index
+    int mrIndex = linear(middle, right); // middle right index
     if(verbose>=3){
       System.err.println("\n# Complete all [" + left + "," + middle + "," + right + "]: chartCount[" 
           + middle + "," + right + "]=" + chartCount[mrIndex]);
@@ -188,7 +188,7 @@ public class EarleyParserDense extends EarleyParser{
     }
 
     // completions yield edges: right: left X -> _ Y . _
-    int lrIndex = linear[left][right];
+    int lrIndex = linear(left, right);
     Pair<boolean[], Integer> pair = booleanUnion(chartEntries[lrIndex], theseChartEntries);;
     chartEntries[lrIndex] = pair.first;
     chartCount[lrIndex] = pair.second;
@@ -207,10 +207,10 @@ public class EarleyParserDense extends EarleyParser{
     }
    
     if (isScaling){
-      inner = operator.multiply(inner, scalingMatrix[linear[middle][right]]);
+      inner = operator.multiply(inner, getScaling(middle, right));
     }
     
-    int lmIndex = linear[left][middle]; // left middle index
+    int lmIndex = linear(left, middle); // left middle index
     
     // the current AG rule: Y -> w_middle ... w_(right-1) .
     for (int x = 0, n = completions.length; x < n; x++) {
@@ -252,7 +252,7 @@ public class EarleyParserDense extends EarleyParser{
   */
   protected void addToChart(int left, int right, int edge,  
      double forward, double inner) {
-    int lrIndex = linear[left][right]; // left right index
+    int lrIndex = linear(left, right); // left right index
     assert(chartEntries[lrIndex][edge] == false);
    
     chartEntries[lrIndex][edge] = true;
@@ -280,13 +280,13 @@ public class EarleyParserDense extends EarleyParser{
   
   @Override
   protected boolean containsEdge(int left, int right, int edge) {
-    return chartEntries[linear[left][right]][edge];
+    return chartEntries[linear(left, right)][edge];
   }
 
   
   @Override
   protected int chartCount(int left, int right) {
-    return chartCount[linear[left][right]];
+    return chartCount[linear(left, right)];
   }
 
   
@@ -328,37 +328,37 @@ public class EarleyParserDense extends EarleyParser{
   /** Forward probabilities **/
   /***************************/
   protected double getForwardScore(int left, int right, int edge){
-    return forwardProb[linear[left][right]][edge];
+    return forwardProb[linear(left, right)][edge];
   }
   
   protected void addForwardScore(int left, int right, int edge, double score){
-    forwardProb[linear[left][right]][edge] = 
-      operator.add(forwardProb[linear[left][right]][edge], score);
+    forwardProb[linear(left, right)][edge] = 
+      operator.add(forwardProb[linear(left, right)][edge], score);
   }
   
   /*************************/
   /** Inner probabilities **/
   /*************************/
   protected double getInnerScore(int left, int right, int edge){
-    return innerProb[linear[left][right]][edge];
+    return innerProb[linear(left, right)][edge];
   }
   
   protected void addInnerScore(int left, int right, int edge, double score){
-    innerProb[linear[left][right]][edge] = 
-      operator.add(innerProb[linear[left][right]][edge], score);
+    innerProb[linear(left, right)][edge] = 
+      operator.add(innerProb[linear(left, right)][edge], score);
   }
   
   /*************************/
   /** Outer probabilities **/
   /*************************/
   protected double getOuterScore(int left, int right, int edge){
-    return outerProb[linear[left][right]][edge];
+    return outerProb[linear(left, right)][edge];
   }
 
   @Override
   protected void addOuterScore(int left, int right, int edge, double score) {
-    outerProb[linear[left][right]][edge] = 
-      operator.add(outerProb[linear[left][right]][edge], score);
+    outerProb[linear(left, right)][edge] = 
+      operator.add(outerProb[linear(left, right)][edge], score);
   }
   
   
@@ -372,7 +372,7 @@ public class EarleyParserDense extends EarleyParser{
   /** Debug info **/
   /****************/
   public String edgeScoreInfo(int left, int right, int edge){
-    return edgeScoreInfo(left, right, edge, forwardProb[linear[left][right]][edge], innerProb[linear[left][right]][edge]);
+    return edgeScoreInfo(left, right, edge, forwardProb[linear(left, right)][edge], innerProb[linear(left, right)][edge]);
   }
   
   protected String dumpChart(double[][] chart, boolean isOnlyCategory, boolean isOutsideProb, String name) {
@@ -385,10 +385,10 @@ public class EarleyParserDense extends EarleyParser{
         // scaling
         double scalingFactor = operator.one();
         if (isScaling){
-          scalingFactor = scalingMatrix[linear[left][right]];
+          scalingFactor = getScaling(left, right);
         }
   
-        int lrIndex = linear[left][right];
+        int lrIndex = linear(left, right);
         if(chartCount[lrIndex]>0){ // there're active states
           if(isOnlyCategory){ // print by tags (completed edges)
             Map<Integer, Double> tagMap = new TreeMap<Integer, Double>();
@@ -481,7 +481,7 @@ public class EarleyParserDense extends EarleyParser{
 //protected void outside(int start, int end, int rootEdge, double rootInsideScore) {
 //  assert(start<end);
 //
-//  // configurations.get(linear[left][right]): set of edges to compute outside
+//  // configurations.get(linear(left, right)): set of edges to compute outside
 //  Map<Integer, Set<Integer>> configurations = new HashMap<Integer, Set<Integer>>();
 //  
 //  // init
@@ -489,21 +489,21 @@ public class EarleyParserDense extends EarleyParser{
 //    for (int left=0; left<=end-length; left++){
 //      int right = left+length;
 //      
-//      configurations.put(linear[left][right], new HashSet<Integer>());
+//      configurations.put(linear(left, right), new HashSet<Integer>());
 //    }
 //  }
-//  configurations.get(linear[start][end]).add(rootEdge); // add starting edge
+//  configurations.get(linear(start, end)).add(rootEdge); // add starting edge
 //  
 //  // outside
 //  for(int length=end-start; length>=0; length--){
 //    for (int left=0; left<=end-length; left++){
 //      int right = left+length;
 //      
-//      Set<Integer> edges = configurations.get(linear[left][right]);
+//      Set<Integer> edges = configurations.get(linear(left, right));
 //      while(edges.size()>0){ // while there're still edges to consider
 //        Integer[] copyEdges = edges.toArray(new Integer[0]);
 //        for(int edge : copyEdges){
-//          double parentOutside = outerProb[linear[left][right]][edge];
+//          double parentOutside = outerProb[linear(left, right)][edge];
 //          Edge edgeObj = edgeSpace.get(edge);
 //          
 //          if(edgeObj.getDot()>0){ // X -> _ Z . \alpha
@@ -519,19 +519,19 @@ public class EarleyParserDense extends EarleyParser{
 //            }
 //            
 //            for(int middle=right-1; middle>=0; middle--){ // middle
-//              if(chartEntries[linear[left][middle]][prevEdge]){
-//                double leftInside = innerProb[linear[left][middle]][prevEdge];
+//              if(chartEntries[linear(left, middle)][prevEdge]){
+//                double leftInside = innerProb[linear(left, middle)][prevEdge];
 //                if(verbose>=4){
 //                  System.err.println("  left inside [" + left + ", " + middle + "] " + operator.getProb(leftInside));
 //                }
 //                
-//                for(int nextEdge : completedEdges.get(linear[middle][right])){ // Y -> v .
+//                for(int nextEdge : completedEdges.get(linear(middle, right))){ // Y -> v .
 //                  Edge nextEdgeObj = edgeSpace.get(nextEdge);
 //                  int nextTag = nextEdgeObj.getMother();
 //                  double unaryScore = g.getUnaryClosures().get(prevTag, nextTag);
 //                  
 //                  if(unaryScore > operator.zero()) { // positive R(Z -> Y)
-//                    double rightInside = innerProb[linear[middle][right]][nextEdge];
+//                    double rightInside = innerProb[linear(middle, right)][nextEdge];
 //                    
 //                    if(verbose>=4) {
 //                      System.err.println("    next edge [" + middle + ", " + right + "] " + 
@@ -555,11 +555,11 @@ public class EarleyParserDense extends EarleyParser{
 //                    // recursive call
 //                    if(middle>left){
 //                      assert(middle != right || prevEdge != edge);
-//                      configurations.get(linear[left][middle]).add(prevEdge);
+//                      configurations.get(linear(left, middle)).add(prevEdge);
 //                    }
 //                    if(right>middle){ //  && nextEdgeObj.numChildren()>0 
 //                      assert(middle != left || nextEdge != edge);
-//                      configurations.get(linear[middle][right]).add(nextEdge);
+//                      configurations.get(linear(middle, right)).add(nextEdge);
 //                    }
 //                  }
 //                } // end nextEdge
@@ -576,10 +576,10 @@ public class EarleyParserDense extends EarleyParser{
 //}
 
 // inside-outside
-//protected boolean[][] ioEntries; // ioEntries[linear[left][right]][edge]
+//protected boolean[][] ioEntries; // ioEntries[linear(left, right)][edge]
 //protected double[][] insideChart;
 //protected double[][] outsideChart;
-//protected int[] ioCount; // ioCount[linear[left][right]]: how many categories at the cell [left, right]
+//protected int[] ioCount; // ioCount[linear(left, right)]: how many categories at the cell [left, right]
 
 //// io init
 //ioEntries = new boolean[numCells][numCategories];
@@ -614,7 +614,7 @@ public class EarleyParserDense extends EarleyParser{
 //    System.err.println(completionInfo(left, middle, right, edge, inner, completions));
 //  }
 //  
-//  int lmIndex = linear[left][middle]; // left middle index
+//  int lmIndex = linear(left, middle); // left middle index
 //  for (int x = 0, n = completions.length; x < n; x++) { // go through all completions we could finish
 //    Completion completion = completions[x];
 //    
@@ -633,7 +633,7 @@ public class EarleyParserDense extends EarleyParser{
 //        Edge edgeObj = edgeSpace.get(completion.completedEdge);
 //        
 //        if(edgeObj.numRemainingChildren()==0){ // complete right: left X -> _ Y .
-//          completedEdges.get(linear[left][right]).add(completion.completedEdge);
+//          completedEdges.get(linear(left, right)).add(completion.completedEdge);
 //          
 //          if(verbose>=3){
 //            System.err.println("# Add completed edge for outside computation " + edgeInfo(left, right, completion.completedEdge));
@@ -672,7 +672,7 @@ public class EarleyParserDense extends EarleyParser{
  * Add this state into IO cell [left, right]
  */
 //protected void addToIOChart(int left, int right, int tag,  double inner) {
-//  int lrIndex = linear[left][right]; // left right index
+//  int lrIndex = linear(left, right); // left right index
 //  assert(ioEntries[lrIndex][tag] == false);
 //  
 //  ioEntries[lrIndex][tag] = true;
@@ -693,7 +693,7 @@ public class EarleyParserDense extends EarleyParser{
 //        }
 //      }
 //      
-//      int lrIndex = linear[left][right];
+//      int lrIndex = linear(left, right);
 //      if(chartCount[lrIndex]>0){
 //        System.err.println("cell " + left + "-" + right);
 //        for(int edge=0; edge<edgeSpaceSize; edge++){

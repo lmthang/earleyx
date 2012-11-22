@@ -22,11 +22,11 @@ import edu.stanford.nlp.util.Timing;
  *
  */
 public class EarleyParserSparse extends EarleyParser {
-  protected Map<Integer, Map<Integer, Double>> forwardProb;   // forwardProb.get(linear[left][right]).get(edge)
-  protected Map<Integer, Map<Integer, Double>> innerProb;     // innerProb.get(linear[left][right]).get(edge)
+  protected Map<Integer, Map<Integer, Double>> forwardProb;   // forwardProb.get(linear(left, right)).get(edge)
+  protected Map<Integer, Map<Integer, Double>> innerProb;     // innerProb.get(linear(left, right)).get(edge)
 
   /* for inside-outside computation, currently works when isLeftWildcard=false */
-  protected Map<Integer, Map<Integer, Double>> outerProb;     // innerProb.get(linear[left][right]).get(edge)
+  protected Map<Integer, Map<Integer, Double>> outerProb;     // innerProb.get(linear(left, right)).get(edge)
 
   public EarleyParserSparse(BufferedReader br, String rootSymbol,
       boolean isScaling, boolean isLogProb, int insideOutsideOpt,
@@ -53,19 +53,10 @@ public class EarleyParserSparse extends EarleyParser {
   
     forwardProb = new HashMap<Integer, Map<Integer,Double>>();
     innerProb = new HashMap<Integer, Map<Integer,Double>>();
-   
-    for (int i = 0; i < numCells; i++) {
-      forwardProb.put(i, new HashMap<Integer, Double>());
-      innerProb.put(i, new HashMap<Integer, Double>());
-    }
-    
+
     // compute outside
     if(insideOutsideOpt>0){
       outerProb = new HashMap<Integer, Map<Integer,Double>>();
-      
-      for (int i = 0; i < numCells; i++) {
-        outerProb.put(i, new HashMap<Integer, Double>());
-      }
     }
   }
   
@@ -75,8 +66,12 @@ public class EarleyParserSparse extends EarleyParser {
   @Override
   protected void addToChart(int left, int right, int edge, double logForward,
       double logInner) {
-    int lrIndex = linear[left][right]; // left right index
+    int lrIndex = linear(left, right); // left right index
     
+    if(!forwardProb.containsKey(lrIndex)){
+      forwardProb.put(lrIndex, new HashMap<Integer, Double>());
+      innerProb.put(lrIndex, new HashMap<Integer, Double>());
+    }
     assert(!forwardProb.get(lrIndex).containsKey(edge));
     forwardProb.get(lrIndex).put(edge, logForward);
     innerProb.get(lrIndex).put(edge, logInner);
@@ -97,7 +92,7 @@ public class EarleyParserSparse extends EarleyParser {
     
     boolean flag = false;
     for (int left = 0; left <= right; left++) {
-      int lrIndex = linear[left][right]; // left right index
+      int lrIndex = linear(left, right); // left right index
       if (!forwardProb.containsKey(lrIndex)){ // no active categories
         continue;
       }
@@ -116,7 +111,7 @@ public class EarleyParserSparse extends EarleyParser {
     
     // replace old entries with recently predicted entries
     // all predictions will have the form right: right Y -> _
-    int rrIndex = linear[right][right]; // right right index
+    int rrIndex = linear(right, right); // right right index
     forwardProb.put(rrIndex, predictedForwardProb);
     innerProb.put(rrIndex, predictedInnerProb);
     if (verbose >= 3 && flag) {
@@ -135,9 +130,9 @@ public class EarleyParserSparse extends EarleyParser {
       
       // spawn new edge
       int newEdge = p.predictedState;
-      double newForwardProb = operator.multiply(forwardProb.get(linear[left][right]).get(edge), p.forwardProbMultiplier);
+      double newForwardProb = operator.multiply(forwardProb.get(linear(left, right)).get(edge), p.forwardProbMultiplier);
       double newInnerProb = p.innerProbMultiplier;
-      //System.err.println(forwardProb.get(linear[left][right]).get(edge) + "\t" + p.forwardProbMultiplier + "\t" + p.innerProbMultiplier);
+      //System.err.println(forwardProb.get(linear(left, right)).get(edge) + "\t" + p.forwardProbMultiplier + "\t" + p.innerProbMultiplier);
       
       // add to tmp map
       if (!predictedForwardProb.containsKey(newEdge)){ // new edge not in map
@@ -153,24 +148,26 @@ public class EarleyParserSparse extends EarleyParser {
   }
   
   protected void completeAll(int left, int middle, int right){
-    int mrIndex = linear[middle][right]; // middle right index
-    
-    // there're active edges for the span [middle, right]
-    if(verbose>=3){
-      System.err.println("\n# Complete all [" + left + "," + middle + "," + right + "]: chartCount[" 
-          + middle + "," + right + "]=" + forwardProb.get(mrIndex).size());
-    }
-    
+    int mrIndex = linear(middle, right); // middle right index
+
     // init
     theseForwardProb = new HashMap<Integer, DoubleList>();
     theseInnerProb = new HashMap<Integer, DoubleList>();
     
-    // tag completions
-    for(int edge : forwardProb.get(mrIndex).keySet()){
-      if(edgeSpace.to(edge) == -1){ // no more child after the dot
-        // right: middle Y -> _ .
-        // in completion the forward prob of Y -> _ . is ignored
-        complete(left, middle, right, edge, innerProb.get(mrIndex).get(edge)); 
+    if(forwardProb.containsKey(mrIndex)){
+      // there're active edges for the span [middle, right]
+      if(verbose>=3){
+        System.err.println("\n# Complete all [" + left + "," + middle + "," + right + "]: chartCount[" 
+            + middle + "," + right + "]=" + forwardProb.get(mrIndex).size());
+      }
+      
+      // tag completions
+      for(int edge : forwardProb.get(mrIndex).keySet()){
+        if(edgeSpace.to(edge) == -1){ // no more child after the dot
+          // right: middle Y -> _ .
+          // in completion the forward prob of Y -> _ . is ignored
+          complete(left, middle, right, edge, innerProb.get(mrIndex).get(edge)); 
+        }
       }
     }
     
@@ -192,7 +189,7 @@ public class EarleyParserSparse extends EarleyParser {
     }
 
     // completions yield edges: right: left X -> _ Y . _
-    int lrIndex = linear[left][right];
+    int lrIndex = linear(left, right);
     if(!forwardProb.containsKey(lrIndex)){
       forwardProb.put(lrIndex, new HashMap<Integer, Double>());
       innerProb.put(lrIndex, new HashMap<Integer, Double>());
@@ -213,10 +210,10 @@ public class EarleyParserSparse extends EarleyParser {
    
 
     if (isScaling){
-      inner = operator.multiply(inner, scalingMatrix[linear[middle][right]]);
+      inner = operator.multiply(inner, getScaling(middle, right));
     }
     
-    int lmIndex = linear[left][middle]; // left middle index
+    int lmIndex = linear(left, middle); // left middle index
     assert(forwardProb.containsKey(lmIndex));
     Map<Integer, Double> forwardMap = forwardProb.get(lmIndex);
     
@@ -258,7 +255,7 @@ public class EarleyParserSparse extends EarleyParser {
   
   @Override
   public String edgeScoreInfo(int left, int right, int edge) {
-    int index = linear[left][right];
+    int index = linear(left, right);
     if(forwardProb.containsKey(index) && forwardProb.get(index).containsKey(edge)){
       return edgeScoreInfo(left, right, edge, forwardProb.get(index).get(edge), innerProb.get(index).get(edge));
     } else {
@@ -268,17 +265,25 @@ public class EarleyParserSparse extends EarleyParser {
   
   @Override
   protected boolean containsEdge(int left, int right, int edge) {
-    return forwardProb.get(linear[left][right]).containsKey(edge);
+    return forwardProb.containsKey(linear(left, right)) && forwardProb.get(linear(left, right)).containsKey(edge);
   }
   
   @Override
   protected int chartCount(int left, int right) {
-    return forwardProb.get(linear[left][right]).size();
+    if(forwardProb.containsKey(linear(left, right))){
+      return forwardProb.get(linear(left, right)).size();
+    } else {
+      return 0;
+    }
   }
   
   @Override
   protected Set<Integer> listEdges(int left, int right) {
-    return forwardProb.get(linear[left][right]).keySet();
+    if(forwardProb.containsKey(linear(left, right))){
+      return forwardProb.get(linear(left, right)).keySet();
+    } else {
+      return null;
+    }
   }
 
   /****************************/
@@ -312,15 +317,27 @@ public class EarleyParserSparse extends EarleyParser {
   /** Forward probabilities **/
   /***************************/
   protected double getForwardScore(int left, int right, int edge){
-    if(!forwardProb.get(linear[left][right]).containsKey(edge)){
+    int lrIndex = linear(left, right);
+    
+    if(!forwardProb.containsKey(lrIndex)){
+      return operator.zero();
+    }
+    
+    if(!forwardProb.get(lrIndex).containsKey(edge)){
       return operator.zero();
     } else {
-      return forwardProb.get(linear[left][right]).get(edge);
+      return forwardProb.get(lrIndex).get(edge);
     }
   }
   
   protected void addForwardScore(int left, int right, int edge, double score){
-    addScore(forwardProb.get(linear[left][right]), edge, score);
+    int lrIndex = linear(left, right);
+    
+    if(!forwardProb.containsKey(lrIndex)){
+      forwardProb.put(lrIndex, new HashMap<Integer, Double>());
+    }
+    
+    addScore(forwardProb.get(lrIndex), edge, score);
   }
   
   
@@ -328,30 +345,53 @@ public class EarleyParserSparse extends EarleyParser {
   /** Inner probabilities **/
   /*************************/
   protected double getInnerScore(int left, int right, int edge){
-    if(!innerProb.get(linear[left][right]).containsKey(edge)){
+    int lrIndex = linear(left, right);
+    if(!innerProb.containsKey(lrIndex)){
+      return operator.zero();
+    }
+    
+    if(!innerProb.get(lrIndex).containsKey(edge)){
       return operator.zero();
     } else {
-      return innerProb.get(linear[left][right]).get(edge);
+      return innerProb.get(lrIndex).get(edge);
     }
   }
   
   protected void addInnerScore(int left, int right, int edge, double score){
-    addScore(innerProb.get(linear[left][right]), edge, score);
+    int lrIndex = linear(left, right);
+    
+    if(!innerProb.containsKey(lrIndex)){
+      innerProb.put(lrIndex, new HashMap<Integer, Double>());
+    }
+    
+    addScore(innerProb.get(lrIndex), edge, score);
   }
   
   /*************************/
   /** Outside computation **/
   /*************************/
   protected double getOuterScore(int left, int right, int edge){
-    if(!outerProb.get(linear[left][right]).containsKey(edge)){
+    int lrIndex = linear(left, right);
+    
+    if(!outerProb.containsKey(lrIndex)){
+      return operator.zero();
+    }
+    
+    if(!outerProb.get(lrIndex).containsKey(edge)){
       return operator.zero();
     } else {
-      return outerProb.get(linear[left][right]).get(edge);
+      return outerProb.get(lrIndex).get(edge);
     }
   }
   
   protected void addOuterScore(int left, int right, int edge, double score){
-    addScore(outerProb.get(linear[left][right]), edge, score);
+    int lrIndex = linear(left, right);
+    
+    if(!outerProb.containsKey(lrIndex)){
+      outerProb.put(lrIndex, new HashMap<Integer, Double>());
+    }
+    
+    addScore(outerProb.get(lrIndex), edge, score);
   }
   
   protected Map<Integer, Map<Integer,Double>> computeOutsideChart(){
@@ -365,13 +405,17 @@ public class EarleyParserSparse extends EarleyParser {
         for (int left = 0; left <= numWords-length; left++) {
           int right = left+length;
 
+          int lrIndex = linear(left, right);
+          if(!outerProb.containsKey(lrIndex)){
+            continue;
+          }
+          
           // scaling
           double scalingFactor = operator.one();
           if (isScaling){ // outside prob has a scaling factor for [0,left][right, numWords]
-            scalingFactor = operator.multiply(scalingMatrix[linear[0][left]], scalingMatrix[linear[right][numWords]]);
+            scalingFactor = operator.multiply(getScaling(0, left), getScaling(right, numWords));
           }
           
-          int lrIndex = linear[left][right];
           Map<Integer, Double> valueMap = outerProb.get(lrIndex);
           Map<Integer, Double> tagMap = outsideChart.get(lrIndex);
           // accumulate score for categories
@@ -415,13 +459,16 @@ public class EarleyParserSparse extends EarleyParser {
         double scalingFactor = operator.one();
         if (isScaling){
           if (isOutsideProb){ // outside prob has a scaling factor for [0,left][right, numWords]
-            scalingFactor = operator.multiply(scalingMatrix[linear[0][left]], scalingMatrix[linear[right][numWords]]);
+            scalingFactor = operator.multiply(getScaling(0, left), getScaling(right, numWords));
           } else {
-            scalingFactor = scalingMatrix[linear[left][right]];
+            scalingFactor = getScaling(left, right);
           }
         }
         
-        int lrIndex = linear[left][right];
+        int lrIndex = linear(left, right);
+        if(!chart.containsKey(lrIndex)){
+          continue;
+        }
         Map<Integer, Double> valueMap = chart.get(lrIndex);
         if(valueMap.size()>0){ // there're active states
           if(isOnlyCategory){ // print by tags (completed edges)
@@ -510,7 +557,7 @@ public class EarleyParserSparse extends EarleyParser {
 }
 
 ///** Unused code **/
-//// insideChart.get(linear[left][right]).get(tagIndex) 
+//// insideChart.get(linear(left, right)).get(tagIndex) 
 //protected Map<Integer, Map<Integer, Double>> insideChart;
 //protected Map<Integer, Map<Integer, Double>> outsideChart;
 //
@@ -543,7 +590,7 @@ public class EarleyParserSparse extends EarleyParser {
 
 //protected void outside(int left, int right, int edge){
 //  assert(left<right);
-//  double parentOutside = outerProb.get(linear[left][right]).get(edge);
+//  double parentOutside = outerProb.get(linear(left, right)).get(edge);
 //  Edge edgeObj = edgeSpace.get(edge);
 //  
 //  if(edgeObj.getDot()>0){ // X -> _ Z . \alpha
@@ -559,20 +606,20 @@ public class EarleyParserSparse extends EarleyParser {
 //    }
 //    
 //    for(int middle=right-1; middle>=0; middle--){ // middle
-//      if(innerProb.get(linear[left][middle]).containsKey(prevEdge)){
-//        double leftInside = innerProb.get(linear[left][middle]).get(prevEdge);
+//      if(innerProb.get(linear(left, middle)).containsKey(prevEdge)){
+//        double leftInside = innerProb.get(linear(left, middle)).get(prevEdge);
 //        if(verbose>=4){
 //          System.err.println("  left inside [" + left + ", " + middle + "] " + operator.getProb(leftInside));
 //        }
 //        
 //        Set<Triple<Integer, Integer, Integer>> configurations = new HashSet<Triple<Integer,Integer,Integer>>();
-//        for(int nextEdge : completedEdges.get(linear[middle][right])){ // Y -> v .
+//        for(int nextEdge : completedEdges.get(linear(middle, right))){ // Y -> v .
 //          Edge nextEdgeObj = edgeSpace.get(nextEdge);
 //          int nextTag = nextEdgeObj.getMother();
 //          double unaryScore = g.getUnaryClosures().get(prevTag, nextTag);
 //          
 //          if(unaryScore > operator.zero()) { // positive R(Z -> Y)
-//            double rightInside = innerProb.get(linear[middle][right]).get(nextEdge);
+//            double rightInside = innerProb.get(linear(middle, right)).get(nextEdge);
 //            
 //            if(verbose>=4) {
 //              System.err.println("    next edge [" + middle + ", " + right + "] " + 
@@ -632,7 +679,7 @@ public class EarleyParserSparse extends EarleyParser {
 //        }
 //      }
 //      
-//      int lrIndex = linear[left][right];
+//      int lrIndex = linear(left, right);
 //      Map<Integer, Double> insideMap = innerProb.get(lrIndex);
 //      if(insideMap.size()>0){ // there're active states
 //        System.err.println("cell " + left + "-" + right);
@@ -653,7 +700,7 @@ public class EarleyParserSparse extends EarleyParser {
 //  
 //  for (int left = 0; left <= numWords; left++) {
 //    for (int right = left; right <= numWords; right++) {
-//      int lrIndex = linear[left][right];
+//      int lrIndex = linear(left, right);
 //      
 //      int count = chart.containsKey(lrIndex) ? chart.get(lrIndex).size() : 0;
 //      if(count>0){ // there're active states
@@ -747,7 +794,7 @@ public class EarleyParserSparse extends EarleyParser {
 //  
 //}
 
-//int lrIndex = linear[left][right];
+//int lrIndex = linear(left, right);
 //for(int edge : completedEdges.get(lrIndex)){
 //  
 //}

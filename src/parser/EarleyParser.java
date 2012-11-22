@@ -116,31 +116,31 @@ public abstract class EarleyParser implements Parser {
   // Thus, scaling[i] = 1/prefixProb[i-1]
   // surprisal[i] now = -log(prefixProb[i])
   //protected double[] scaling; 
-  protected double[] scalingMatrix; // used for extended rules, scalingMatrix[left][right] = prod scaling[left+1] ... scaling[right]
+  protected Map<Integer, Double> scalingMap; // used for extended rules, scalingMatrix[left][right] = prod scaling[left+1] ... scaling[right]
   
   /** inside-outside **/
-  // completedEdges.get(linear[left][right]): set of completed edges
+  // completedEdges.get(linear(left, right)): set of completed edges
   protected Map<Integer, Set<Integer>> completedEdges;
   protected Map<Integer, Double> expectedCounts; // map rule indices (allRules) to expected counts
   
   // another way of computing expected counts
-  protected Map<Integer, Map<Integer, Double>> insideChart; // .get(linear[left][right]).get(tag): inside prob
-  protected Map<Integer, Map<Integer, Double>> outsideChart; // .get(linear[left][right]).get(tag): outside prob
+  protected Map<Integer, Map<Integer, Double>> insideChart; // .get(linear(left, right)).get(tag): inside prob
+  protected Map<Integer, Map<Integer, Double>> outsideChart; // .get(linear(left, right)).get(tag): outside prob
 
   /** Decode options **/
   // backtrack info for computing Viterbi parse
-  // .get(linear[left][right]).get(edge): back track info
+  // .get(linear(left, right)).get(edge): back track info
   // edge: X -> \alpha Y . \beta
   // backtrack info is right: middle Y -> v . that leads
   // to X -> \alpha Y . \beta with maximum inner probabilities
   protected Map<Integer, Map<Integer, BackTrack>> backtrackChart;
   
-  // .get(linear[left][right]).get(tag)
+  // .get(linear(left, right)).get(tag)
   // expected counts for tag X spaning over [left, right]
   protected Map<Integer, Map<Integer, Double>> sentExpectedCount;
   
   /** current sentence info **/
-  protected int[][] linear; // convert matrix indices [left][right] into linear indices
+//  protected int[][] linear; // convert matrix indices [left][right] into linear indices
   protected int numCells; // numCells==((numWords+2)*(numWords+1)/2)
   
   protected List<? extends HasWord> words;
@@ -514,7 +514,7 @@ public abstract class EarleyParser implements Parser {
           
           if(verbose>=0){
             sb.append("Scaled prefix probability: " + prefixProbability + "\n" +
-            "Scaling: " + scalingMatrix[linear[right-1][right]] + "\n" + 
+            "Scaling: " + getScaling(right-1, right) + "\n" + 
             "Surprisal: " + surprisalList.get(wordId) + " = -log(" + prefixProbability + ")\n");
           }
         }
@@ -567,6 +567,24 @@ public abstract class EarleyParser implements Parser {
   public String sprintUnaryChains(){
     return ruleSet.sprintUnaryChains();
   }
+  
+  public double getScaling(int left, int right){
+    if(left==right){
+      return operator.one();
+    }
+    
+    assert(right>left);
+    int lrIndex = linear(left, right);
+    if(!scalingMap.containsKey(lrIndex)){
+      double scale = operator.one();
+      for (int i = left; i < right; i++) {
+        scale = operator.multiply(scale, scalingMap.get(linear(i, i+1)));
+      }
+      scalingMap.put(lrIndex, scale);
+    }
+    return scalingMap.get(lrIndex);
+  }
+  
   /**
    * Read in the next word and build the corresponding chart entries
    * word_(rightEdge-1) corresponds to the span [rightEdge-1, rightEdge]
@@ -580,12 +598,7 @@ public abstract class EarleyParser implements Parser {
     
     /** Scaling factors **/
     if(isScaling){ // scaling
-      scalingMatrix[linear[right-1][right]] = operator.inverse(prefixProb[right-1]);
-           
-      for (int i = 0; i < (right-1); i++) {
-        scalingMatrix[linear[i][right]] = operator.multiply(scalingMatrix[linear[i][right-1]], 
-            scalingMatrix[linear[right-1][right]]);
-      }
+      scalingMap.put(linear(right-1, right), operator.inverse(prefixProb[right-1]));
     }
     
     /** Handle normal rules **/
@@ -663,9 +676,9 @@ public abstract class EarleyParser implements Parser {
     // scaling
     double inner = score;
     if(isScaling){ 
-      inner = operator.multiply(score, scalingMatrix[linear[left][right]]);
+      inner = operator.multiply(score, getScaling(left, right));
     }
-   
+    
     int edge = edgeSpace.indexOfTag(tag);
     
     if(insideOutsideOpt>0){
@@ -678,7 +691,10 @@ public abstract class EarleyParser implements Parser {
       edge = edgeSpace.addEdge(terminalEdge);
       
       // Note for EarleyParseDense: the edge value will be larger than statesSpaceSize
-      completedEdges.get(linear[left][right]).add(edge);
+      if(!completedEdges.containsKey(linear(left, right))){
+        completedEdges.put(linear(left, right), new HashSet<Integer>());
+      }
+      completedEdges.get(linear(left, right)).add(edge);
      
       if(verbose>=3){
         System.err.println("# Add completed edge for outside computation [" + left + ", " + right + "] " 
@@ -760,7 +776,10 @@ public abstract class EarleyParser implements Parser {
           Edge edgeObj = edgeSpace.get(completedEdge);
           
           if(edgeObj.numRemainingChildren()==0){ // complete right: left X -> _ Y .
-            completedEdges.get(linear[left][right]).add(completedEdge);
+            if(!completedEdges.containsKey(linear(left, right))){
+              completedEdges.put(linear(left, right), new HashSet<Integer>());
+            }
+            completedEdges.get(linear(left, right)).add(completedEdge);
       
             if(insideOutsideOpt==2){
               addToInsideChart(left, right, edgeObj.getMother(), newInnerProb);
@@ -774,7 +793,10 @@ public abstract class EarleyParser implements Parser {
         
         // Viterbi: store backtrack info
         if(decodeOpt==1){
-          Map<Integer, BackTrack> backtrackCell = backtrackChart.get(linear[left][right]);
+          if(!backtrackChart.containsKey(linear(left, right))){
+            backtrackChart.put(linear(left, right), new HashMap<Integer, BackTrack>());
+          }
+          Map<Integer, BackTrack> backtrackCell = backtrackChart.get(linear(left, right));
           if(!backtrackCell.containsKey(completedEdge)){ // no backtrack
             // store Y -> v .
             backtrackCell.put(completedEdge, new BackTrack(edge, middle, newInnerProb));
@@ -818,10 +840,12 @@ public abstract class EarleyParser implements Parser {
       System.err.println("# Completed edges:");
       for (int left = 0; left <= numWords; left++) {
         for (int right = left; right <= numWords; right++) {
-          int lrIndex = linear[left][right];
+          int lrIndex = linear(left, right);
           
-          for(int edge : completedEdges.get(lrIndex)){
-            System.err.println(edgeInfo(left, right, edge));
+          if(completedEdges.containsKey(linear(left, right))){
+            for(int edge : completedEdges.get(lrIndex)){
+              System.err.println(edgeInfo(left, right, edge));
+            }
           }
         }
       }
@@ -891,7 +915,7 @@ public abstract class EarleyParser implements Parser {
       returnTree = new LabeledScoredTreeNode(motherLabel, daughterTreesList);
     } else { // X -> \alpha Y . \beta
       assert(edge==goalEdge || edgeObj.numChildren()>1);
-      BackTrack backtrack = backtrackChart.get(linear[left][right]).get(edge);
+      BackTrack backtrack = backtrackChart.get(linear(left, right)).get(edge);
       
       // Viterbi parse: X -> \alpha . Z \beta
       Edge prevEdgeObj = edgeObj.getPrevEdge(); 
@@ -927,7 +951,7 @@ public abstract class EarleyParser implements Parser {
   protected void outside(int start, int end, int rootEdge, double rootInsideScore, int verbose){
     assert(start<end);
 
-    // configurations.get(linear[left][right]): set of edges to compute outside
+    // configurations.get(linear(left, right)): set of edges to compute outside
     Map<Integer, Set<Integer>> configurations = new HashMap<Integer, Set<Integer>>();
     
     // init
@@ -935,10 +959,10 @@ public abstract class EarleyParser implements Parser {
       for (int left=0; left<=end-length; left++){
         int right = left+length;
         
-        configurations.put(linear[left][right], new HashSet<Integer>());
+        configurations.put(linear(left, right), new HashSet<Integer>());
       }
     }
-    configurations.get(linear[start][end]).add(rootEdge); // add starting edge
+    configurations.get(linear(start, end)).add(rootEdge); // add starting edge
  
     // outside
     for(int length=end-start; length>0; length--){
@@ -949,7 +973,7 @@ public abstract class EarleyParser implements Parser {
         int right = left+length; // right
 
         // accumulate outside probabilities
-        int lrIndex = linear[left][right];
+        int lrIndex = linear(left, right);
         Set<Integer> edges = configurations.get(lrIndex);
         
         /** process edges X -> Z . \alpha **/
@@ -964,7 +988,9 @@ public abstract class EarleyParser implements Parser {
           }
           
           // X -> Z . \alpha
+          
           double parentOutside = getOuterScore(left, right, edge);
+          
           int prevTag = edgeObj.getChild(edgeObj.getDot()-1); // Z
           Edge prevEdgeObj = edgeObj.getPrevEdge(); // X -> . Z \alpha
           assert(prevEdgeObj.getDot()==0);
@@ -1002,7 +1028,8 @@ public abstract class EarleyParser implements Parser {
             
             // recursively split into strictly smaller chunks
             for(int middle=right-1; middle>left; middle--){ // middle
-              if(containsEdge(left, middle, prevEdge) && parentOutside>operator.zero()){
+              if(containsEdge(left, middle, prevEdge) && parentOutside>operator.zero()
+                  && completedEdges.containsKey(linear(middle, right))){
                 outside(left, middle, right, edge, prevTag, prevEdge, prevEdgeObj, parentOutside, rootInsideScore, configurations);
               }
             } // end for middle
@@ -1025,7 +1052,7 @@ public abstract class EarleyParser implements Parser {
           + operator.getProb(leftInside));
     }
     
-    int mrIndex = linear[middle][right];
+    int mrIndex = linear(middle, right);
     for(int nextEdge : completedEdges.get(mrIndex)){ // Y -> v .
       Edge nextEdgeObj = edgeSpace.get(nextEdge);
       int nextTag = nextEdgeObj.getMother(); // Y
@@ -1062,7 +1089,7 @@ public abstract class EarleyParser implements Parser {
         // recursive call
         if(middle>left){ // add middle: left X -> \beta . Z \alpha only if left < middle
           assert(!prevEdgeObj.isTerminalEdge());
-          configurations.get(linear[left][middle]).add(prevEdge);
+          configurations.get(linear(left, middle)).add(prevEdge);
         }
         
         assert(middle != left || nextEdge != edge);
@@ -1198,7 +1225,7 @@ public abstract class EarleyParser implements Parser {
   /** Other methods **/
   /*******************/
   protected void addToInsideChart(int left, int right, int tag, double insideScore) {
-    addScore(insideChart.get(linear[left][right]), tag, insideScore);
+    addScore(insideChart.get(linear(left, right)), tag, insideScore);
     
     if(verbose>=3){
       System.err.println("# Add inside score [" + left + ", " + right + ", " + 
@@ -1208,7 +1235,7 @@ public abstract class EarleyParser implements Parser {
   }
 
   protected void addToOutsideChart(int left, int right, int tag, double outsideScore) {
-    addScore(outsideChart.get(linear[left][right]), tag, outsideScore);
+    addScore(outsideChart.get(linear(left, right)), tag, outsideScore);
     
     if(verbose>=3){
       System.err.println("# Add outside score [" + left + ", " + right + ", " + 
@@ -1233,10 +1260,10 @@ public abstract class EarleyParser implements Parser {
         // scaling
         double scalingFactor = operator.one();
         if (isScaling){
-          scalingFactor = scalingMatrix[linear[left][right]];
+          scalingFactor = getScaling(left, right);
         }
         
-        int lrIndex = linear[left][right];
+        int lrIndex = linear(left, right);
         Map<Integer, Double> tagMap = chart.get(lrIndex);
         if(tagMap.size()>0){
           sb.append("cell " + left + "-" + right + "\n");
@@ -1257,6 +1284,10 @@ public abstract class EarleyParser implements Parser {
   }
   
   protected void addScore(Map<Integer, Double> probMap, int key, double score){
+    if(probMap == null){
+      return;
+    }
+    
     if(!probMap.containsKey(key)){
       probMap.put(key, score);
     } else {
@@ -1264,6 +1295,10 @@ public abstract class EarleyParser implements Parser {
     }
   }
   
+  // linear index of cell[left][right]
+  protected int linear(int left, int right){
+    return right*(right+1)/2 + right-left;
+  }
   
   /**
    * Initialization for every sentence
@@ -1286,22 +1321,13 @@ public abstract class EarleyParser implements Parser {
     }
     
     // map matrix indices [left][right] into linear indices
-    linear = new int[numWords+1][numWords+1];
-    // go in the order of CKY parsing
-    numCells=0;
-    for(int right=0; right<=numWords; right++){
-      for(int left=right; left>=0; left--){
-        linear[left][right] = numCells++;
-      }
-    }
-    assert(numCells==((numWords+2)*(numWords+1)/2));
-    
+    numCells = (numWords+2)*(numWords+1)/2;
+    System.err.println("# numCells = " + numCells);
     prefixProb = new double[numWords + 1];
     synPrefixProb = new double[numWords + 1];
     
     if (isScaling){
-      scalingMatrix = new double[numCells];
-      Util.init(scalingMatrix, operator.one());
+      scalingMap = new HashMap<Integer, Double>();
     }
     
     // init prefix prob
@@ -1310,20 +1336,6 @@ public abstract class EarleyParser implements Parser {
     // inside outside
     if(insideOutsideOpt>0){
       completedEdges = new HashMap<Integer, Set<Integer>>();
-      
-      for (int i = 0; i < numCells; i++) {
-        completedEdges.put(i, new HashSet<Integer>());
-      }
-      
-      if(insideOutsideOpt==2){ // standard way
-        // inside-outside chart
-        insideChart = new HashMap<Integer, Map<Integer,Double>>();
-        
-        for (int i = 0; i < numCells; i++) {
-          insideChart.put(i, new HashMap<Integer, Double>());
-        }
-        outsideChart = null; // will initialize after computing outside probs
-      }
     } 
     
     // result lists
@@ -1336,14 +1348,8 @@ public abstract class EarleyParser implements Parser {
     // Decode
     if(decodeOpt==1){ // Viterbi parse  
       backtrackChart = new HashMap<Integer, Map<Integer,BackTrack>>();
-      for (int i = 0; i < numCells; i++) {
-        backtrackChart.put(i, new HashMap<Integer, BackTrack>());
-      }
     } else if(decodeOpt==2){ // Label Recall parse
       sentExpectedCount = new HashMap<Integer, Map<Integer,Double>>();
-      for (int i = 0; i < numCells; i++) {
-        sentExpectedCount.put(i, new HashMap<Integer, Double>());
-      }
     }
   }
   
@@ -1398,7 +1404,7 @@ public abstract class EarleyParser implements Parser {
   public double stringLogProbability(int right) {
     double logProb = operator.getLogProb(getInnerScore(0, right, goalEdge));
     if(isScaling){
-      logProb -= operator.getLogProb(scalingMatrix[linear[0][right]]);
+      logProb -= operator.getLogProb(getScaling(0, right));
     }
     
     return logProb;
@@ -1576,7 +1582,7 @@ public abstract class EarleyParser implements Parser {
 ////          if (isOutsideProb){ // outside prob has a scaling factor for [0,left][right, numWords]
 ////            scalingFactor = operator.multiply(scalingMatrix[linear[0][left]], scalingMatrix[linear[right][numWords]]);
 ////          } else {
-////            scalingFactor = scalingMatrix[linear[left][right]];
+////            scalingFactor = scalingMatrix[linear(left, right)];
 ////          }
 ////        }
 //
@@ -1606,8 +1612,8 @@ public abstract class EarleyParser implements Parser {
             double innerProb = getInnerScore(left, right, edge);
             
             if(isScaling){
-              forwardProb = operator.divide(forwardProb, scalingMatrix[linear[0][right]]);
-              innerProb = operator.divide(innerProb, scalingMatrix[linear[left][right]]);
+              forwardProb = operator.divide(forwardProb, getScaling(left, right));
+              innerProb = operator.divide(innerProb, getScaling(left, right));
             }
             
             System.err.println("  " + edgeSpace.get(edge).toString(parserTagIndex, parserWordIndex) 
@@ -1682,6 +1688,29 @@ public abstract class EarleyParser implements Parser {
 }
 
 /** Unused code **/
+//linear = new int[numWords+1][numWords+1];
+//// go in the order of CKY parsing
+//numCells=0;
+//for(int right=0; right<=numWords; right++){
+//  for(int left=right; left>=0; left--){
+//    linear(left, right) = numCells++;
+//  }
+//}
+//assert(numCells==((numWords+2)*(numWords+1)/2));
+
+//for (int i = 0; i < numCells; i++) {
+//  completedEdges.put(i, new HashSet<Integer>());
+//}
+//
+//if(insideOutsideOpt==2){ // standard way
+//  // inside-outside chart
+//  insideChart = new HashMap<Integer, Map<Integer,Double>>();
+//  
+//  for (int i = 0; i < numCells; i++) {
+//    insideChart.put(i, new HashMap<Integer, Double>());
+//  }
+//  outsideChart = null; // will initialize after computing outside probs
+//}
 //Edge activeEdgeObj = edgeSpace.get(completion.activeEdge);
 //assert(activeEdgeObj.getDot()<activeEdgeObj.numChildren());
 //int zTag = activeEdgeObj.getChildAfterDot(0);
@@ -1801,7 +1830,7 @@ public abstract class EarleyParser implements Parser {
 //if (isNewWay) {
 ////  terminalComplete(right-1, right, itw.tag(), score);
 //  
-//  terminalCompletions.get(linear[right-1][right]).put(itw.tag(), score);
+//  terminalCompletions.get(linear(right-1, right)).put(itw.tag(), score);
 //  if(verbose>=2){
 //    edgeInfo(right-1, right, edge, operator.one(), score);
 //  }
@@ -1812,7 +1841,7 @@ public abstract class EarleyParser implements Parser {
 //
 //if (isNewWay) {
 ////  terminalComplete(i, right, iT, score);
-//  terminalCompletions.get(linear[i][right]).put(iT, score);
+//  terminalCompletions.get(linear(i, right)).put(iT, score);
 //  if(verbose>=2){
 //    edgeInfo(i, right, edge, operator.one(), score);
 //  }
