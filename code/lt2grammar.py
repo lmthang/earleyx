@@ -104,9 +104,15 @@ def process_files(in_file, out_file):
             ruleHash[child_tag] = {}
             assert new_child not in ruleHash[child_tag]
             ruleHash[child_tag][new_child] = 1
+    
+            aRule = {}
+            aRule['tag'] = child_tag
+            aRule['children'] = new_child
+            rules.append(aRule)
           else:
             assert new_child in ruleHash[child_tag], '%s\t%s\n' % (child_tag, str(ruleHash[child_tag]))
             assert len(ruleHash[child_tag]) == 1
+
         else: # single terminal
           new_children.append(new_child)
 

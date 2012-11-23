@@ -468,6 +468,7 @@ public abstract class EarleyParser implements Parser {
     if(verbose>=3){
       dumpChart();
     }
+    
     if (verbose>=2){
       Timing.endTime("Done initializing!");
     }
