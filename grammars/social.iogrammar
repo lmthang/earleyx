@@ -1,0 +1,1462 @@
+PSEUDO.TRUCK->[_.truck] : 1.000000e+00
+PSEUDOMOM.HANDS->[_mom.hands] : 1.000000e+00
+Words.mickey->[Word.None] : 1.248450e-01
+Words.mickey->[Word.mickey Words.mickey] : 3.751550e-01
+Words.mickey->[Word.None Words.mickey] : 3.751550e-01
+Words.mickey->[Word.mickey] : 1.248450e-01
+Word.baby->[Word] : 1.000000e+00
+Words.blocks->[Word.None] : 1.491954e-01
+Words.blocks->[Word.None Words.blocks] : 3.508046e-01
+Words.blocks->[Word.blocks Words.blocks] : 3.508046e-01
+Words.blocks->[Word.blocks] : 1.491954e-01
+Words.ernie->[Word.None] : 1.211046e-01
+Words.ernie->[Word.None Words.ernie] : 3.788954e-01
+Words.ernie->[Word.ernie Words.ernie] : 3.788954e-01
+Words.ernie->[Word.ernie] : 1.211046e-01
+PSEUDO.BABY->[_.baby] : 1.000000e+00
+T.hotdog->[PSEUDO.HOTDOG Socials.Topical.kid.eyes] : 1.000000e+00
+Word.mickey->[Word] : 1.000000e+00
+Words.flashlight->[Word.None Words.flashlight] : 3.812616e-01
+Words.flashlight->[Word.None] : 1.187384e-01
+Words.flashlight->[Word.flashlight] : 1.187384e-01
+Words.flashlight->[Word.flashlight Words.flashlight] : 3.812616e-01
+Word.alphabet->[Word] : 1.000000e+00
+PSEUDO.PIG->[_.pig] : 1.000000e+00
+PSEUDO.MICKEY->[_.mickey] : 1.000000e+00
+T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes] : 1.000000e+00
+Words.bear->[Word.bear] : 7.427922e-02
+Words.bear->[Word.bear Words.bear] : 4.257208e-01
+Words.bear->[Word.None Words.bear] : 4.257208e-01
+Words.bear->[Word.None] : 7.427922e-02
+Word.doll->[Word] : 1.000000e+00
+T.car->[PSEUDO.CAR Socials.Topical.kid.eyes] : 1.000000e+00
+Topic.bus->[T.None Topic.bus] : 4.529043e-01
+Topic.bus->[T.bus Topic.None] : 5.470957e-01
+Topic.ernie->[T.ernie Topic.None] : 1.000000e+00
+T.dough->[PSEUDO.DOUGH Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.PHONE->[_.phone] : 1.000000e+00
+Topic.train->[T.train Topic.None] : 7.306920e-01
+Topic.train->[T.None Topic.train] : 2.693080e-01
+T.doll->[PSEUDO.DOLL Socials.Topical.kid.eyes] : 1.000000e+00
+T.bear->[PSEUDO.BEAR Socials.Topical.kid.eyes] : 1.000000e+00
+T.box->[PSEUDO.BOX Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.CHEESE->[_.cheese] : 1.000000e+00
+Word.cheese->[Word] : 1.000000e+00
+T.pig->[PSEUDO.PIG Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.TRAIN->[_.train] : 1.000000e+00
+Words.phone->[Word.None Words.phone] : 4.116245e-01
+Words.phone->[Word.None] : 8.837549e-02
+Words.phone->[Word.phone] : 8.837549e-02
+Words.phone->[Word.phone Words.phone] : 4.116245e-01
+Word.ernie->[Word] : 1.000000e+00
+PSEUDO.RABBIT->[_.rabbit] : 1.000000e+00
+PSEUDO.BUS->[_.bus] : 1.000000e+00
+PSEUDO.POPNPALS->[_.popnpals] : 1.000000e+00
+Topic.bear->[T.bear Topic.None] : 1.000000e+00
+PSEUDO.BEAR->[_.bear] : 1.000000e+00
+PSEUDO.BLOCKS->[_.blocks] : 1.000000e+00
+PSEUDO.ALPHABET->[_.alphabet] : 1.000000e+00
+Word.pig->[Word] : 1.000000e+00
+Topic.None->[_##] : 6.392033e-01
+Topic.None->[T.None Topic.None] : 3.607967e-01
+Words.dough->[Word.None Words.dough] : 3.513054e-01
+Words.dough->[Word.dough] : 1.486946e-01
+Words.dough->[Word.dough Words.dough] : 3.513054e-01
+Words.dough->[Word.None] : 1.486946e-01
+Word.dog->[Word] : 1.000000e+00
+PSEUDOKID.HANDS->[_kid.hands] : 1.000000e+00
+Words.None->[Word.None] : 2.402249e-01
+Words.None->[Word.None Words.None] : 7.597751e-01
+PSEUDO.BRUSH->[_.brush] : 1.000000e+00
+T.blocks->[PSEUDO.BLOCKS Socials.Topical.kid.eyes] : 1.000000e+00
+Words.waffles->[Word.None Words.waffles] : 2.713111e-01
+Words.waffles->[Word.None] : 2.286889e-01
+Words.waffles->[Word.waffles Words.waffles] : 2.713111e-01
+Words.waffles->[Word.waffles] : 2.286889e-01
+Word.truck->[Word] : 1.000000e+00
+Topic.phone->[T.phone Topic.None] : 1.000000e+00
+Topic.hotdog->[T.hotdog Topic.None] : 4.479676e-01
+Topic.hotdog->[T.None Topic.hotdog] : 5.520324e-01
+Word.blocks->[Word] : 1.000000e+00
+Word.bear->[Word] : 1.000000e+00
+T.ball->[PSEUDO.BALL Socials.Topical.kid.eyes] : 1.000000e+00
+Word.popnpals->[Word] : 1.000000e+00
+Words.oscar->[Word.None Words.oscar] : 3.468524e-01
+Words.oscar->[Word.None] : 1.531476e-01
+Words.oscar->[Word.oscar] : 1.531476e-01
+Words.oscar->[Word.oscar Words.oscar] : 3.468524e-01
+PSEUDOKID.EYES->[_kid.eyes] : 1.000000e+00
+Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point] : 8.942254e-01
+Socials.NotTopical.mom.hands->[PSEUDOMOM.HANDS Socials.NotTopical.mom.point] : 1.057746e-01
+Socials.Topical.kid.hands->[Socials.Topical.mom.eyes] : 5.508528e-01
+Socials.Topical.kid.hands->[PSEUDOKID.HANDS Socials.Topical.mom.eyes] : 4.491472e-01
+T.popnpals->[PSEUDO.POPNPALS Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.BALL->[_.ball] : 1.000000e+00
+Topic.book->[T.book Topic.None] : 7.737231e-01
+Topic.book->[T.None Topic.book] : 2.262769e-01
+Words.rings->[Word.rings] : 1.036303e-01
+Words.rings->[Word.None Words.rings] : 3.963697e-01
+Words.rings->[Word.rings Words.rings] : 3.963697e-01
+Words.rings->[Word.None] : 1.036303e-01
+Word.brush->[Word] : 1.000000e+00
+Word.None->[Word] : 1.000000e+00
+PSEUDO.FIRETRUCK->[_.firetruck] : 1.000000e+00
+T.mickey->[PSEUDO.MICKEY Socials.Topical.kid.eyes] : 1.000000e+00
+Word->[_thats] : 1.046467e-02
+Word->[_both] : 6.506534e-04
+Word->[_trucks] : 3.253267e-04
+Word->[_mister] : 2.711056e-04
+Word->[_wagging] : 1.626633e-04
+Word->[_actually] : 1.084422e-04
+Word->[_sun] : 5.422111e-05
+Word->[_listen] : 5.422111e-05
+Word->[_oopsie] : 5.422111e-05
+Word->[_tickle] : 1.409749e-03
+Word->[_uh] : 1.463970e-03
+Word->[_white] : 1.626633e-04
+Word->[_nope] : 1.084422e-04
+Word->[_theyre] : 7.048745e-04
+Word->[_isnt] : 1.084422e-03
+Word->[_other] : 1.409749e-03
+Word->[_bounce] : 1.626633e-04
+Word->[_tongue] : 5.422111e-05
+Word->[_yay] : 5.422111e-05
+Word->[_than] : 1.626633e-04
+Word->[_about] : 2.711056e-03
+Word->[_wigglys] : 1.084422e-04
+Word->[_ka] : 1.626633e-04
+Word->[_dirty] : 1.626633e-04
+Word->[_amazing] : 1.084422e-04
+Word->[_circus] : 5.422111e-05
+Word->[_crib] : 5.422111e-05
+Word->[_house] : 2.168845e-04
+Word->[_snoopy] : 5.422111e-05
+Word->[_hard] : 4.879900e-04
+Word->[_bert] : 1.084422e-04
+Word->[_bouncy] : 1.084422e-04
+Word->[_inter] : 5.422111e-05
+Word->[_spin] : 2.168845e-04
+Word->[_hope] : 1.084422e-04
+Word->[_hot] : 2.711056e-04
+Word->[_diaper] : 5.422111e-05
+Word->[_likes] : 2.711056e-04
+Word->[_youll] : 5.422111e-05
+Word->[_mhmmm] : 2.711056e-04
+Word->[_puts] : 1.084422e-04
+Word->[_yeah] : 1.458548e-02
+Word->[_unuh] : 5.422111e-05
+Word->[_switch] : 5.422111e-05
+Word->[_blankey] : 2.168845e-04
+Word->[_aaaaa] : 5.422111e-05
+Word->[_shall] : 4.337689e-04
+Word->[_boys] : 5.422111e-05
+Word->[_liked] : 1.084422e-04
+Word->[_umhum] : 1.084422e-04
+Word->[_aaaah] : 1.626633e-04
+Word->[_waffles] : 2.168845e-04
+Word->[_uhuh] : 1.626633e-04
+Word->[_messed] : 5.422111e-05
+Word->[_did] : 1.951960e-03
+Word->[_oh] : 1.545302e-02
+Word->[_machine] : 5.422111e-05
+Word->[_walker] : 5.422111e-05
+Word->[_park] : 5.422111e-05
+Word->[_basketball] : 5.422111e-05
+Word->[_always] : 5.422111e-05
+Word->[_eyes] : 1.192865e-03
+Word->[_cleaning] : 5.422111e-05
+Word->[_misunderstand] : 5.422111e-05
+Word->[_that] : 2.309819e-02
+Word->[_aww] : 1.084422e-04
+Word->[_stiff] : 1.084422e-04
+Word->[_use] : 5.422111e-05
+Word->[_windshield] : 5.422111e-05
+Word->[_morning] : 5.422111e-05
+Word->[_spencer] : 1.626633e-04
+Word->[_ooops] : 5.422111e-05
+Word->[_bright] : 5.422111e-05
+Word->[_see] : 7.970504e-03
+Word->[_dough] : 2.168845e-04
+Word->[_cant] : 3.795478e-04
+Word->[_run] : 5.422111e-05
+Word->[_old] : 1.626633e-04
+Word->[_uhhuh] : 2.168845e-04
+Word->[_pizza] : 2.168845e-04
+Word->[_wiggly] : 1.084422e-04
+Word->[_fuzz] : 1.084422e-04
+Word->[_brush] : 7.428293e-03
+Word->[_rock] : 5.422111e-05
+Word->[_whole] : 5.422111e-05
+Word->[_walking] : 5.422111e-05
+Word->[_wire] : 1.084422e-04
+Word->[_new] : 3.795478e-04
+Word->[_guy] : 5.422111e-05
+Word->[_wait] : 5.422111e-05
+Word->[_fact] : 5.422111e-05
+Word->[_wail] : 5.422111e-05
+Word->[_moves] : 5.422111e-05
+Word->[_magic] : 5.422111e-05
+Word->[_player] : 5.422111e-05
+Word->[_plastic] : 1.084422e-04
+Word->[_pairs] : 5.422111e-05
+Word->[_helps] : 5.422111e-05
+Word->[_goes] : 1.735076e-03
+Word->[_destroy] : 5.422111e-05
+Word->[_lid] : 5.422111e-04
+Word->[_straighten] : 5.422111e-05
+Word->[_ride] : 4.879900e-04
+Word->[_birdy] : 5.422111e-05
+Word->[_cheese] : 4.879900e-04
+Word->[_sakes] : 5.422111e-05
+Word->[_tough] : 5.422111e-05
+Word->[_bunny] : 3.253267e-04
+Word->[_fight] : 5.422111e-05
+Word->[_blocks] : 5.422111e-04
+Word->[_figment] : 1.626633e-04
+Word->[_wouldnt] : 5.422111e-05
+Word->[_honey] : 8.133167e-04
+Word->[_love] : 8.133167e-04
+Word->[_kinds] : 1.084422e-04
+Word->[_gone] : 9.217589e-04
+Word->[_carla] : 5.422111e-05
+Word->[_supposed] : 3.253267e-04
+Word->[_yellow] : 5.422111e-05
+Word->[_need] : 3.795478e-04
+Word->[_shy] : 1.084422e-04
+Word->[_anybody] : 2.168845e-04
+Word->[_zeke] : 3.253267e-04
+Word->[_stab] : 5.422111e-05
+Word->[_piece] : 1.084422e-04
+Word->[_ahh] : 5.422111e-05
+Word->[_kids] : 1.084422e-04
+Word->[_we] : 6.126986e-03
+Word->[_smile] : 1.626633e-04
+Word->[_vraaa] : 5.422111e-05
+Word->[_hanging] : 5.422111e-05
+Word->[_cause] : 2.711056e-04
+Word->[_his] : 2.711056e-03
+Word->[_ugly] : 5.422111e-05
+Word->[_everybody] : 5.422111e-05
+Word->[_have] : 4.446131e-03
+Word->[_reach] : 1.626633e-04
+Word->[_alright] : 5.422111e-04
+Word->[_tickling] : 5.422111e-05
+Word->[_weeee] : 1.084422e-04
+Word->[_kisses] : 5.422111e-05
+Word->[_real] : 4.337689e-04
+Word->[_sword] : 1.084422e-04
+Word->[_bath] : 5.422111e-05
+Word->[_vroom] : 2.168845e-03
+Word->[_going] : 2.711056e-03
+Word->[_makes] : 2.711056e-04
+Word->[_drive] : 3.795478e-04
+Word->[_still] : 1.084422e-04
+Word->[_forehead] : 5.422111e-05
+Word->[_balance] : 1.084422e-04
+Word->[_um] : 1.626633e-04
+Word->[_clap] : 1.084422e-04
+Word->[_balanced] : 5.422111e-05
+Word->[_shaky] : 5.422111e-05
+Word->[_game] : 1.084422e-04
+Word->[_oops] : 2.168845e-04
+Word->[_wiggling] : 5.422111e-05
+Word->[_stanford] : 5.422111e-05
+Word->[_yet] : 1.084422e-04
+Word->[_vermont] : 5.422111e-05
+Word->[_quite] : 2.168845e-04
+Word->[_three] : 1.626633e-04
+Word->[_theres] : 2.711056e-03
+Word->[_neednt] : 5.422111e-05
+Word->[_megan] : 7.048745e-04
+Word->[_no] : 4.012362e-03
+Word->[_explore] : 5.422111e-05
+Word->[_googoo] : 5.422111e-05
+Word->[_na] : 3.795478e-04
+Word->[_anything] : 2.711056e-04
+Word->[_threw] : 5.422111e-05
+Word->[_yea] : 1.084422e-04
+Word->[_called] : 1.084422e-04
+Word->[_feels] : 2.711056e-04
+Word->[_go] : 7.482514e-03
+Word->[_hurt] : 1.084422e-04
+Word->[_happened] : 1.626633e-04
+Word->[_names] : 5.422111e-05
+Word->[_ga] : 1.084422e-04
+Word->[_rattle] : 1.084422e-04
+Word->[_hair] : 2.114623e-03
+Word->[_turning] : 5.422111e-05
+Word->[_talking] : 1.084422e-04
+Word->[_kate] : 5.422111e-05
+Word->[_leave] : 1.626633e-04
+Word->[_big] : 1.789297e-03
+Word->[_second] : 5.422111e-05
+Word->[_tootles] : 1.626633e-04
+Word->[_sink] : 1.084422e-04
+Word->[_calls] : 5.422111e-05
+Word->[_they] : 1.626633e-03
+Word->[_shaking] : 5.422111e-05
+Word->[_oooooh] : 5.422111e-05
+Word->[_lets] : 2.982161e-03
+Word->[_set] : 5.422111e-05
+Word->[_upside] : 1.084422e-04
+Word->[_ernie] : 2.711056e-04
+Word->[_coming] : 1.084422e-04
+Word->[_ask] : 5.422111e-05
+Word->[_them] : 1.680855e-03
+Word->[_bump] : 1.084422e-04
+Word->[_okay] : 3.849699e-03
+Word->[_then] : 4.337689e-04
+Word->[_daddys] : 1.084422e-04
+Word->[_painted] : 5.422111e-05
+Word->[_side] : 7.590956e-04
+Word->[_tire] : 5.422111e-05
+Word->[_arms] : 5.422111e-05
+Word->[_someones] : 5.422111e-05
+Word->[_pigg] : 5.422111e-05
+Word->[_whooo] : 5.422111e-05
+Word->[_will] : 5.964323e-04
+Word->[_whoom] : 5.422111e-05
+Word->[_ohh] : 2.168845e-04
+Word->[_shake] : 3.253267e-04
+Word->[_ahhh] : 3.253267e-04
+Word->[_tail] : 2.223066e-03
+Word->[_extra] : 5.422111e-05
+Word->[_mama] : 1.084422e-04
+Word->[_wheels] : 2.331508e-03
+Word->[_woop] : 5.422111e-05
+Word->[_everything] : 4.337689e-04
+Word->[_people] : 2.168845e-04
+Word->[_eating] : 2.168845e-04
+Word->[_kick] : 1.626633e-04
+Word->[_edge] : 5.422111e-05
+Word->[_benny] : 3.253267e-04
+Word->[_scrapping] : 5.422111e-05
+Word->[_stand] : 1.084422e-04
+Word->[_room] : 5.422111e-05
+Word->[_wood] : 5.422111e-05
+Word->[_woof] : 5.747438e-03
+Word->[_nontoxic] : 5.422111e-05
+Word->[_paint] : 5.422111e-05
+Word->[_behind] : 5.422111e-05
+Word->[_animals] : 1.626633e-04
+Word->[_curious] : 5.422111e-05
+Word->[_nah] : 1.084422e-04
+Word->[_picks] : 5.422111e-05
+Word->[_care] : 4.337689e-04
+Word->[_forth] : 1.626633e-04
+Word->[_burp] : 5.422111e-05
+Word->[_wrong] : 2.168845e-04
+Word->[_shhhhhhm] : 1.084422e-04
+Word->[_fingers] : 1.084422e-04
+Word->[_there] : 1.019357e-02
+Word->[_talks] : 1.084422e-04
+Word->[_tuning] : 1.084422e-04
+Word->[_sister] : 5.422111e-05
+Word->[_goin] : 5.422111e-05
+Word->[_nice] : 3.253267e-03
+Word->[_socks] : 5.422111e-05
+Word->[_bored] : 1.084422e-04
+Word->[_well] : 1.301307e-03
+Word->[_lah] : 2.168845e-04
+Word->[_cars] : 6.506534e-04
+Word->[_boujeval] : 1.084422e-04
+Word->[_record] : 5.422111e-05
+Word->[_mamas] : 5.422111e-05
+Word->[_brandon] : 3.253267e-04
+Word->[_mmmm] : 2.168845e-04
+Word->[_mommy] : 2.873719e-03
+Word->[_alphabets] : 5.422111e-05
+Word->[_penache] : 1.084422e-04
+Word->[_poop] : 5.422111e-05
+Word->[_robert] : 2.711056e-04
+Word->[_poor] : 5.422111e-05
+Word->[_panda] : 5.422111e-05
+Word->[_grab] : 2.711056e-04
+Word->[_gotta] : 2.711056e-04
+Word->[_careful] : 5.964323e-04
+Word->[_girls] : 1.084422e-04
+Word->[_hmm] : 3.795478e-04
+Word->[_samanthas] : 5.422111e-05
+Word->[_dollie] : 5.422111e-05
+Word->[_span] : 5.422111e-05
+Word->[_give] : 1.463970e-03
+Word->[_noises] : 5.422111e-05
+Word->[_yick] : 1.084422e-04
+Word->[_happens] : 1.626633e-04
+Word->[_flat] : 5.422111e-05
+Word->[_milky] : 1.084422e-04
+Word->[_ummmmmm] : 5.422111e-05
+Word->[_boxes] : 2.168845e-04
+Word->[_neighbors] : 5.422111e-05
+Word->[_vegetables] : 1.626633e-04
+Word->[_cymbals] : 5.422111e-05
+Word->[_bell] : 5.422111e-05
+Word->[_weeeee] : 1.084422e-04
+Word->[_wonder] : 1.084422e-04
+Word->[_caitlin] : 2.168845e-04
+Word->[_tst] : 2.602613e-03
+Word->[_bee] : 4.337689e-04
+Word->[_name] : 5.422111e-05
+Word->[_shawns] : 2.711056e-04
+Word->[_apart] : 5.422111e-05
+Word->[_water] : 5.422111e-05
+Word->[_p] : 5.422111e-05
+Word->[_tastes] : 1.626633e-04
+Word->[_n] : 5.422111e-05
+Word->[_off] : 7.048745e-04
+Word->[_k] : 5.422111e-05
+Word->[_i] : 6.343870e-03
+Word->[_bet] : 2.168845e-04
+Word->[_pieces] : 1.084422e-04
+Word->[_a] : 2.347774e-02
+Word->[_piggys] : 8.133167e-04
+Word->[_uhoh] : 4.879900e-04
+Word->[_sports] : 1.626633e-04
+Word->[_your] : 9.705579e-03
+Word->[_furniture] : 5.422111e-05
+Word->[_bring] : 1.084422e-04
+Word->[_shut] : 6.506534e-04
+Word->[_mickey] : 3.253267e-04
+Word->[_brrrrrn] : 5.422111e-05
+Word->[_rocking] : 2.168845e-04
+Word->[_buddy] : 5.422111e-05
+Word->[_bandaid] : 1.626633e-04
+Word->[_pop] : 4.879900e-04
+Word->[_seen] : 5.422111e-05
+Word->[_came] : 2.168845e-04
+Word->[_youd] : 3.795478e-04
+Word->[_tired] : 2.168845e-04
+Word->[_little] : 1.951960e-03
+Word->[_emmy] : 4.337689e-04
+Word->[_two] : 1.301307e-03
+Word->[_another] : 1.626633e-04
+Word->[_wisdom] : 5.422111e-05
+Word->[_mmm] : 3.253267e-04
+Word->[_tissue] : 1.084422e-04
+Word->[_leg] : 1.626633e-04
+Word->[_day] : 5.422111e-05
+Word->[_camera] : 3.253267e-04
+Word->[_fun] : 2.168845e-04
+Word->[_dolls] : 1.084422e-04
+Word->[_doubt] : 5.422111e-05
+Word->[_taste] : 1.084422e-03
+Word->[_adore] : 5.422111e-05
+Word->[_microphone] : 4.337689e-04
+Word->[_under] : 2.711056e-04
+Word->[_wants] : 4.337689e-04
+Word->[_quiet] : 1.084422e-04
+Word->[_toast] : 5.422111e-05
+Word->[_seem] : 5.422111e-05
+Word->[_fur] : 5.422111e-05
+Word->[_kinda] : 5.422111e-05
+Word->[_hotdogs] : 2.168845e-04
+Word->[_dad] : 1.626633e-04
+Word->[_race] : 1.084422e-04
+Word->[_jaguar] : 1.626633e-04
+Word->[_running] : 5.422111e-05
+Word->[_snout] : 1.084422e-04
+Word->[_closed] : 1.626633e-04
+Word->[_noisy] : 1.626633e-04
+Word->[_stop] : 5.422111e-05
+Word->[_wampus] : 5.422111e-05
+Word->[_does] : 5.096785e-03
+Word->[_sort] : 1.626633e-04
+Word->[_attention] : 5.422111e-05
+Word->[_find] : 3.795478e-04
+Word->[_noise] : 5.964323e-04
+Word->[_goo] : 1.626633e-04
+Word->[_hungry] : 5.422111e-05
+Word->[_play] : 1.680855e-03
+Word->[_after] : 1.084422e-04
+Word->[_closes] : 5.422111e-05
+Word->[_whoa] : 5.422111e-05
+Word->[_horde] : 5.422111e-05
+Word->[_part] : 2.168845e-04
+Word->[_giving] : 5.422111e-05
+Word->[_cute] : 1.084422e-04
+Word->[_nothing] : 1.626633e-04
+Word->[_hand] : 1.084422e-03
+Word->[_throwing] : 1.084422e-04
+Word->[_whos] : 9.759800e-04
+Word->[_into] : 1.626633e-04
+Word->[_interesting] : 5.422111e-04
+Word->[_yeeaa] : 5.422111e-05
+Word->[_knows] : 5.422111e-05
+Word->[_study] : 1.084422e-04
+Word->[_jono] : 8.675378e-04
+Word->[_yoohoo] : 5.422111e-05
+Word->[_train] : 1.084422e-04
+Word->[_england] : 1.084422e-04
+Word->[_steering] : 1.626633e-04
+Word->[_resistant] : 5.422111e-05
+Word->[_rzzshhhhrrrr] : 5.422111e-05
+Word->[_azerbaijan] : 5.422111e-05
+Word->[_brrrrr] : 5.422111e-05
+Word->[_tr] : 5.422111e-05
+Word->[_becomes] : 5.422111e-05
+Word->[_bear] : 1.572412e-03
+Word->[_feel] : 1.084422e-04
+Word->[_tv] : 1.626633e-04
+Word->[_truck] : 8.946484e-03
+Word->[_playing] : 2.711056e-04
+Word->[_hit] : 3.253267e-04
+Word->[_belong] : 5.422111e-05
+Word->[_to] : 1.496503e-02
+Word->[_hmmm] : 2.711056e-04
+Word->[_youve] : 3.253267e-04
+Word->[_too] : 2.548392e-03
+Word->[_mr] : 3.253267e-04
+Word->[_hours] : 1.626633e-04
+Word->[_year] : 5.422111e-05
+Word->[_shaker] : 1.084422e-04
+Word->[_pig] : 7.048745e-03
+Word->[_almost] : 1.084422e-04
+Word->[_eat] : 1.463970e-03
+Word->[_montgomery] : 5.422111e-05
+Word->[_ear] : 2.168845e-04
+Word->[_here] : 1.241664e-02
+Word->[_me] : 3.795478e-03
+Word->[_pigs] : 1.084422e-03
+Word->[_spaceship] : 5.422111e-05
+Word->[_legs] : 1.084422e-04
+Word->[_mh] : 5.422111e-05
+Word->[_later] : 2.168845e-04
+Word->[_tshk] : 2.168845e-04
+Word->[_brynie] : 1.084422e-04
+Word->[_best] : 4.879900e-04
+Word->[_trunk] : 1.626633e-04
+Word->[_singing] : 5.422111e-05
+Word->[_turns] : 5.422111e-05
+Word->[_block] : 5.422111e-05
+Word->[_my] : 1.897739e-03
+Word->[_bird] : 5.422111e-05
+Word->[_opened] : 5.422111e-05
+Word->[_comb] : 1.084422e-04
+Word->[_know] : 1.626633e-03
+Word->[_next] : 1.626633e-04
+Word->[_come] : 4.554574e-03
+Word->[_tummy] : 1.084422e-04
+Word->[_girl] : 8.133167e-04
+Word->[_else] : 4.337689e-04
+Word->[_says] : 7.590956e-04
+Word->[_hurts] : 5.422111e-05
+Word->[_floor] : 1.626633e-04
+Word->[_flashlight] : 1.626633e-04
+Word->[_pictures] : 1.084422e-04
+Word->[_great] : 3.795478e-04
+Word->[_think] : 3.524372e-03
+Word->[_front] : 1.084422e-04
+Word->[_spencers] : 1.084422e-04
+Word->[_didnt] : 2.168845e-04
+Word->[_buppie] : 5.422111e-05
+Word->[_garbage] : 2.168845e-04
+Word->[_haaa] : 2.168845e-04
+Word->[_bag] : 1.626633e-04
+Word->[_grrrr] : 5.422111e-05
+Word->[_bristles] : 2.168845e-04
+Word->[_cookie] : 7.048745e-04
+Word->[_onto] : 2.168845e-04
+Word->[_seat] : 1.626633e-04
+Word->[_husband] : 5.422111e-05
+Word->[_bottom] : 1.626633e-04
+Word->[_whistles] : 5.422111e-05
+Word->[_away] : 1.192865e-03
+Word->[_done] : 3.253267e-04
+Word->[_clear] : 5.422111e-05
+Word->[_finish] : 5.422111e-05
+Word->[_dee] : 3.795478e-04
+Word->[_twenty] : 5.422111e-05
+Word->[_clean] : 1.626633e-04
+Word->[_flirting] : 1.084422e-04
+Word->[_floppy] : 5.422111e-05
+Word->[_dont] : 5.313669e-03
+Word->[_the] : 5.373312e-02
+Word->[_buppies] : 1.626633e-04
+Word->[_spend] : 5.422111e-05
+Word->[_loves] : 5.422111e-05
+Word->[_feet] : 1.626633e-04
+Word->[_baby] : 6.506534e-04
+Word->[_interested] : 2.168845e-04
+Word->[_bigger] : 5.422111e-05
+Word->[_daddy] : 5.422111e-05
+Word->[_doggies] : 2.711056e-04
+Word->[_dontcha] : 5.422111e-05
+Word->[_kidding] : 5.422111e-05
+Word->[_scrub] : 4.879900e-04
+Word->[_smiling] : 5.422111e-05
+Word->[_things] : 5.422111e-04
+Word->[_puppy] : 1.247086e-03
+Word->[_color] : 2.168845e-04
+Word->[_telling] : 5.422111e-05
+Word->[_peekaboo] : 4.879900e-04
+Word->[_yesterday] : 2.168845e-04
+Word->[_pick] : 2.168845e-04
+Word->[_wow] : 8.133167e-04
+Word->[_usually] : 1.084422e-04
+Word->[_ruff] : 2.331508e-03
+Word->[_quick] : 1.084422e-04
+Word->[_zoom] : 1.084422e-03
+Word->[_comes] : 2.711056e-03
+Word->[_squeak] : 8.675378e-04
+Word->[_sweater] : 5.422111e-05
+Word->[_eric] : 7.590956e-04
+Word->[_tickler] : 5.422111e-05
+Word->[_these] : 1.138643e-03
+Word->[_out] : 1.030201e-03
+Word->[_woo] : 6.506534e-04
+Word->[_someone] : 2.168845e-04
+Word->[_wheel] : 5.964323e-04
+Word->[_erik] : 5.422111e-05
+Word->[_erin] : 1.084422e-04
+Word->[_lemme] : 5.422111e-05
+Word->[_wheres] : 8.675378e-03
+Word->[_car] : 1.187442e-02
+Word->[_though] : 2.168845e-04
+Word->[_ewwww] : 5.422111e-05
+Word->[_po] : 5.422111e-05
+Word->[_been] : 5.422111e-05
+Word->[_tomato] : 5.422111e-05
+Word->[_beep] : 1.789297e-03
+Word->[_pushed] : 5.422111e-05
+Word->[_you] : 5.362468e-02
+Word->[_cal] : 1.626633e-04
+Word->[_can] : 1.550724e-02
+Word->[_grip] : 5.422111e-05
+Word->[_today] : 1.084422e-04
+Word->[_wanted] : 5.422111e-05
+Word->[_opp] : 5.422111e-05
+Word->[_younger] : 5.422111e-05
+Word->[_maybe] : 8.133167e-04
+Word->[_draw] : 2.168845e-04
+Word->[_getting] : 1.626633e-04
+Word->[_older] : 5.422111e-05
+Word->[_thing] : 4.879900e-04
+Word->[_black] : 1.084422e-04
+Word->[_hey] : 1.301307e-03
+Word->[_yuck] : 1.626633e-04
+Word->[_her] : 1.138643e-03
+Word->[_hes] : 1.897739e-03
+Word->[_down] : 2.006181e-03
+Word->[_something] : 8.675378e-04
+Word->[_carries] : 1.084422e-04
+Word->[_please] : 4.879900e-04
+Word->[_build] : 2.168845e-04
+Word->[_polyethylene] : 5.422111e-05
+Word->[_tunnel] : 1.626633e-04
+Word->[_watch] : 1.084422e-03
+Word->[_put] : 6.235428e-03
+Word->[_mean] : 1.084422e-04
+Word->[_show] : 1.463970e-03
+Word->[_was] : 6.506534e-04
+Word->[_it] : 2.277287e-02
+Word->[_is] : 1.756764e-02
+Word->[_forward] : 5.422111e-05
+Word->[_in] : 9.542916e-03
+Word->[_blue] : 4.879900e-04
+Word->[_ohhhh] : 1.626633e-04
+Word->[_before] : 5.422111e-05
+Word->[_wooden] : 5.422111e-05
+Word->[_yes] : 3.524372e-03
+Word->[_waa] : 5.422111e-05
+Word->[_if] : 1.192865e-03
+Word->[_id] : 5.422111e-05
+Word->[_hiyah] : 5.422111e-05
+Word->[_stage] : 5.422111e-05
+Word->[_mmmmm] : 5.422111e-05
+Word->[_step] : 5.422111e-05
+Word->[_by] : 2.168845e-04
+Word->[_make] : 2.873719e-03
+Word->[_one] : 5.205227e-03
+Word->[_green] : 6.506534e-04
+Word->[_again] : 1.247086e-03
+Word->[_zekes] : 1.084422e-04
+Word->[_alphabet] : 1.626633e-04
+Word->[_jeans] : 1.084422e-04
+Word->[_different] : 2.168845e-04
+Word->[_said] : 5.422111e-05
+Word->[_perkier] : 5.422111e-05
+Word->[_from] : 1.626633e-04
+Word->[_be] : 2.548392e-03
+Word->[_call] : 5.422111e-05
+Word->[_ba] : 1.084422e-04
+Word->[_song] : 5.422111e-05
+Word->[_woah] : 5.422111e-05
+Word->[_fruit] : 1.084422e-04
+Word->[_crash] : 2.168845e-04
+Word->[_yours] : 2.711056e-04
+Word->[_minute] : 5.422111e-05
+Word->[_wonderful] : 5.422111e-05
+Word->[_youre] : 1.897739e-03
+Word->[_mess] : 5.422111e-05
+Word->[_andrew] : 1.409749e-03
+Word->[_dishes] : 1.084422e-04
+Word->[_tele] : 5.422111e-05
+Word->[_puppys] : 5.422111e-05
+Word->[_life] : 5.422111e-05
+Word->[_havent] : 5.422111e-05
+Word->[_dance] : 1.084422e-04
+Word->[_having] : 1.626633e-04
+Word->[_pens] : 5.422111e-05
+Word->[_picture] : 2.711056e-04
+Word->[_together] : 5.422111e-05
+Word->[_banging] : 5.422111e-05
+Word->[_gotcha] : 2.168845e-04
+Word->[_tummies] : 1.084422e-04
+Word->[_bang] : 8.675378e-04
+Word->[_paws] : 1.084422e-04
+Word->[_up] : 2.711056e-03
+Word->[_awfully] : 5.422111e-05
+Word->[_shuts] : 5.422111e-05
+Word->[_scratching] : 5.422111e-05
+Word->[_fancy] : 5.422111e-05
+Word->[_what] : 1.431437e-02
+Word->[_shes] : 3.795478e-04
+Word->[_looking] : 2.711056e-04
+Word->[_vrrooom] : 5.422111e-05
+Word->[_row] : 5.422111e-05
+Word->[_doors] : 1.138643e-03
+Word->[_point] : 5.422111e-05
+Word->[_wont] : 5.422111e-05
+Word->[_round] : 2.168845e-04
+Word->[_sam] : 5.422111e-04
+Word->[_rosys] : 5.422111e-05
+Word->[_wanna] : 1.572412e-03
+Word->[_and] : 8.512715e-03
+Word->[_ten] : 5.422111e-05
+Word->[_shiny] : 5.422111e-05
+Word->[_saw] : 2.168845e-04
+Word->[_any] : 1.084422e-04
+Word->[_could] : 5.422111e-04
+Word->[_roll] : 2.711056e-04
+Word->[_touch] : 1.138643e-03
+Word->[_herself] : 5.422111e-05
+Word->[_thanks] : 5.422111e-05
+Word->[_say] : 4.391910e-03
+Word->[_with] : 4.066584e-03
+Word->[_itll] : 5.422111e-05
+Word->[_blinkers] : 5.422111e-05
+Word->[_feeling] : 5.422111e-05
+Word->[_rosy] : 3.253267e-04
+Word->[_hotdog] : 5.964323e-04
+Word->[_sleeping] : 5.422111e-05
+Word->[_bossy] : 5.422111e-05
+Word->[_enough] : 2.168845e-04
+Word->[_ears] : 1.572412e-03
+Word->[_outta] : 5.422111e-05
+Word->[_keys] : 1.084422e-04
+Word->[_dual] : 5.422111e-05
+Word->[_poo] : 1.138643e-03
+Word->[_mind] : 1.084422e-04
+Word->[_stupid] : 5.422111e-05
+Word->[_besides] : 5.422111e-05
+Word->[_couch] : 5.422111e-05
+Word->[_piggly] : 2.168845e-04
+Word->[_yourself] : 1.626633e-04
+Word->[_wa] : 1.084422e-04
+Word->[_small] : 5.422111e-05
+Word->[_aaaaah] : 5.422111e-05
+Word->[_betcha] : 5.422111e-05
+Word->[_word] : 5.422111e-05
+Word->[_stick] : 1.626633e-04
+Word->[_washing] : 5.422111e-05
+Word->[_wear] : 3.253267e-04
+Word->[_for] : 2.548392e-03
+Word->[_work] : 1.084422e-04
+Word->[_heavy] : 1.084422e-04
+Word->[_fake] : 1.084422e-04
+Word->[_doggie] : 3.361709e-03
+Word->[_ahead] : 1.084422e-04
+Word->[_nicely] : 5.422111e-05
+Word->[_hat] : 2.168845e-04
+Word->[_look] : 1.447704e-02
+Word->[_fits] : 5.422111e-05
+Word->[_zeeky] : 5.422111e-05
+Word->[_sammy] : 1.084422e-04
+Word->[_em] : 8.133167e-04
+Word->[_sweetie] : 1.084422e-04
+Word->[_box] : 5.042564e-03
+Word->[_boy] : 2.168845e-03
+Word->[_our] : 3.253267e-04
+Word->[_has] : 8.675378e-04
+Word->[_horn] : 5.422111e-05
+Word->[_get] : 5.367890e-03
+Word->[_eye] : 5.422111e-04
+Word->[_ham] : 3.253267e-04
+Word->[_rocky] : 5.422111e-05
+Word->[_whatevers] : 5.422111e-05
+Word->[_ol] : 5.422111e-05
+Word->[_had] : 1.084422e-04
+Word->[_also] : 5.422111e-05
+Word->[_warm] : 1.084422e-04
+Word->[_boo] : 1.680855e-03
+Word->[_first] : 1.084422e-04
+Word->[_necklace] : 5.422111e-05
+Word->[_boring] : 5.422111e-05
+Word->[_try] : 1.409749e-03
+Word->[_doo] : 6.506534e-04
+Word->[_tru] : 5.422111e-05
+Word->[_monster] : 1.626633e-04
+Word->[_bears] : 2.168845e-04
+Word->[_dog] : 3.741257e-03
+Word->[_shift] : 5.422111e-05
+Word->[_really] : 2.711056e-04
+Word->[_soft] : 5.422111e-04
+Word->[_samantha] : 5.422111e-05
+Word->[_doggys] : 1.084422e-03
+Word->[_toy] : 1.409749e-03
+Word->[_piggy] : 4.608795e-03
+Word->[_turn] : 9.759800e-04
+Word->[_matter] : 2.711056e-04
+Word->[_top] : 1.030201e-03
+Word->[_van] : 5.422111e-05
+Word->[_back] : 1.843518e-03
+Word->[_pepperoni] : 1.626633e-04
+Word->[_working] : 1.084422e-04
+Word->[_hello] : 5.422111e-04
+Word->[_doot] : 1.084422e-04
+Word->[_drooling] : 5.422111e-05
+Word->[_adam] : 1.084422e-04
+Word->[_door] : 4.283468e-03
+Word->[_oooh] : 3.253267e-04
+Word->[_press] : 2.168845e-04
+Word->[_looks] : 4.337689e-04
+Word->[_teddy] : 8.133167e-04
+Word->[_bless] : 5.422111e-05
+Word->[_funny] : 8.675378e-04
+Word->[_caught] : 5.422111e-05
+Word->[_bribe] : 5.422111e-05
+Word->[_lady] : 1.626633e-04
+Word->[_never] : 5.422111e-05
+Word->[_wash] : 1.084422e-04
+Word->[_thought] : 5.422111e-05
+Word->[_road] : 5.422111e-05
+Word->[_windows] : 1.084422e-04
+Word->[_brushing] : 2.168845e-04
+Word->[_tsh] : 2.711056e-04
+Word->[_minutes] : 1.084422e-04
+Word->[_haa] : 3.795478e-04
+Word->[_terrific] : 1.084422e-04
+Word->[_mommys] : 9.759800e-04
+Word->[_whatd] : 1.626633e-04
+Word->[_fat] : 5.422111e-05
+Word->[_move] : 5.422111e-04
+Word->[_frustrating] : 5.422111e-05
+Word->[_lot] : 5.422111e-05
+Word->[_far] : 5.422111e-05
+Word->[_because] : 1.626633e-04
+Word->[_head] : 5.422111e-04
+Word->[_birdys] : 5.422111e-05
+Word->[_plate] : 1.084422e-04
+Word->[_telephone] : 2.168845e-04
+Word->[_now] : 2.548392e-03
+Word->[_not] : 2.114623e-03
+Word->[_wipers] : 5.422111e-05
+Word->[_even] : 2.168845e-04
+Word->[_toys] : 1.409749e-03
+Word->[_sweet] : 5.422111e-05
+Word->[_hear] : 2.711056e-04
+Word->[_ohhh] : 3.253267e-04
+Word->[_when] : 4.337689e-04
+Word->[_everybodys] : 5.422111e-05
+Word->[_pushing] : 5.422111e-05
+Word->[_cardinal] : 1.084422e-04
+Word->[_how] : 2.331508e-03
+Word->[_hop] : 2.168845e-04
+Word->[_squeaker] : 2.711056e-04
+Word->[_money] : 5.422111e-05
+Word->[_outside] : 2.168845e-04
+Word->[_bye] : 7.048745e-04
+Word->[_spit] : 5.422111e-05
+Word->[_headlights] : 1.084422e-04
+Word->[_only] : 1.084422e-04
+Word->[_dropped] : 5.422111e-05
+Word->[_bout] : 1.626633e-04
+Word->[_alex] : 1.084422e-04
+Word->[_close] : 1.409749e-03
+Word->[_fixed] : 5.422111e-05
+Word->[_tails] : 1.626633e-04
+Word->[_whose] : 5.422111e-05
+Word->[_kiss] : 9.759800e-04
+Word->[_ooooo] : 1.084422e-04
+Word->[_sound] : 7.590956e-04
+Word->[_persons] : 5.422111e-05
+Word->[_duck] : 1.084422e-04
+Word->[_this] : 1.458548e-02
+Word->[_strong] : 2.168845e-04
+Word->[_jonos] : 5.422111e-05
+Word->[_catch] : 1.626633e-04
+Word->[_rather] : 2.711056e-04
+Word->[_stay] : 5.422111e-05
+Word->[_whoooo] : 5.422111e-05
+Word->[_booboo] : 5.422111e-05
+Word->[_yeow] : 5.422111e-05
+Word->[_share] : 1.084422e-04
+Word->[_telephones] : 5.422111e-05
+Word->[_smart] : 1.084422e-04
+Word->[_tape] : 5.422111e-05
+Word->[_mouse] : 1.084422e-04
+Word->[_jonathan] : 2.168845e-04
+Word->[_rolls] : 5.422111e-05
+Word->[_very] : 1.680855e-03
+Word->[_trying] : 4.337689e-04
+Word->[_hears] : 1.084422e-04
+Word->[_school] : 5.422111e-05
+Word->[_opening] : 5.422111e-05
+Word->[_made] : 3.795478e-04
+Word->[_hm] : 5.422111e-04
+Word->[_hide] : 5.422111e-05
+Word->[_hi] : 2.819498e-03
+Word->[_remember] : 1.626633e-04
+Word->[_he] : 4.175026e-03
+Word->[_ha] : 6.072765e-03
+Word->[_words] : 1.626633e-04
+Word->[_at] : 7.536735e-03
+Word->[_as] : 1.626633e-04
+Word->[_harder] : 1.084422e-04
+Word->[_lookey] : 5.422111e-05
+Word->[_much] : 2.711056e-04
+Word->[_found] : 3.795478e-04
+Word->[_sharp] : 5.422111e-05
+Word->[_sure] : 2.711056e-04
+Word->[_its] : 6.886081e-03
+Word->[_xjs] : 5.422111e-05
+Word->[_suppose] : 5.422111e-05
+Word->[_hugging] : 5.422111e-05
+Word->[_silly] : 3.253267e-04
+Word->[_bryn] : 5.422111e-05
+Word->[_an] : 1.084422e-04
+Word->[_am] : 5.422111e-05
+Word->[_around] : 8.133167e-04
+Word->[_horse] : 1.084422e-04
+Word->[_ah] : 9.759800e-04
+Word->[_goodness] : 1.626633e-04
+Word->[_choo] : 2.711056e-04
+Word->[_yum] : 1.084422e-04
+Word->[_emily] : 2.168845e-04
+Word->[_mouth] : 1.518191e-03
+Word->[_knock] : 1.084422e-04
+Word->[_snap] : 1.626633e-04
+Word->[_like] : 7.590956e-03
+Word->[_yicky] : 5.422111e-05
+Word->[_nose] : 3.199046e-03
+Word->[_happy] : 3.795478e-04
+Word->[_haaaa] : 5.422111e-05
+Word->[_just] : 1.897739e-03
+Word->[_proper] : 5.422111e-05
+Word->[_vrooooom] : 5.422111e-05
+Word->[_suns] : 5.422111e-05
+Word->[_shell] : 1.084422e-04
+Word->[_michael] : 7.590956e-04
+Word->[_pull] : 5.964323e-04
+Word->[_english] : 5.422111e-05
+Word->[_misty] : 1.084422e-04
+Word->[_handle] : 1.626633e-04
+Word->[_trouble] : 1.084422e-04
+Word->[_concentration] : 5.422111e-05
+Word->[_cmon] : 5.422111e-05
+Word->[_rolling] : 5.422111e-05
+Word->[_cats] : 1.084422e-04
+Word->[_wags] : 5.422111e-05
+Word->[_smooch] : 5.422111e-05
+Word->[_chris] : 6.506534e-04
+Word->[_probably] : 5.422111e-05
+Word->[_whats] : 7.482514e-03
+Word->[_party] : 1.084422e-04
+Word->[_colors] : 5.422111e-05
+Word->[_good] : 5.313669e-03
+Word->[_red] : 2.114623e-03
+Word->[_whaty] : 1.626633e-04
+Word->[_place] : 1.084422e-04
+Word->[_losing] : 1.084422e-04
+Word->[_gave] : 5.422111e-05
+Word->[_whered] : 7.590956e-04
+Word->[_opens] : 7.048745e-04
+Word->[_upset] : 5.422111e-05
+Word->[_finger] : 3.795478e-04
+Word->[_erika] : 1.355528e-03
+Word->[_sterling] : 5.422111e-05
+Word->[_choose] : 5.422111e-05
+Word->[_friend] : 5.422111e-05
+Word->[_shutting] : 5.422111e-05
+Word->[_nobody] : 5.422111e-05
+Word->[_yucky] : 5.422111e-05
+Word->[_ooooh] : 1.084422e-04
+Word->[_arches] : 5.422111e-05
+Word->[_wires] : 5.422111e-05
+Word->[_more] : 9.217589e-04
+Word->[_few] : 5.422111e-05
+Word->[_woooooo] : 5.422111e-05
+Word->[_hook] : 2.711056e-04
+Word->[_pound] : 5.422111e-05
+Word->[_drop] : 5.422111e-05
+Word->[_take] : 1.192865e-03
+Word->[_hood] : 5.422111e-05
+Word->[_honda] : 5.422111e-05
+Word->[_chews] : 1.084422e-04
+Word->[_sits] : 1.084422e-04
+Word->[_god] : 5.422111e-05
+Word->[_buy] : 1.084422e-04
+Word->[_so] : 1.626633e-03
+Word->[_ones] : 3.253267e-04
+Word->[_but] : 1.084422e-03
+Word->[_gon] : 5.422111e-05
+Word->[_raggedy] : 1.084422e-04
+Word->[_figure] : 5.422111e-05
+Word->[_choice] : 5.422111e-05
+Word->[_bus] : 1.084422e-04
+Word->[_mufflers] : 1.084422e-04
+Word->[_bum] : 1.084422e-04
+Word->[_bun] : 1.084422e-04
+Word->[_got] : 3.470151e-03
+Word->[_teeth] : 3.795478e-04
+Word->[_aaah] : 1.626633e-04
+Word->[_axle] : 5.422111e-05
+Word->[_piggie] : 4.879900e-04
+Word->[_oscar] : 5.422111e-05
+Word->[_joke] : 1.084422e-04
+Word->[_driving] : 5.422111e-05
+Word->[_piggies] : 1.084422e-04
+Word->[_push] : 1.030201e-03
+Word->[_each] : 2.168845e-04
+Word->[_tnt] : 1.084422e-04
+Word->[_everythings] : 5.422111e-05
+Word->[_send] : 1.626633e-04
+Word->[_da] : 7.590956e-04
+Word->[_taking] : 1.084422e-04
+Word->[_tell] : 4.879900e-04
+Word->[_dd] : 1.084422e-04
+Word->[_heh] : 3.253267e-04
+Word->[_rest] : 5.422111e-05
+Word->[_brushll] : 5.422111e-05
+Word->[_jewelry] : 1.084422e-04
+Word->[_dat] : 5.422111e-05
+Word->[_fell] : 2.711056e-04
+Word->[_fixing] : 5.422111e-05
+Word->[_cookies] : 1.084422e-04
+Word->[_cook] : 1.084422e-04
+Word->[_climb] : 1.084422e-04
+Word->[_those] : 1.680855e-03
+Word->[_doing] : 9.217589e-04
+Word->[_boom] : 9.217589e-04
+Word->[_book] : 4.879900e-04
+Word->[_mhmm] : 3.253267e-04
+Word->[_right] : 3.144825e-03
+Word->[_person] : 5.422111e-05
+Word->[_angel] : 5.422111e-05
+Word->[_brushes] : 2.711056e-04
+Word->[_vrooom] : 1.626633e-04
+Word->[_are] : 6.072765e-03
+Word->[_should] : 7.590956e-04
+Word->[_arm] : 5.422111e-05
+Word->[_boop] : 3.795478e-04
+Word->[_ooo] : 2.711056e-04
+Word->[_chriss] : 5.422111e-05
+Word->[_moving] : 1.084422e-04
+Word->[_ruh] : 1.626633e-04
+Word->[_aye] : 4.337689e-04
+Word->[_ooh] : 1.626633e-04
+Word->[_talk] : 2.711056e-04
+Word->[_doll] : 1.355528e-03
+Word->[_rug] : 5.422111e-05
+Word->[_went] : 4.879900e-04
+Word->[_vice] : 5.422111e-05
+Word->[_joey] : 1.626633e-04
+Word->[_over] : 1.897739e-03
+Word->[_gentle] : 1.626633e-04
+Word->[_scratch] : 5.422111e-05
+Word->[_mom] : 2.168845e-04
+Word->[_moo] : 3.253267e-04
+Word->[_better] : 4.337689e-04
+Word->[_blah] : 1.084422e-04
+Word->[_thank] : 2.223066e-03
+Word->[_oop] : 5.422111e-05
+Word->[_wind] : 1.626633e-04
+Word->[_sitting] : 3.253267e-04
+Word->[_lap] : 1.084422e-04
+Word->[_dollys] : 5.422111e-05
+Word->[_oooo] : 4.337689e-04
+Word->[_some] : 8.133167e-04
+Word->[_want] : 8.512715e-03
+Word->[_scrubbing] : 5.422111e-05
+Word->[_read] : 5.422111e-05
+Word->[_lay] : 1.084422e-04
+Word->[_whoops] : 1.626633e-04
+Word->[_num] : 3.253267e-04
+Word->[_walk] : 2.711056e-04
+Word->[_window] : 5.422111e-05
+Word->[_time] : 5.422111e-04
+Word->[_ready] : 5.422111e-04
+Word->[_tops] : 5.422111e-05
+Word->[_studio] : 5.422111e-05
+Word->[_wins] : 5.422111e-05
+Word->[_fast] : 4.879900e-04
+Word->[_rooster] : 1.084422e-04
+Word->[_ferrari] : 5.422111e-05
+Word->[_brown] : 5.422111e-05
+Word->[_stuffed] : 5.422111e-05
+Word->[_marie] : 2.711056e-04
+Word->[_favorite] : 1.084422e-04
+Word->[_airplane] : 2.168845e-04
+Word->[_erikas] : 5.422111e-05
+Word->[_were] : 4.879900e-04
+Word->[_pen] : 5.422111e-05
+Word->[_dropping] : 5.422111e-05
+Word->[_ya] : 1.626633e-04
+Word->[_shoes] : 2.168845e-04
+Word->[_pretty] : 2.223066e-03
+Word->[_doesnt] : 1.030201e-03
+Word->[_huh] : 8.621157e-03
+Word->[_arent] : 2.168845e-04
+Word->[_hold] : 6.506534e-04
+Word->[_hum] : 4.337689e-04
+Word->[_teach] : 1.084422e-04
+Word->[_size] : 5.422111e-05
+Word->[_hug] : 3.253267e-04
+Word->[_crashed] : 1.084422e-04
+Word->[_angry] : 5.422111e-05
+Word->[_brother] : 5.422111e-05
+Word->[_who] : 5.964323e-04
+Word->[_shhhhhh] : 5.422111e-05
+Word->[_do] : 1.355528e-02
+Word->[_open] : 4.771458e-03
+Word->[_chair] : 5.964323e-04
+Word->[_which] : 1.355528e-03
+Word->[_patricks] : 1.084422e-04
+Word->[_byebye] : 1.192865e-03
+Word->[_drink] : 1.084422e-04
+Word->[_fit] : 3.253267e-04
+Word->[_kissing] : 5.422111e-05
+Word->[_hands] : 3.253267e-04
+Word->[_why] : 8.675378e-04
+Word->[_sit] : 1.626633e-03
+Word->[_way] : 9.217589e-04
+Word->[_potatoes] : 5.422111e-05
+Word->[_metal] : 1.626633e-04
+Word->[_kind] : 4.337689e-04
+Word->[_lookit] : 6.506534e-04
+Word->[_stuck] : 2.168845e-04
+Word->[_him] : 2.168845e-03
+Word->[_lost] : 5.422111e-05
+Word->[_puppet] : 6.506534e-04
+Word->[_instead] : 5.422111e-05
+Word->[_kitty] : 1.626633e-04
+Word->[_sorry] : 5.422111e-05
+Word->[_ow] : 5.422111e-05
+Word->[_of] : 3.578594e-03
+Word->[_heres] : 1.897739e-03
+Word->[_or] : 7.590956e-04
+Word->[_may] : 1.084422e-04
+Word->[_mine] : 1.084422e-04
+Word->[_mad] : 1.084422e-04
+Word->[_wha] : 2.168845e-04
+Word->[_such] : 3.795478e-04
+Word->[_rabbit] : 2.168845e-04
+Word->[_man] : 1.626633e-04
+Word->[_would] : 8.133167e-04
+Word->[_on] : 5.151006e-03
+Word->[_cooking] : 5.422111e-05
+Word->[_ok] : 7.048745e-04
+Word->[_vroooom] : 2.168845e-04
+Word->[_stuff] : 1.084422e-04
+Word->[_hows] : 1.084422e-04
+Word->[_alexis] : 7.590956e-04
+Word->[_short] : 1.084422e-04
+Word->[_tshhhhhhh] : 5.422111e-05
+Word->[_chew] : 3.253267e-04
+Word->[_works] : 1.626633e-04
+Word->[_wipe] : 1.084422e-04
+Word->[_windy] : 1.084422e-04
+Word->[_humm] : 1.084422e-04
+Word->[_squeaks] : 2.168845e-04
+Word->[_rrrzzzshhhrrr] : 5.422111e-05
+Word->[_throw] : 7.590956e-04
+Word->[_gund] : 2.168845e-04
+Word->[_last] : 5.422111e-05
+Word->[_distracted] : 5.422111e-05
+Word->[_dangerous] : 1.084422e-04
+Word->[_making] : 1.626633e-04
+Word->[_gonna] : 5.259448e-03
+Word->[_boopie] : 5.422111e-05
+Word->[_im] : 1.735076e-03
+Word->[_help] : 4.337689e-04
+Word->[_lots] : 1.084422e-04
+Word->[_ill] : 7.048745e-04
+Word->[_sneeze] : 5.422111e-05
+Word->[_reasonably] : 5.422111e-05
+Word->[_inside] : 1.030201e-03
+Word->[_ball] : 1.301307e-03
+Word->[_aarf] : 5.422111e-04
+Word->[_being] : 2.711056e-04
+Word->[_she] : 1.138643e-03
+Word->[_bit] : 2.168845e-04
+Word->[_many] : 5.422111e-05
+Word->[_squeeze] : 5.422111e-05
+Word->[_neat] : 1.626633e-04
+Word->[_doggy] : 7.319850e-03
+Word->[_let] : 9.217589e-04
+Word->[_theater] : 5.422111e-05
+Word->[_oink] : 7.428293e-03
+Word->[_fall] : 1.626633e-04
+Word->[_keep] : 1.626633e-04
+Word->[_all] : 1.735076e-03
+Word->[_ashley] : 3.253267e-04
+Word->[_shoe] : 1.084422e-04
+Word->[_empty] : 5.422111e-05
+Word->[_papa] : 1.084422e-04
+Word->[_saying] : 5.422111e-05
+Word->[_drrrrrn] : 5.422111e-05
+Word->[_toes] : 7.590956e-04
+Word->[_vroooooooom] : 5.422111e-05
+Word->[_kay] : 5.422111e-05
+Word->[_where] : 2.819498e-03
+Word->[_dogs] : 4.337689e-04
+Word->[_tower] : 5.422111e-05
+Word->[_ring] : 5.422111e-05
+Words.hotdog->[Word.hotdog] : 1.248603e-01
+Words.hotdog->[Word.None] : 1.248603e-01
+Words.hotdog->[Word.None Words.hotdog] : 3.751397e-01
+Words.hotdog->[Word.hotdog Words.hotdog] : 3.751397e-01
+Words.baby->[Word.None Words.baby] : 3.823202e-01
+Words.baby->[Word.None] : 1.176798e-01
+Words.baby->[Word.baby] : 1.176798e-01
+Words.baby->[Word.baby Words.baby] : 3.823202e-01
+Socials.Topical.mom.point->[_#] : 9.240551e-01
+Socials.Topical.mom.point->[PSEUDOMOM.POINT PSEUDO#] : 7.594491e-02
+PSEUDO.BOOK->[_.book] : 1.000000e+00
+T.None->[PSEUDO.TRAIN Socials.NotTopical.kid.eyes] : 4.108252e-03
+T.None->[PSEUDO.BUS Socials.NotTopical.kid.eyes] : 4.857236e-05
+T.None->[PSEUDO.FLASHLIGHT Socials.NotTopical.kid.eyes] : 3.314157e-03
+T.None->[PSEUDO.PHONE Socials.NotTopical.kid.eyes] : 1.419937e-03
+T.None->[PSEUDO.BEAR Socials.NotTopical.kid.eyes] : 2.534174e-03
+T.None->[PSEUDO.CHEESE Socials.NotTopical.kid.eyes] : 4.172571e-03
+T.None->[PSEUDO.POPNPALS Socials.NotTopical.kid.eyes] : 2.855694e-02
+T.None->[PSEUDO.BLOCKS Socials.NotTopical.kid.eyes] : 3.898907e-04
+T.None->[PSEUDO.ERNIE Socials.NotTopical.kid.eyes] : 1.326096e-03
+T.None->[PSEUDO.HOTDOG Socials.NotTopical.kid.eyes] : 1.201278e-02
+T.None->[PSEUDO.MICKEY Socials.NotTopical.kid.eyes] : 2.882214e-03
+T.None->[PSEUDO.BOOK Socials.NotTopical.kid.eyes] : 1.505893e-03
+T.None->[PSEUDO.WAFFLES Socials.NotTopical.kid.eyes] : 7.432560e-04
+T.None->[PSEUDO.CAR Socials.NotTopical.kid.eyes] : 1.302708e-01
+T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes] : 1.585888e-01
+T.None->[PSEUDO.RABBIT Socials.NotTopical.kid.eyes] : 2.445961e-03
+T.None->[PSEUDO.BLOCK Socials.NotTopical.kid.eyes] : 8.666828e-04
+T.None->[PSEUDO.BABY Socials.NotTopical.kid.eyes] : 3.251271e-03
+T.None->[PSEUDO.BRUSH Socials.NotTopical.kid.eyes] : 1.226821e-01
+T.None->[PSEUDO.PEPPERONI Socials.NotTopical.kid.eyes] : 8.230422e-03
+T.None->[PSEUDO.TRUCK Socials.NotTopical.kid.eyes] : 2.133344e-01
+T.None->[PSEUDO.OSCAR Socials.NotTopical.kid.eyes] : 2.079050e-03
+T.None->[PSEUDO.BOX Socials.NotTopical.kid.eyes] : 7.291992e-02
+T.None->[PSEUDO.ALPHABET Socials.NotTopical.kid.eyes] : 6.145645e-03
+T.None->[PSEUDO.BALL Socials.NotTopical.kid.eyes] : 3.499692e-03
+T.None->[PSEUDO.DOLL Socials.NotTopical.kid.eyes] : 4.446091e-03
+T.None->[PSEUDO.DOUGH Socials.NotTopical.kid.eyes] : 3.328332e-04
+T.None->[PSEUDO.DOG Socials.NotTopical.kid.eyes] : 1.998919e-01
+T.None->[PSEUDO.FIRETRUCK Socials.NotTopical.kid.eyes] : 3.701632e-03
+T.None->[PSEUDO.RINGS Socials.NotTopical.kid.eyes] : 4.298175e-03
+PSEUDO.DOG->[_.dog] : 1.000000e+00
+Words.bus->[Word.None Words.bus] : 4.088403e-01
+Words.bus->[Word.None] : 9.115975e-02
+Words.bus->[Word.bus] : 9.115975e-02
+Words.bus->[Word.bus Words.bus] : 4.088403e-01
+Words.car->[Word.None Words.car] : 3.661088e-01
+Words.car->[Word.None] : 1.338912e-01
+Words.car->[Word.car] : 1.338912e-01
+Words.car->[Word.car Words.car] : 3.661088e-01
+Words.brush->[Word.None] : 1.222633e-01
+Words.brush->[Word.None Words.brush] : 3.777367e-01
+Words.brush->[Word.brush] : 1.222633e-01
+Words.brush->[Word.brush Words.brush] : 3.777367e-01
+T.phone->[PSEUDO.PHONE Socials.Topical.kid.eyes] : 1.000000e+00
+Word.phone->[Word] : 1.000000e+00
+PSEUDO.WAFFLES->[_.waffles] : 1.000000e+00
+PSEUDO.FLASHLIGHT->[_.flashlight] : 1.000000e+00
+Topic.mickey->[T.None Topic.mickey] : 5.000000e-01
+Topic.mickey->[T.mickey Topic.None] : 5.000000e-01
+Words.pig->[Word.None] : 1.324555e-01
+Words.pig->[Word.pig] : 1.324555e-01
+Words.pig->[Word.pig Words.pig] : 3.675445e-01
+Words.pig->[Word.None Words.pig] : 3.675445e-01
+T.book->[PSEUDO.BOOK Socials.Topical.kid.eyes] : 1.000000e+00
+Topic.dog->[T.dog Topic.None] : 9.730281e-01
+Topic.dog->[T.None Topic.dog] : 2.697191e-02
+Topic.firetruck->[T.None Topic.firetruck] : 5.000000e-01
+Topic.firetruck->[T.firetruck Topic.None] : 5.000000e-01
+Words.pepperoni->[Word.None] : 8.499149e-02
+Words.pepperoni->[Word.None Words.pepperoni] : 4.150085e-01
+Words.pepperoni->[Word.pepperoni] : 8.499149e-02
+Words.pepperoni->[Word.pepperoni Words.pepperoni] : 4.150085e-01
+PSEUDO.BOX->[_.box] : 1.000000e+00
+Word.box->[Word] : 1.000000e+00
+Topic.cheese->[T.cheese Topic.None] : 1.000000e+00
+Word.pepperoni->[Word] : 1.000000e+00
+Words.popnpals->[Word.None Words.popnpals] : 3.912994e-01
+Words.popnpals->[Word.None] : 1.087006e-01
+Words.popnpals->[Word.popnpals Words.popnpals] : 3.912994e-01
+Words.popnpals->[Word.popnpals] : 1.087006e-01
+Topic.ball->[T.ball Topic.None] : 1.000000e+00
+PSEUDO.ERNIE->[_.ernie] : 1.000000e+00
+PSEUDOMOM.POINT->[_mom.point] : 1.000000e+00
+Word.hotdog->[Word] : 1.000000e+00
+Topic.blocks->[T.None Topic.blocks] : 5.000000e-01
+Topic.blocks->[T.blocks Topic.None] : 5.000000e-01
+Words.cheese->[Word.None] : 1.441890e-01
+Words.cheese->[Word.cheese Words.cheese] : 3.558110e-01
+Words.cheese->[Word.None Words.cheese] : 3.558110e-01
+Words.cheese->[Word.cheese] : 1.441890e-01
+Word.dough->[Word] : 1.000000e+00
+Socials.Topical.mom.eyes->[Socials.Topical.mom.hands] : 6.377556e-01
+Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands] : 3.622444e-01
+Words.doll->[Word.None Words.doll] : 4.023046e-01
+Words.doll->[Word.None] : 9.769542e-02
+Words.doll->[Word.doll Words.doll] : 4.023046e-01
+Words.doll->[Word.doll] : 9.769542e-02
+Words.box->[Word.None] : 1.241152e-01
+Words.box->[Word.None Words.box] : 3.758848e-01
+Words.box->[Word.box] : 1.241152e-01
+Words.box->[Word.box Words.box] : 3.758848e-01
+T.baby->[PSEUDO.BABY Socials.Topical.kid.eyes] : 1.000000e+00
+Topic.oscar->[T.None Topic.oscar] : 2.505350e-04
+Topic.oscar->[T.oscar Topic.None] : 9.997495e-01
+Words.book->[Word.None] : 1.633912e-01
+Words.book->[Word.None Words.book] : 3.366088e-01
+Words.book->[Word.book] : 1.633912e-01
+Words.book->[Word.book Words.book] : 3.366088e-01
+T.brush->[PSEUDO.BRUSH Socials.Topical.kid.eyes] : 1.000000e+00
+Word.rabbit->[Word] : 1.000000e+00
+Words.dog->[Word.dog] : 1.334414e-01
+Words.dog->[Word.None] : 1.334414e-01
+Words.dog->[Word.None Words.dog] : 3.665586e-01
+Words.dog->[Word.dog Words.dog] : 3.665586e-01
+Words.rabbit->[Word.rabbit] : 1.056033e-01
+Words.rabbit->[Word.rabbit Words.rabbit] : 3.943967e-01
+Words.rabbit->[Word.None Words.rabbit] : 3.943967e-01
+Words.rabbit->[Word.None] : 1.056033e-01
+Topic.doll->[T.doll Topic.None] : 7.607105e-01
+Topic.doll->[T.None Topic.doll] : 2.392895e-01
+PSEUDO.BLOCK->[_.block] : 1.000000e+00
+T.train->[PSEUDO.TRAIN Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.DOLL->[_.doll] : 1.000000e+00
+PSEUDO.OSCAR->[_.oscar] : 1.000000e+00
+PSEUDO.PEPPERONI->[_.pepperoni] : 1.000000e+00
+Topic.box->[T.box Topic.None] : 1.000000e+00
+T.waffles->[PSEUDO.WAFFLES Socials.Topical.kid.eyes] : 1.000000e+00
+Words.train->[Word.None] : 1.185013e-01
+Words.train->[Word.train] : 1.185013e-01
+Words.train->[Word.train Words.train] : 3.814987e-01
+Words.train->[Word.None Words.train] : 3.814987e-01
+PSEUDO.HOTDOG->[_.hotdog] : 1.000000e+00
+Topic.dough->[T.dough Topic.None] : 4.922212e-01
+Topic.dough->[T.None Topic.dough] : 5.077788e-01
+Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point] : 5.199946e-01
+Socials.Topical.mom.hands->[Socials.Topical.mom.point] : 4.800054e-01
+Words.firetruck->[Word.None] : 5.000000e-01
+Words.firetruck->[Word.firetruck] : 5.000000e-01
+Word.book->[Word] : 1.000000e+00
+Topic.rings->[T.rings Topic.None] : 5.000000e-01
+Topic.rings->[T.None Topic.rings] : 5.000000e-01
+Topic.block->[T.block Topic.None] : 1.000000e+00
+Topic.block->[T.None Topic.block] : 1.129236e-15
+Word.train->[Word] : 1.000000e+00
+Sentence->[Topic.None Words.None] : 1.010294e-01
+Sentence->[Topic.ball Words.ball] : 1.844168e-02
+Sentence->[Topic.block Words.block] : 6.293267e-04
+Sentence->[Topic.phone Words.phone] : 4.291926e-03
+Sentence->[Topic.ernie Words.ernie] : 1.233638e-03
+Sentence->[Topic.waffles Words.waffles] : 1.378856e-03
+Sentence->[Topic.firetruck Words.firetruck] : 1.900298e-04
+Sentence->[Topic.doll Words.doll] : 1.269516e-02
+Sentence->[Topic.bus Words.bus] : 1.212615e-03
+Sentence->[Topic.cheese Words.cheese] : 6.451862e-03
+Sentence->[Topic.oscar Words.oscar] : 2.936226e-04
+Sentence->[Topic.dog Words.dog] : 1.423175e-01
+Sentence->[Topic.mickey Words.mickey] : 1.194489e-03
+Sentence->[Topic.dough Words.dough] : 7.865402e-03
+Sentence->[Topic.book Words.book] : 9.457376e-03
+Sentence->[Topic.baby Words.baby] : 6.266997e-04
+Sentence->[Topic.rabbit Words.rabbit] : 3.577693e-04
+Sentence->[Topic.truck Words.truck] : 1.162668e-01
+Sentence->[Topic.blocks Words.blocks] : 2.981190e-03
+Sentence->[Topic.hotdog Words.hotdog] : 1.081724e-02
+Sentence->[Topic.alphabet Words.alphabet] : 4.118867e-03
+Sentence->[Topic.rings Words.rings] : 1.291236e-03
+Sentence->[Topic.bear Words.bear] : 9.020931e-04
+Sentence->[Topic.popnpals Words.popnpals] : 2.347830e-04
+Sentence->[Topic.car Words.car] : 1.978550e-01
+Sentence->[Topic.pig Words.pig] : 1.991612e-01
+Sentence->[Topic.box Words.box] : 9.893786e-02
+Sentence->[Topic.brush Words.brush] : 5.320789e-02
+Sentence->[Topic.pepperoni Words.pepperoni] : 1.467613e-03
+Sentence->[Topic.train Words.train] : 1.055482e-03
+Sentence->[Topic.flashlight Words.flashlight] : 2.035388e-03
+Topic.car->[T.None Topic.car] : 6.007817e-02
+Topic.car->[T.car Topic.None] : 9.399218e-01
+Topic.truck->[T.None Topic.truck] : 5.033593e-01
+Topic.truck->[T.truck Topic.None] : 4.966407e-01
+T.ernie->[PSEUDO.ERNIE Socials.Topical.kid.eyes] : 1.000000e+00
+Topic.brush->[T.None Topic.brush] : 4.167346e-01
+Topic.brush->[T.brush Topic.None] : 5.832654e-01
+T.pepperoni->[PSEUDO.PEPPERONI Socials.Topical.kid.eyes] : 1.000000e+00
+Words.ball->[Word.ball] : 1.167860e-01
+Words.ball->[Word.None] : 1.167860e-01
+Words.ball->[Word.None Words.ball] : 3.832140e-01
+Words.ball->[Word.ball Words.ball] : 3.832140e-01
+Socials.Topical.kid.eyes->[Socials.Topical.kid.hands] : 2.921099e-01
+Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands] : 7.078901e-01
+Socials.NotTopical.mom.eyes->[PSEUDOMOM.EYES Socials.NotTopical.mom.hands] : 2.532224e-02
+Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands] : 9.746778e-01
+PSEUDO#->[_#] : 1.000000e+00
+Word.ball->[Word] : 1.000000e+00
+T.block->[PSEUDO.BLOCK Socials.Topical.kid.eyes] : 1.000000e+00
+T.cheese->[PSEUDO.CHEESE Socials.Topical.kid.eyes] : 1.000000e+00
+T.rings->[PSEUDO.RINGS Socials.Topical.kid.eyes] : 1.000000e+00
+T.flashlight->[PSEUDO.FLASHLIGHT Socials.Topical.kid.eyes] : 1.000000e+00
+Word.bus->[Word] : 1.000000e+00
+Word.flashlight->[Word] : 1.000000e+00
+Word.waffles->[Word] : 1.000000e+00
+Topic.rabbit->[T.rabbit Topic.None] : 2.543597e-01
+Topic.rabbit->[T.None Topic.rabbit] : 7.456403e-01
+PSEUDO.CAR->[_.car] : 1.000000e+00
+Topic.alphabet->[T.alphabet Topic.None] : 1.000000e+00
+T.firetruck->[PSEUDO.FIRETRUCK Socials.Topical.kid.eyes] : 1.000000e+00
+Words.block->[Word.None] : 1.250001e-01
+Words.block->[Word.block Words.block] : 3.749999e-01
+Words.block->[Word.None Words.block] : 3.749999e-01
+Words.block->[Word.block] : 1.250001e-01
+Topic.pig->[T.pig Topic.None] : 5.174504e-01
+Topic.pig->[T.None Topic.pig] : 4.825496e-01
+Topic.baby->[T.baby Topic.None] : 1.000000e+00
+Words.alphabet->[Word.None] : 1.544689e-01
+Words.alphabet->[Word.alphabet Words.alphabet] : 3.455311e-01
+Words.alphabet->[Word.None Words.alphabet] : 3.455311e-01
+Words.alphabet->[Word.alphabet] : 1.544689e-01
+PSEUDOMOM.EYES->[_mom.eyes] : 1.000000e+00
+Word.oscar->[Word] : 1.000000e+00
+T.alphabet->[PSEUDO.ALPHABET Socials.Topical.kid.eyes] : 1.000000e+00
+Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands] : 9.528046e-01
+Socials.NotTopical.kid.eyes->[PSEUDOKID.EYES Socials.NotTopical.kid.hands] : 4.719544e-02
+Topic.waffles->[T.waffles Topic.None] : 2.500000e-01
+Topic.waffles->[T.None Topic.waffles] : 7.500000e-01
+PSEUDO.RINGS->[_.rings] : 1.000000e+00
+Word.firetruck->[Word] : 1.000000e+00
+Topic.popnpals->[T.popnpals Topic.None] : 5.000000e-01
+Topic.popnpals->[T.None Topic.popnpals] : 5.000000e-01
+Words.truck->[Word.None] : 1.332533e-01
+Words.truck->[Word.None Words.truck] : 3.667467e-01
+Words.truck->[Word.truck] : 1.332533e-01
+Words.truck->[Word.truck Words.truck] : 3.667467e-01
+T.rabbit->[PSEUDO.RABBIT Socials.Topical.kid.eyes] : 1.000000e+00
+Topic.flashlight->[T.flashlight Topic.None] : 5.882545e-01
+Topic.flashlight->[T.None Topic.flashlight] : 4.117455e-01
+Word.rings->[Word] : 1.000000e+00
+Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes] : 1.640991e-01
+Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes] : 8.359009e-01
+PSEUDO.DOUGH->[_.dough] : 1.000000e+00
+T.truck->[PSEUDO.TRUCK Socials.Topical.kid.eyes] : 1.000000e+00
+Topic.pepperoni->[T.None Topic.pepperoni] : 7.687344e-01
+Topic.pepperoni->[T.pepperoni Topic.None] : 2.312656e-01
+T.bus->[PSEUDO.BUS Socials.Topical.kid.eyes] : 1.000000e+00
+Socials.NotTopical.mom.point->[_#] : 9.954919e-01
+Socials.NotTopical.mom.point->[PSEUDOMOM.POINT PSEUDO#] : 4.508100e-03
+Word.block->[Word] : 1.000000e+00
+Word.car->[Word] : 1.000000e+00
+T.oscar->[PSEUDO.OSCAR Socials.Topical.kid.eyes] : 1.000000e+00
