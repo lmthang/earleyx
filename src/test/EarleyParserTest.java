@@ -43,7 +43,7 @@ public class EarleyParserTest extends TestCase {
     Prediction.verbose = 0;
     Completion.verbose = 0;
     RuleFile.verbose = 0;
-    EarleyParser.verbose = 0;
+    EarleyParser.verbose = 3;
   }
   
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 

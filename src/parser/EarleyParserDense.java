@@ -3,13 +3,10 @@ package parser;
 import java.io.BufferedReader;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
 import base.Edge;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import util.Util;
 
 import edu.stanford.nlp.util.DoubleList;
@@ -48,6 +45,7 @@ public class EarleyParserDense extends EarleyParser{
       Timing.startTime();
     }
   
+    int numCells = linear(0, numWords+1);
     chartEntries = new boolean[numCells][edgeSpaceSize];
     forwardProb = new double[numCells][edgeSpaceSize];
     innerProb = new double[numCells][edgeSpaceSize];
@@ -144,7 +142,7 @@ public class EarleyParserDense extends EarleyParser{
   protected DoubleList[] tempInsideProbs = new DoubleList[numCategories];
   
   @Override
-  protected void completeAll(int left, int middle, int right) {
+  protected void cellComplete(int left, int middle, int right) {
     int mrIndex = linear(middle, right); // middle right index
     if(verbose>=3){
       System.err.println("\n# Complete all [" + left + "," + middle + "," + right + "]: chartCount[" 
@@ -170,23 +168,12 @@ public class EarleyParserDense extends EarleyParser{
       }
     } 
     
-    /** Handle extended rules **/
-    Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(wordIndices.subList(middle, right));
     
-    if(valueMap != null){
-      if(verbose >= 2){
-        System.err.println("# AG prefix " + Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
-            ": " + Util.sprint(valueMap, parserTagIndex));
-      }
-      for(Entry<Integer, Double> entry : valueMap.entrySet()){
-        int tag = entry.getKey();
-        int edge = edgeSpace.indexOfTag(tag);
-        double score = entry.getValue();
-        addPrefixProbExtendedRule(left, middle, right, edge, score);
-      }
-      
+    /** Handle multi-terminal rules **/
+    if(hasMultiTerminalRule){
+      handleMultiTerminalRules(left, middle, right);
     }
-
+    
     // completions yield edges: right: left X -> _ Y . _
     int lrIndex = linear(left, right);
     Pair<boolean[], Integer> pair = booleanUnion(chartEntries[lrIndex], theseChartEntries);;
@@ -360,13 +347,6 @@ public class EarleyParserDense extends EarleyParser{
     outerProb[linear(left, right)][edge] = 
       operator.add(outerProb[linear(left, right)][edge], score);
   }
-  
-  
-  
-  @Override
-  protected Map<Integer, Map<Integer, Double>> computeOutsideChart() {
-    throw new NotImplementedException();
-  }
 
   /****************/
   /** Debug info **/
@@ -449,29 +429,9 @@ public class EarleyParserDense extends EarleyParser{
     return dumpChart(outerProb, false, true, "Outer");
   }
   
-  @Override
   public String dumpInsideChart() {
-    if(insideOutsideOpt==2){
-      return dumpCatChart(insideChart, "Inside");
-    } else {
-      return dumpChart(innerProb, true, false, "Inside");
-    }
-  }
-  
-  @Override
-  public String dumpOutsideChart() {
-    if(insideOutsideOpt==2){
-      return dumpCatChart(computeOutsideChart(), "Outside");
-    } else {
-      return dumpChart(outerProb, true, true, "Outside");
-    }
-  }
-
-  @Override
-  protected void standardOutside(int start, int end, int rootEdge,
-      double rootInsideScore) {
-    // TODO Auto-generated method stub
-    throw new NotImplementedException();
+    return dumpChart(innerProb, true, false, "Inside");
+//    return dumpCatChart(computeChart("Inside"), "Inside");
   }
 }
 

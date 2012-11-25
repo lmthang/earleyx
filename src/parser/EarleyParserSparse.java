@@ -8,11 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import base.Edge;
-
-import util.Util;
 
 import edu.stanford.nlp.util.DoubleList;
 import edu.stanford.nlp.util.Timing;
@@ -147,7 +144,7 @@ public class EarleyParserSparse extends EarleyParser {
     }
   }
   
-  protected void completeAll(int left, int middle, int right){
+  protected void cellComplete(int left, int middle, int right){
     int mrIndex = linear(middle, right); // middle right index
 
     // init
@@ -171,23 +168,11 @@ public class EarleyParserSparse extends EarleyParser {
       }
     }
     
-    /** Handle extended rules **/
-    Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(wordIndices.subList(middle, right));
-    
-    if(valueMap != null){
-      if(verbose >= 2){
-        System.err.println("# AG prefix " + Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
-            ": " + Util.sprint(valueMap, parserTagIndex));
-      }
-      for(Entry<Integer, Double> entry : valueMap.entrySet()){
-        int tag = entry.getKey();
-        int edge = edgeSpace.indexOfTag(tag);
-        double score = entry.getValue();
-        addPrefixProbExtendedRule(left, middle, right, edge, score);
-      }
-      
+    /** Handle multi-terminal rules **/
+    if(hasMultiTerminalRule){
+      handleMultiTerminalRules(left, middle, right);
     }
-
+    
     // completions yield edges: right: left X -> _ Y . _
     int lrIndex = linear(left, right);
     if(!forwardProb.containsKey(lrIndex)){
@@ -394,51 +379,7 @@ public class EarleyParserSparse extends EarleyParser {
     addScore(outerProb.get(lrIndex), edge, score);
   }
   
-  protected Map<Integer, Map<Integer,Double>> computeOutsideChart(){
-    if(outsideChart==null){
-      outsideChart = new HashMap<Integer, Map<Integer,Double>>();
-      for (int i = 0; i < numCells; i++) {
-        outsideChart.put(i, new HashMap<Integer, Double>());
-      }
-      
-      for(int length=1; length<=numWords; length++){ // length
-        for (int left = 0; left <= numWords-length; left++) {
-          int right = left+length;
-
-          int lrIndex = linear(left, right);
-          if(!outerProb.containsKey(lrIndex)){
-            continue;
-          }
-          
-          // scaling
-          double scalingFactor = operator.one();
-          if (isScaling){ // outside prob has a scaling factor for [0,left][right, numWords]
-            scalingFactor = operator.multiply(getScaling(0, left), getScaling(right, numWords));
-          }
-          
-          Map<Integer, Double> valueMap = outerProb.get(lrIndex);
-          Map<Integer, Double> tagMap = outsideChart.get(lrIndex);
-          // accumulate score for categories
-          for (int edge : valueMap.keySet()) { // edge
-            Edge edgeObj = edgeSpace.get(edge);
-            if(edgeObj.numRemainingChildren()==0){ // completed edge
-              int tag = edgeObj.getMother();
-              
-              double score = operator.divide(valueMap.get(edge), scalingFactor);
-              if(!tagMap.containsKey(tag)){ // new tag
-                tagMap.put(tag, score);
-              } else { // old tag
-                assert(tagMap.get(tag) == score); // outside probs for paths X -> * . Y are all the same despite the part on the left of the dot
-              }
-            }
-          }
-        }
-      }  
-    }
-    
-    return outsideChart;
-  }
-
+  
   /****************/
   /** Debug info **/
   /****************/
@@ -530,30 +471,14 @@ public class EarleyParserSparse extends EarleyParser {
   
   @Override
   public String dumpInsideChart() {
-    if(insideOutsideOpt==2){
-      return dumpCatChart(insideChart, "Inside");
-    } else {
-      return dumpChart(innerProb, true, false, "Inside");
-    }
+    return dumpChart(innerProb, true, false, "Inside");
   }
   
   @Override
   public String dumpOutsideChart() {
-    if(insideOutsideOpt==2){
-      return dumpCatChart(computeOutsideChart(), "Outside");
-    } else {
-      return dumpChart(outerProb, true, true, "Outside");
-    }
+    return dumpChart(outerProb, true, true, "Outside");
+//    return dumpCatChart(computeOutsideChart(), "Outside");
   }
-
-  @Override
-  protected void standardOutside(int start, int end, int rootEdge,
-      double rootInsideScore) {
-    // TODO Auto-generated method stub
-    
-  }
-  
-  
 }
 
 ///** Unused code **/
