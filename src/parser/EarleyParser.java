@@ -1690,6 +1690,7 @@ public abstract class EarleyParser implements Parser {
    */
   public double stringLogProbability(int right) {
     double logProb = operator.getLogProb(getInnerScore(0, right, goalEdge));
+  
     if(isScaling){
       logProb -= operator.getLogProb(getScaling(0, right));
     }

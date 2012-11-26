@@ -28,9 +28,9 @@ public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
   private String rootSymbol = "ROOT";
   private int parserOpt = 1; // 0: dense, 1: sparse, 2: sparse IO
-  private boolean isScaling = false; // 
-  private boolean isLogProb = true; 
-  private int insideOutsideOpt = 1; // false; //          
+  private boolean isScaling = true; // 
+  private boolean isLogProb = false; 
+  private int insideOutsideOpt = 0; // false; //          
   private String objString = "surprisal,stringprob,viterbi";
   
   @Before
@@ -43,7 +43,7 @@ public class EarleyParserTest extends TestCase {
     Prediction.verbose = 0;
     Completion.verbose = 0;
     RuleFile.verbose = 0;
-    EarleyParser.verbose = 1;
+    EarleyParser.verbose = 0;
   }
   
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 

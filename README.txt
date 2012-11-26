@@ -99,7 +99,7 @@ The final grammar is outputed into output/result.iogrammar .
 * Read WSJ-format file, extract grammar rules, smooth, and output to a file
 java -cp "earleyx.jar;lib/*" util.TreeBankFile -in data/WSJ-processed.MRG.5 -out grammars/wsj5.grammar -opt 1
 
-* For social cue data, remove pseudo node
+* For social cue data, remove pseudo node, and extract out individual sentence parses if the current parse is for the whole discourse
 java -cp "earleyx.jar;lib/*" util.TreeBankFile -in output/social.viterbi -out output/social.viterbi.clean -opt 3
 
 Before:

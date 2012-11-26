@@ -144,6 +144,22 @@ public class TreeBankFile {
     }
   }
   
+  public static List<Tree> extractSentParses(Tree tree){
+    List<Tree> sentTrees = new ArrayList<Tree>();
+    
+    Label mother = tree.label();
+    
+    if(mother.value().startsWith("Sentence")) { // a sent tree
+      sentTrees.add(tree);
+    } else {
+      for(Tree childTree : tree.getChildrenAsList()){
+        sentTrees.addAll(extractSentParses(childTree));
+      }
+    }
+    
+    return sentTrees;
+  }
+  
   public static void printHelp(String[] args, String message){
     System.err.println("! " + message);
     System.err.println("TreeBankFile -in inFile -out outFile"); // -opt option]");
@@ -153,7 +169,7 @@ public class TreeBankFile {
     System.err.println("\t\t in \t\t input grammar");
     System.err.println("\t\t out \t\t output file");
     System.err.println("\t\t opt \t\t 1 -- extract rules, smooth, and output to a file, " + 
-        "2 -- pretty print, and 3 -- for social program, remove pseudo nodes");
+        "2 -- pretty print, 3 -- for social program, remove pseudo nodes, and extract individual sentence trees (if each parse is for a whole discourse)");
     System.err.println();
     System.exit(1);
   }
@@ -242,7 +258,12 @@ public class TreeBankFile {
       } else if (option==3){ // for social program, remove pseudo nodes
         for (Iterator<Tree> i = treebank.iterator(); i.hasNext();) {
           Tree t = i.next();
-          bw.write(removePseudoNode(t) + "\n");
+          t = removePseudoNode(t); // (X (PSEUDO.Y y)) is collapsed into (X y) 
+          
+          List<Tree> sentTrees = extractSentParses(t);
+          for(Tree sentTree : sentTrees){
+            bw.write(sentTree + "\n");
+          }
         }
       } else {
         printHelp(args, "! unknown option " + option);
