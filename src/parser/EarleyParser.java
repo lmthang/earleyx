@@ -62,7 +62,7 @@ public abstract class EarleyParser implements Parser {
   protected boolean isLogProb = false;
   protected int insideOutsideOpt = 0; // 1: Earley way, 2: traditional way
   protected int decodeOpt = 0; // 1: Viterbi (Label Tree), 2: Label Recall
-
+  protected boolean isFastComplete = true; //false; 
   protected Operator operator; // either ProbOperator or LogProbOperator
   
   protected Grammar g;
@@ -124,7 +124,8 @@ public abstract class EarleyParser implements Parser {
   // completedEdges.get(linear(left, right)): set of completed edges spanning [left, right]
   protected Map<Integer, Set<Integer>> completedEdges;
   // completeInfo.get(right).get(edge): set of left positions of completed edges that span [left, right]
-  protected Map<Integer, Map<Integer, Set<Integer>>> completeInfo;
+  // edge is X -> \alpha . \beta where \beta is non empty
+  protected Map<Integer, Map<Integer, Set<Integer>>> activeEdgeInfo;
   
   /** inside-outside **/
 
@@ -396,21 +397,14 @@ public abstract class EarleyParser implements Parser {
       String sentenceString = sentences.get(i);
       String id = indices.get(i);
 
-      // start
       if(verbose>=0){
         System.err.println("\n### Sent " + i + ": id=" + id + ", numWords=" + sentenceString.split("\\s+").length);
-        Timing.startTime();
       }
       
       // parse sentence
       parseSentence(sentenceString);
       sentLogProbs.add(stringLogProbability(numWords));
-      
-      // end
-      if(verbose>=0){
-        Timing.tick("NegLogProb=" + -stringLogProbability(numWords) + ". finished parsing sentence. ");
-      }
-      
+
       // output
       if(surprisalWriter != null){ // surprisal
         surprisalWriter.write("# " + id + "\n");
@@ -456,8 +450,12 @@ public abstract class EarleyParser implements Parser {
   }
 
   public boolean parse(List<? extends HasWord> words) {
-    if(verbose>=0 && words.size()<100){
-      System.err.println("## Parsing: " + words);
+    // start
+    if(verbose>=0){
+      if (words.size()<100){
+        System.err.println("## Parsing: " + words);
+      }
+      Timing.startTime();
     }
     this.words = words;
     
@@ -466,9 +464,10 @@ public abstract class EarleyParser implements Parser {
     
     /* add "" -> . ROOT */
     addToChart(0, 0, startEdge, operator.one(), operator.one());
-    predictAll(0); // start expanding from ROOT
-    addToChart(0, 0, startEdge, operator.one(), operator.one()); // this is a bit of a hack needed because predictAll(0) wipes out the seeded rootActiveEdge chart entry.
+    chartPredict(0); // start expanding from ROOT
+    addToChart(0, 0, startEdge, operator.one(), operator.one()); // this is a bit of a hack needed because chartPredict(0) wipes out the seeded rootActiveEdge chart entry.
     addInnerScore(0, numWords, startEdge, operator.one()); // set inside score 1.0 for "" -> . ROOT
+    addActiveEdgeInfo(0, 0, startEdge);
     
     if(verbose>=3){
       dumpChart();
@@ -552,6 +551,11 @@ public abstract class EarleyParser implements Parser {
         System.err.println(dumpOuterProb());
         System.err.println(dumpOutsideChart());
       }
+    }
+    
+    // end
+    if(verbose>=0){
+      Timing.tick("NegLogProb=" + -stringLogProbability(numWords) + ". finished parsing sentence. ");
     }
     
     return (rootInnerScore>operator.zero());
@@ -652,20 +656,25 @@ public abstract class EarleyParser implements Parser {
     if(verbose>=1){
       Timing.startTime();
     }
-    chartComplete(right);
-//    fastChartComplete(right);
+    
+    if(isFastComplete){
+      fastChartComplete(right);
+    } else {
+      chartComplete(right);
+    }
+    
     
     if(verbose>=1){
       Timing.tick("# " + word + ", finished chartComplete");
     }
     
-    //3. predictAll all new active edges for further down the road
+    //3. chartPredict all new active edges for further down the road
     if(verbose>=1){
       Timing.startTime();
     }
-    predictAll(right);
+    chartPredict(right);
     if(verbose>=1){
-      Timing.tick("# " + word + ", finished predictAll");
+      Timing.tick("# " + word + ", finished chartPredict");
     }
   }
 
@@ -713,29 +722,100 @@ public abstract class EarleyParser implements Parser {
 
     // complete info
     addCompletedEdges(left, right, edge);
-    if(left==(right-1)){
-      completeInfo.put(right, new HashMap<Integer, Set<Integer>>());
-    }
     
     addToChart(left, right, edge, operator.zero(), inner);
   }
   
-  public void addCompletedEdges(int left, int right, int edge){
-    if(!completedEdges.containsKey(linear(left, right))){
-      completedEdges.put(linear(left, right), new HashSet<Integer>());
+  /********************************/
+  /********** PREDICTION **********/
+  /********************************/
+  /**
+   * Predictions at column right
+   * 
+   * @param right
+   */
+  protected void chartPredict(int right) {
+    // init
+    initPredictTmpScores();
+    
+    boolean flag = false;
+    for (int left = 0; left <= right; left++) {
+      if (chartCount(left, right) == 0){ // no active categories
+        continue;
+      }
+      
+      if(verbose>=3){
+        System.err.println("\n# Predict all [" + left + "," + right + "]: " + 
+            "chart count=" + chartCount(left, right));
+      }
+      
+      flag = true;
+      for(int edge : listEdges(left, right)){
+        // predict for right: left X -> \alpha . Y \beta
+        predictFromEdge(left, right, edge);
+      }
     }
-    completedEdges.get(linear(left, right)).add(edge);
+    
+    storePredictTmpScores(right);
+    
+    if (verbose >= 3 && flag) {
+      dumpChart();
+    }
+  }
+  
+
+  protected void predictFromEdge(int left, int right, int edge) {
+    Prediction[] predictions = g.getPredictions(edge);
+    if (verbose >= 3 && predictions.length>0) {
+      System.err.println("From edge " + edgeScoreInfo(left, right, edge));
+    }
+    
+    for (int x = 0, n = predictions.length; x < n; x++) { // go through each prediction
+      Prediction p = predictions[x];
+      
+      // spawn new edge
+      int newEdge = p.predictedState;
+      double newForwardProb = operator.multiply(getForwardScore(left, right, edge), p.forwardProbMultiplier);
+      double newInnerProb = p.innerProbMultiplier;
+      
+      // add to tmp map
+      addPredictTmpForwardScore(newEdge, newForwardProb);
+      addPredictTmpInnerScore(newEdge, newInnerProb);
+      
+      // store activeEdgeInfo: right: right X -> . \alpha
+      assert(edgeSpace.get(newEdge).numChildren()>0 && edgeSpace.get(newEdge).getDot()==0);
+      addActiveEdgeInfo(right, right, newEdge);
+      
+      if (verbose >= 3) {
+        System.err.println("  to " + edgeScoreInfo(right, right, newEdge, newForwardProb, newInnerProb));
+      }
+    }
+  }
+  
+  /********************************/
+  /********** COMPLETION **********/
+  /********************************/
+  public void addCompletedEdges(int left, int right, int edge){
+    int lrIndex = linear(left, right);
+    if(!completedEdges.containsKey(lrIndex)){
+      completedEdges.put(lrIndex, new HashSet<Integer>());
+    }
+    completedEdges.get(lrIndex).add(edge);
     
     if(verbose>=3){
       System.err.println("# Add completed edge " + edgeInfo(left, right, edge));
     }
   }
   
-  public void addCompleteInfo(int left, int right, int edge){
-    if(!completeInfo.get(right).containsKey(edge)){
-      completeInfo.get(right).put(edge, new HashSet<Integer>());
+  public void addActiveEdgeInfo(int left, int right, int edge){
+    if(!activeEdgeInfo.get(right).containsKey(edge)){
+      activeEdgeInfo.get(right).put(edge, new HashSet<Integer>());
     }
-    completeInfo.get(right).get(edge).add(left);
+    activeEdgeInfo.get(right).get(edge).add(left);
+    
+    if(verbose>=3){
+      System.err.println("# Add active edge info " + edgeInfo(left, right, edge));
+    }
   }
   
   /**
@@ -759,16 +839,65 @@ public abstract class EarleyParser implements Parser {
     }
   }
   
+  protected void cellComplete(int left, int middle, int right){
+    // init
+    initCompleteTmpScores();
+    
+    if(chartCount(middle, right)>0){
+      // there're active edges for the span [middle, right]
+      if(verbose>=3){
+        System.err.println("\n# Complete all [" + left + "," + middle + "," + right + "]: chartCount[" 
+            + middle + "," + right + "]=" + chartCount(middle, right));
+      }
+      
+      // tag completions
+      for(int edge : listEdges(middle, right)){
+        if(edgeSpace.to(edge) == -1){ // no more child after the dot
+          // right: middle Y -> _ .
+          // in completion the forward prob of Y -> _ . is ignored
+          complete(left, middle, right, edge, getInnerScore(middle, right, edge)); 
+        }
+      }
+    }
+    
+    /** Handle multi-terminal rules **/
+    if(hasMultiTerminalRule){
+      handleMultiTerminalRules(left, middle, right);
+    }
+    
+    // completions yield edges: right: left X -> \alpha Y . \beta
+    storeCompleteTmpScores(left, right);
+  }
+  
   protected void fastChartComplete(int right){
     for (int middle = right - 1; middle >= 0; middle--) {
       int mrIndex = linear(middle, right);
       
       // list of nextEdge right: middle Y -> v .
       if(completedEdges.containsKey(mrIndex)){
-        for(int nextEdge : completedEdges.get(mrIndex)){
+        if(verbose>=3){
+          System.err.println("\n# Complete all [" + middle + "," + right + "]: chartCount[" 
+              + middle + "," + right + "]=" + completedEdges.get(mrIndex).size());
+        }
+        
+        Integer[] copyEdges = completedEdges.get(mrIndex).toArray(new Integer[0]);
+        for(int nextEdge : copyEdges){
           fastCellComplete(middle, right, nextEdge);
         }
       }
+      
+      // could be made faster
+      /** Handle multi-terminal rules **/
+      for(int left=middle; left>=0; left--){
+        if(hasMultiTerminalRule){
+          handleMultiTerminalRules(left, middle, right);
+        }
+      }
+    }
+    
+    storePrefixProb(right);
+    if(verbose>=3){
+      dumpChart();
     }
   }
   
@@ -783,15 +912,19 @@ public abstract class EarleyParser implements Parser {
       
       for (Completion completion : completions) { // go through all completions we could finish
         int prevEdge = completion.activeEdge; // X -> \alpha . Z \beta
+
+        if (verbose>=3){
+          System.err.println(completionInfo(middle, right, nextEdge, inner, completions));
+        }
         
-        if(completeInfo.containsKey(middle) && completeInfo.get(middle).containsKey(prevEdge)){
-          for(int left : completeInfo.get(middle).get(prevEdge)){ // middle : left X -> \alpha . Z \beta
+        if(activeEdgeInfo.containsKey(middle) && activeEdgeInfo.get(middle).containsKey(prevEdge)){
+          if(verbose>=3){
+            System.err.println("Left for [*, " + middle + "] " + 
+          edgeSpace.get(prevEdge).toString(parserTagIndex, parserWordIndex) 
+                + ":  " + activeEdgeInfo.get(middle).get(prevEdge));
+          }
+          for(int left : activeEdgeInfo.get(middle).get(prevEdge)){ // middle : left X -> \alpha . Z \beta
             assert(edgeSpace.get(prevEdge).numRemainingChildren()>0);
-    
-            if (verbose>=3){
-              System.err.println(completionInfo(left, middle, right, nextEdge, inner, completions));
-            }
-            
             /* add/update newEdge right: left X -> \alpha Z . \beta */
             double updateScore = operator.multiply(completion.score, inner);
             double newForwardProb = operator.multiply(
@@ -799,28 +932,24 @@ public abstract class EarleyParser implements Parser {
             double newInnerProb = operator.multiply(
                 getInnerScore(left, middle, prevEdge), updateScore);
             int newEdge = completion.completedEdge;
-            
+
             addInnerScore(left, right, newEdge, newInnerProb);
-            addOuterScore(left, right, newEdge, newForwardProb);
+            addForwardScore(left, right, newEdge, newForwardProb);
             
             // complete info
             Edge newEdgeObj = edgeSpace.get(newEdge);
             if (newEdgeObj.numRemainingChildren()==0){ // completed: X -> \alpha Z .
-              assert(left<middle); // alpha not empty
+              assert(newEdge==goalEdge || left<middle); // alpha not empty
               addCompletedEdges(left, right, newEdge);
             } else {
-              addCompleteInfo(left, right, newEdge);
+              addActiveEdgeInfo(left, right, newEdge);
             }
         
             // Viterbi: store backtrack info
             if(decodeOpt==1){
               addBacktrack(left, middle, right, nextEdge, newEdge, newInnerProb);
             }
-            
-            // also a careful addition to the prefix probabilities -- is this right?
-            if (middle == right - 1) {
-              addPrefixProb(left, middle, right, newForwardProb, newInnerProb, completion);  
-            }
+
 
             if (verbose >= 3) {
               System.err.println("  start " + edgeScoreInfo(left, middle, completion.activeEdge) 
@@ -831,9 +960,9 @@ public abstract class EarleyParser implements Parser {
               }
             }
             
-            /** Handle multi-terminal rules **/
-            if(hasMultiTerminalRule){
-              handleMultiTerminalRules(left, middle, right);
+            // also a careful addition to the prefix probabilities -- is this right?
+            if (middle == right - 1) {
+              addPrefixProb(left, middle, right, newForwardProb, inner, completion);  
             }
           } // end for left
         } // end if completeInfo
@@ -869,7 +998,7 @@ public abstract class EarleyParser implements Parser {
     Completion[] completions = g.getCompletions(tag);
     
     if (verbose>=3 && completions.length>0){
-      System.err.println(completionInfo(left, middle, right, nextEdge, inner, completions));
+      System.err.println(completionInfo(middle, right, nextEdge, inner, completions));
     }
     
     for (Completion completion : completions) { // go through all completions we could finish
@@ -882,9 +1011,9 @@ public abstract class EarleyParser implements Parser {
         int newEdge = completion.completedEdge;
         
         // add edge, right: left X -> _ Z . _, to tmp storage
-        initTmpScores(newEdge);
-        addTmpForwardScore(newEdge, newForwardProb);
-        addTmpInnerScore(newEdge, newInnerProb);
+        initCompleteTmpScores(newEdge);
+        addCompleteTmpForwardScore(newEdge, newForwardProb);
+        addCompleteTmpInnerScore(newEdge, newInnerProb);
     
         // inside-outside info to help outside computation later
         if(insideOutsideOpt>0){
@@ -911,7 +1040,7 @@ public abstract class EarleyParser implements Parser {
 
         //also a careful addition to the prefix probabilities -- is this right?
         if (middle == right - 1) {
-          addPrefixProb(left, middle, right, newForwardProb, newInnerProb, completion);
+          addPrefixProb(left, middle, right, newForwardProb, inner, completion);
         }
       }
     }
@@ -1285,10 +1414,6 @@ public abstract class EarleyParser implements Parser {
   /**********************/
   protected abstract void addToChart(int left, int right, int edge, 
       double forward, double inner);
-  protected abstract void predictAll(int right);
-  protected abstract void predictFromEdge(int left, int right, int edge);
-  
-  protected abstract void cellComplete(int left, int middle, int right);
   protected abstract void addPrefixProbExtendedRule(int left, int middle, int right, int edge, double inner);
 
   /**
@@ -1303,10 +1428,18 @@ public abstract class EarleyParser implements Parser {
   protected abstract int chartCount(int left, int right);
   protected abstract Set<Integer> listEdges(int left, int right);
   
-  // tmp probabilities
-  protected abstract void initTmpScores(int edge);
-  protected abstract void addTmpForwardScore(int edge, double score);
-  protected abstract void addTmpInnerScore(int edge, double score);
+  // tmp predict probabilities
+  protected abstract void initPredictTmpScores();
+  protected abstract void addPredictTmpForwardScore(int edge, double score);
+  protected abstract void addPredictTmpInnerScore(int edge, double score);
+  protected abstract void storePredictTmpScores(int right);
+ 
+  // tmp complete probabilities
+  protected abstract void initCompleteTmpScores();
+  protected abstract void initCompleteTmpScores(int edge);
+  protected abstract void addCompleteTmpForwardScore(int edge, double score);
+  protected abstract void addCompleteTmpInnerScore(int edge, double score);
+  protected abstract void storeCompleteTmpScores(int left, int right);
   
   // forward probabilities
   protected abstract double getForwardScore(int left, int right, int edge);
@@ -1364,7 +1497,11 @@ public abstract class EarleyParser implements Parser {
           if(edgeObj.numRemainingChildren()==0){ // completed edge
             int tag = edgeObj.getMother();
             
-            double score = operator.divide(getOuterScore(left, right, edge), scalingFactor);
+            double score = getOuterScore(left, right, edge);
+            if(score==operator.zero())
+              continue;
+            
+            score = operator.divide(score, scalingFactor);
             if(!tagMap.containsKey(tag)){ // new tag
               tagMap.put(tag, score);
             } else { // old tag
@@ -1408,8 +1545,11 @@ public abstract class EarleyParser implements Parser {
         }
         
         // print by tag            
-        for(Map.Entry<Integer, Double> entry : tagMap.entrySet()){
-          int tag = entry.getKey();
+        //for(Map.Entry<Integer, Double> entry : tagMap.entrySet()){
+        for(int tag=0; tag<parserTagIndex.size(); tag++){
+          //int tag = entry.getKey();
+          if(!tagMap.containsKey(tag))
+            continue;
           
           double score = tagMap.get(tag);
           if(score == operator.zero())
@@ -1481,7 +1621,9 @@ public abstract class EarleyParser implements Parser {
     
     // completion info
     completedEdges = new HashMap<Integer, Set<Integer>>();
-    completeInfo = new HashMap<Integer, Map<Integer, Set<Integer>>>();
+    activeEdgeInfo = new HashMap<Integer, Map<Integer, Set<Integer>>>();
+    for(int i=0; i<=numWords; i++)
+      activeEdgeInfo.put(i, new HashMap<Integer, Set<Integer>>());
     
     // result lists
     surprisalList = new ArrayList<Double>();
@@ -1580,9 +1722,9 @@ public abstract class EarleyParser implements Parser {
         operator.getProb(getOuterScore(left, right, edge)) + ")";
   }
   
-  protected String completionInfo(int left, int middle, int right, 
+  protected String completionInfo(int middle, int right, 
       int edge, double inner, Completion[] completions){
-    return "Completed " + edgeInfo(middle, right, edge)  
+    return "Completed " + + edge + " " + edgeInfo(middle, right, edge)  
     + ", inside=" + df.format(operator.getProb(inner))  
     + " -> completions: " + Util.sprint(completions, edgeSpace, parserTagIndex, parserWordIndex, operator);
   }
