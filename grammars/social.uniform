@@ -1,7 +1,7 @@
 Document->[Sentence Document] : 5.000000e-01
 Document->[Sentence] : 5.000000e-01
-P_.TRUCK->[_.truck] : 1.000000e+00
-P_MOM.HANDS->[_mom.hands] : 1.000000e+00
+PSEUDO.TRUCK->[_.truck] : 1.000000e+00
+PSEUDOMOM.HANDS->[_mom.hands] : 1.000000e+00
 Words.mickey->[Word.None] : 2.500000e-01
 Words.mickey->[Word.mickey Words.mickey] : 2.500000e-01
 Words.mickey->[Word.None Words.mickey] : 2.500000e-01
@@ -15,51 +15,51 @@ Words.ernie->[Word.None] : 2.500000e-01
 Words.ernie->[Word.None Words.ernie] : 2.500000e-01
 Words.ernie->[Word.ernie Words.ernie] : 2.500000e-01
 Words.ernie->[Word.ernie] : 2.500000e-01
-P_.BABY->[_.baby] : 1.000000e+00
-T.hotdog->[P_.HOTDOG Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.BABY->[_.baby] : 1.000000e+00
+T.hotdog->[PSEUDO.HOTDOG Socials.Topical.kid.eyes] : 1.000000e+00
 Word.mickey->[Word] : 1.000000e+00
 Words.flashlight->[Word.None Words.flashlight] : 2.500000e-01
 Words.flashlight->[Word.None] : 2.500000e-01
 Words.flashlight->[Word.flashlight] : 2.500000e-01
 Words.flashlight->[Word.flashlight Words.flashlight] : 2.500000e-01
 Word.alphabet->[Word] : 1.000000e+00
-P_.PIG->[_.pig] : 1.000000e+00
-P_.MICKEY->[_.mickey] : 1.000000e+00
-T.dog->[P_.DOG Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.PIG->[_.pig] : 1.000000e+00
+PSEUDO.MICKEY->[_.mickey] : 1.000000e+00
+T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes] : 1.000000e+00
 Words.bear->[Word.bear] : 2.500000e-01
 Words.bear->[Word.bear Words.bear] : 2.500000e-01
 Words.bear->[Word.None Words.bear] : 2.500000e-01
 Words.bear->[Word.None] : 2.500000e-01
 Word.doll->[Word] : 1.000000e+00
-T.car->[P_.CAR Socials.Topical.kid.eyes] : 1.000000e+00
+T.car->[PSEUDO.CAR Socials.Topical.kid.eyes] : 1.000000e+00
 Topic.bus->[T.None Topic.bus] : 5.000000e-01
 Topic.bus->[T.bus Topic.None] : 5.000000e-01
 Topic.ernie->[T.ernie Topic.None] : 5.000000e-01
 Topic.ernie->[T.None Topic.ernie] : 5.000000e-01
-T.dough->[P_.DOUGH Socials.Topical.kid.eyes] : 1.000000e+00
-P_.PHONE->[_.phone] : 1.000000e+00
+T.dough->[PSEUDO.DOUGH Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.PHONE->[_.phone] : 1.000000e+00
 Topic.train->[T.train Topic.None] : 5.000000e-01
 Topic.train->[T.None Topic.train] : 5.000000e-01
-T.doll->[P_.DOLL Socials.Topical.kid.eyes] : 1.000000e+00
-T.bear->[P_.BEAR Socials.Topical.kid.eyes] : 1.000000e+00
-T.box->[P_.BOX Socials.Topical.kid.eyes] : 1.000000e+00
-P_.CHEESE->[_.cheese] : 1.000000e+00
+T.doll->[PSEUDO.DOLL Socials.Topical.kid.eyes] : 1.000000e+00
+T.bear->[PSEUDO.BEAR Socials.Topical.kid.eyes] : 1.000000e+00
+T.box->[PSEUDO.BOX Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.CHEESE->[_.cheese] : 1.000000e+00
 Word.cheese->[Word] : 1.000000e+00
-T.pig->[P_.PIG Socials.Topical.kid.eyes] : 1.000000e+00
-P_.TRAIN->[_.train] : 1.000000e+00
+T.pig->[PSEUDO.PIG Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.TRAIN->[_.train] : 1.000000e+00
 Words.phone->[Word.None Words.phone] : 2.500000e-01
 Words.phone->[Word.None] : 2.500000e-01
 Words.phone->[Word.phone] : 2.500000e-01
 Words.phone->[Word.phone Words.phone] : 2.500000e-01
 Word.ernie->[Word] : 1.000000e+00
-P_.RABBIT->[_.rabbit] : 1.000000e+00
-P_.BUS->[_.bus] : 1.000000e+00
-P_.POPNPALS->[_.popnpals] : 1.000000e+00
+PSEUDO.RABBIT->[_.rabbit] : 1.000000e+00
+PSEUDO.BUS->[_.bus] : 1.000000e+00
+PSEUDO.POPNPALS->[_.popnpals] : 1.000000e+00
 Topic.bear->[T.bear Topic.None] : 5.000000e-01
 Topic.bear->[T.None Topic.bear] : 5.000000e-01
-P_.BEAR->[_.bear] : 1.000000e+00
-P_.BLOCKS->[_.blocks] : 1.000000e+00
-P_.ALPHABET->[_.alphabet] : 1.000000e+00
+PSEUDO.BEAR->[_.bear] : 1.000000e+00
+PSEUDO.BLOCKS->[_.blocks] : 1.000000e+00
+PSEUDO.ALPHABET->[_.alphabet] : 1.000000e+00
 Word.pig->[Word] : 1.000000e+00
 Topic.None->[_##] : 5.000000e-01
 Topic.None->[T.None Topic.None] : 5.000000e-01
@@ -68,11 +68,11 @@ Words.dough->[Word.dough] : 2.500000e-01
 Words.dough->[Word.dough Words.dough] : 2.500000e-01
 Words.dough->[Word.None] : 2.500000e-01
 Word.dog->[Word] : 1.000000e+00
-P_KID.HANDS->[_kid.hands] : 1.000000e+00
+PSEUDOKID.HANDS->[_kid.hands] : 1.000000e+00
 Words.None->[Word.None] : 5.000000e-01
 Words.None->[Word.None Words.None] : 5.000000e-01
-P_.BRUSH->[_.brush] : 1.000000e+00
-T.blocks->[P_.BLOCKS Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.BRUSH->[_.brush] : 1.000000e+00
+T.blocks->[PSEUDO.BLOCKS Socials.Topical.kid.eyes] : 1.000000e+00
 Words.waffles->[Word.None Words.waffles] : 2.500000e-01
 Words.waffles->[Word.None] : 2.500000e-01
 Words.waffles->[Word.waffles Words.waffles] : 2.500000e-01
@@ -84,19 +84,19 @@ Topic.hotdog->[T.hotdog Topic.None] : 5.000000e-01
 Topic.hotdog->[T.None Topic.hotdog] : 5.000000e-01
 Word.blocks->[Word] : 1.000000e+00
 Word.bear->[Word] : 1.000000e+00
-T.ball->[P_.BALL Socials.Topical.kid.eyes] : 1.000000e+00
+T.ball->[PSEUDO.BALL Socials.Topical.kid.eyes] : 1.000000e+00
 Word.popnpals->[Word] : 1.000000e+00
 Words.oscar->[Word.None Words.oscar] : 2.500000e-01
 Words.oscar->[Word.None] : 2.500000e-01
 Words.oscar->[Word.oscar] : 2.500000e-01
 Words.oscar->[Word.oscar Words.oscar] : 2.500000e-01
-P_KID.EYES->[_kid.eyes] : 1.000000e+00
+PSEUDOKID.EYES->[_kid.eyes] : 1.000000e+00
 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point] : 5.000000e-01
-Socials.NotTopical.mom.hands->[P_MOM.HANDS Socials.NotTopical.mom.point] : 5.000000e-01
+Socials.NotTopical.mom.hands->[PSEUDOMOM.HANDS Socials.NotTopical.mom.point] : 5.000000e-01
 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes] : 5.000000e-01
-Socials.Topical.kid.hands->[P_KID.HANDS Socials.Topical.mom.eyes] : 5.000000e-01
-T.popnpals->[P_.POPNPALS Socials.Topical.kid.eyes] : 1.000000e+00
-P_.BALL->[_.ball] : 1.000000e+00
+Socials.Topical.kid.hands->[PSEUDOKID.HANDS Socials.Topical.mom.eyes] : 5.000000e-01
+T.popnpals->[PSEUDO.POPNPALS Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.BALL->[_.ball] : 1.000000e+00
 Topic.book->[T.book Topic.None] : 5.000000e-01
 Topic.book->[T.None Topic.book] : 5.000000e-01
 Words.rings->[Word.rings] : 2.500000e-01
@@ -105,8 +105,8 @@ Words.rings->[Word.rings Words.rings] : 2.500000e-01
 Words.rings->[Word.None] : 2.500000e-01
 Word.brush->[Word] : 1.000000e+00
 Word.None->[Word] : 1.000000e+00
-P_.FIRETRUCK->[_.firetruck] : 1.000000e+00
-T.mickey->[P_.MICKEY Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.FIRETRUCK->[_.firetruck] : 1.000000e+00
+T.mickey->[PSEUDO.MICKEY Socials.Topical.kid.eyes] : 1.000000e+00
 Word->[_thats] : 9.009009e-04
 Word->[_both] : 9.009009e-04
 Word->[_trucks] : 9.009009e-04
@@ -1226,39 +1226,39 @@ Words.baby->[Word.None] : 2.500000e-01
 Words.baby->[Word.baby] : 2.500000e-01
 Words.baby->[Word.baby Words.baby] : 2.500000e-01
 Socials.Topical.mom.point->[_#] : 5.000000e-01
-Socials.Topical.mom.point->[P_MOM.POINT P_#] : 5.000000e-01
-P_.BOOK->[_.book] : 1.000000e+00
-T.None->[P_.TRAIN Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.BUS Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.FLASHLIGHT Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.PHONE Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.BEAR Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.CHEESE Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.POPNPALS Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.BLOCKS Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.ERNIE Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.HOTDOG Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.MICKEY Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.BOOK Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.WAFFLES Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.CAR Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.PIG Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.RABBIT Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.BLOCK Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.BABY Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.BRUSH Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.PEPPERONI Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.TRUCK Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.OSCAR Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.BOX Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.ALPHABET Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.BALL Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.DOLL Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.DOUGH Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.DOG Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.FIRETRUCK Socials.NotTopical.kid.eyes] : 3.333333e-02
-T.None->[P_.RINGS Socials.NotTopical.kid.eyes] : 3.333333e-02
-P_.DOG->[_.dog] : 1.000000e+00
+Socials.Topical.mom.point->[PSEUDOMOM.POINT PSEUDO#] : 5.000000e-01
+PSEUDO.BOOK->[_.book] : 1.000000e+00
+T.None->[PSEUDO.TRAIN Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.BUS Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.FLASHLIGHT Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.PHONE Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.BEAR Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.CHEESE Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.POPNPALS Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.BLOCKS Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.ERNIE Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.HOTDOG Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.MICKEY Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.BOOK Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.WAFFLES Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.CAR Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.RABBIT Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.BLOCK Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.BABY Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.BRUSH Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.PEPPERONI Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.TRUCK Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.OSCAR Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.BOX Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.ALPHABET Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.BALL Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.DOLL Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.DOUGH Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.DOG Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.FIRETRUCK Socials.NotTopical.kid.eyes] : 3.333333e-02
+T.None->[PSEUDO.RINGS Socials.NotTopical.kid.eyes] : 3.333333e-02
+PSEUDO.DOG->[_.dog] : 1.000000e+00
 Words.bus->[Word.None Words.bus] : 2.500000e-01
 Words.bus->[Word.None] : 2.500000e-01
 Words.bus->[Word.bus] : 2.500000e-01
@@ -1271,17 +1271,17 @@ Words.brush->[Word.None] : 2.500000e-01
 Words.brush->[Word.None Words.brush] : 2.500000e-01
 Words.brush->[Word.brush] : 2.500000e-01
 Words.brush->[Word.brush Words.brush] : 2.500000e-01
-T.phone->[P_.PHONE Socials.Topical.kid.eyes] : 1.000000e+00
+T.phone->[PSEUDO.PHONE Socials.Topical.kid.eyes] : 1.000000e+00
 Word.phone->[Word] : 1.000000e+00
-P_.WAFFLES->[_.waffles] : 1.000000e+00
-P_.FLASHLIGHT->[_.flashlight] : 1.000000e+00
+PSEUDO.WAFFLES->[_.waffles] : 1.000000e+00
+PSEUDO.FLASHLIGHT->[_.flashlight] : 1.000000e+00
 Topic.mickey->[T.None Topic.mickey] : 5.000000e-01
 Topic.mickey->[T.mickey Topic.None] : 5.000000e-01
 Words.pig->[Word.None] : 2.500000e-01
 Words.pig->[Word.pig] : 2.500000e-01
 Words.pig->[Word.pig Words.pig] : 2.500000e-01
 Words.pig->[Word.None Words.pig] : 2.500000e-01
-T.book->[P_.BOOK Socials.Topical.kid.eyes] : 1.000000e+00
+T.book->[PSEUDO.BOOK Socials.Topical.kid.eyes] : 1.000000e+00
 Topic.dog->[T.dog Topic.None] : 5.000000e-01
 Topic.dog->[T.None Topic.dog] : 5.000000e-01
 Topic.firetruck->[T.None Topic.firetruck] : 5.000000e-01
@@ -1290,7 +1290,7 @@ Words.pepperoni->[Word.None] : 2.500000e-01
 Words.pepperoni->[Word.None Words.pepperoni] : 2.500000e-01
 Words.pepperoni->[Word.pepperoni] : 2.500000e-01
 Words.pepperoni->[Word.pepperoni Words.pepperoni] : 2.500000e-01
-P_.BOX->[_.box] : 1.000000e+00
+PSEUDO.BOX->[_.box] : 1.000000e+00
 Word.box->[Word] : 1.000000e+00
 Topic.cheese->[T.cheese Topic.None] : 5.000000e-01
 Topic.cheese->[T.None Topic.cheese] : 5.000000e-01
@@ -1301,8 +1301,8 @@ Words.popnpals->[Word.popnpals Words.popnpals] : 2.500000e-01
 Words.popnpals->[Word.popnpals] : 2.500000e-01
 Topic.ball->[T.ball Topic.None] : 5.000000e-01
 Topic.ball->[T.None Topic.ball] : 5.000000e-01
-P_.ERNIE->[_.ernie] : 1.000000e+00
-P_MOM.POINT->[_mom.point] : 1.000000e+00
+PSEUDO.ERNIE->[_.ernie] : 1.000000e+00
+PSEUDOMOM.POINT->[_mom.point] : 1.000000e+00
 Word.hotdog->[Word] : 1.000000e+00
 Topic.blocks->[T.None Topic.blocks] : 5.000000e-01
 Topic.blocks->[T.blocks Topic.None] : 5.000000e-01
@@ -1312,7 +1312,7 @@ Words.cheese->[Word.None Words.cheese] : 2.500000e-01
 Words.cheese->[Word.cheese] : 2.500000e-01
 Word.dough->[Word] : 1.000000e+00
 Socials.Topical.mom.eyes->[Socials.Topical.mom.hands] : 5.000000e-01
-Socials.Topical.mom.eyes->[P_MOM.EYES Socials.Topical.mom.hands] : 5.000000e-01
+Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands] : 5.000000e-01
 Words.doll->[Word.None Words.doll] : 2.500000e-01
 Words.doll->[Word.None] : 2.500000e-01
 Words.doll->[Word.doll Words.doll] : 2.500000e-01
@@ -1321,14 +1321,14 @@ Words.box->[Word.None] : 2.500000e-01
 Words.box->[Word.None Words.box] : 2.500000e-01
 Words.box->[Word.box] : 2.500000e-01
 Words.box->[Word.box Words.box] : 2.500000e-01
-T.baby->[P_.BABY Socials.Topical.kid.eyes] : 1.000000e+00
+T.baby->[PSEUDO.BABY Socials.Topical.kid.eyes] : 1.000000e+00
 Topic.oscar->[T.None Topic.oscar] : 5.000000e-01
 Topic.oscar->[T.oscar Topic.None] : 5.000000e-01
 Words.book->[Word.None] : 2.500000e-01
 Words.book->[Word.None Words.book] : 2.500000e-01
 Words.book->[Word.book] : 2.500000e-01
 Words.book->[Word.book Words.book] : 2.500000e-01
-T.brush->[P_.BRUSH Socials.Topical.kid.eyes] : 1.000000e+00
+T.brush->[PSEUDO.BRUSH Socials.Topical.kid.eyes] : 1.000000e+00
 Word.rabbit->[Word] : 1.000000e+00
 Words.dog->[Word.dog] : 2.500000e-01
 Words.dog->[Word.None] : 2.500000e-01
@@ -1340,22 +1340,22 @@ Words.rabbit->[Word.None Words.rabbit] : 2.500000e-01
 Words.rabbit->[Word.None] : 2.500000e-01
 Topic.doll->[T.doll Topic.None] : 5.000000e-01
 Topic.doll->[T.None Topic.doll] : 5.000000e-01
-P_.BLOCK->[_.block] : 1.000000e+00
-T.train->[P_.TRAIN Socials.Topical.kid.eyes] : 1.000000e+00
-P_.DOLL->[_.doll] : 1.000000e+00
-P_.OSCAR->[_.oscar] : 1.000000e+00
-P_.PEPPERONI->[_.pepperoni] : 1.000000e+00
+PSEUDO.BLOCK->[_.block] : 1.000000e+00
+T.train->[PSEUDO.TRAIN Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.DOLL->[_.doll] : 1.000000e+00
+PSEUDO.OSCAR->[_.oscar] : 1.000000e+00
+PSEUDO.PEPPERONI->[_.pepperoni] : 1.000000e+00
 Topic.box->[T.box Topic.None] : 5.000000e-01
 Topic.box->[T.None Topic.box] : 5.000000e-01
-T.waffles->[P_.WAFFLES Socials.Topical.kid.eyes] : 1.000000e+00
+T.waffles->[PSEUDO.WAFFLES Socials.Topical.kid.eyes] : 1.000000e+00
 Words.train->[Word.None] : 2.500000e-01
 Words.train->[Word.train] : 2.500000e-01
 Words.train->[Word.train Words.train] : 2.500000e-01
 Words.train->[Word.None Words.train] : 2.500000e-01
-P_.HOTDOG->[_.hotdog] : 1.000000e+00
+PSEUDO.HOTDOG->[_.hotdog] : 1.000000e+00
 Topic.dough->[T.dough Topic.None] : 5.000000e-01
 Topic.dough->[T.None Topic.dough] : 5.000000e-01
-Socials.Topical.mom.hands->[P_MOM.HANDS Socials.Topical.mom.point] : 5.000000e-01
+Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point] : 5.000000e-01
 Socials.Topical.mom.hands->[Socials.Topical.mom.point] : 5.000000e-01
 Words.firetruck->[Word.None] : 2.500000e-01
 Words.firetruck->[Word.None Words.firetruck] : 2.500000e-01
@@ -1402,33 +1402,33 @@ Topic.car->[T.None Topic.car] : 5.000000e-01
 Topic.car->[T.car Topic.None] : 5.000000e-01
 Topic.truck->[T.None Topic.truck] : 5.000000e-01
 Topic.truck->[T.truck Topic.None] : 5.000000e-01
-T.ernie->[P_.ERNIE Socials.Topical.kid.eyes] : 1.000000e+00
+T.ernie->[PSEUDO.ERNIE Socials.Topical.kid.eyes] : 1.000000e+00
 Topic.brush->[T.None Topic.brush] : 5.000000e-01
 Topic.brush->[T.brush Topic.None] : 5.000000e-01
-T.pepperoni->[P_.PEPPERONI Socials.Topical.kid.eyes] : 1.000000e+00
+T.pepperoni->[PSEUDO.PEPPERONI Socials.Topical.kid.eyes] : 1.000000e+00
 Words.ball->[Word.ball] : 2.500000e-01
 Words.ball->[Word.None] : 2.500000e-01
 Words.ball->[Word.None Words.ball] : 2.500000e-01
 Words.ball->[Word.ball Words.ball] : 2.500000e-01
 Socials.Topical.kid.eyes->[Socials.Topical.kid.hands] : 5.000000e-01
-Socials.Topical.kid.eyes->[P_KID.EYES Socials.Topical.kid.hands] : 5.000000e-01
-Socials.NotTopical.mom.eyes->[P_MOM.EYES Socials.NotTopical.mom.hands] : 5.000000e-01
+Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands] : 5.000000e-01
+Socials.NotTopical.mom.eyes->[PSEUDOMOM.EYES Socials.NotTopical.mom.hands] : 5.000000e-01
 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands] : 5.000000e-01
-P_#->[_#] : 1.000000e+00
+PSEUDO#->[_#] : 1.000000e+00
 Word.ball->[Word] : 1.000000e+00
-T.block->[P_.BLOCK Socials.Topical.kid.eyes] : 1.000000e+00
-T.cheese->[P_.CHEESE Socials.Topical.kid.eyes] : 1.000000e+00
-T.rings->[P_.RINGS Socials.Topical.kid.eyes] : 1.000000e+00
-T.flashlight->[P_.FLASHLIGHT Socials.Topical.kid.eyes] : 1.000000e+00
+T.block->[PSEUDO.BLOCK Socials.Topical.kid.eyes] : 1.000000e+00
+T.cheese->[PSEUDO.CHEESE Socials.Topical.kid.eyes] : 1.000000e+00
+T.rings->[PSEUDO.RINGS Socials.Topical.kid.eyes] : 1.000000e+00
+T.flashlight->[PSEUDO.FLASHLIGHT Socials.Topical.kid.eyes] : 1.000000e+00
 Word.bus->[Word] : 1.000000e+00
 Word.flashlight->[Word] : 1.000000e+00
 Word.waffles->[Word] : 1.000000e+00
 Topic.rabbit->[T.rabbit Topic.None] : 5.000000e-01
 Topic.rabbit->[T.None Topic.rabbit] : 5.000000e-01
-P_.CAR->[_.car] : 1.000000e+00
+PSEUDO.CAR->[_.car] : 1.000000e+00
 Topic.alphabet->[T.None Topic.alphabet] : 5.000000e-01
 Topic.alphabet->[T.alphabet Topic.None] : 5.000000e-01
-T.firetruck->[P_.FIRETRUCK Socials.Topical.kid.eyes] : 1.000000e+00
+T.firetruck->[PSEUDO.FIRETRUCK Socials.Topical.kid.eyes] : 1.000000e+00
 Words.block->[Word.None] : 2.500000e-01
 Words.block->[Word.block Words.block] : 2.500000e-01
 Words.block->[Word.None Words.block] : 2.500000e-01
@@ -1441,14 +1441,14 @@ Words.alphabet->[Word.None] : 2.500000e-01
 Words.alphabet->[Word.alphabet Words.alphabet] : 2.500000e-01
 Words.alphabet->[Word.None Words.alphabet] : 2.500000e-01
 Words.alphabet->[Word.alphabet] : 2.500000e-01
-P_MOM.EYES->[_mom.eyes] : 1.000000e+00
+PSEUDOMOM.EYES->[_mom.eyes] : 1.000000e+00
 Word.oscar->[Word] : 1.000000e+00
-T.alphabet->[P_.ALPHABET Socials.Topical.kid.eyes] : 1.000000e+00
+T.alphabet->[PSEUDO.ALPHABET Socials.Topical.kid.eyes] : 1.000000e+00
 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands] : 5.000000e-01
-Socials.NotTopical.kid.eyes->[P_KID.EYES Socials.NotTopical.kid.hands] : 5.000000e-01
+Socials.NotTopical.kid.eyes->[PSEUDOKID.EYES Socials.NotTopical.kid.hands] : 5.000000e-01
 Topic.waffles->[T.waffles Topic.None] : 5.000000e-01
 Topic.waffles->[T.None Topic.waffles] : 5.000000e-01
-P_.RINGS->[_.rings] : 1.000000e+00
+PSEUDO.RINGS->[_.rings] : 1.000000e+00
 Word.firetruck->[Word] : 1.000000e+00
 Topic.popnpals->[T.popnpals Topic.None] : 5.000000e-01
 Topic.popnpals->[T.None Topic.popnpals] : 5.000000e-01
@@ -1456,19 +1456,19 @@ Words.truck->[Word.None] : 2.500000e-01
 Words.truck->[Word.None Words.truck] : 2.500000e-01
 Words.truck->[Word.truck] : 2.500000e-01
 Words.truck->[Word.truck Words.truck] : 2.500000e-01
-T.rabbit->[P_.RABBIT Socials.Topical.kid.eyes] : 1.000000e+00
+T.rabbit->[PSEUDO.RABBIT Socials.Topical.kid.eyes] : 1.000000e+00
 Topic.flashlight->[T.flashlight Topic.None] : 5.000000e-01
 Topic.flashlight->[T.None Topic.flashlight] : 5.000000e-01
 Word.rings->[Word] : 1.000000e+00
-Socials.NotTopical.kid.hands->[P_KID.HANDS Socials.NotTopical.mom.eyes] : 5.000000e-01
+Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes] : 5.000000e-01
 Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes] : 5.000000e-01
-P_.DOUGH->[_.dough] : 1.000000e+00
-T.truck->[P_.TRUCK Socials.Topical.kid.eyes] : 1.000000e+00
+PSEUDO.DOUGH->[_.dough] : 1.000000e+00
+T.truck->[PSEUDO.TRUCK Socials.Topical.kid.eyes] : 1.000000e+00
 Topic.pepperoni->[T.None Topic.pepperoni] : 5.000000e-01
 Topic.pepperoni->[T.pepperoni Topic.None] : 5.000000e-01
-T.bus->[P_.BUS Socials.Topical.kid.eyes] : 1.000000e+00
+T.bus->[PSEUDO.BUS Socials.Topical.kid.eyes] : 1.000000e+00
 Socials.NotTopical.mom.point->[_#] : 5.000000e-01
-Socials.NotTopical.mom.point->[P_MOM.POINT P_#] : 5.000000e-01
+Socials.NotTopical.mom.point->[PSEUDOMOM.POINT PSEUDO#] : 5.000000e-01
 Word.block->[Word] : 1.000000e+00
 Word.car->[Word] : 1.000000e+00
-T.oscar->[P_.OSCAR Socials.Topical.kid.eyes] : 1.000000e+00
+T.oscar->[PSEUDO.OSCAR Socials.Topical.kid.eyes] : 1.000000e+00

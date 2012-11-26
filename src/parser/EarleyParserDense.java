@@ -3,13 +3,10 @@ package parser;
 import java.io.BufferedReader;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
 import base.Edge;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import util.Util;
 
 import edu.stanford.nlp.util.DoubleList;
@@ -48,6 +45,7 @@ public class EarleyParserDense extends EarleyParser{
       Timing.startTime();
     }
   
+    int numCells = linear(0, numWords+1);
     chartEntries = new boolean[numCells][edgeSpaceSize];
     forwardProb = new double[numCells][edgeSpaceSize];
     innerProb = new double[numCells][edgeSpaceSize];
@@ -60,142 +58,14 @@ public class EarleyParserDense extends EarleyParser{
       Util.init(outerProb, operator.zero());
     }
   }
-  
-  /* used as holding zone for predictions */
-  private boolean[] predictedChartEntries;
-  private double[] predictedForwardProb;
-  private double[] predictedInnerProb;
-  private int predictedChartCount;
-  
-  /**
-   * Due to the use of left-corner closures, predicted items themselves never cause further prediction.
-   * @param right
-   */
-  protected void predictAll(int right) {
-    // init
-    predictedChartEntries = new boolean[edgeSpaceSize];
-    predictedForwardProb = new double[edgeSpaceSize];
-    predictedInnerProb = new double[edgeSpaceSize];
-    predictedChartCount = 0;
-    Util.init(predictedForwardProb, operator.zero());
-    Util.init(predictedInnerProb, operator.zero());
+
     
-    boolean flag = false;
-    for (int left = 0; left <= right; left++) {
-      int lrIndex = linear(left, right); // left right index
-      if (chartCount[lrIndex]==0){ // no active categories
-        continue;
-      }
-      if(verbose>=3){
-        System.err.println("\n# Predict all [" + left + "," + right + "]: chart count=" + chartCount[linear(left, right)]);
-      }
-      
-      flag = true;
-      for (int edge = 0; edge < chartEntries[lrIndex].length; edge++) { // category
-        if (chartEntries[lrIndex][edge]) { // this state is active
-          // predict for right: left X -> _ . Y _
-          predictFromEdge(left, right, edge);
-        }
-      }
-    }
-    
-    // replace old entries with recently predicted entries
-    // all predictions will have the form right: right Y -> _
-    int rrIndex = linear(right, right); // right right index
-    chartEntries[rrIndex] = predictedChartEntries;
-    forwardProb[rrIndex] = predictedForwardProb;
-    innerProb[rrIndex] = predictedInnerProb;
-    chartCount[rrIndex] = predictedChartCount;
-    if (verbose >= 3 && flag) {
-      dumpChart();
-    }
-  }
-  
-  // predict for the edge that spans [left, right]
-  protected void predictFromEdge(int left, int right, int edge) {
-    Prediction[] predictions = g.getPredictions(edge);
-    if (verbose >= 3 && predictions.length>0) {
-      System.err.println("From edge " + edgeScoreInfo(left, right, edge));
-    }
-    for (int x = 0, n = predictions.length; x < n; x++) { // go through each prediction
-      Prediction p = predictions[x];
-      
-      // spawn new edge
-      int newEdge = p.predictedState;
-      double newForwardProb = operator.multiply(forwardProb[linear(left, right)][edge], p.forwardProbMultiplier);
-      double newInnerProb = p.innerProbMultiplier;
-      
-      // add to tmp arrays
-      if (!predictedChartEntries[newEdge]){
-        predictedChartEntries[newEdge] = true;
-        predictedChartCount++; // count for new edge [right, right]
-      }
-      predictedForwardProb[newEdge] = operator.add(predictedForwardProb[newEdge], newForwardProb);
-      predictedInnerProb[newEdge] = newInnerProb;
-      
-      if (verbose >= 3) {
-        System.err.println("  to " + edgeScoreInfo(right, right, newEdge, newForwardProb, newInnerProb));
-      }
-    }
-  }
-  
   // to avoid concurrently modify insideChart while performing completions
   protected boolean[] tempIOEntries;
   protected DoubleList[] tempInsideProbs = new DoubleList[numCategories];
   
-  @Override
-  protected void completeAll(int left, int middle, int right) {
-    int mrIndex = linear(middle, right); // middle right index
-    if(verbose>=3){
-      System.err.println("\n# Complete all [" + left + "," + middle + "," + right + "]: chartCount[" 
-          + middle + "," + right + "]=" + chartCount[mrIndex]);
-    }
-    
-    // init
-    theseChartEntries = new boolean[edgeSpaceSize];
-    for (int i = 0; i < edgeSpaceSize; i++) {
-      theseForwardProb[i] = new DoubleList();
-      theseInnerProb[i] = new DoubleList();
-    }
-    
-    // tag completions
-    if (chartCount[mrIndex]>0){ // there're active edges for the span [middle, right]
-      // check which categories have finished expanding [middle, right]
-      for (int edge = edgeSpaceSize - 1; edge >= 0; edge--) { // TODO: we could be faster here by going through only passive edges, Thang: why do we go back ward in edge ??
-      //for(int tag=0; tag<parserTagIndex.size(); tag++){
-        //int edge = edgeSpace.indexOfTag(tag);
-        if (chartEntries[mrIndex][edge] && edgeSpace.to(edge)==-1) { // right: middle Y -> _ .
-          complete(left, middle, right, edge, innerProb[mrIndex][edge]); // in completion the forward prob of Y -> _ . is ignored
-        }
-      }
-    } 
-    
-    /** Handle extended rules **/
-    Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(wordIndices.subList(middle, right));
-    
-    if(valueMap != null){
-      if(verbose >= 2){
-        System.err.println("# AG prefix " + Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
-            ": " + Util.sprint(valueMap, parserTagIndex));
-      }
-      for(Entry<Integer, Double> entry : valueMap.entrySet()){
-        int tag = entry.getKey();
-        int edge = edgeSpace.indexOfTag(tag);
-        double score = entry.getValue();
-        addPrefixProbExtendedRule(left, middle, right, edge, score);
-      }
+  
       
-    }
-
-    // completions yield edges: right: left X -> _ Y . _
-    int lrIndex = linear(left, right);
-    Pair<boolean[], Integer> pair = booleanUnion(chartEntries[lrIndex], theseChartEntries);;
-    chartEntries[lrIndex] = pair.first;
-    chartCount[lrIndex] = pair.second;
-    storeProbs(theseForwardProb, forwardProb, lrIndex);
-    storeProbs(theseInnerProb, innerProb, lrIndex);
-  }
-    
   protected void addPrefixProbExtendedRule(int left, int middle, int right, int edge, double inner) {    
     int tag = edgeSpace.get(edge).getMother();
     assert(edgeSpace.get(edge).numRemainingChildren()==0);
@@ -203,7 +73,7 @@ public class EarleyParserDense extends EarleyParser{
     Completion[] completions = g.getCompletions(tag);
     
     if (verbose>=3 && completions.length>0){
-      System.err.println(completionInfo(left, middle, right, edge, inner, completions));
+      System.err.println(completionInfo(middle, right, edge, inner, completions));
     }
    
     if (isScaling){
@@ -304,23 +174,83 @@ public class EarleyParserDense extends EarleyParser{
   /****************************/
   /** Temporary prob methods **/
   /***************************/
+  /** Used as holding zone for predictions **/
+  private boolean[] predictedChartEntries;
+  private double[] predictedForwardProb;
+  private double[] predictedInnerProb;
+  private int predictedChartCount;
+  
+  @Override
+  protected void initPredictTmpScores() {
+    predictedChartEntries = new boolean[edgeSpaceSize];
+    predictedForwardProb = new double[edgeSpaceSize];
+    predictedInnerProb = new double[edgeSpaceSize];
+    predictedChartCount = 0;
+    Util.init(predictedForwardProb, operator.zero());
+    Util.init(predictedInnerProb, operator.zero()); 
+  }
+
+  @Override
+  protected void addPredictTmpForwardScore(int edge, double score) {
+    if (!predictedChartEntries[edge]){
+      predictedChartEntries[edge] = true;
+      predictedChartCount++; // count for new edge [right, right]
+    }
+    predictedForwardProb[edge] = operator.add(predictedForwardProb[edge], score);
+  }
+
+  @Override
+  protected void addPredictTmpInnerScore(int edge, double score) {
+    predictedInnerProb[edge] = score;
+  }
+
+  @Override
+  protected void storePredictTmpScores(int right) {
+    // replace old entries with recently predicted entries
+    // all predictions will have the form right: right Y -> _
+    int rrIndex = linear(right, right); // right right index
+    chartEntries[rrIndex] = predictedChartEntries;
+    forwardProb[rrIndex] = predictedForwardProb;
+    innerProb[rrIndex] = predictedInnerProb;
+    chartCount[rrIndex] = predictedChartCount;
+  }
+  
   /** Used as holding zones for completions **/
   protected boolean[] theseChartEntries;
   protected DoubleList[] theseForwardProb = new DoubleList[edgeSpaceSize];
   protected DoubleList[] theseInnerProb = new DoubleList[edgeSpaceSize];
   
   @Override
-  protected void initTmpScores(int edge) {
+  protected void initCompleteTmpScores() {
+    theseChartEntries = new boolean[edgeSpaceSize];
+    for (int i = 0; i < edgeSpaceSize; i++) {
+      theseForwardProb[i] = new DoubleList();
+      theseInnerProb[i] = new DoubleList();
+    }
+  }
+
+  @Override
+  protected void storeCompleteTmpScores(int left, int right) {
+    int lrIndex = linear(left, right);
+    Pair<boolean[], Integer> pair = booleanUnion(chartEntries[lrIndex], theseChartEntries);;
+    chartEntries[lrIndex] = pair.first;
+    chartCount[lrIndex] = pair.second;
+    storeProbs(theseForwardProb, forwardProb, lrIndex);
+    storeProbs(theseInnerProb, innerProb, lrIndex);
+  }
+
+  @Override
+  protected void initCompleteTmpScores(int edge) {
     theseChartEntries[edge] = true;
   }
   
   @Override
-  protected void addTmpForwardScore(int edge, double score) {
+  protected void addCompleteTmpForwardScore(int edge, double score) {
     theseForwardProb[edge].add(score);
   }
 
   @Override
-  protected void addTmpInnerScore(int edge, double score) {
+  protected void addCompleteTmpInnerScore(int edge, double score) {
     theseInnerProb[edge].add(score);
   }
   
@@ -359,13 +289,6 @@ public class EarleyParserDense extends EarleyParser{
   protected void addOuterScore(int left, int right, int edge, double score) {
     outerProb[linear(left, right)][edge] = 
       operator.add(outerProb[linear(left, right)][edge], score);
-  }
-  
-  
-  
-  @Override
-  protected Map<Integer, Map<Integer, Double>> computeOutsideChart() {
-    throw new NotImplementedException();
   }
 
   /****************/
@@ -449,29 +372,9 @@ public class EarleyParserDense extends EarleyParser{
     return dumpChart(outerProb, false, true, "Outer");
   }
   
-  @Override
   public String dumpInsideChart() {
-    if(insideOutsideOpt==2){
-      return dumpCatChart(insideChart, "Inside");
-    } else {
-      return dumpChart(innerProb, true, false, "Inside");
-    }
-  }
-  
-  @Override
-  public String dumpOutsideChart() {
-    if(insideOutsideOpt==2){
-      return dumpCatChart(computeOutsideChart(), "Outside");
-    } else {
-      return dumpChart(outerProb, true, true, "Outside");
-    }
-  }
-
-  @Override
-  protected void standardOutside(int start, int end, int rootEdge,
-      double rootInsideScore) {
-    // TODO Auto-generated method stub
-    throw new NotImplementedException();
+    return dumpChart(innerProb, true, false, "Inside");
+//    return dumpCatChart(computeChart("Inside"), "Inside");
   }
 }
 
@@ -708,98 +611,115 @@ public class EarleyParserDense extends EarleyParser{
 //}
 
 ///**
-// * Returns the total probability of complete parses for the string prefix parsed so far.
+// * Due to the use of left-corner closures, predicted items themselves never cause further prediction.
+// * @param right
 // */
-//public double stringProbability(int right) {
-//  int index = linear[0][right];
-//  double stringProb = operator.zero();
-//  
-//  if (chartEntries[index][goalEdge]) {
-//    stringProb = innerProb[index][goalEdge];
-//  }
-//  
-//  return operator.getProb(stringProb);
-//}
-
-//if(isLeftWildcard){
-//  
-//} else {
-//  if(ioCount[lrIndex]>0){ // there're active states
-//    System.err.println("cell " + left + "-" + right);
-//    for (int tag = 0; tag < numCategories; tag++) {
-//      if(ioEntries[lrIndex][tag]){
-//        System.err.println(" " + parserTagIndex.get(tag) 
-//            + ": " + operator.getProb(insideChart[lrIndex][tag]-scalingFactor));
-//      }
-//    }
-//  }
-//}
-
-//if(isLeftWildcard){
-//  
-//} else {
+//protected void chartPredict(int right) {
 //  // init
-//  tempIOEntries = new boolean[numCategories];
-//  for (int i = 0; i < numCategories; i++) {
-//    tempInsideProbs[i] = new DoubleList();
+//  predictedChartEntries = new boolean[edgeSpaceSize];
+//  predictedForwardProb = new double[edgeSpaceSize];
+//  predictedInnerProb = new double[edgeSpaceSize];
+//  predictedChartCount = 0;
+//  Util.init(predictedForwardProb, operator.zero());
+//  Util.init(predictedInnerProb, operator.zero());
+//  
+//  boolean flag = false;
+//  for (int left = 0; left <= right; left++) {
+//    int lrIndex = linear(left, right); // left right index
+//    if (chartCount[lrIndex]==0){ // no active categories
+//      continue;
+//    }
+//    if(verbose>=3){
+//      System.err.println("\n# Predict all [" + left + "," + right + "]: chart count=" + chartCount[linear(left, right)]);
+//    }
+//    
+//    flag = true;
+//    for (int edge = 0; edge < chartEntries[lrIndex].length; edge++) { // category
+//      if (chartEntries[lrIndex][edge]) { // this state is active
+//        // predict for right: left X -> _ . Y _
+//        predictFromEdge(left, right, edge);
+//      }
+//    }
 //  }
 //  
-//  if(ioCount[mrIndex]>0){
-//    for (int tag = 0; tag < numCategories; tag++) {
-//      if(ioEntries[mrIndex][tag]){
-//        complete(left, middle, right, tag, insideChart[mrIndex][tag]);
-//      }
+//  // replace old entries with recently predicted entries
+//  // all predictions will have the form right: right Y -> _
+//  int rrIndex = linear(right, right); // right right index
+//  chartEntries[rrIndex] = predictedChartEntries;
+//  forwardProb[rrIndex] = predictedForwardProb;
+//  innerProb[rrIndex] = predictedInnerProb;
+//  chartCount[rrIndex] = predictedChartCount;
+//  if (verbose >= 3 && flag) {
+//    dumpChart();
+//  }
+//}
+//
+//// predict for the edge that spans [left, right]
+//protected void predictFromEdge(int left, int right, int edge) {
+//  Prediction[] predictions = g.getPredictions(edge);
+//  if (verbose >= 3 && predictions.length>0) {
+//    System.err.println("From edge " + edgeScoreInfo(left, right, edge));
+//  }
+//  for (int x = 0, n = predictions.length; x < n; x++) { // go through each prediction
+//    Prediction p = predictions[x];
+//    
+//    // spawn new edge
+//    int newEdge = p.predictedState;
+//    double newForwardProb = operator.multiply(forwardProb[linear(left, right)][edge], p.forwardProbMultiplier);
+//    double newInnerProb = p.innerProbMultiplier;
+//    
+//    // add to tmp arrays
+//    if (!predictedChartEntries[newEdge]){
+//      predictedChartEntries[newEdge] = true;
+//      predictedChartCount++; // count for new edge [right, right]
+//    }
+//    predictedForwardProb[newEdge] = operator.add(predictedForwardProb[newEdge], newForwardProb);
+//    predictedInnerProb[newEdge] = newInnerProb;
+//    
+//    if (verbose >= 3) {
+//      System.err.println("  to " + edgeScoreInfo(right, right, newEdge, newForwardProb, newInnerProb));
 //    }
 //  }
 //}
 
-//if(!isLeftWildcard){
-//  Pair<boolean[], Integer> ioPair = booleanUnion(ioEntries[lrIndex], tempIOEntries);;
-//  ioEntries[lrIndex] = ioPair.first;
-//  ioCount[lrIndex] = ioPair.second;
-//  storeProbs(tempInsideProbs, insideChart, lrIndex);
-//}
-
-////store inside probs
-//if(!isLeftWildcard){
-//  Edge edgeObj = edgeSpace.get(completion.completedEdge);
-//  if(edgeObj.numRemainingChildren()==0){ // right: left X -> _ Y.
-//    int mother = edgeSpace.get(completion.completedEdge).getMother();
-//    tempIOEntries[mother] = true;
-//    tempInsideProbs[mother].add(newInnerProb);
+//@Override
+//protected void cellComplete(int left, int middle, int right) {
+//  int mrIndex = linear(middle, right); // middle right index
+//  if(verbose>=3){
+//    System.err.println("\n# Complete all [" + left + "," + middle + "," + right + "]: chartCount[" 
+//        + middle + "," + right + "]=" + chartCount[mrIndex]);
 //  }
-//}
-
-//if(isLeftWildcard){
-//  if (chartEntries[index][goalEdge]) {
-//    stringProb = innerProb[index][goalEdge];
+//  
+//  // init
+//  theseChartEntries = new boolean[edgeSpaceSize];
+//  for (int i = 0; i < edgeSpaceSize; i++) {
+//    theseForwardProb[i] = new DoubleList();
+//    theseInnerProb[i] = new DoubleList();
 //  }
-//} else {
-//  if(ioEntries[index][origSymbolIndex]){
-//    stringProb = insideChart[index][origSymbolIndex];
+//  
+//  // tag completions
+//  if (chartCount[mrIndex]>0){ // there're active edges for the span [middle, right]
+//    // check which categories have finished expanding [middle, right]
+//    for (int edge = edgeSpaceSize - 1; edge >= 0; edge--) { // TODO: we could be faster here by going through only passive edges, Thang: why do we go back ward in edge ??
+//    //for(int tag=0; tag<parserTagIndex.size(); tag++){
+//      //int edge = edgeSpace.indexOfTag(tag);
+//      if (chartEntries[mrIndex][edge] && edgeSpace.to(edge)==-1) { // right: middle Y -> _ .
+//        complete(left, middle, right, edge, innerProb[mrIndex][edge]); // in completion the forward prob of Y -> _ . is ignored
+//      }
+//    }
+//  } 
+//  
+//  
+//  /** Handle multi-terminal rules **/
+//  if(hasMultiTerminalRule){
+//    handleMultiTerminalRules(left, middle, right);
 //  }
+//  
+//  // completions yield edges: right: left X -> _ Y . _
+//  int lrIndex = linear(left, right);
+//  Pair<boolean[], Integer> pair = booleanUnion(chartEntries[lrIndex], theseChartEntries);;
+//  chartEntries[lrIndex] = pair.first;
+//  chartCount[lrIndex] = pair.second;
+//  storeProbs(theseForwardProb, forwardProb, lrIndex);
+//  storeProbs(theseInnerProb, innerProb, lrIndex);
 //}
-
-//if(isLeftWildcard){
-//  if (chartEntries[index][goalEdge]) {
-//    stringProb = innerProb[index][goalEdge];
-//  }
-//} else {
-//  if(insideChart.get(index).containsKey(origSymbolIndex)){
-//    stringProb = insideChart.get(index).get(origSymbolIndex);
-//  }
-//}
-
-//if(isLeftWildcard){
-//if (chartEntries[index][goalEdge]) {
-//prefixProb = innerProb[index][goalEdge];
-//assert((prefixProb - forwardProb[index][goalEdge]) < 1e-5);
-//}
-//} else {
-//
-//}
-
-//logForward = operator.add(logForward, 
-//    forwardMap.get(edge));
-//logInner = operator.add(logInner, 
-//    innerMap.get(edge));

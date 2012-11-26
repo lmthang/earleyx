@@ -222,9 +222,9 @@ public class RuleSet {
     }
   }
 
-  public boolean hasMultiTerminalRule(){
-    return (multiTerminalRules.size()>0);
-  }
+//  public boolean hasMultiTerminalRule(){
+//    return (multiTerminalRules.size()>0);
+//  }
   
   public double getProb(int ruleId){
     return allRules.get(ruleId).getProb();
