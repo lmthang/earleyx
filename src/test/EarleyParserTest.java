@@ -29,8 +29,8 @@ public class EarleyParserTest extends TestCase {
   private String rootSymbol = "ROOT";
   private int parserOpt = 1; // 0: dense, 1: sparse, 2: sparse IO
   private boolean isScaling = true; // 
-  private boolean isLogProb = false; 
-  private int insideOutsideOpt = 0; // false; //          
+  private boolean isLogProb = true; 
+  private int insideOutsideOpt = 2; // false; //          
   private String objString = "surprisal,stringprob,viterbi";
   
   @Before
@@ -43,7 +43,7 @@ public class EarleyParserTest extends TestCase {
     Prediction.verbose = 0;
     Completion.verbose = 0;
     RuleFile.verbose = 0;
-    EarleyParser.verbose = 0;
+    EarleyParser.verbose = -1;
   }
   
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 
@@ -100,6 +100,7 @@ public class EarleyParserTest extends TestCase {
   String social = "grammars/social.iogrammar";
   String socialDiscourse = "grammars/socialDiscourse.grammar";
   String markGrammarFile = "grammars/testengger.grammar";
+  String markGrammarVBFile = "grammars/testengger-bayes.grammar";
   
   private void initParserFromFile(String ruleFile){
     int inGrammarType = 1; // read from grammar
@@ -222,7 +223,11 @@ public class EarleyParserTest extends TestCase {
   
   public void testMarkGrammarIO(){
     rootSymbol = "S";
-    initParserFromFile(markGrammarFile);
+    if(insideOutsideOpt==2){ // VB
+      initParserFromFile(markGrammarVBFile);
+    } else {
+      initParserFromFile(markGrammarFile);
+    }
     
     List<String> inputSentences = new ArrayList<String>();
     inputSentences.add("the dog bites a cat");
@@ -231,21 +236,22 @@ public class EarleyParserTest extends TestCase {
     inputSentences.add("the dog gives a cat the bone");
     inputSentences.add("a dog bites a bone");
     inputSentences.add("the dog bites");
-    
+
     if(insideOutsideOpt>0){
       List<Double> sumNegLogProbList = parser.insideOutside(inputSentences);
-      assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n6.000000 S->[NP VP]\n6.500000 NP->[Det N]\n6.500000 NP->[N Det]\n1.000000 VP->[V]\n3.000000 VP->[V NP]\n2.000000 VP->[V NP NP]\n3.000000 Det->[_the]\n3.000000 N->[_the]\n3.500000 Det->[_a]\n3.500000 N->[_a]\n3.000000 Det->[_dog]\n3.000000 N->[_dog]\n2.000000 Det->[_cat]\n2.000000 N->[_cat]\n1.500000 Det->[_bone]\n1.500000 N->[_bone]\n4.000000 V->[_bites]\n2.000000 V->[_gives]\n");
+      assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n6.000000 S->[NP VP]\n13.000000 NP->[N Det]\n1.000000 VP->[V]\n3.000000 VP->[V NP]\n2.000000 VP->[V NP NP]\n6.000000 N->[_the]\n7.000000 N->[_a]\n6.010000 Det->[_dog]\n4.010000 Det->[_cat]\n3.010000 Det->[_bone]\n4.000000 V->[_bites]\n2.000000 V->[_gives]\n");
       
-      assertEquals(sumNegLogProbList.size()==9, true);
+      assertEquals(sumNegLogProbList.size()==10, true);
       assertEquals(68.46002594157635, sumNegLogProbList.get(0), 1e-5);
-      assertEquals(58.5105558430655, sumNegLogProbList.get(1), 1e-5);
-      assertEquals(55.22092447712423, sumNegLogProbList.get(2), 1e-5);
-      assertEquals(53.7010153144059, sumNegLogProbList.get(3), 1e-5);
-      assertEquals(52.26369575985821, sumNegLogProbList.get(4), 1e-5);
-      assertEquals(50.75935400505649, sumNegLogProbList.get(5), 1e-5);
-      assertEquals(50.63455865171508, sumNegLogProbList.get(6), 1e-5);
-      assertEquals(50.63452160196378, sumNegLogProbList.get(7), 1e-5);
-      assertEquals(50.634521601963776, sumNegLogProbList.get(8), 1e-5);
+      assertEquals(58.16078910958829, sumNegLogProbList.get(1), 1e-5);
+      assertEquals(54.2859492179949, sumNegLogProbList.get(2), 1e-5);
+      assertEquals(50.989929766024545, sumNegLogProbList.get(3), 1e-5);
+      assertEquals(50.64880443801494, sumNegLogProbList.get(4), 1e-5);
+      assertEquals(49.41582153040268, sumNegLogProbList.get(5), 1e-5);
+      assertEquals(41.10788394988927, sumNegLogProbList.get(6), 1e-5);
+      assertEquals(32.69267818582213, sumNegLogProbList.get(7), 1e-5);
+      assertEquals(32.690184343666786, sumNegLogProbList.get(8), 1e-5);
+      assertEquals(32.690184343666786, sumNegLogProbList.get(9), 1e-5);
     }
   }
 

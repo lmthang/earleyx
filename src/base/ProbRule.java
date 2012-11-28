@@ -39,6 +39,10 @@ public class ProbRule {
     return new Edge(rule, 0);
   }
   
+  public double getBias(){
+    return 0.0;
+  }
+  
   public boolean isUnary(){
     return rule.isUnary();
   }

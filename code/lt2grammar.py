@@ -73,6 +73,7 @@ def process_rule_line(eachline):
 
   tag = tokens[tag_index]
   children = tokens[(tag_index+2):len(tokens)]  
+  #print("# ", eachline, "\n", bias, "\n", tag, "\n", children)
   
   return (bias, tag, children)
 

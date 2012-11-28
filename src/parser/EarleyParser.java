@@ -62,7 +62,7 @@ public abstract class EarleyParser implements Parser {
   
   protected boolean isScaling = true;
   protected boolean isLogProb = false;
-  protected int insideOutsideOpt = 0; // 1: Earley way, 2: traditional way
+  protected int insideOutsideOpt = 0; // 1: EM, 2: VB
   protected int decodeOpt = 0; // 1: Viterbi (Label Tree), 2: Label Recall
   protected boolean isFastComplete = true; //false; 
   protected Operator operator; // either ProbOperator or LogProbOperator
@@ -1353,27 +1353,24 @@ public abstract class EarleyParser implements Parser {
     }
     
     // add expected counts
-    if(insideOutsideOpt==1){
-      Edge edgeObj = edgeSpace.get(edge);
-      if(left==right || edgeObj.isTerminalEdge()){ // predicted edges: X -> . \alpha or tag -> terminals .
-      //if(edgeObj.numRemainingChildren()==0){
-        double insideScore = getInnerScore(left, right, edge);
-        if(insideScore > operator.zero()){
-          double expectedCount = operator.divide(operator.multiply(outsideScore, insideScore), rootInsideScore);
-          assert(expectedCount>operator.zero());
-          
-          if(edgeObj.numChildren()==0){ // tag -> []
-            edgeObj = new Edge(new TerminalRule(edgeObj.getMother(), wordIndices.subList(left, right)), right-left);
-          }
-          addScore(expectedCounts, ruleSet.indexOf(edgeObj.getRule()), expectedCount);
+    Edge edgeObj = edgeSpace.get(edge);
+    if(left==right || edgeObj.isTerminalEdge()){ // predicted edges: X -> . \alpha or tag -> terminals .
+      double insideScore = getInnerScore(left, right, edge);
+      if(insideScore > operator.zero()){
+        double expectedCount = operator.divide(operator.multiply(outsideScore, insideScore), rootInsideScore);
+        assert(expectedCount>operator.zero());
+        
+        if(edgeObj.numChildren()==0){ // tag -> []
+          edgeObj = new Edge(new TerminalRule(edgeObj.getMother(), wordIndices.subList(left, right)), right-left);
+        }
+        addScore(expectedCounts, ruleSet.indexOf(edgeObj.getRule()), expectedCount);
 
-          if(verbose>=3){
-            System.err.format("count %s += %e = %e * %e / %e => %e\n", 
-                edgeObj.getRule().markString(parserTagIndex, parserWordIndex), 
-                operator.getProb(expectedCount), operator.getProb(outsideScore), 
-                operator.getProb(insideScore), operator.getProb(rootInsideScore),
-                expectedCounts.get(ruleSet.indexOf(edgeObj.getRule())));
-          }
+        if(verbose>=3){
+          System.err.format("count %s += %e = %e * %e / %e => %e\n", 
+              edgeObj.getRule().markString(parserTagIndex, parserWordIndex), 
+              operator.getProb(expectedCount), operator.getProb(outsideScore), 
+              operator.getProb(insideScore), operator.getProb(rootInsideScore),
+              expectedCounts.get(ruleSet.indexOf(edgeObj.getRule())));
         }
       }
     }
@@ -1758,10 +1755,10 @@ public abstract class EarleyParser implements Parser {
       sumNegLogProbList.add(sumNegLogProb);
       
       // update rule probs
-      boolean isVariationalBayes = false;
-      //Dirichlet.digamma(z);
-      int numRules = updateRuleset(minRuleProb, isVariationalBayes);
 
+      
+      int numRules = updateRuleset(minRuleProb);
+      
       if(verbose>=-1){
         System.err.println("# iteration " + numIterations + ", numRules=" + numRules 
             + ", sumNegLogProb = " + sumNegLogProb);
@@ -1819,7 +1816,7 @@ public abstract class EarleyParser implements Parser {
     return sumNegLogProbList;
   }
   
-  public int updateRuleset(double minRuleProb, boolean isVariationalBayes){ 
+  public int updateRuleset(double minRuleProb){ 
     if(verbose>=3){
       System.err.println("\n# Update rule probs");
     }
@@ -1829,6 +1826,11 @@ public abstract class EarleyParser implements Parser {
     for (int ruleId : expectedCounts.keySet()) {
       int tag = ruleSet.getMother(ruleId);
       
+      if(insideOutsideOpt==2){ // VB, use normal counts, no log counts
+        // add bias
+        expectedCounts.put(ruleId, operator.add(expectedCounts.get(ruleId), 
+             operator.getScore(ruleSet.getBias(ruleId))));        
+      }
       
       if(!tagSums.containsKey(tag)){
         tagSums.put(tag, operator.zero());
@@ -1839,14 +1841,31 @@ public abstract class EarleyParser implements Parser {
     
     // normalized probs
     int numRules = 0;
+    Map<Integer, Double> vbTagSums = null;
+    if(insideOutsideOpt==2){ // for VB we need to renormalize later
+      vbTagSums = new HashMap<Integer, Double>();
+    }
     for (int ruleId = 0; ruleId < ruleSet.size(); ruleId++) {
       double newProb = 0.0;
       
       if(expectedCounts.containsKey(ruleId)){
         assert(operator.getProb(expectedCounts.get(ruleId))>0);
         int tag = ruleSet.getMother(ruleId);
-        newProb = operator.getProb(operator.divide(expectedCounts.get(ruleId), tagSums.get(tag)));        
-
+        
+        if(insideOutsideOpt==2){ // VB
+          newProb = Math.exp(Dirichlet.digamma(operator.getProb(expectedCounts.get(ruleId))) 
+              - Dirichlet.digamma(operator.getProb(tagSums.get(tag))));
+          
+          if(!vbTagSums.containsKey(tag)){
+            vbTagSums.put(tag, 0.0);
+          }
+          
+          vbTagSums.put(tag, vbTagSums.get(tag) + newProb);
+        } else { // MLE
+          newProb = operator.getProb(operator.divide(expectedCounts.get(ruleId), 
+              tagSums.get(tag)));
+        }
+        
         if(newProb<minRuleProb){ // filter
           newProb = 0.0; 
         } else {
@@ -1860,6 +1879,16 @@ public abstract class EarleyParser implements Parser {
       ruleSet.setProb(ruleId, newProb);
     }
     
+    // VB, renormalize
+    if(insideOutsideOpt==2){ 
+      for (int ruleId = 0; ruleId < ruleSet.size(); ruleId++) {
+        if(expectedCounts.containsKey(ruleId)){
+          int tag = ruleSet.getMother(ruleId);
+          double newProb = ruleSet.get(ruleId).getProb()/vbTagSums.get(tag);
+          ruleSet.setProb(ruleId, newProb);
+        }
+      }
+    }
     return numRules;
   }
   

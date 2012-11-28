@@ -33,8 +33,8 @@ import edu.stanford.nlp.util.StringUtils;
 
 public class RuleFile {
   public static int verbose = 0;
-  private static Pattern p = Pattern.compile("(.+?)->\\[(.+?)\\] : ([0-9.\\+\\-Ee]+)");
-  private static Pattern biasP = Pattern.compile("([0-9.\\+\\-Ee]+) (.+?)->\\[(.+?)\\] : ([0-9.\\+\\-Ee]+)");
+  private static Pattern p = Pattern.compile("(.+?)->\\[(.+?)\\] : ([0-9\\.\\+\\-Ee]+)");
+  private static Pattern biasP = Pattern.compile("([0-9\\.\\+\\-Ee]+) (.+?)->\\[(.+?)\\] : ([0-9\\.\\+\\-Ee]+)");
   //private static String UNK = "UNK";
   
   public static void parseRuleFile(BufferedReader br, RuleSet ruleSet, 
@@ -63,7 +63,20 @@ public class RuleFile {
         String tag = null;
         String rhs = null;
         double prob = 0.0;
-        if(m.matches()){
+        
+        if(biasM.matches()){
+          // sanity check
+          if(biasM.groupCount() != 4){
+            System.err.println("! Num of matched groups != 4 for line \"" + inputLine + "\"");
+            System.exit(1);
+          }
+          
+          // retrieve info
+          bias = Double.parseDouble(biasM.group(1));
+          tag = biasM.group(2);
+          rhs = biasM.group(3);
+          prob = Double.parseDouble(biasM.group(4));
+        } else if(m.matches()){
           // sanity check
           if(m.groupCount() != 3){
             System.err.println("! Num of matched groups != 3 for line \"" + inputLine + "\"");
@@ -74,19 +87,8 @@ public class RuleFile {
           tag = m.group(1);
           rhs = m.group(2);
           prob = Double.parseDouble(m.group(3));
-        } else if(biasM.matches()){
-          // sanity check
-          if(m.groupCount() != 4){
-            System.err.println("! Num of matched groups != 4 for line \"" + inputLine + "\"");
-            System.exit(1);
-          }
-          
-          // retrieve info
-          bias = Double.parseDouble(m.group(1));
-          tag = m.group(2);
-          rhs = m.group(3);
-          prob = Double.parseDouble(m.group(4));
-        }
+        } 
+
         int iT = tagIndex.indexOf(tag, true);
         
         if(prob < 0){

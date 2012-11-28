@@ -71,6 +71,7 @@ public class RuleSet {
   
   public int add(ProbRule probRule){
     allRules.add(probRule);
+    System.err.println(probRule.toString(tagIndex, wordIndex));
     
     Rule rule = probRule.getRule();
     if(ruleMap.containsKey(rule)){
@@ -278,6 +279,10 @@ public class RuleSet {
     return allRules.get(ruleId).getMother();
   }
 
+  public double getBias(int ruleId){
+    return allRules.get(ruleId).getBias();
+  }
+  
   public List<ProbRule> getTagRules() {
     return tagRules;
   }
