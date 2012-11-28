@@ -30,7 +30,7 @@ public class Main {
     System.err.println("! " + message);
     System.err.println("Main -in inFile  -out outPrefix (-grammar grammarFile | -treebank treebankFile) " +
         "-obj objectives\n" + 
-        "\t[-root rootSymbol] [-io] [-sparse] [-normalprob] [-scale] [-verbose opt]");
+        "\t[-root rootSymbol] [-io opt] [-sparse] [-normalprob] [-scale] [-verbose opt]");
     
     // compulsory
     System.err.println("\tCompulsory:");
@@ -46,7 +46,8 @@ public class Main {
     // optional
     System.err.println("\t Optional:");
     System.err.println("\t\t root \t\t specify the start symbol of sentences (default \"ROOT\")");
-    System.err.println("\t\t io \t\t run inside-outside algorithm, output final grammar to outPrefix.io.grammar");
+    System.err.println("\t\t io \t\t run inside-outside algorithm, " + 
+        "output final grammar to outPrefix.io.grammar. 1: EM, 2: VB");
     System.err.println("\t\t sparse \t\t optimize for sparse grammars (default: run with dense grammars)");
     System.err.println("\t\t normalprob \t\t perform numeric computation in normal prob (cf. log-prob). This switch is best to be used with -scale.");
     System.err.println("\t\t scale \t\t rescaling approach to parse extremely long sentences");
@@ -76,7 +77,7 @@ public class Main {
     
     // optional
     flags.put("-root", new Integer(1)); // root symbol
-    flags.put("-io", new Integer(0)); // inside-outside computation
+    flags.put("-io", new Integer(1)); // inside-outside computation
     flags.put("-id", new Integer(1)); // sentence indices
     flags.put("-sparse", new Integer(0)); // optimize for sparse grammars
     flags.put("-normalprob", new Integer(0)); // normal prob 
@@ -125,7 +126,10 @@ public class Main {
     /* io opt */
     int insideOutsideOpt = 0;
     if (argsMap.keySet().contains("-io")) {
-      insideOutsideOpt = 1;
+      insideOutsideOpt = Integer.parseInt(argsMap.get("-io")[0]);
+      if(insideOutsideOpt!=1 && insideOutsideOpt!=2){
+        printHelp(args, "insideOutsideOpt!=1 && insideOutsideOpt!=2");
+      }
     }
     
     /* obj opt */
