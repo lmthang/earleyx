@@ -58,17 +58,23 @@ def process_rule_line(eachline):
   eachline = clean_line(eachline)
   tokens = re.split('\s+', eachline)
 
+  tag_index = 0
   if re.search('^[0-9\.eE\+\-]+$', tokens[0]): # Dirichlet prior params
-    assert re.search('^[0-9\.eE\+\-]+$', tokens[1]) # second token should be a number too
-    assert len(tokens)>=5, '! wrong num tokens: %s\n' % eachline
-    tag = tokens[2]
-    children = tokens[4:len(tokens)]
+    bias = tokens[0]
+    tag_index = 1
+
+    if re.search('^[0-9\.eE\+\-]+$', tokens[1]): # second token is a number, skip
+      tag_index = 2
+
   else:
     assert re.search('^[0-9\.eE\+\-]+$', tokens[0])==None # second token should be a number too
     assert len(tokens)>=3, '! wrong num tokens: %s\n' % eachline
-    tag = tokens[0]
-    children = tokens[2:len(tokens)]
-  return (tag, children)
+    bias = 0.0
+
+  tag = tokens[tag_index]
+  children = tokens[(tag_index+2):len(tokens)]  
+  
+  return (bias, tag, children)
 
 def process_files(in_file, out_file):
   """
@@ -83,7 +89,7 @@ def process_files(in_file, out_file):
   ruleHash = {} # ruleHash[tag][children]
   rules = [] # rules[i] = {'tag' => ..., 'children' => ....} 
   for eachline in inf:
-    (tag, children) = process_rule_line(eachline)
+    (bias, tag, children) = process_rule_line(eachline)
 
     # write children
     num_children = len(children)
@@ -106,6 +112,7 @@ def process_files(in_file, out_file):
             ruleHash[child_tag][new_child] = 1
     
             aRule = {}
+            aRule['bias'] = 0.0
             aRule['tag'] = child_tag
             aRule['children'] = new_child
             rules.append(aRule)
@@ -121,6 +128,7 @@ def process_files(in_file, out_file):
       ruleHash[tag] = {}
     ruleHash[tag][' '.join(new_children)] = 1
     aRule = {}
+    aRule['bias'] = float(bias) 
     aRule['tag'] = tag
     aRule['children'] = ' '.join(new_children)
     rules.append(aRule)
@@ -141,9 +149,13 @@ def process_files(in_file, out_file):
   sys.stderr.write('# Output to %s ...\n' % (out_file))
   ouf = open(out_file, 'w')
   for rule in rules:
+    bias = rule['bias']
     tag = rule['tag']
     children = rule['children']
-    ouf.write('%s->[%s] : %e\n' % (tag, children, ruleHash[tag][children]))
+    if bias==0.0:
+      ouf.write('%s->[%s] : %e\n' % (tag, children, ruleHash[tag][children]))
+    else:
+      ouf.write('%e %s->[%s] : %e\n' % (bias, tag, children, ruleHash[tag][children]))
 
   ouf.close()
 

@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 import parser.SmoothLexicon;
 
+import base.BiasProbRule;
 import base.ProbRule;
 import base.RuleSet;
 import base.TagRule;
@@ -33,6 +34,7 @@ import edu.stanford.nlp.util.StringUtils;
 public class RuleFile {
   public static int verbose = 0;
   private static Pattern p = Pattern.compile("(.+?)->\\[(.+?)\\] : ([0-9.\\+\\-Ee]+)");
+  private static Pattern biasP = Pattern.compile("([0-9.\\+\\-Ee]+) (.+?)->\\[(.+?)\\] : ([0-9.\\+\\-Ee]+)");
   //private static String UNK = "UNK";
   
   public static void parseRuleFile(BufferedReader br, RuleSet ruleSet, 
@@ -54,19 +56,39 @@ public class RuleFile {
 
       inputLine = inputLine.replaceAll("(^\\s+|\\s+$)", ""); // remove leading and trailing spaces
       Matcher m = p.matcher(inputLine);
+      Matcher biasM = biasP.matcher(inputLine);
       
-      if(m.matches()){
-        // sanity check
-        if(m.groupCount() != 3){
-          System.err.println("! Num of matched groups != 3 for line \"" + inputLine + "\"");
-          System.exit(1);
+      if(m.matches() || biasM.matches()){
+        double bias = 0.0;
+        String tag = null;
+        String rhs = null;
+        double prob = 0.0;
+        if(m.matches()){
+          // sanity check
+          if(m.groupCount() != 3){
+            System.err.println("! Num of matched groups != 3 for line \"" + inputLine + "\"");
+            System.exit(1);
+          }
+          
+          // retrieve info
+          tag = m.group(1);
+          rhs = m.group(2);
+          prob = Double.parseDouble(m.group(3));
+        } else if(biasM.matches()){
+          // sanity check
+          if(m.groupCount() != 4){
+            System.err.println("! Num of matched groups != 4 for line \"" + inputLine + "\"");
+            System.exit(1);
+          }
+          
+          // retrieve info
+          bias = Double.parseDouble(m.group(1));
+          tag = m.group(2);
+          rhs = m.group(3);
+          prob = Double.parseDouble(m.group(4));
         }
-        
-        // retrieve info
-        String tag = m.group(1);
         int iT = tagIndex.indexOf(tag, true);
-        String rhs = m.group(2);
-        double prob = Double.parseDouble(m.group(3));
+        
         if(prob < 0){
           System.err.println("value < 0: " + inputLine);
           System.exit(1);
@@ -80,7 +102,11 @@ public class RuleFile {
           int iW = wordIndex.indexOf(children[0].substring(1), true);
           addWord(iW, iT, prob, tag2wordsMap, word2tagsMap);
           
-          ruleSet.add(new ProbRule(new TerminalRule(iT, Arrays.asList(iW)), prob));
+          if(bias == 0.0){
+            ruleSet.add(new ProbRule(new TerminalRule(iT, Arrays.asList(iW)), prob));
+          } else {
+            ruleSet.add(new BiasProbRule(new TerminalRule(iT, Arrays.asList(iW)), prob, bias));
+          }
         } else { // rule
           if(!nonterminalMap.containsKey(iT)){
             nonterminalMap.put(iT, nonterminalMap.size());
@@ -102,10 +128,19 @@ public class RuleFile {
           
           ProbRule rule = null;
           if (numTerminals==childIndices.size()){ // process extended rule X -> _a _b _c
-            rule = new ProbRule(new TerminalRule(iT, childIndices), prob);
+            if(bias == 0.0){
+              rule = new ProbRule(new TerminalRule(iT, childIndices), prob);
+            } else {
+              rule = new BiasProbRule(new TerminalRule(iT, childIndices), prob, bias);
+            }
           } else {
-            rule = new ProbRule(new TagRule(iT, childIndices), prob);
+            if(bias == 0.0){
+              rule = new ProbRule(new TagRule(iT, childIndices), prob);
+            } else {
+              rule = new BiasProbRule(new TagRule(iT, childIndices), prob, bias);
+            }
           }
+          
           ruleSet.add(rule);
         }
       } else {

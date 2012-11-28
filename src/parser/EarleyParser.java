@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import cc.mallet.types.Dirichlet;
+
 import base.BackTrack;
 import base.BaseLexicon;
 import base.Edge;
@@ -1613,7 +1615,9 @@ public abstract class EarleyParser implements Parser {
       sumNegLogProbList.add(sumNegLogProb);
       
       // update rule probs
-      int numRules = updateRuleset(minRuleProb);
+      boolean isVariationalBayes = false;
+      //Dirichlet.digamma(z);
+      int numRules = updateRuleset(minRuleProb, isVariationalBayes);
 
       if(verbose>=-1){
         System.err.println("# iteration " + numIterations + ", numRules=" + numRules 
@@ -1672,7 +1676,7 @@ public abstract class EarleyParser implements Parser {
     return sumNegLogProbList;
   }
   
-  public int updateRuleset(double minRuleProb){ 
+  public int updateRuleset(double minRuleProb, boolean isVariationalBayes){ 
     if(verbose>=3){
       System.err.println("\n# Update rule probs");
     }

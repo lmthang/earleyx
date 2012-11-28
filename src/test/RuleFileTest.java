@@ -49,6 +49,8 @@ public class RuleFileTest extends TestCase{
   "C->[_C] : 1\n" +
   "D->[_d] : 1\n";
 
+  String biasRuleString = "S->[NP VP] : 1.000000e+00\nNP->[Det N] : 5.000000e-01\nNP->[N Det] : 5.000000e-01\nVP->[V] : 2.000000e-01\nVP->[V NP] : 2.000000e-01\nVP->[NP V] : 2.000000e-01\nVP->[V NP NP] : 2.000000e-01\nVP->[NP NP V] : 2.000000e-01\n1.000000e-02 Det->[_the] : 1.428571e-01\nN->[_the] : 1.428571e-01\nV->[_the] : 1.428571e-01\n1.000000e-02 Det->[_a] : 1.428571e-01\nN->[_a] : 1.428571e-01\nV->[_a] : 1.428571e-01\n1.000000e-02 Det->[_dog] : 1.428571e-01\nN->[_dog] : 1.428571e-01\nV->[_dog] : 1.428571e-01\n1.000000e-02 Det->[_cat] : 1.428571e-01\nN->[_cat] : 1.428571e-01\nV->[_cat] : 1.428571e-01\n1.000000e-02 Det->[_bone] : 1.428571e-01\nN->[_bone] : 1.428571e-01\nV->[_bone] : 1.428571e-01\n1.000000e-02 Det->[_bites] : 1.428571e-01\nN->[_bites] : 1.428571e-01\nV->[_bites] : 1.428571e-01\n1.000000e-02 Det->[_gives] : 1.428571e-01\nN->[_gives] : 1.428571e-01\nV->[_gives] : 1.428571e-01\n";
+  
   public void testInput(){  
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
@@ -81,6 +83,30 @@ public class RuleFileTest extends TestCase{
     assertEquals(Util.sprint(tagIndex, nonterminalMap.keySet()), "[ROOT, A]");
     assertEquals(Util.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=0.9, UNK=0.1}, C={c=0.9, UNK=0.1}, D={d=0.8, UNK=0.1, UNK-1=0.1}");
     assertEquals(Util.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, c=[c/C}, d=[d/D}, UNK=[UNK/C, UNK/B, UNK/D}, UNK-1=[UNK-1/D}");
+  }
+  
+  public void testBiasInput(){  
+    Index<String> wordIndex = new HashIndex<String>();
+    Index<String> tagIndex = new HashIndex<String>();
+    
+    RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
+    
+    Map<Integer, Counter<Integer>> tag2wordsMap = new HashMap<Integer, Counter<Integer>>();
+    Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
+    Map<Integer, Integer> nonterminalMap = new HashMap<Integer, Integer>();
+    
+    
+    
+    try {
+      RuleFile.parseRuleFile(Util.getBufferedReaderFromString(biasRuleString), 
+          ruleSet, tag2wordsMap, word2tagsMap, 
+          nonterminalMap, wordIndex, tagIndex);
+    } catch (IOException e){
+      System.err.println("Error reading rules: " + ruleString);
+      e.printStackTrace();
+    }
+    
+    assertEquals(ruleSet.toString(tagIndex, wordIndex), "\n# Ruleset\nS->[NP VP] : 1.000000e+00\nNP->[Det N] : 5.000000e-01\nNP->[N Det] : 5.000000e-01\nVP->[V] : 2.000000e-01\nVP->[V NP] : 2.000000e-01\nVP->[NP V] : 2.000000e-01\nVP->[V NP NP] : 2.000000e-01\nVP->[NP NP V] : 2.000000e-01\n1.000000e-02 Det->[_the] : 1.428571e-01\nN->[_the] : 1.428571e-01\nV->[_the] : 1.428571e-01\n1.000000e-02 Det->[_a] : 1.428571e-01\nN->[_a] : 1.428571e-01\nV->[_a] : 1.428571e-01\n1.000000e-02 Det->[_dog] : 1.428571e-01\nN->[_dog] : 1.428571e-01\nV->[_dog] : 1.428571e-01\n1.000000e-02 Det->[_cat] : 1.428571e-01\nN->[_cat] : 1.428571e-01\nV->[_cat] : 1.428571e-01\n1.000000e-02 Det->[_bone] : 1.428571e-01\nN->[_bone] : 1.428571e-01\nV->[_bone] : 1.428571e-01\n1.000000e-02 Det->[_bites] : 1.428571e-01\nN->[_bites] : 1.428571e-01\nV->[_bites] : 1.428571e-01\n1.000000e-02 Det->[_gives] : 1.428571e-01\nN->[_gives] : 1.428571e-01\nV->[_gives] : 1.428571e-01\n");
   }
   
   public void testRuleSmoothing(){
