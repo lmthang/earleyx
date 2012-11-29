@@ -166,9 +166,16 @@ public class EarleyParserTest extends TestCase {
     if(insideOutsideOpt>0){
       List<Double> sumNegLogProbList = parser.insideOutside(inputSentences);
       assertEquals(sumNegLogProbList.size()==3, true);
-      assertEquals(2.340370037356804, sumNegLogProbList.get(0), 1e-5);
-      assertEquals(1.3862943611198908, sumNegLogProbList.get(1), 1e-5);
-      assertEquals(1.3862943611198908, sumNegLogProbList.get(2), 1e-5);
+      
+      if(insideOutsideOpt==1){
+        assertEquals(2.340370037356804, sumNegLogProbList.get(0), 1e-5);
+        assertEquals(1.3862943611198908, sumNegLogProbList.get(1), 1e-5);
+        assertEquals(1.3862943611198908, sumNegLogProbList.get(2), 1e-5);  
+      } else {
+        assertEquals(2.340370037356804, sumNegLogProbList.get(0), 1e-5);
+        assertEquals(1.413647688917206, sumNegLogProbList.get(1), 1e-5);
+        assertEquals(1.4799787183333548, sumNegLogProbList.get(2), 1e-5);
+      }
     }
   }
 
@@ -239,19 +246,37 @@ public class EarleyParserTest extends TestCase {
 
     if(insideOutsideOpt>0){
       List<Double> sumNegLogProbList = parser.insideOutside(inputSentences);
-      assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n6.000000 S->[NP VP]\n13.000000 NP->[N Det]\n1.000000 VP->[V]\n3.000000 VP->[V NP]\n2.000000 VP->[V NP NP]\n6.000000 N->[_the]\n7.000000 N->[_a]\n6.010000 Det->[_dog]\n4.010000 Det->[_cat]\n3.010000 Det->[_bone]\n4.000000 V->[_bites]\n2.000000 V->[_gives]\n");
       
-      assertEquals(sumNegLogProbList.size()==10, true);
-      assertEquals(68.46002594157635, sumNegLogProbList.get(0), 1e-5);
-      assertEquals(58.16078910958829, sumNegLogProbList.get(1), 1e-5);
-      assertEquals(54.2859492179949, sumNegLogProbList.get(2), 1e-5);
-      assertEquals(50.989929766024545, sumNegLogProbList.get(3), 1e-5);
-      assertEquals(50.64880443801494, sumNegLogProbList.get(4), 1e-5);
-      assertEquals(49.41582153040268, sumNegLogProbList.get(5), 1e-5);
-      assertEquals(41.10788394988927, sumNegLogProbList.get(6), 1e-5);
-      assertEquals(32.69267818582213, sumNegLogProbList.get(7), 1e-5);
-      assertEquals(32.690184343666786, sumNegLogProbList.get(8), 1e-5);
-      assertEquals(32.690184343666786, sumNegLogProbList.get(9), 1e-5);
+      if(insideOutsideOpt==1){
+        assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n6.000000 S->[NP VP]\n6.500000 NP->[Det N]\n6.500000 NP->[N Det]\n1.000000 VP->[V]\n3.000000 VP->[V NP]\n2.000000 VP->[V NP NP]\n3.000000 Det->[_the]\n3.000000 N->[_the]\n3.500000 Det->[_a]\n3.500000 N->[_a]\n3.000000 Det->[_dog]\n3.000000 N->[_dog]\n2.000000 Det->[_cat]\n2.000000 N->[_cat]\n1.500000 Det->[_bone]\n1.500000 N->[_bone]\n4.000000 V->[_bites]\n2.000000 V->[_gives]\n");
+        
+        assertEquals(sumNegLogProbList.size()==9, true);
+        assertEquals(68.46002594157635, sumNegLogProbList.get(0), 1e-5);
+        assertEquals(58.5105558430655, sumNegLogProbList.get(1), 1e-5);
+        assertEquals(55.22092447712423, sumNegLogProbList.get(2), 1e-5);
+        assertEquals(53.7010153144059, sumNegLogProbList.get(3), 1e-5);
+        assertEquals(52.26369575985821, sumNegLogProbList.get(4), 1e-5);
+        assertEquals(50.759354005056494, sumNegLogProbList.get(5), 1e-5);
+        assertEquals(50.634558651715075, sumNegLogProbList.get(6), 1e-5);
+        assertEquals(50.63452160196378, sumNegLogProbList.get(7), 1e-5);
+        assertEquals(50.634521601963776, sumNegLogProbList.get(8), 1e-5);
+      } else {
+        assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n6.000000 S->[NP VP]\n13.000000 NP->[N Det]\n1.000000 VP->[V]\n3.000000 VP->[V NP]\n2.000000 VP->[V NP NP]\n6.000000 N->[_the]\n7.000000 N->[_a]\n6.010000 Det->[_dog]\n4.010000 Det->[_cat]\n3.010000 Det->[_bone]\n4.000000 V->[_bites]\n2.000000 V->[_gives]\n");  
+      
+        assertEquals(sumNegLogProbList.size()==10, true);
+        assertEquals(68.46002594157635, sumNegLogProbList.get(0), 1e-5);
+        assertEquals(58.16078910958829, sumNegLogProbList.get(1), 1e-5);
+        assertEquals(54.2859492179949, sumNegLogProbList.get(2), 1e-5);
+        assertEquals(50.989929766024545, sumNegLogProbList.get(3), 1e-5);
+        assertEquals(50.64880443801494, sumNegLogProbList.get(4), 1e-5);
+        assertEquals(49.41582153040268, sumNegLogProbList.get(5), 1e-5);
+        assertEquals(41.10788394988927, sumNegLogProbList.get(6), 1e-5);
+        assertEquals(32.69267818582213, sumNegLogProbList.get(7), 1e-5);
+        assertEquals(32.690184343666786, sumNegLogProbList.get(8), 1e-5);
+        assertEquals(32.690184343666786, sumNegLogProbList.get(9), 1e-5);
+      }
+      
+      
     }
   }
 

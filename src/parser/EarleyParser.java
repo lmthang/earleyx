@@ -1826,7 +1826,7 @@ public abstract class EarleyParser implements Parser {
     for (int ruleId : expectedCounts.keySet()) {
       int tag = ruleSet.getMother(ruleId);
       
-      if(insideOutsideOpt==2){ // VB, use normal counts, no log counts
+      if(insideOutsideOpt==2){ // VB
         // add bias
         expectedCounts.put(ruleId, operator.add(expectedCounts.get(ruleId), 
              operator.getScore(ruleSet.getBias(ruleId))));        
@@ -1864,14 +1864,14 @@ public abstract class EarleyParser implements Parser {
         } else { // MLE
           newProb = operator.getProb(operator.divide(expectedCounts.get(ruleId), 
               tagSums.get(tag)));
-        }
         
-        if(newProb<minRuleProb){ // filter
-          newProb = 0.0; 
-        } else {
-          numRules++;
-          if(verbose>=3){
-            System.err.println(newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
+          if(newProb<minRuleProb){ // filter
+            newProb = 0.0; 
+          } else {
+            numRules++;
+            if(verbose>=3){
+              System.err.println(newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
+            }
           }
         }
       }
@@ -1886,9 +1886,19 @@ public abstract class EarleyParser implements Parser {
           int tag = ruleSet.getMother(ruleId);
           double newProb = ruleSet.get(ruleId).getProb()/vbTagSums.get(tag);
           ruleSet.setProb(ruleId, newProb);
+          
+          if(newProb<minRuleProb){ // filter
+            newProb = 0.0; 
+          } else {
+            numRules++;
+            if(verbose>=3){
+              System.err.println(newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
+            }
+          }
         }
       }
     }
+    
     return numRules;
   }
   
