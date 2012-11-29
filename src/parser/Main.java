@@ -253,7 +253,7 @@ public class Main {
     try {
       if(insideOutsideOpt==0){
         parser.parseSentences(sentences, indices, outPrefix);
-      } else if(insideOutsideOpt==1){
+      } else if(insideOutsideOpt>0){
         parser.insideOutside(sentences);
         
         // output rule prob
