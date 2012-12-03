@@ -113,7 +113,7 @@ def process_files(in_file, out_file):
             ruleHash[child_tag][new_child] = 1
     
             aRule = {}
-            aRule['bias'] = 0.0
+            aRule['bias'] = 1.0
             aRule['tag'] = child_tag
             aRule['children'] = new_child
             rules.append(aRule)
