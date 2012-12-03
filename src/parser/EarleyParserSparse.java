@@ -7,9 +7,6 @@ import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-
-import base.Edge;
 
 import edu.stanford.nlp.util.DoubleList;
 import edu.stanford.nlp.util.Timing;
@@ -160,12 +157,12 @@ public class EarleyParserSparse extends EarleyParser {
   }
   
   @Override
-  protected boolean containsEdge(int left, int right, int edge) {
+  protected boolean containsInsideEdge(int left, int right, int edge) {
     return forwardProb.containsKey(linear(left, right)) && forwardProb.get(linear(left, right)).containsKey(edge);
   }
-  
+
   @Override
-  protected int chartCount(int left, int right) {
+  protected int insideChartCount(int left, int right) {
     if(forwardProb.containsKey(linear(left, right))){
       return forwardProb.get(linear(left, right)).size();
     } else {
@@ -174,14 +171,38 @@ public class EarleyParserSparse extends EarleyParser {
   }
   
   @Override
-  protected Set<Integer> listEdges(int left, int right) {
+  protected Set<Integer> listInsideEdges(int left, int right) {
     if(forwardProb.containsKey(linear(left, right))){
       return forwardProb.get(linear(left, right)).keySet();
     } else {
       return null;
     }
   }
+  
+  @Override
+  protected boolean containsOutsideEdge(int left, int right, int edge) {
+    return outerProb.containsKey(linear(left, right)) && outerProb.get(linear(left, right)).containsKey(edge);
+  }
+  
+  
+  @Override
+  protected int outsideChartCount(int left, int right) {
+    if(outerProb.containsKey(linear(left, right))){
+      return outerProb.get(linear(left, right)).size();
+    } else {
+      return 0;
+    }
+  }
 
+  @Override
+  protected Set<Integer> listOutsideEdges(int left, int right) {
+    if(outerProb.containsKey(linear(left, right))){
+      return outerProb.get(linear(left, right)).keySet();
+    } else {
+      return null;
+    }
+  }
+  
   /****************************/
   /** Temporary prob methods **/
   /***************************/
@@ -318,110 +339,21 @@ public class EarleyParserSparse extends EarleyParser {
     
     addScore(outerProb.get(lrIndex), edge, score);
   }
-  
-  
-  /****************/
-  /** Debug info **/
-  /****************/
-  /**
-   * print chart for debugging purpose
-   *   isOnlyCategory: only print categories (completed edges) but not partial edges
-   * 
-   * @param chart
-   * @param isOnlyCategory
-   */
-  protected String dumpChart(Map<Integer, Map<Integer, Double>> chart, boolean isOnlyCategory, boolean isOutsideProb, String name){
-    StringBuffer sb = new StringBuffer("# " + name + " chart snapshot\n");
-    for(int length=1; length<=numWords; length++){ // length
-      for (int left = 0; left <= numWords-length; left++) {
-        int right = left+length;
-
-        // scaling
-        double scalingFactor = operator.one();
-        if (isScaling){
-          if (isOutsideProb){ // outside prob has a scaling factor for [0,left][right, numWords]
-            scalingFactor = operator.multiply(getScaling(0, left), getScaling(right, numWords));
-          } else {
-            scalingFactor = getScaling(left, right);
-          }
-        }
-        
-        int lrIndex = linear(left, right);
-        if(!chart.containsKey(lrIndex)){
-          continue;
-        }
-        Map<Integer, Double> valueMap = chart.get(lrIndex);
-        if(valueMap.size()>0){ // there're active states
-          if(isOnlyCategory){ // print by tags (completed edges)
-            Map<Integer, Double> tagMap = new TreeMap<Integer, Double>(); // sort keys
-            
-            // accumulate score for categories
-            for (int edge : valueMap.keySet()) { // edge
-              Edge edgeObj = edgeSpace.get(edge);
-              if(edgeObj.numRemainingChildren()==0){ // completed edge
-                int tag = edgeObj.getMother();
-                
-                double score = operator.divide(valueMap.get(edge), scalingFactor);
-                if(!tagMap.containsKey(tag)){ // new tag
-                  tagMap.put(tag, score);
-                } else { // old tag
-                  if(isOutsideProb){ // for outside probs, we don't accumulate scores for categories
-                    assert(tagMap.get(tag) == score); // outside probs for paths X -> * . Y are all the same despite the part on the left of the dot  
-                  } else {
-                    tagMap.put(tag, operator.add(tagMap.get(tag), score));
-                  }
-                }
-              }
-            }
-            
-            if(tagMap.size()>0){
-              sb.append("cell " + left + "-" + right + "\n");
-            }
-            
-            // print by tag            
-            for(Map.Entry<Integer, Double> entry : tagMap.entrySet()){
-              int tag = entry.getKey();
-              sb.append(" " + parserTagIndex.get(tag) 
-                  + ": " + df2.format(operator.getProb(tagMap.get(tag))) + "\n");
-            }
-          } else { // print by edge
-            int count = valueMap.size();
-            sb.append("[" + left + "," + right + "]: " + count  
-                + " (" + df1.format(count*100.0/edgeSpaceSize) + "%)\n");
-            
-            for (int edge : valueMap.keySet()) { // edge
-              sb.append("  " + edgeSpace.get(edge).toString(parserTagIndex, parserWordIndex) 
-                  + ": " + df.format(operator.getProb(operator.divide(valueMap.get(edge), scalingFactor))) + "\n");
-            }
-          }
-        }
-      }
-    }  
-    
-    return sb.toString();
-  }
-  
-  public String dumpInnerProb(){
-    return dumpChart(innerProb, false, false, "Inner");
-  }
-  
-  public String dumpOuterProb(){
-    return dumpChart(outerProb, false, true, "Outer");
-  }
-  
-  @Override
-  public String dumpInsideChart() {
-    return dumpChart(innerProb, true, false, "Inside");
-  }
-  
-  @Override
-  public String dumpOutsideChart() {
-    return dumpChart(outerProb, true, true, "Outside");
-//    return dumpCatChart(computeOutsideChart(), "Outside");
-  }
 }
 
 ///** Unused code **/
+
+//@Override
+//public String dumpInsideChart() {
+//return dumpChart(innerProb, true, false, "Inside");
+//}
+
+//@Override
+//public String dumpOutsideChart() {
+//return dumpChart(outerProb, true, true, "Outside");
+////return dumpCatChart(computeOutsideChart(), "Outside");
+//}
+
 //// insideChart.get(linear(left, right)).get(tagIndex) 
 //protected Map<Integer, Map<Integer, Double>> insideChart;
 //protected Map<Integer, Map<Integer, Double>> outsideChart;

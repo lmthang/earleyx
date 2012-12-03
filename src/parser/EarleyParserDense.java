@@ -2,11 +2,8 @@ package parser;
 
 import java.io.BufferedReader;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
-import base.Edge;
 import util.Util;
 
 import edu.stanford.nlp.util.DoubleList;
@@ -20,6 +17,8 @@ public class EarleyParserDense extends EarleyParser{
   protected int[] chartCount; // chartCount[linear(left, right)]: how many edges at the cell [left, right]
   
   // outside
+  protected boolean[][] outsideChartEntries;
+  protected int[] outsideChartCount;
   protected double[][] outerProb;
 
   public EarleyParserDense(BufferedReader br, String rootSymbol,
@@ -54,7 +53,9 @@ public class EarleyParserDense extends EarleyParser{
     Util.init(innerProb, operator.zero());
         
     if(insideOutsideOpt>0){
-      outerProb = new double[numCells][edgeSpaceSize];  
+      outerProb = new double[numCells][edgeSpaceSize];
+      outsideChartCount = new int[numCells];
+      outsideChartEntries = new boolean[numCells][edgeSpaceSize];
       Util.init(outerProb, operator.zero());
     }
   }
@@ -149,27 +150,49 @@ public class EarleyParserDense extends EarleyParser{
 
   
   @Override
-  protected boolean containsEdge(int left, int right, int edge) {
+  protected boolean containsInsideEdge(int left, int right, int edge) {
     return chartEntries[linear(left, right)][edge];
   }
 
-  
   @Override
-  protected int chartCount(int left, int right) {
+  protected int insideChartCount(int left, int right) {
     return chartCount[linear(left, right)];
   }
 
   
   @Override
-  protected Set<Integer> listEdges(int left, int right) {
+  protected Set<Integer> listInsideEdges(int left, int right) {
     Set<Integer> edges = new HashSet<Integer>();
     for (int edge = 0; edge < edgeSpaceSize; edge++) {
-      if(containsEdge(left, right, edge)){
+      if(containsInsideEdge(left, right, edge)){
         edges.add(edge);
       }
     }
     return edges;
   }
+
+  
+  @Override
+  protected boolean containsOutsideEdge(int left, int right, int edge) {
+    return outsideChartEntries[linear(left, right)][edge];
+  }
+
+  @Override
+  protected int outsideChartCount(int left, int right) {
+    return outsideChartCount[linear(left, right)];
+  }
+
+  @Override
+  protected Set<Integer> listOutsideEdges(int left, int right) {
+    Set<Integer> edges = new HashSet<Integer>();
+    for (int edge = 0; edge < edgeSpaceSize; edge++) {
+      if(containsOutsideEdge(left, right, edge)){
+        edges.add(edge);
+      }
+    }
+    return edges;
+  }
+
 
   /****************************/
   /** Temporary prob methods **/
@@ -289,6 +312,11 @@ public class EarleyParserDense extends EarleyParser{
   protected void addOuterScore(int left, int right, int edge, double score) {
     outerProb[linear(left, right)][edge] = 
       operator.add(outerProb[linear(left, right)][edge], score);
+    
+    if (!outsideChartEntries[linear(left, right)][edge]){
+      outsideChartEntries[linear(left, right)][edge] = true;
+      outsideChartCount[linear(left, right)]++;
+    }
   }
 
   /****************/
@@ -297,88 +325,63 @@ public class EarleyParserDense extends EarleyParser{
   public String edgeScoreInfo(int left, int right, int edge){
     return edgeScoreInfo(left, right, edge, forwardProb[linear(left, right)][edge], innerProb[linear(left, right)][edge]);
   }
-  
-  protected String dumpChart(double[][] chart, boolean isOnlyCategory, boolean isOutsideProb, String name) {
-    StringBuffer sb = new StringBuffer("# " + name + " chart snapshot\n");
-    
-    for(int length=1; length<=numWords; length++){ // length
-      for (int left = 0; left <= numWords-length; left++) {
-        int right = left+length;
-        
-        // scaling
-        double scalingFactor = operator.one();
-        if (isScaling){
-          scalingFactor = getScaling(left, right);
-        }
-  
-        int lrIndex = linear(left, right);
-        if(chartCount[lrIndex]>0){ // there're active states
-          if(isOnlyCategory){ // print by tags (completed edges)
-            Map<Integer, Double> tagMap = new TreeMap<Integer, Double>();
-            
-            // accumulate score for categories
-            for (int edge = 0; edge < chartEntries[lrIndex].length; edge++) { // edge
-              if(chart[lrIndex][edge]>operator.zero() && edgeSpace.get(edge).numRemainingChildren()==0){ // completed edge
-                Edge edgeObj = edgeSpace.get(edge);
-                int tag = edgeObj.getMother();
-                
-                double score = operator.divide(chart[lrIndex][edge], scalingFactor);
-                if(!tagMap.containsKey(tag)){ // new tag
-                  tagMap.put(tag, score);
-                } else { // old tag
-                  if(isOutsideProb){ // for outside probs, we don't accumulate scores for categories
-                    assert(tagMap.get(tag) == score); // outside probs for paths X -> * . Y are all the same despite the part on the left of the dot  
-                  } else {
-                    tagMap.put(tag, operator.add(tagMap.get(tag), score));
-                  }
-                }
-              }
-            }
-            
-            if(tagMap.size()>0){
-              sb.append("cell " + left + "-" + right + "\n");
-            }
-            
-            // print by tag
-            for(Map.Entry<Integer, Double> entry : tagMap.entrySet()){
-              int tag = entry.getKey();
-              sb.append(" " + parserTagIndex.get(tag) 
-                  + ": " + df2.format(operator.getProb(tagMap.get(tag))) + "\n");
-            }
-          } else { // print by edge
-            int count = chartCount[lrIndex];
-            sb.append("[" + left + "," + right + "]: " + count  
-                + " (" + df1.format(count*100.0/edgeSpaceSize) + "%)\n");
-            
-            for (int edge = 0; edge < chartEntries[lrIndex].length; edge++) { // edge
-              if(chartEntries[lrIndex][edge]){
-                sb.append("  " + edgeSpace.get(edge).toString(parserTagIndex, parserWordIndex) 
-                    + ": " + df.format(operator.getProb(operator.divide(chart[lrIndex][edge], scalingFactor))) + "\n");
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    return sb.toString();
-  }
-  
-  public String dumpInnerProb(){
-    return dumpChart(innerProb, false, false, "Inner");
-  }
-  
-  public String dumpOuterProb(){
-    return dumpChart(outerProb, false, true, "Outer");
-  }
-  
-  public String dumpInsideChart() {
-    return dumpChart(innerProb, true, false, "Inside");
-//    return dumpCatChart(computeChart("Inside"), "Inside");
-  }
 }
 
 ///** Unused code **/
+
+//protected String dumpChart(double[][] chart, String type) {
+//  if(!type.equalsIgnoreCase("outside") && !type.equalsIgnoreCase("inside")){
+//    System.err.println("! computeChart: Unknown chart type " + type);
+//    System.exit(1);
+//  }
+//  
+//  StringBuffer sb = new StringBuffer("# " + type + " chart snapshot\n");
+//  
+//  for(int length=1; length<=numWords; length++){ // length
+//    for (int left = 0; left <= numWords-length; left++) {
+//      int right = left+length;
+//      
+//      // scaling
+//      double scalingFactor = operator.one();
+//      if (isScaling){
+//        if (type.equalsIgnoreCase("outside")){ // outside prob has a scaling factor for [0,left][right, numWords]
+//          scalingFactor = operator.multiply(getScaling(0, left), getScaling(right, numWords));
+//        } else {
+//          scalingFactor = getScaling(left, right);
+//        }
+//      }
+//
+//      int lrIndex = linear(left, right);
+//      if(chartCount[lrIndex]>0){ // there're active states
+//        int count = chartCount[lrIndex];
+//        sb.append("[" + left + "," + right + "]: " + count  
+//            + " (" + df1.format(count*100.0/edgeSpaceSize) + "%)\n");
+//        
+//        for (int edge = 0; edge < chartEntries[lrIndex].length; edge++) { // edge
+//          if(chartEntries[lrIndex][edge]){
+//            sb.append("  " + edgeSpace.get(edge).toString(parserTagIndex, parserWordIndex) 
+//                + ": " + df.format(operator.getProb(operator.divide(chart[lrIndex][edge], scalingFactor))) + "\n");
+//          }
+//        }
+//      }
+//    }
+//  }
+//  
+//  return sb.toString();
+//}
+//
+//public String dumpInnerProb(){
+//  return dumpChart(innerProb, "Inner");
+//}
+//
+//public String dumpOuterProb(){
+//  return dumpChart(outerProb, "Outer");
+//}
+//public String dumpInsideChart() {
+//  return dumpChart(innerProb, true, false, "Inside");
+////  return dumpCatChart(computeChart("Inside"), "Inside");
+//}
+
 //@Override
 ///** TODO: compute expected counts **/
 //protected void outside(int start, int end, int rootEdge, double rootInsideScore) {

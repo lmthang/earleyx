@@ -348,7 +348,9 @@ public class RuleSet {
   public String toString(Index<String> tagIndex, Index<String> wordIndex){
     StringBuffer sb = new StringBuffer("\n# Ruleset\n");
     for (ProbRule probRule : allRules) {
-      sb.append(probRule.toString(tagIndex, wordIndex) + "\n");
+      if(probRule.getProb() > 0.0){
+        sb.append(probRule.toString(tagIndex, wordIndex) + "\n");
+      }
     }
     return sb.toString();
   }

@@ -39,7 +39,7 @@ public class Main {
     System.err.println("\t\tgrammar|treebank \t\t either read directly from a grammar file or from a treebank." +
     		"For the latter, a grammar file will be output as outPrefix.grammar .");
     System.err.println("\t\t obj \t\t a comma separated list consitsing of any of the following values: " + 
-        "surprisal, stringprob, viterbi. Default is \"surprisal,stringprob,viterbi\" if -io is not specified, " + 
+        "surprisal, stringprob, viterbi, socialmarginal. Default is \"surprisal,stringprob,viterbi\" if -io is not specified, " + 
         "and \"\" if -io is specified. Output files will be outPrefix.obj .");
     System.err.println();
 

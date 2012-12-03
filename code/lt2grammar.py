@@ -154,9 +154,9 @@ def process_files(in_file, out_file):
     tag = rule['tag']
     children = rule['children']
     if bias==0.0:
-      ouf.write('%s->[%s] : %e\n' % (tag, children, ruleHash[tag][children]))
+      ouf.write('%s->[%s] : %g\n' % (tag, children, ruleHash[tag][children]))
     else:
-      ouf.write('%e %s->[%s] : %e\n' % (bias, tag, children, ruleHash[tag][children]))
+      ouf.write('%g %s->[%s] : %g\n' % (bias, tag, children, ruleHash[tag][children]))
 
   ouf.close()
 
