@@ -2019,11 +2019,6 @@ public abstract class EarleyParser implements Parser {
           String result = socialSentMarginalDecoding(sentLeft, sentRight, doubleHashPos);
           results.add(result);
           
-          if(verbose>=3){
-            System.err.println("[" + sentLeft + ", " + sentRight + "]: " + words.subList(sentLeft, sentRight));
-            System.err.println(result);
-          }
-          
           // reset
           sentLeft = sentRight;
           doubleHashPos = -1;
@@ -2041,11 +2036,6 @@ public abstract class EarleyParser implements Parser {
     
     String result = socialSentMarginalDecoding(sentLeft, sentRight, doubleHashPos);
     results.add(result);
-    
-    if(verbose>=3){
-      System.err.println("[" + sentLeft + ", " + sentRight + "]: " + words.subList(sentLeft, sentRight));
-      System.err.println(result);
-    }
     
     return results;
   }
@@ -2095,39 +2085,42 @@ public abstract class EarleyParser implements Parser {
   }
   
   public String socialSentMarginalDecoding(int sentLeft, int sentRight, int doubleHashPos){
-    Map<Integer, Double> sentMarginalMap = computeMarginalMap(sentLeft, sentRight);
-    if(verbose>=3){
-      System.err.println("[" + sentLeft + ", " + sentRight + "]");
-      
-      for(int tag : sentMarginalMap.keySet()){
-        System.err.println(parserTagIndex.get(tag) + "\t" + sentMarginalMap.get(tag));
-      }
-    }
+    StringBuffer sb = new StringBuffer();
     
+    // sent tag
+    Map<Integer, Double> sentMarginalMap = computeMarginalMap(sentLeft, sentRight);
     int sentTag = argmax(sentMarginalMap, "Sentence");
     assert(sentTag>=0);
-    
-    StringBuffer sb = new StringBuffer();
     sb.append(parserTagIndex.get(sentTag));
     
+//  if(verbose>=3){
+    System.err.println(parserTagIndex.get(sentTag) + " [" + sentLeft + ", " + sentRight + "]: " + words.subList(sentLeft, sentRight));
+    
+    for(int tag : sentMarginalMap.keySet()){
+      System.err.println(parserTagIndex.get(tag) + "\t" + sentMarginalMap.get(tag));
+    }
+//  }
+
+    // word tags
     for(int i=doubleHashPos+1; i<sentRight; i++){
       String word = words.get(i).word();
       
       Map<Integer, Double> wordMarginalMap = computeMarginalMap(i, i+1);
-      if(verbose>=3){
-        System.err.println("[" + i + ", " + (i+1) + "] " + word);
-        
-        for(int tag : wordMarginalMap.keySet()){
-          System.err.println(parserTagIndex.get(tag) + "\t" + wordMarginalMap.get(tag));
-        }
-      }
       int wordTag = argmax(wordMarginalMap, "Word");
       assert(wordTag>=0);
       
       sb.append(" (" + parserTagIndex.get(wordTag) + " " + word + ")");
+      
+//    if(verbose>=3){
+      System.err.println(parserTagIndex.get(wordTag) + " [" + i + ", " + (i+1) + "] " + word);
+      
+      for(int tag : wordMarginalMap.keySet()){
+        System.err.println(parserTagIndex.get(tag) + "\t" + wordMarginalMap.get(tag));
+      }
+//    }
     }
-    return sb.toString();
     
+    return sb.toString();
   }
 //  public void labelRecalParsing(){
 //    for (int length = 2; length <= numWords; length++) {

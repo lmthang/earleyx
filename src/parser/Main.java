@@ -142,8 +142,10 @@ public class Main {
         printHelp(args, "! For -io, no need to specify -obj\n");
       }
     } else {
-      // default values
-      objString = EarleyParser.SURPRISAL_OBJ + "," + EarleyParser.STRINGPROB_OBJ + "," + EarleyParser.VITERBI_OBJ;
+      if(objString.equals("")){
+        // default values
+        objString = EarleyParser.SURPRISAL_OBJ + "," + EarleyParser.STRINGPROB_OBJ + "," + EarleyParser.VITERBI_OBJ;
+      }
     }
     
     System.err.println("# Root symbol = " + rootSymbol);
