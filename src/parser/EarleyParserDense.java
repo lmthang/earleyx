@@ -51,16 +51,21 @@ public class EarleyParserDense extends EarleyParser{
     chartCount = new int[numCells];
     Util.init(forwardProb, operator.zero());
     Util.init(innerProb, operator.zero());
-        
-    if(insideOutsideOpt>0){
-      outerProb = new double[numCells][edgeSpaceSize];
-      outsideChartCount = new int[numCells];
-      outsideChartEntries = new boolean[numCells][edgeSpaceSize];
-      Util.init(outerProb, operator.zero());
-    }
   }
 
+  
     
+  @Override
+  protected void initOuterProbs() {
+    int numCells = linear(0, numWords+1);
+    outerProb = new double[numCells][edgeSpaceSize];
+    outsideChartCount = new int[numCells];
+    outsideChartEntries = new boolean[numCells][edgeSpaceSize];
+    Util.init(outerProb, operator.zero());    
+  }
+
+
+
   // to avoid concurrently modify insideChart while performing completions
   protected boolean[] tempIOEntries;
   protected DoubleList[] tempInsideProbs = new DoubleList[numCategories];

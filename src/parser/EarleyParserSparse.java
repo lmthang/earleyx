@@ -47,13 +47,13 @@ public class EarleyParserSparse extends EarleyParser {
   
     forwardProb = new HashMap<Integer, Map<Integer,Double>>();
     innerProb = new HashMap<Integer, Map<Integer,Double>>();
-
-    // compute outside
-    if(insideOutsideOpt>0){
-      outerProb = new HashMap<Integer, Map<Integer,Double>>();
-    }
   }
-  
+
+  @Override
+  protected void initOuterProbs() {
+    outerProb = new HashMap<Integer, Map<Integer,Double>>();
+  }
+
   /* (non-Javadoc)
    * @see parser.EarleyParser#addToChart(int, int, int, double, double)
    */

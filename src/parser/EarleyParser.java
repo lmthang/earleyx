@@ -142,10 +142,6 @@ public abstract class EarleyParser implements Parser {
   // to X -> \alpha Y . \beta with maximum inner probabilities
   protected Map<Integer, Map<Integer, BackTrack>> backtrackChart;
   
-  // .get(linear(left, right)).get(tag)
-  // expected counts for tag X spaning over [left, right]
-  protected Map<Integer, Map<Integer, Double>> sentExpectedCount;
-  
   /** current sentence info **/
   //  protected int[][] linear; // convert matrix indices [left][right] into linear indices
   // protected int numCells; // numCells==((numWords+2)*(numWords+1)/2)
@@ -565,7 +561,7 @@ public abstract class EarleyParser implements Parser {
       System.err.println("\n# Root prob: " + operator.getProb(rootInnerScore));
     }
     if(insideOutsideOpt>0 && rootInnerScore>operator.zero()){ 
-      computeOutsideProbs(rootInnerScore);
+      computeOutsideProbs();
       
       if(verbose>=4){
         System.err.println(dumpOuterProb());
@@ -585,6 +581,7 @@ public abstract class EarleyParser implements Parser {
     double rootInnerScore = getInnerScore(0, numWords, goalEdge);
     assert(rootInnerScore>operator.zero());
     
+    initOuterProbs();
     computeOutsideProbs(rootInnerScore);
   }
   // print expected rule count to string
@@ -1115,7 +1112,7 @@ public abstract class EarleyParser implements Parser {
     }
   }
   
-  public void computeOutsideProbs(double rootInnerScore){
+  private void computeOutsideProbs(double rootInnerScore){
     if(verbose>=4){
       System.err.println("# Completed edges:");
       for (int left = 0; left <= numWords; left++) {
@@ -1467,6 +1464,7 @@ public abstract class EarleyParser implements Parser {
   protected abstract boolean containsOutsideEdge(int left, int right, int edge);
   protected abstract int outsideChartCount(int left, int right);
   protected abstract Set<Integer> listOutsideEdges(int left, int right);
+  protected abstract void initOuterProbs();
   
   // tmp predict probabilities
   protected abstract void initPredictTmpScores();
@@ -1571,8 +1569,6 @@ public abstract class EarleyParser implements Parser {
     // Decode
     if(decodeOpt==1){ // Viterbi parse  
       backtrackChart = new HashMap<Integer, Map<Integer,BackTrack>>();
-    } else if(decodeOpt==2){ // Label Recall parse
-      sentExpectedCount = new HashMap<Integer, Map<Integer,Double>>();
     }
   }
   
