@@ -581,6 +581,7 @@ public abstract class EarleyParser implements Parser {
     double rootInnerScore = getInnerScore(0, numWords, goalEdge);
     assert(rootInnerScore>operator.zero());
     
+    System.err.println("# EarleyParser: computeOutsideProbs");
     initOuterProbs();
     computeOutsideProbs(rootInnerScore);
   }
