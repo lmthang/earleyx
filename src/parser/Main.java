@@ -255,6 +255,8 @@ public class Main {
     try {
       if(insideOutsideOpt==0){
         parser.parseSentences(sentences, indices, outPrefix);
+        System.err.println(parser.dumpInsideChart());
+        System.err.println(parser.dumpOutsideChart());
       } else if(insideOutsideOpt>0){
         parser.insideOutside(sentences);
         

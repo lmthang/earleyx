@@ -1,0 +1,2857 @@
+1.000000e+00 Discourse.alphabet->[Sentence.alphabet Discourse.alphabet] : 8.935841e-01
+1.000000e+00 Sentence.alphabet->[Topic.alphabet Words.alphabet] : 1.000000e+00
+1.000000e+00 Discourse.baby->[Sentence.baby Discourse.baby] : 4.189780e-01
+1.000000e+00 Discourse.baby->[Sentence.baby] : 2.540852e-01
+1.000000e+00 Sentence.baby->[Topic.baby Words.baby] : 1.000000e+00
+1.000000e+00 Discourse.ball->[Sentence.ball Discourse.ball] : 9.099895e-01
+1.000000e+00 Discourse.ball->[Sentence.ball] : 1.845253e-02
+1.000000e+00 Sentence.ball->[Topic.ball Words.ball] : 1.000000e+00
+1.000000e+00 Discourse.bear->[Sentence.bear Discourse.bear] : 8.268598e-01
+1.000000e+00 Sentence.bear->[Topic.bear Words.bear] : 1.000000e+00
+1.000000e+00 Discourse.block->[Sentence.block Discourse.block] : 8.079143e-01
+1.000000e+00 Sentence.block->[Topic.block Words.block] : 1.000000e+00
+1.000000e+00 Discourse.blocks->[Sentence.blocks Discourse.blocks] : 9.043654e-01
+1.000000e+00 Discourse.blocks->[Sentence.blocks] : 4.415269e-02
+1.000000e+00 Sentence.blocks->[Topic.blocks Words.blocks] : 1.000000e+00
+1.000000e+00 Discourse.book->[Sentence.book Discourse.book] : 9.262329e-01
+1.000000e+00 Sentence.book->[Topic.book Words.book] : 1.000000e+00
+1.000000e+00 Discourse->[Discourse.box] : 4.491831e-02
+1.000000e+00 Discourse.box->[Sentence.box Discourse.box] : 8.923377e-01
+1.000000e+00 Discourse.box->[Sentence.box] : 2.956026e-03
+1.000000e+00 Sentence.box->[Topic.box Words.box] : 1.000000e+00
+1.000000e+00 Discourse->[Discourse.brush] : 2.331141e-02
+1.000000e+00 Discourse.brush->[Sentence.brush Discourse.brush] : 8.367576e-01
+1.000000e+00 Discourse.brush->[Sentence.brush] : 5.010241e-03
+1.000000e+00 Sentence.brush->[Topic.brush Words.brush] : 1.000000e+00
+1.000000e+00 Discourse.bus->[Sentence.bus Discourse.bus] : 7.749885e-01
+1.000000e+00 Sentence.bus->[Topic.bus Words.bus] : 1.000000e+00
+1.000000e+00 Discourse->[Discourse.car] : 1.355458e-01
+1.000000e+00 Discourse.car->[Sentence.car Discourse.car] : 8.918324e-01
+1.000000e+00 Discourse.car->[Sentence.car] : 1.859329e-03
+1.000000e+00 Sentence.car->[Topic.car Words.car] : 1.000000e+00
+1.000000e+00 Discourse.cheese->[Sentence.cheese Discourse.cheese] : 7.588993e-01
+1.000000e+00 Discourse.cheese->[Sentence.cheese] : 1.988956e-02
+1.000000e+00 Sentence.cheese->[Topic.cheese Words.cheese] : 1.000000e+00
+1.000000e+00 Discourse->[Discourse.dog] : 2.119739e-01
+1.000000e+00 Discourse.dog->[Sentence.dog Discourse.dog] : 8.704370e-01
+1.000000e+00 Discourse.dog->[Sentence.dog] : 2.180366e-03
+1.000000e+00 Sentence.dog->[Topic.dog Words.dog] : 1.000000e+00
+1.000000e+00 Discourse.doll->[Sentence.doll Discourse.doll] : 9.182599e-01
+1.000000e+00 Sentence.doll->[Topic.doll Words.doll] : 1.000000e+00
+1.000000e+00 Discourse.dough->[Sentence.dough Discourse.dough] : 9.832670e-01
+1.000000e+00 Sentence.dough->[Topic.dough Words.dough] : 1.000000e+00
+1.000000e+00 Discourse.ernie->[Sentence.ernie Discourse.ernie] : 7.749921e-01
+1.000000e+00 Sentence.ernie->[Topic.ernie Words.ernie] : 1.000000e+00
+1.000000e+00 Discourse.firetruck->[Sentence.firetruck Discourse.firetruck] : 9.103266e-01
+1.000000e+00 Sentence.firetruck->[Topic.firetruck Words.firetruck] : 1.000000e+00
+1.000000e+00 Discourse.flashlight->[Sentence.flashlight Discourse.flashlight] : 8.293492e-01
+1.000000e+00 Sentence.flashlight->[Topic.flashlight Words.flashlight] : 1.000000e+00
+1.000000e+00 Discourse.hotdog->[Sentence.hotdog Discourse.hotdog] : 8.986248e-01
+1.000000e+00 Sentence.hotdog->[Topic.hotdog Words.hotdog] : 1.000000e+00
+1.000000e+00 Discourse.mickey->[Sentence.mickey Discourse.mickey] : 9.153081e-01
+1.000000e+00 Discourse.mickey->[Sentence.mickey] : 8.468700e-02
+1.000000e+00 Sentence.mickey->[Topic.mickey Words.mickey] : 1.000000e+00
+1.000000e+00 Discourse.oscar->[Sentence.oscar Discourse.oscar] : 7.935511e-01
+1.000000e+00 Sentence.oscar->[Topic.oscar Words.oscar] : 1.000000e+00
+1.000000e+00 Discourse.pepperoni->[Sentence.pepperoni Discourse.pepperoni] : 3.983558e-01
+1.000000e+00 Discourse.pepperoni->[Sentence.pepperoni] : 4.951077e-02
+1.000000e+00 Sentence.pepperoni->[Topic.pepperoni Words.pepperoni] : 1.000000e+00
+1.000000e+00 Discourse.phone->[Sentence.phone Discourse.phone] : 8.939244e-01
+1.000000e+00 Discourse.phone->[Sentence.phone] : 2.713158e-02
+1.000000e+00 Sentence.phone->[Topic.phone Words.phone] : 1.000000e+00
+1.000000e+00 Discourse->[Discourse.pig] : 2.853472e-01
+1.000000e+00 Discourse.pig->[Sentence.pig Discourse.pig] : 8.926814e-01
+1.000000e+00 Discourse.pig->[Sentence.pig] : 3.789483e-03
+1.000000e+00 Sentence.pig->[Topic.pig Words.pig] : 1.000000e+00
+1.000000e+00 Discourse->[Discourse.popnpals] : 5.275452e-02
+1.000000e+00 Discourse.popnpals->[Sentence.popnpals Discourse.popnpals] : 9.650698e-01
+1.000000e+00 Sentence.popnpals->[Topic.popnpals Words.popnpals] : 1.000000e+00
+1.000000e+00 Discourse.rabbit->[Sentence.rabbit Discourse.rabbit] : 8.911744e-01
+1.000000e+00 Discourse.rabbit->[Sentence.rabbit] : 1.088172e-01
+1.000000e+00 Sentence.rabbit->[Topic.rabbit Words.rabbit] : 1.000000e+00
+1.000000e+00 Discourse.rings->[Sentence.rings Discourse.rings] : 7.145683e-01
+1.000000e+00 Discourse.rings->[Sentence.rings] : 1.989756e-01
+1.000000e+00 Sentence.rings->[Topic.rings Words.rings] : 1.000000e+00
+1.000000e+00 Discourse.train->[Sentence.train Discourse.train] : 7.813592e-01
+1.000000e+00 Sentence.train->[Topic.train Words.train] : 1.000000e+00
+1.000000e+00 Discourse->[Discourse.truck] : 1.670662e-01
+1.000000e+00 Discourse.truck->[Sentence.truck Discourse.truck] : 8.534948e-01
+1.000000e+00 Discourse.truck->[Sentence.truck] : 6.573586e-03
+1.000000e+00 Sentence.truck->[Topic.truck Words.truck] : 1.000000e+00
+1.000000e+00 Discourse.waffles->[Sentence.waffles Discourse.waffles] : 8.653260e-01
+1.000000e+00 Sentence.waffles->[Topic.waffles Words.waffles] : 1.000000e+00
+1.000000e+00 Discourse->[Discourse.None] : 7.908254e-02
+1.000000e+00 Discourse.None->[Sentence.None Discourse.None] : 7.604623e-01
+1.000000e+00 Discourse.None->[Sentence.None] : 2.305150e-02
+1.000000e+00 Sentence.None->[Topic.None Words.None] : 1.000000e+00
+1.000000e-01 Discourse.alphabet->[Sentence.alphabet Discourse.box] : 9.617389e-07
+1.000000e-01 Discourse.alphabet->[Sentence.alphabet Discourse.brush] : 9.617389e-07
+1.000000e-01 Discourse.alphabet->[Sentence.alphabet Discourse.cheese] : 9.617389e-07
+1.000000e-01 Discourse.alphabet->[Sentence.alphabet Discourse.flashlight] : 8.521458e-02
+1.000000e-01 Discourse.alphabet->[Sentence.alphabet Discourse.hotdog] : 2.119652e-02
+1.000000e-01 Discourse.alphabet->[Sentence.alphabet Discourse.pepperoni] : 9.617389e-07
+1.000000e-01 Discourse.alphabet->[Sentence.alphabet Discourse.None] : 9.617390e-07
+1.000000e-01 Discourse.baby->[Sentence.baby Discourse.blocks] : 1.089841e-01
+1.000000e-01 Discourse.baby->[Sentence.baby Discourse.box] : 4.947437e-06
+1.000000e-01 Discourse.baby->[Sentence.baby Discourse.brush] : 1.089732e-01
+1.000000e-01 Discourse.baby->[Sentence.baby Discourse.None] : 1.089745e-01
+1.000000e-01 Discourse.ball->[Sentence.ball Discourse.block] : 7.915985e-03
+1.000000e-01 Discourse.ball->[Sentence.ball Discourse.book] : 7.914379e-03
+1.000000e-01 Discourse.ball->[Sentence.ball Discourse.box] : 3.593000e-07
+1.000000e-01 Discourse.ball->[Sentence.ball Discourse.brush] : 3.593000e-07
+1.000000e-01 Discourse.ball->[Sentence.ball Discourse.car] : 3.593000e-07
+1.000000e-01 Discourse.ball->[Sentence.ball Discourse.truck] : 3.593000e-07
+1.000000e-01 Discourse.ball->[Sentence.ball Discourse.None] : 5.572613e-02
+1.000000e-01 Discourse.bear->[Sentence.bear Discourse.ball] : 1.966533e-06
+1.000000e-01 Discourse.bear->[Sentence.bear Discourse.car] : 2.027651e-06
+1.000000e-01 Discourse.bear->[Sentence.bear Discourse.None] : 1.731362e-01
+1.000000e-01 Discourse.block->[Sentence.block Discourse.ball] : 9.605070e-02
+1.000000e-01 Discourse.block->[Sentence.block Discourse.car] : 4.359625e-06
+1.000000e-01 Discourse.block->[Sentence.block Discourse.truck] : 4.359624e-06
+1.000000e-01 Discourse.block->[Sentence.block Discourse.None] : 9.602628e-02
+1.000000e-01 Discourse.blocks->[Sentence.blocks Discourse.baby] : 5.147962e-02
+1.000000e-01 Discourse.blocks->[Sentence.blocks Discourse.None] : 2.336965e-06
+1.000000e-01 Discourse.book->[Sentence.book Discourse.ball] : 5.258042e-02
+1.000000e-01 Discourse.book->[Sentence.book Discourse.box] : 9.617572e-07
+1.000000e-01 Discourse.book->[Sentence.book Discourse.firetruck] : 9.617581e-07
+1.000000e-01 Discourse.book->[Sentence.book Discourse.None] : 2.118476e-02
+1.000000e-01 Discourse.box->[Sentence.box Discourse.alphabet] : 6.465317e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.baby] : 3.154667e-03
+1.000000e-01 Discourse.box->[Sentence.box Discourse.ball] : 6.465317e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.blocks] : 6.465317e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.book] : 1.424081e-03
+1.000000e-01 Discourse.box->[Sentence.box Discourse.brush] : 7.101587e-02
+1.000000e-01 Discourse.box->[Sentence.box Discourse.car] : 9.786320e-03
+1.000000e-01 Discourse.box->[Sentence.box Discourse.cheese] : 6.465317e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.dog] : 6.466443e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.doll] : 1.407632e-03
+1.000000e-01 Discourse.box->[Sentence.box Discourse.dough] : 6.465317e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.firetruck] : 1.424081e-03
+1.000000e-01 Discourse.box->[Sentence.box Discourse.flashlight] : 6.465317e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.hotdog] : 6.470759e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.pepperoni] : 6.465317e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.pig] : 6.466656e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.rabbit] : 6.465317e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.truck] : 5.134247e-03
+1.000000e-01 Discourse.box->[Sentence.box Discourse.waffles] : 6.467366e-08
+1.000000e-01 Discourse.box->[Sentence.box Discourse.None] : 1.135860e-02
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.alphabet] : 9.756927e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.baby] : 9.770798e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.ball] : 9.756927e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.blocks] : 9.756927e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.box] : 1.156556e-01
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.bus] : 2.149106e-03
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.car] : 2.211970e-03
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.cheese] : 9.756927e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.dog] : 9.766969e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.doll] : 9.756947e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.dough] : 9.756928e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.flashlight] : 9.756927e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.hotdog] : 9.757209e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.pepperoni] : 9.756927e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.pig] : 1.146176e-02
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.rabbit] : 9.756927e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.truck] : 9.757359e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.waffles] : 9.756952e-08
+1.000000e-01 Discourse.brush->[Sentence.brush Discourse.None] : 2.675236e-02
+1.000000e-01 Discourse.bus->[Sentence.bus Discourse.box] : 5.107522e-06
+1.000000e-01 Discourse.bus->[Sentence.bus Discourse.brush] : 1.125007e-01
+1.000000e-01 Discourse.bus->[Sentence.bus Discourse.doll] : 1.125007e-01
+1.000000e-01 Discourse.bus->[Sentence.bus Discourse.None] : 5.107522e-06
+1.000000e-01 Discourse.car->[Sentence.car Discourse.ball] : 3.620404e-08
+1.000000e-01 Discourse.car->[Sentence.car Discourse.bear] : 7.975309e-04
+1.000000e-01 Discourse.car->[Sentence.car Discourse.block] : 7.974420e-04
+1.000000e-01 Discourse.car->[Sentence.car Discourse.box] : 1.186272e-02
+1.000000e-01 Discourse.car->[Sentence.car Discourse.brush] : 2.928315e-03
+1.000000e-01 Discourse.car->[Sentence.car Discourse.dog] : 5.332128e-03
+1.000000e-01 Discourse.car->[Sentence.car Discourse.ernie] : 3.620404e-08
+1.000000e-01 Discourse.car->[Sentence.car Discourse.oscar] : 3.620404e-08
+1.000000e-01 Discourse.car->[Sentence.car Discourse.pig] : 3.708433e-08
+1.000000e-01 Discourse.car->[Sentence.car Discourse.popnpals] : 2.753134e-03
+1.000000e-01 Discourse.car->[Sentence.car Discourse.train] : 3.620405e-08
+1.000000e-01 Discourse.car->[Sentence.car Discourse.truck] : 6.744158e-02
+1.000000e-01 Discourse.car->[Sentence.car Discourse.None] : 1.439523e-02
+1.000000e-01 Discourse.cheese->[Sentence.cheese Discourse.alphabet] : 1.049929e-06
+1.000000e-01 Discourse.cheese->[Sentence.cheese Discourse.box] : 1.049929e-06
+1.000000e-01 Discourse.cheese->[Sentence.cheese Discourse.brush] : 1.049929e-06
+1.000000e-01 Discourse.cheese->[Sentence.cheese Discourse.hotdog] : 1.050287e-06
+1.000000e-01 Discourse.cheese->[Sentence.cheese Discourse.pepperoni] : 1.980807e-01
+1.000000e-01 Discourse.cheese->[Sentence.cheese Discourse.None] : 2.312623e-02
+1.000000e-01 Discourse.dog->[Sentence.dog Discourse.box] : 4.460486e-08
+1.000000e-01 Discourse.dog->[Sentence.dog Discourse.brush] : 3.115159e-03
+1.000000e-01 Discourse.dog->[Sentence.dog Discourse.car] : 3.533884e-03
+1.000000e-01 Discourse.dog->[Sentence.dog Discourse.dough] : 4.460171e-08
+1.000000e-01 Discourse.dog->[Sentence.dog Discourse.mickey] : 4.460175e-08
+1.000000e-01 Discourse.dog->[Sentence.dog Discourse.pig] : 9.419216e-02
+1.000000e-01 Discourse.dog->[Sentence.dog Discourse.train] : 4.460176e-08
+1.000000e-01 Discourse.dog->[Sentence.dog Discourse.truck] : 4.494705e-08
+1.000000e-01 Discourse.dog->[Sentence.dog Discourse.None] : 2.654119e-02
+1.000000e-01 Discourse.doll->[Sentence.doll Discourse.box] : 1.167063e-02
+1.000000e-01 Discourse.doll->[Sentence.doll Discourse.brush] : 1.085253e-02
+1.000000e-01 Discourse.doll->[Sentence.doll Discourse.rabbit] : 1.167546e-02
+1.000000e-01 Discourse.doll->[Sentence.doll Discourse.None] : 4.754144e-02
+1.000000e-01 Discourse.dough->[Sentence.dough Discourse.box] : 7.596342e-07
+1.000000e-01 Discourse.dough->[Sentence.dough Discourse.brush] : 1.672992e-02
+1.000000e-01 Discourse.dough->[Sentence.dough Discourse.dog] : 7.595389e-07
+1.000000e-01 Discourse.dough->[Sentence.dough Discourse.pig] : 7.595389e-07
+1.000000e-01 Discourse.dough->[Sentence.dough Discourse.None] : 7.595780e-07
+1.000000e-01 Discourse.ernie->[Sentence.ernie Discourse.car] : 5.107555e-06
+1.000000e-01 Discourse.ernie->[Sentence.ernie Discourse.oscar] : 1.125014e-01
+1.000000e-01 Discourse.ernie->[Sentence.ernie Discourse.None] : 1.125014e-01
+1.000000e-01 Discourse.firetruck->[Sentence.firetruck Discourse.book] : 1.640203e-06
+1.000000e-01 Discourse.firetruck->[Sentence.firetruck Discourse.None] : 8.967177e-02
+1.000000e-01 Discourse.flashlight->[Sentence.flashlight Discourse.alphabet] : 5.784591e-02
+1.000000e-01 Discourse.flashlight->[Sentence.flashlight Discourse.hotdog] : 5.639923e-02
+1.000000e-01 Discourse.flashlight->[Sentence.flashlight Discourse.None] : 5.640564e-02
+1.000000e-01 Discourse.hotdog->[Sentence.hotdog Discourse.alphabet] : 2.979690e-02
+1.000000e-01 Discourse.hotdog->[Sentence.hotdog Discourse.box] : 5.448350e-07
+1.000000e-01 Discourse.hotdog->[Sentence.hotdog Discourse.brush] : 5.448350e-07
+1.000000e-01 Discourse.hotdog->[Sentence.hotdog Discourse.cheese] : 5.448971e-07
+1.000000e-01 Discourse.hotdog->[Sentence.hotdog Discourse.flashlight] : 5.522215e-07
+1.000000e-01 Discourse.hotdog->[Sentence.hotdog Discourse.pepperoni] : 1.200130e-02
+1.000000e-01 Discourse.hotdog->[Sentence.hotdog Discourse.waffles] : 2.978678e-02
+1.000000e-01 Discourse.hotdog->[Sentence.hotdog Discourse.None] : 2.978803e-02
+1.000000e-01 Discourse.mickey->[Sentence.mickey Discourse.dog] : 1.648988e-06
+1.000000e-01 Discourse.mickey->[Sentence.mickey Discourse.pig] : 1.648988e-06
+1.000000e-01 Discourse.mickey->[Sentence.mickey Discourse.None] : 1.648988e-06
+1.000000e-01 Discourse.oscar->[Sentence.oscar Discourse.car] : 9.371916e-06
+1.000000e-01 Discourse.oscar->[Sentence.oscar Discourse.ernie] : 9.371916e-06
+1.000000e-01 Discourse.oscar->[Sentence.oscar Discourse.None] : 2.064302e-01
+1.000000e-01 Discourse.pepperoni->[Sentence.pepperoni Discourse.alphabet] : 2.620565e-06
+1.000000e-01 Discourse.pepperoni->[Sentence.pepperoni Discourse.box] : 2.620565e-06
+1.000000e-01 Discourse.pepperoni->[Sentence.pepperoni Discourse.brush] : 2.620565e-06
+1.000000e-01 Discourse.pepperoni->[Sentence.pepperoni Discourse.cheese] : 4.943988e-01
+1.000000e-01 Discourse.pepperoni->[Sentence.pepperoni Discourse.hotdog] : 5.772410e-02
+1.000000e-01 Discourse.pepperoni->[Sentence.pepperoni Discourse.None] : 2.620569e-06
+1.000000e-01 Discourse.phone->[Sentence.phone Discourse.rings] : 7.894262e-02
+1.000000e-01 Discourse.phone->[Sentence.phone Discourse.None] : 1.436036e-06
+1.000000e-01 Discourse.pig->[Sentence.pig Discourse.box] : 3.250207e-08
+1.000000e-01 Discourse.pig->[Sentence.pig Discourse.brush] : 5.721403e-07
+1.000000e-01 Discourse.pig->[Sentence.pig Discourse.car] : 4.808886e-03
+1.000000e-01 Discourse.pig->[Sentence.pig Discourse.dog] : 7.927317e-02
+1.000000e-01 Discourse.pig->[Sentence.pig Discourse.dough] : 7.059970e-04
+1.000000e-01 Discourse.pig->[Sentence.pig Discourse.mickey] : 7.059970e-04
+1.000000e-01 Discourse.pig->[Sentence.pig Discourse.truck] : 3.214142e-08
+1.000000e-01 Discourse.pig->[Sentence.pig Discourse.None] : 1.803441e-02
+1.000000e-01 Discourse.popnpals->[Sentence.popnpals Discourse.box] : 2.960324e-07
+1.000000e-01 Discourse.popnpals->[Sentence.popnpals Discourse.brush] : 6.520459e-03
+1.000000e-01 Discourse.popnpals->[Sentence.popnpals Discourse.car] : 2.066382e-02
+1.000000e-01 Discourse.popnpals->[Sentence.popnpals Discourse.truck] : 8.362473e-07
+1.000000e-01 Discourse.popnpals->[Sentence.popnpals Discourse.None] : 7.744815e-03
+1.000000e-01 Discourse.rabbit->[Sentence.rabbit Discourse.box] : 2.118840e-06
+1.000000e-01 Discourse.rabbit->[Sentence.rabbit Discourse.brush] : 2.118840e-06
+1.000000e-01 Discourse.rabbit->[Sentence.rabbit Discourse.doll] : 2.118840e-06
+1.000000e-01 Discourse.rabbit->[Sentence.rabbit Discourse.None] : 2.118840e-06
+1.000000e-01 Discourse.rings->[Sentence.rings Discourse.phone] : 8.645222e-02
+1.000000e-01 Discourse.rings->[Sentence.rings Discourse.None] : 3.874382e-06
+1.000000e-01 Discourse.train->[Sentence.train Discourse.car] : 7.502504e-02
+1.000000e-01 Discourse.train->[Sentence.train Discourse.truck] : 2.873684e-02
+1.000000e-01 Discourse.train->[Sentence.train Discourse.None] : 1.148789e-01
+1.000000e-01 Discourse.truck->[Sentence.truck Discourse.ball] : 5.568571e-08
+1.000000e-01 Discourse.truck->[Sentence.truck Discourse.block] : 5.571122e-08
+1.000000e-01 Discourse.truck->[Sentence.truck Discourse.box] : 5.569792e-08
+1.000000e-01 Discourse.truck->[Sentence.truck Discourse.brush] : 5.569745e-08
+1.000000e-01 Discourse.truck->[Sentence.truck Discourse.car] : 1.035235e-01
+1.000000e-01 Discourse.truck->[Sentence.truck Discourse.dog] : 5.568868e-08
+1.000000e-01 Discourse.truck->[Sentence.truck Discourse.pig] : 1.303996e-03
+1.000000e-01 Discourse.truck->[Sentence.truck Discourse.popnpals] : 5.568706e-08
+1.000000e-01 Discourse.truck->[Sentence.truck Discourse.train] : 1.204276e-03
+1.000000e-01 Discourse.truck->[Sentence.truck Discourse.None] : 3.389946e-02
+1.000000e-01 Discourse.waffles->[Sentence.waffles Discourse.alphabet] : 6.729816e-02
+1.000000e-01 Discourse.waffles->[Sentence.waffles Discourse.box] : 3.056875e-06
+1.000000e-01 Discourse.waffles->[Sentence.waffles Discourse.brush] : 3.056875e-06
+1.000000e-01 Discourse.waffles->[Sentence.waffles Discourse.hotdog] : 6.736668e-02
+1.000000e-01 Discourse.waffles->[Sentence.waffles Discourse.None] : 3.056875e-06
+1.000000e-01 Discourse.None->[Sentence.None Discourse.alphabet] : 7.026303e-08
+1.000000e-01 Discourse.None->[Sentence.None Discourse.baby] : 1.945220e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.ball] : 1.089755e-02
+1.000000e-01 Discourse.None->[Sentence.None Discourse.bear] : 3.843607e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.block] : 7.026294e-08
+1.000000e-01 Discourse.None->[Sentence.None Discourse.blocks] : 7.026293e-08
+1.000000e-01 Discourse.None->[Sentence.None Discourse.book] : 1.547644e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.box] : 9.564296e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.brush] : 1.725972e-02
+1.000000e-01 Discourse.None->[Sentence.None Discourse.bus] : 1.547644e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.car] : 3.296442e-02
+1.000000e-01 Discourse.None->[Sentence.None Discourse.cheese] : 1.551253e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.dog] : 6.726642e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.doll] : 8.558493e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.dough] : 7.026293e-08
+1.000000e-01 Discourse.None->[Sentence.None Discourse.ernie] : 3.841353e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.firetruck] : 1.547649e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.flashlight] : 7.026293e-08
+1.000000e-01 Discourse.None->[Sentence.None Discourse.hotdog] : 6.184447e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.mickey] : 7.026293e-08
+1.000000e-01 Discourse.None->[Sentence.None Discourse.oscar] : 7.026293e-08
+1.000000e-01 Discourse.None->[Sentence.None Discourse.pepperoni] : 7.026304e-08
+1.000000e-01 Discourse.None->[Sentence.None Discourse.phone] : 1.547639e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.pig] : 5.886729e-02
+1.000000e-01 Discourse.None->[Sentence.None Discourse.popnpals] : 1.537507e-03
+1.000000e-01 Discourse.None->[Sentence.None Discourse.rabbit] : 7.026293e-08
+1.000000e-01 Discourse.None->[Sentence.None Discourse.rings] : 7.027808e-08
+1.000000e-01 Discourse.None->[Sentence.None Discourse.train] : 1.091498e-02
+1.000000e-01 Discourse.None->[Sentence.None Discourse.truck] : 3.563804e-02
+1.000000e-01 Discourse.None->[Sentence.None Discourse.waffles] : 7.026484e-08
+1.000000e+00 Words.None->[Word.None] : 2.299250e-01
+1.000000e+00 Words.None->[Word.None Words.None] : 7.700750e-01
+1.000000e+00 Words.alphabet->[Word.alphabet] : 2.754548e-01
+1.000000e+00 Words.alphabet->[Word.None] : 1.823469e-02
+1.000000e+00 Words.alphabet->[Word.alphabet Words.alphabet] : 3.329421e-01
+1.000000e+00 Words.alphabet->[Word.None Words.alphabet] : 3.733685e-01
+1.000000e+00 Words.baby->[Word.baby] : 2.163822e-01
+1.000000e+00 Words.baby->[Word.None] : 1.868851e-02
+1.000000e+00 Words.baby->[Word.baby Words.baby] : 6.114404e-01
+1.000000e+00 Words.baby->[Word.None Words.baby] : 1.534889e-01
+1.000000e+00 Words.ball->[Word.ball] : 2.185467e-01
+1.000000e+00 Words.ball->[Word.None] : 1.991873e-02
+1.000000e+00 Words.ball->[Word.ball Words.ball] : 5.150962e-01
+1.000000e+00 Words.ball->[Word.None Words.ball] : 2.464384e-01
+1.000000e+00 Words.bear->[Word.bear] : 1.975888e-01
+1.000000e+00 Words.bear->[Word.None] : 2.190032e-02
+1.000000e+00 Words.bear->[Word.bear Words.bear] : 6.283945e-01
+1.000000e+00 Words.bear->[Word.None Words.bear] : 1.521164e-01
+1.000000e+00 Words.block->[Word.block] : 8.352793e-02
+1.000000e+00 Words.block->[Word.None] : 1.392106e-01
+1.000000e+00 Words.block->[Word.block Words.block] : 5.895152e-01
+1.000000e+00 Words.block->[Word.None Words.block] : 1.877463e-01
+1.000000e+00 Words.blocks->[Word.blocks] : 3.171777e-01
+1.000000e+00 Words.blocks->[Word.None] : 4.428046e-02
+1.000000e+00 Words.blocks->[Word.blocks Words.blocks] : 5.892139e-01
+1.000000e+00 Words.blocks->[Word.None Words.blocks] : 4.932794e-02
+1.000000e+00 Words.book->[Word.book] : 3.052464e-01
+1.000000e+00 Words.book->[Word.None] : 5.961464e-03
+1.000000e+00 Words.book->[Word.book Words.book] : 5.664192e-01
+1.000000e+00 Words.book->[Word.None Words.book] : 1.223730e-01
+1.000000e+00 Words.box->[Word.box] : 2.214697e-01
+1.000000e+00 Words.box->[Word.None] : 2.869169e-02
+1.000000e+00 Words.box->[Word.box Words.box] : 2.293520e-01
+1.000000e+00 Words.box->[Word.None Words.box] : 5.204866e-01
+1.000000e+00 Words.brush->[Word.brush] : 2.228356e-01
+1.000000e+00 Words.brush->[Word.None] : 2.859117e-02
+1.000000e+00 Words.brush->[Word.brush Words.brush] : 2.639371e-01
+1.000000e+00 Words.brush->[Word.None Words.brush] : 4.846362e-01
+1.000000e+00 Words.bus->[Word.bus] : 1.569320e-01
+1.000000e+00 Words.bus->[Word.None] : 4.386516e-02
+1.000000e+00 Words.bus->[Word.bus Words.bus] : 6.546816e-01
+1.000000e+00 Words.bus->[Word.None Words.bus] : 1.445213e-01
+1.000000e+00 Words.car->[Word.car] : 2.412107e-01
+1.000000e+00 Words.car->[Word.None] : 3.080913e-02
+1.000000e+00 Words.car->[Word.car Words.car] : 1.906013e-01
+1.000000e+00 Words.car->[Word.None Words.car] : 5.373789e-01
+1.000000e+00 Words.cheese->[Word.cheese] : 3.135487e-01
+1.000000e+00 Words.cheese->[Word.None] : 1.993586e-02
+1.000000e+00 Words.cheese->[Word.cheese Words.cheese] : 3.332785e-01
+1.000000e+00 Words.cheese->[Word.None Words.cheese] : 3.332369e-01
+1.000000e+00 Words.dog->[Word.dog] : 2.474451e-01
+1.000000e+00 Words.dog->[Word.None] : 2.111030e-02
+1.000000e+00 Words.dog->[Word.dog Words.dog] : 2.786325e-01
+1.000000e+00 Words.dog->[Word.None Words.dog] : 4.528120e-01
+1.000000e+00 Words.doll->[Word.doll] : 1.811064e-01
+1.000000e+00 Words.doll->[Word.None] : 2.162987e-02
+1.000000e+00 Words.doll->[Word.doll Words.doll] : 6.375329e-01
+1.000000e+00 Words.doll->[Word.None Words.doll] : 1.597308e-01
+1.000000e+00 Words.dough->[Word.dough] : 2.275560e-01
+1.000000e+00 Words.dough->[Word.None] : 6.881504e-02
+1.000000e+00 Words.dough->[Word.dough Words.dough] : 3.181771e-01
+1.000000e+00 Words.dough->[Word.None Words.dough] : 3.854519e-01
+1.000000e+00 Words.ernie->[Word.ernie] : 2.397366e-01
+1.000000e+00 Words.ernie->[Word.None] : 2.128330e-02
+1.000000e+00 Words.ernie->[Word.ernie Words.ernie] : 6.256294e-01
+1.000000e+00 Words.ernie->[Word.None Words.ernie] : 1.133506e-01
+1.000000e+00 Words.firetruck->[Word.firetruck] : 3.147252e-01
+1.000000e+00 Words.firetruck->[Word.None] : 5.084678e-02
+1.000000e+00 Words.firetruck->[Word.firetruck Words.firetruck] : 4.934938e-01
+1.000000e+00 Words.firetruck->[Word.None Words.firetruck] : 1.409342e-01
+1.000000e+00 Words.flashlight->[Word.flashlight] : 1.394097e-01
+1.000000e+00 Words.flashlight->[Word.None] : 6.258715e-02
+1.000000e+00 Words.flashlight->[Word.flashlight Words.flashlight] : 5.916730e-01
+1.000000e+00 Words.flashlight->[Word.None Words.flashlight] : 2.063302e-01
+1.000000e+00 Words.hotdog->[Word.hotdog] : 2.433023e-01
+1.000000e+00 Words.hotdog->[Word.None] : 1.595676e-02
+1.000000e+00 Words.hotdog->[Word.hotdog Words.hotdog] : 4.183020e-01
+1.000000e+00 Words.hotdog->[Word.None Words.hotdog] : 3.224390e-01
+1.000000e+00 Words.mickey->[Word.mickey] : 2.130985e-01
+1.000000e+00 Words.mickey->[Word.None] : 7.052422e-03
+1.000000e+00 Words.mickey->[Word.mickey Words.mickey] : 4.283132e-01
+1.000000e+00 Words.mickey->[Word.None Words.mickey] : 3.515359e-01
+1.000000e+00 Words.oscar->[Word.oscar] : 2.658447e-01
+1.000000e+00 Words.oscar->[Word.None] : 4.425387e-02
+1.000000e+00 Words.oscar->[Word.oscar Words.oscar] : 6.388535e-01
+1.000000e+00 Words.oscar->[Word.None Words.oscar] : 5.104793e-02
+1.000000e+00 Words.pepperoni->[Word.pepperoni] : 2.011656e-01
+1.000000e+00 Words.pepperoni->[Word.None] : 1.032904e-02
+1.000000e+00 Words.pepperoni->[Word.pepperoni Words.pepperoni] : 6.920418e-01
+1.000000e+00 Words.pepperoni->[Word.None Words.pepperoni] : 9.646349e-02
+1.000000e+00 Words.phone->[Word.phone] : 1.700110e-01
+1.000000e+00 Words.phone->[Word.None] : 2.650619e-02
+1.000000e+00 Words.phone->[Word.phone Words.phone] : 6.080588e-01
+1.000000e+00 Words.phone->[Word.None Words.phone] : 1.954240e-01
+1.000000e+00 Words.pig->[Word.pig] : 2.279820e-01
+1.000000e+00 Words.pig->[Word.None] : 3.774086e-02
+1.000000e+00 Words.pig->[Word.pig Words.pig] : 1.888434e-01
+1.000000e+00 Words.pig->[Word.None Words.pig] : 5.454337e-01
+1.000000e+00 Words.popnpals->[Word.popnpals] : 2.191871e-01
+1.000000e+00 Words.popnpals->[Word.None] : 2.439388e-02
+1.000000e+00 Words.popnpals->[Word.popnpals Words.popnpals] : 4.816008e-01
+1.000000e+00 Words.popnpals->[Word.None Words.popnpals] : 2.748183e-01
+1.000000e+00 Words.rabbit->[Word.rabbit] : 1.809809e-01
+1.000000e+00 Words.rabbit->[Word.None] : 2.231395e-02
+1.000000e+00 Words.rabbit->[Word.rabbit Words.rabbit] : 5.115796e-01
+1.000000e+00 Words.rabbit->[Word.None Words.rabbit] : 2.851255e-01
+1.000000e+00 Words.rings->[Word.rings] : 1.273482e-01
+1.000000e+00 Words.rings->[Word.None] : 5.895383e-02
+1.000000e+00 Words.rings->[Word.rings Words.rings] : 5.479673e-01
+1.000000e+00 Words.rings->[Word.None Words.rings] : 2.657306e-01
+1.000000e+00 Words.train->[Word.train] : 2.511798e-01
+1.000000e+00 Words.train->[Word.None] : 6.975045e-03
+1.000000e+00 Words.train->[Word.train Words.train] : 5.791694e-01
+1.000000e+00 Words.train->[Word.None Words.train] : 1.626757e-01
+1.000000e+00 Words.truck->[Word.truck] : 2.480501e-01
+1.000000e+00 Words.truck->[Word.None] : 2.211647e-02
+1.000000e+00 Words.truck->[Word.truck Words.truck] : 2.043084e-01
+1.000000e+00 Words.truck->[Word.None Words.truck] : 5.255251e-01
+1.000000e+00 Words.waffles->[Word.waffles] : 2.739414e-01
+1.000000e+00 Words.waffles->[Word.None] : 4.166357e-02
+1.000000e+00 Words.waffles->[Word.waffles Words.waffles] : 2.932073e-01
+1.000000e+00 Words.waffles->[Word.None Words.waffles] : 3.911878e-01
+1.000000e-03 Word.alphabet->[_all] : 2.545615e-02
+1.000000e-03 Word.alphabet->[_alphabet] : 4.700009e-02
+1.000000e-03 Word.alphabet->[_back] : 6.546031e-03
+1.000000e-03 Word.alphabet->[_box] : 1.044312e-02
+1.000000e-03 Word.alphabet->[_come] : 7.543207e-02
+1.000000e-03 Word.alphabet->[_em] : 2.827294e-02
+1.000000e-03 Word.alphabet->[_emily] : 1.050025e-02
+1.000000e-03 Word.alphabet->[_emmy] : 8.416549e-02
+1.000000e-03 Word.alphabet->[_flashlight] : 1.049744e-02
+1.000000e-03 Word.alphabet->[_girl] : 2.850025e-02
+1.000000e-03 Word.alphabet->[_ha] : 4.609747e-02
+1.000000e-03 Word.alphabet->[_here] : 1.350066e-01
+1.000000e-03 Word.alphabet->[_huh] : 6.247362e-02
+1.000000e-03 Word.alphabet->[_in] : 6.962987e-02
+1.000000e-03 Word.alphabet->[_is] : 3.367863e-02
+1.000000e-03 Word.alphabet->[_more] : 7.601570e-03
+1.000000e-03 Word.alphabet->[_one] : 2.624495e-02
+1.000000e-03 Word.alphabet->[_out] : 2.672438e-02
+1.000000e-03 Word.alphabet->[_pepperoni] : 2.851412e-02
+1.000000e-03 Word.alphabet->[_set] : 1.050024e-02
+1.000000e-03 Word.alphabet->[_take] : 6.447201e-03
+1.000000e-03 Word.alphabet->[_that] : 5.540548e-02
+1.000000e-03 Word.alphabet->[_there] : 2.823984e-02
+1.000000e-03 Word.alphabet->[_this] : 5.434666e-02
+1.000000e-03 Word.alphabet->[_top] : 1.049491e-02
+1.000000e-03 Word.alphabet->[_whats] : 7.178063e-02
+1.000000e-03 Word.baby->[_ah] : 8.265155e-02
+1.000000e-03 Word.baby->[_and] : 2.396590e-02
+1.000000e-03 Word.baby->[_at] : 7.871986e-02
+1.000000e-03 Word.baby->[_baby] : 3.529849e-01
+1.000000e-03 Word.baby->[_blocks] : 3.050656e-02
+1.000000e-03 Word.baby->[_heres] : 2.920557e-02
+1.000000e-03 Word.baby->[_look] : 7.785610e-02
+1.000000e-03 Word.baby->[_oh] : 2.133718e-02
+1.000000e-03 Word.baby->[_playing] : 3.040148e-02
+1.000000e-03 Word.baby->[_spencers] : 3.048316e-02
+1.000000e-03 Word.baby->[_the] : 1.629260e-01
+1.000000e-03 Word.baby->[_your] : 7.896171e-02
+1.000000e-03 Word.ball->[_again] : 1.120922e-02
+1.000000e-03 Word.ball->[_alright] : 2.022473e-02
+1.000000e-03 Word.ball->[_are] : 7.580676e-03
+1.000000e-03 Word.ball->[_around] : 2.334208e-03
+1.000000e-03 Word.ball->[_back] : 1.025142e-02
+1.000000e-03 Word.ball->[_ball] : 5.568735e-02
+1.000000e-03 Word.ball->[_basketball] : 2.521856e-03
+1.000000e-03 Word.ball->[_boom] : 2.012639e-02
+1.000000e-03 Word.ball->[_but] : 5.693076e-03
+1.000000e-03 Word.ball->[_can] : 3.408318e-02
+1.000000e-03 Word.ball->[_catch] : 1.128807e-02
+1.000000e-03 Word.ball->[_comes] : 2.470155e-02
+1.000000e-03 Word.ball->[_do] : 1.503475e-02
+1.000000e-03 Word.ball->[_down] : 1.091927e-02
+1.000000e-03 Word.ball->[_everybody] : 2.521856e-03
+1.000000e-03 Word.ball->[_fell] : 2.468162e-03
+1.000000e-03 Word.ball->[_get] : 5.800146e-03
+1.000000e-03 Word.ball->[_girl] : 2.467518e-02
+1.000000e-03 Word.ball->[_go] : 9.367342e-03
+1.000000e-03 Word.ball->[_going] : 1.378848e-02
+1.000000e-03 Word.ball->[_good] : 3.222263e-02
+1.000000e-03 Word.ball->[_haa] : 6.806418e-03
+1.000000e-03 Word.ball->[_haaa] : 6.848271e-03
+1.000000e-03 Word.ball->[_hands] : 6.780564e-03
+1.000000e-03 Word.ball->[_here] : 3.757775e-02
+1.000000e-03 Word.ball->[_hold] : 6.292974e-03
+1.000000e-03 Word.ball->[_honey] : 2.376078e-03
+1.000000e-03 Word.ball->[_huh] : 6.665779e-03
+1.000000e-03 Word.ball->[_it] : 1.014697e-01
+1.000000e-03 Word.ball->[_kick] : 1.128807e-02
+1.000000e-03 Word.ball->[_legs] : 2.476122e-03
+1.000000e-03 Word.ball->[_michael] : 6.422230e-03
+1.000000e-03 Word.ball->[_mommy] : 4.627917e-02
+1.000000e-03 Word.ball->[_mommys] : 2.240772e-03
+1.000000e-03 Word.ball->[_more] : 5.957154e-03
+1.000000e-03 Word.ball->[_no] : 5.084722e-03
+1.000000e-03 Word.ball->[_now] : 5.726905e-03
+1.000000e-03 Word.ball->[_oh] : 1.147174e-02
+1.000000e-03 Word.ball->[_okay] : 3.286823e-02
+1.000000e-03 Word.ball->[_on] : 6.012740e-03
+1.000000e-03 Word.ball->[_one] : 4.784606e-03
+1.000000e-03 Word.ball->[_oops] : 6.829783e-03
+1.000000e-03 Word.ball->[_out] : 6.074881e-03
+1.000000e-03 Word.ball->[_play] : 1.403182e-02
+1.000000e-03 Word.ball->[_player] : 2.521856e-03
+1.000000e-03 Word.ball->[_please] : 2.451097e-03
+1.000000e-03 Word.ball->[_put] : 2.547143e-02
+1.000000e-03 Word.ball->[_ready] : 6.848271e-03
+1.000000e-03 Word.ball->[_right] : 5.111738e-03
+1.000000e-03 Word.ball->[_sit] : 9.922474e-03
+1.000000e-03 Word.ball->[_some] : 1.304464e-03
+1.000000e-03 Word.ball->[_that] : 8.623427e-03
+1.000000e-03 Word.ball->[_there] : 1.843721e-02
+1.000000e-03 Word.ball->[_thing] : 6.628823e-03
+1.000000e-03 Word.ball->[_throw] : 2.435702e-02
+1.000000e-03 Word.ball->[_time] : 6.713493e-03
+1.000000e-03 Word.ball->[_to] : 3.968838e-02
+1.000000e-03 Word.ball->[_turn] : 2.285270e-03
+1.000000e-03 Word.ball->[_up] : 1.984005e-02
+1.000000e-03 Word.ball->[_wanna] : 1.009778e-02
+1.000000e-03 Word.ball->[_we] : 1.007436e-02
+1.000000e-03 Word.ball->[_were] : 6.429025e-03
+1.000000e-03 Word.ball->[_whole] : 2.521856e-03
+1.000000e-03 Word.ball->[_whoops] : 6.848271e-03
+1.000000e-03 Word.ball->[_will] : 1.093494e-02
+1.000000e-03 Word.ball->[_wire] : 2.513314e-03
+1.000000e-03 Word.ball->[_woah] : 2.521856e-03
+1.000000e-03 Word.ball->[_woooooo] : 2.521856e-03
+1.000000e-03 Word.ball->[_yeah] : 3.671526e-02
+1.000000e-03 Word.ball->[_you] : 4.515658e-02
+1.000000e-03 Word.ball->[_your] : 1.372424e-02
+1.000000e-03 Word.ball->[_youre] : 4.869669e-03
+1.000000e-03 Word.bear->[_bear] : 3.759761e-02
+1.000000e-03 Word.bear->[_big] : 3.673199e-02
+1.000000e-03 Word.bear->[_can] : 2.922393e-02
+1.000000e-03 Word.bear->[_close] : 1.387172e-02
+1.000000e-03 Word.bear->[_do] : 3.057644e-02
+1.000000e-03 Word.bear->[_dont] : 5.957691e-02
+1.000000e-03 Word.bear->[_doors] : 1.387165e-02
+1.000000e-03 Word.bear->[_em] : 1.381405e-02
+1.000000e-03 Word.bear->[_go] : 1.189831e-02
+1.000000e-03 Word.bear->[_going] : 1.240417e-02
+1.000000e-03 Word.bear->[_got] : 1.165900e-02
+1.000000e-03 Word.bear->[_has] : 1.335718e-02
+1.000000e-03 Word.bear->[_he] : 3.659622e-02
+1.000000e-03 Word.bear->[_help] : 1.376871e-02
+1.000000e-03 Word.bear->[_heres] : 1.259487e-02
+1.000000e-03 Word.bear->[_hes] : 3.682230e-02
+1.000000e-03 Word.bear->[_him] : 1.359402e-02
+1.000000e-03 Word.bear->[_huh] : 1.358851e-02
+1.000000e-03 Word.bear->[_i] : 5.900332e-02
+1.000000e-03 Word.bear->[_in] : 8.355196e-03
+1.000000e-03 Word.bear->[_kay] : 1.387172e-02
+1.000000e-03 Word.bear->[_like] : 7.561209e-03
+1.000000e-03 Word.bear->[_little] : 1.247468e-02
+1.000000e-03 Word.bear->[_mhmmm] : 1.385927e-02
+1.000000e-03 Word.bear->[_one] : 3.722986e-02
+1.000000e-03 Word.bear->[_ones] : 1.368960e-02
+1.000000e-03 Word.bear->[_other] : 3.714415e-02
+1.000000e-03 Word.bear->[_reach] : 1.381023e-02
+1.000000e-03 Word.bear->[_right] : 1.279725e-02
+1.000000e-03 Word.bear->[_some] : 1.339024e-02
+1.000000e-03 Word.bear->[_teddy] : 1.387172e-02
+1.000000e-03 Word.bear->[_thats] : 4.979689e-03
+1.000000e-03 Word.bear->[_the] : 5.916454e-02
+1.000000e-03 Word.bear->[_there] : 3.692683e-02
+1.000000e-03 Word.bear->[_think] : 6.080583e-02
+1.000000e-03 Word.bear->[_today] : 1.386137e-02
+1.000000e-03 Word.bear->[_tough] : 1.387172e-02
+1.000000e-03 Word.bear->[_wanna] : 1.327172e-02
+1.000000e-03 Word.bear->[_wants] : 1.360842e-02
+1.000000e-03 Word.bear->[_where] : 3.676326e-02
+1.000000e-03 Word.bear->[_would] : 1.332155e-02
+1.000000e-03 Word.bear->[_you] : 6.481904e-02
+1.000000e-03 Word.block->[_and] : 2.854153e-02
+1.000000e-03 Word.block->[_at] : 1.603287e-01
+1.000000e-03 Word.block->[_block] : 3.688616e-02
+1.000000e-03 Word.block->[_dont] : 3.209701e-02
+1.000000e-03 Word.block->[_hey] : 3.659263e-02
+1.000000e-03 Word.block->[_it] : 2.609431e-02
+1.000000e-03 Word.block->[_look] : 9.383221e-02
+1.000000e-03 Word.block->[_lookit] : 3.665476e-02
+1.000000e-03 Word.block->[_okay] : 3.569589e-02
+1.000000e-03 Word.block->[_play] : 3.555184e-02
+1.000000e-03 Word.block->[_theres] : 3.497053e-02
+1.000000e-03 Word.block->[_this] : 1.546265e-01
+1.000000e-03 Word.block->[_wanna] : 3.610193e-02
+1.000000e-03 Word.block->[_whats] : 9.608391e-02
+1.000000e-03 Word.block->[_whistles] : 3.688616e-02
+1.000000e-03 Word.block->[_with] : 3.316536e-02
+1.000000e-03 Word.block->[_you] : 5.567068e-02
+1.000000e-03 Word.block->[_your] : 3.021992e-02
+1.000000e-03 Word.blocks->[_and] : 2.023680e-02
+1.000000e-03 Word.blocks->[_at] : 9.859372e-02
+1.000000e-03 Word.blocks->[_blocks] : 2.580767e-01
+1.000000e-03 Word.blocks->[_em] : 2.226355e-02
+1.000000e-03 Word.blocks->[_happens] : 6.056817e-02
+1.000000e-03 Word.blocks->[_knock] : 2.229925e-02
+1.000000e-03 Word.blocks->[_look] : 9.833441e-02
+1.000000e-03 Word.blocks->[_oh] : 9.703938e-02
+1.000000e-03 Word.blocks->[_over] : 2.175335e-02
+1.000000e-03 Word.blocks->[_spencer] : 2.228584e-02
+1.000000e-03 Word.blocks->[_uh] : 6.040058e-02
+1.000000e-03 Word.blocks->[_what] : 5.817416e-02
+1.000000e-03 Word.blocks->[_where] : 2.177146e-02
+1.000000e-03 Word.blocks->[_your] : 1.382026e-01
+1.000000e-03 Word.book->[_and] : 1.663781e-02
+1.000000e-03 Word.book->[_around] : 7.692413e-03
+1.000000e-03 Word.book->[_away] : 7.664286e-03
+1.000000e-03 Word.book->[_baby] : 2.090790e-02
+1.000000e-03 Word.book->[_ball] : 6.255197e-02
+1.000000e-03 Word.book->[_book] : 8.909599e-02
+1.000000e-03 Word.book->[_bunny] : 4.809498e-02
+1.000000e-03 Word.book->[_dangerous] : 7.698056e-03
+1.000000e-03 Word.book->[_gone] : 4.800584e-02
+1.000000e-03 Word.book->[_great] : 7.662568e-03
+1.000000e-03 Word.book->[_he] : 6.406003e-03
+1.000000e-03 Word.book->[_huh] : 2.067589e-02
+1.000000e-03 Word.book->[_hurt] : 7.679649e-03
+1.000000e-03 Word.book->[_is] : 1.884952e-02
+1.000000e-03 Word.book->[_joey] : 3.446539e-02
+1.000000e-03 Word.book->[_jonathan] : 7.699878e-03
+1.000000e-03 Word.book->[_lets] : 1.946168e-02
+1.000000e-03 Word.book->[_look] : 1.868616e-02
+1.000000e-03 Word.book->[_mommy] : 7.615804e-03
+1.000000e-03 Word.book->[_ohhh] : 7.572884e-03
+1.000000e-03 Word.book->[_ok] : 7.684959e-03
+1.000000e-03 Word.book->[_papa] : 7.699878e-03
+1.000000e-03 Word.book->[_read] : 7.699878e-03
+1.000000e-03 Word.book->[_soft] : 7.699878e-03
+1.000000e-03 Word.book->[_that] : 3.007252e-02
+1.000000e-03 Word.book->[_thats] : 1.652212e-02
+1.000000e-03 Word.book->[_the] : 3.766033e-02
+1.000000e-03 Word.book->[_there] : 2.105260e-02
+1.000000e-03 Word.book->[_theres] : 1.019490e-01
+1.000000e-03 Word.book->[_turn] : 7.596127e-03
+1.000000e-03 Word.book->[_uh] : 2.045417e-02
+1.000000e-03 Word.book->[_wanna] : 8.129483e-03
+1.000000e-03 Word.book->[_wheres] : 9.957879e-02
+1.000000e-03 Word.book->[_yeah] : 2.016631e-02
+1.000000e-03 Word.book->[_your] : 1.409093e-01
+1.000000e-03 Word.box->[_again] : 4.378032e-03
+1.000000e-03 Word.box->[_all] : 1.127854e-02
+1.000000e-03 Word.box->[_amazing] : 8.649289e-04
+1.000000e-03 Word.box->[_anything] : 1.978949e-03
+1.000000e-03 Word.box->[_apart] : 7.287422e-04
+1.000000e-03 Word.box->[_away] : 1.171561e-02
+1.000000e-03 Word.box->[_balance] : 1.978949e-03
+1.000000e-03 Word.box->[_balanced] : 7.287422e-04
+1.000000e-03 Word.box->[_bandaid] : 3.261920e-03
+1.000000e-03 Word.box->[_bang] : 1.998932e-03
+1.000000e-03 Word.box->[_boom] : 1.812513e-03
+1.000000e-03 Word.box->[_box] : 9.436122e-02
+1.000000e-03 Word.box->[_boxes] : 1.979056e-03
+1.000000e-03 Word.box->[_brush] : 2.376619e-02
+1.000000e-03 Word.box->[_brushll] : 7.287422e-04
+1.000000e-03 Word.box->[_build] : 4.551870e-03
+1.000000e-03 Word.box->[_can] : 5.601594e-03
+1.000000e-03 Word.box->[_car] : 1.210768e-02
+1.000000e-03 Word.box->[_careful] : 3.806172e-03
+1.000000e-03 Word.box->[_cars] : 1.694026e-03
+1.000000e-03 Word.box->[_clap] : 1.978949e-03
+1.000000e-03 Word.box->[_clear] : 7.287422e-04
+1.000000e-03 Word.box->[_close] : 1.361048e-02
+1.000000e-03 Word.box->[_cymbals] : 7.287422e-04
+1.000000e-03 Word.box->[_dat] : 7.287422e-04
+1.000000e-03 Word.box->[_destroy] : 7.287422e-04
+1.000000e-03 Word.box->[_done] : 3.012485e-03
+1.000000e-03 Word.box->[_drink] : 1.978949e-03
+1.000000e-03 Word.box->[_dropping] : 7.287422e-04
+1.000000e-03 Word.box->[_edge] : 7.287422e-04
+1.000000e-03 Word.box->[_empty] : 7.287422e-04
+1.000000e-03 Word.box->[_ewwww] : 7.287422e-04
+1.000000e-03 Word.box->[_eyes] : 1.168230e-03
+1.000000e-03 Word.box->[_finger] : 1.978949e-03
+1.000000e-03 Word.box->[_fingers] : 1.978949e-03
+1.000000e-03 Word.box->[_fit] : 5.808280e-03
+1.000000e-03 Word.box->[_fixing] : 7.287422e-04
+1.000000e-03 Word.box->[_go] : 3.138433e-02
+1.000000e-03 Word.box->[_gone] : 9.539288e-03
+1.000000e-03 Word.box->[_good] : 6.084542e-03
+1.000000e-03 Word.box->[_great] : 7.437037e-04
+1.000000e-03 Word.box->[_ha] : 1.452810e-02
+1.000000e-03 Word.box->[_haaa] : 1.978949e-03
+1.000000e-03 Word.box->[_hair] : 1.894895e-03
+1.000000e-03 Word.box->[_hat] : 4.551870e-03
+1.000000e-03 Word.box->[_he] : 4.278126e-03
+1.000000e-03 Word.box->[_head] : 7.138021e-03
+1.000000e-03 Word.box->[_her] : 6.746092e-03
+1.000000e-03 Word.box->[_here] : 2.889080e-02
+1.000000e-03 Word.box->[_him] : 3.912176e-03
+1.000000e-03 Word.box->[_honey] : 2.563160e-03
+1.000000e-03 Word.box->[_house] : 7.159923e-04
+1.000000e-03 Word.box->[_huh] : 1.574385e-02
+1.000000e-03 Word.box->[_in] : 3.873350e-02
+1.000000e-03 Word.box->[_inside] : 1.561659e-02
+1.000000e-03 Word.box->[_into] : 7.287422e-04
+1.000000e-03 Word.box->[_is] : 3.233108e-02
+1.000000e-03 Word.box->[_it] : 6.516494e-02
+1.000000e-03 Word.box->[_jeans] : 1.978949e-03
+1.000000e-03 Word.box->[_jonathan] : 7.287422e-04
+1.000000e-03 Word.box->[_jono] : 2.848639e-03
+1.000000e-03 Word.box->[_lid] : 8.148472e-03
+1.000000e-03 Word.box->[_look] : 6.270477e-03
+1.000000e-03 Word.box->[_lookit] : 5.400709e-03
+1.000000e-03 Word.box->[_man] : 3.261920e-03
+1.000000e-03 Word.box->[_me] : 4.068195e-03
+1.000000e-03 Word.box->[_messed] : 7.287422e-04
+1.000000e-03 Word.box->[_metal] : 3.261920e-03
+1.000000e-03 Word.box->[_mommy] : 1.385198e-02
+1.000000e-03 Word.box->[_mommys] : 3.282856e-03
+1.000000e-03 Word.box->[_my] : 4.988438e-03
+1.000000e-03 Word.box->[_nice] : 3.080797e-03
+1.000000e-03 Word.box->[_no] : 3.557297e-03
+1.000000e-03 Word.box->[_noisy] : 1.978949e-03
+1.000000e-03 Word.box->[_nothing] : 3.261920e-03
+1.000000e-03 Word.box->[_now] : 5.919307e-03
+1.000000e-03 Word.box->[_oh] : 1.633130e-02
+1.000000e-03 Word.box->[_ok] : 3.175043e-03
+1.000000e-03 Word.box->[_okay] : 7.588859e-03
+1.000000e-03 Word.box->[_oop] : 7.287422e-04
+1.000000e-03 Word.box->[_open] : 2.138634e-02
+1.000000e-03 Word.box->[_opened] : 7.287422e-04
+1.000000e-03 Word.box->[_opening] : 7.287422e-04
+1.000000e-03 Word.box->[_part] : 1.318942e-03
+1.000000e-03 Word.box->[_pens] : 7.287422e-04
+1.000000e-03 Word.box->[_persons] : 7.287422e-04
+1.000000e-03 Word.box->[_pick] : 3.069154e-03
+1.000000e-03 Word.box->[_picture] : 4.422223e-03
+1.000000e-03 Word.box->[_place] : 7.163482e-04
+1.000000e-03 Word.box->[_pretty] : 2.531902e-03
+1.000000e-03 Word.box->[_put] : 3.594039e-02
+1.000000e-03 Word.box->[_quite] : 1.759939e-03
+1.000000e-03 Word.box->[_rest] : 7.287422e-04
+1.000000e-03 Word.box->[_scrub] : 7.253086e-04
+1.000000e-03 Word.box->[_sharp] : 7.287422e-04
+1.000000e-03 Word.box->[_shut] : 1.700517e-03
+1.000000e-03 Word.box->[_something] : 4.938875e-03
+1.000000e-03 Word.box->[_stand] : 1.978949e-03
+1.000000e-03 Word.box->[_taking] : 1.978949e-03
+1.000000e-03 Word.box->[_teeth] : 3.206051e-03
+1.000000e-03 Word.box->[_terrific] : 1.978949e-03
+1.000000e-03 Word.box->[_thank] : 8.298087e-03
+1.000000e-03 Word.box->[_that] : 3.011766e-02
+1.000000e-03 Word.box->[_there] : 5.838686e-02
+1.000000e-03 Word.box->[_this] : 1.765148e-02
+1.000000e-03 Word.box->[_three] : 3.261920e-03
+1.000000e-03 Word.box->[_tissue] : 1.978949e-03
+1.000000e-03 Word.box->[_too] : 3.856839e-03
+1.000000e-03 Word.box->[_top] : 2.822501e-03
+1.000000e-03 Word.box->[_truck] : 1.032046e-02
+1.000000e-03 Word.box->[_trucks] : 5.705138e-03
+1.000000e-03 Word.box->[_try] : 1.578334e-03
+1.000000e-03 Word.box->[_tunnel] : 3.261920e-03
+1.000000e-03 Word.box->[_two] : 6.094347e-03
+1.000000e-03 Word.box->[_up] : 1.419854e-02
+1.000000e-03 Word.box->[_watch] : 3.164481e-03
+1.000000e-03 Word.box->[_we] : 6.634285e-03
+1.000000e-03 Word.box->[_went] : 6.355137e-03
+1.000000e-03 Word.box->[_whats] : 6.924298e-03
+1.000000e-03 Word.box->[_whered] : 5.386433e-03
+1.000000e-03 Word.box->[_whos] : 4.561777e-03
+1.000000e-03 Word.box->[_why] : 2.359875e-03
+1.000000e-03 Word.box->[_will] : 1.255707e-03
+1.000000e-03 Word.box->[_wow] : 4.403532e-03
+1.000000e-03 Word.box->[_yeah] : 1.945879e-02
+1.000000e-03 Word.box->[_yes] : 7.879934e-03
+1.000000e-03 Word.box->[_you] : 4.204973e-02
+1.000000e-03 Word.box->[_yours] : 1.935593e-03
+1.000000e-03 Word.box->[_youve] : 2.964769e-03
+1.000000e-03 Word.brush->[_actually] : 8.076848e-04
+1.000000e-03 Word.brush->[_airplane] : 6.471908e-03
+1.000000e-03 Word.brush->[_alex] : 8.076848e-04
+1.000000e-03 Word.brush->[_alexis] : 1.967406e-03
+1.000000e-03 Word.brush->[_also] : 1.036135e-03
+1.000000e-03 Word.brush->[_amazing] : 8.465003e-04
+1.000000e-03 Word.brush->[_bang] : 2.278027e-02
+1.000000e-03 Word.brush->[_be] : 5.235718e-04
+1.000000e-03 Word.brush->[_becomes] : 1.036135e-03
+1.000000e-03 Word.brush->[_being] : 2.657792e-03
+1.000000e-03 Word.brush->[_benny] : 1.014893e-02
+1.000000e-03 Word.brush->[_best] : 2.581543e-03
+1.000000e-03 Word.brush->[_better] : 4.579935e-03
+1.000000e-03 Word.brush->[_blue] : 9.918094e-03
+1.000000e-03 Word.brush->[_booboo] : 1.036135e-03
+1.000000e-03 Word.brush->[_box] : 1.560274e-02
+1.000000e-03 Word.brush->[_bristles] : 6.471908e-03
+1.000000e-03 Word.brush->[_brush] : 2.110621e-01
+1.000000e-03 Word.brush->[_brushes] : 8.309575e-03
+1.000000e-03 Word.brush->[_brushing] : 4.637840e-03
+1.000000e-03 Word.brush->[_clean] : 2.813695e-03
+1.000000e-03 Word.brush->[_cleaning] : 1.036135e-03
+1.000000e-03 Word.brush->[_comb] : 2.813695e-03
+1.000000e-03 Word.brush->[_cook] : 2.813695e-03
+1.000000e-03 Word.brush->[_cooking] : 1.036135e-03
+1.000000e-03 Word.brush->[_dishes] : 2.813695e-03
+1.000000e-03 Word.brush->[_finger] : 1.036135e-03
+1.000000e-03 Word.brush->[_floor] : 4.637840e-03
+1.000000e-03 Word.brush->[_furniture] : 1.036135e-03
+1.000000e-03 Word.brush->[_gentle] : 4.637840e-03
+1.000000e-03 Word.brush->[_good] : 1.294328e-02
+1.000000e-03 Word.brush->[_hair] : 6.344670e-02
+1.000000e-03 Word.brush->[_ham] : 2.799973e-03
+1.000000e-03 Word.brush->[_hanging] : 1.036135e-03
+1.000000e-03 Word.brush->[_here] : 7.235446e-03
+1.000000e-03 Word.brush->[_hit] : 6.277625e-03
+1.000000e-03 Word.brush->[_hm] : 1.000733e-02
+1.000000e-03 Word.brush->[_hook] : 8.309575e-03
+1.000000e-03 Word.brush->[_huh] : 3.722833e-02
+1.000000e-03 Word.brush->[_is] : 3.221452e-02
+1.000000e-03 Word.brush->[_isnt] : 7.327986e-03
+1.000000e-03 Word.brush->[_it] : 3.911377e-02
+1.000000e-03 Word.brush->[_jono] : 2.652218e-03
+1.000000e-03 Word.brush->[_like] : 7.288932e-04
+1.000000e-03 Word.brush->[_look] : 1.996888e-02
+1.000000e-03 Word.brush->[_maybe] : 1.598928e-03
+1.000000e-03 Word.brush->[_mhmm] : 2.787836e-03
+1.000000e-03 Word.brush->[_mhmmm] : 1.023718e-03
+1.000000e-03 Word.brush->[_mommys] : 3.832070e-03
+1.000000e-03 Word.brush->[_n] : 1.036135e-03
+1.000000e-03 Word.brush->[_neat] : 2.658898e-03
+1.000000e-03 Word.brush->[_nice] : 1.671584e-02
+1.000000e-03 Word.brush->[_nicely] : 1.036135e-03
+1.000000e-03 Word.brush->[_noises] : 1.036135e-03
+1.000000e-03 Word.brush->[_nose] : 9.932872e-03
+1.000000e-03 Word.brush->[_off] : 7.650187e-03
+1.000000e-03 Word.brush->[_onto] : 2.623097e-03
+1.000000e-03 Word.brush->[_ooo] : 2.063958e-03
+1.000000e-03 Word.brush->[_oooh] : 1.954645e-03
+1.000000e-03 Word.brush->[_our] : 4.251762e-03
+1.000000e-03 Word.brush->[_plastic] : 2.813695e-03
+1.000000e-03 Word.brush->[_polyethylene] : 1.036135e-03
+1.000000e-03 Word.brush->[_potatoes] : 1.036135e-03
+1.000000e-03 Word.brush->[_pretty] : 1.304541e-02
+1.000000e-03 Word.brush->[_probably] : 1.036135e-03
+1.000000e-03 Word.brush->[_real] : 5.861648e-03
+1.000000e-03 Word.brush->[_scrapping] : 1.036135e-03
+1.000000e-03 Word.brush->[_scratch] : 1.036135e-03
+1.000000e-03 Word.brush->[_scrub] : 1.383533e-02
+1.000000e-03 Word.brush->[_scrubbing] : 1.036135e-03
+1.000000e-03 Word.brush->[_see] : 4.233423e-03
+1.000000e-03 Word.brush->[_shoes] : 2.813695e-03
+1.000000e-03 Word.brush->[_sink] : 2.813695e-03
+1.000000e-03 Word.brush->[_sort] : 4.637840e-03
+1.000000e-03 Word.brush->[_sound] : 3.216060e-03
+1.000000e-03 Word.brush->[_stab] : 1.036135e-03
+1.000000e-03 Word.brush->[_stiff] : 2.813695e-03
+1.000000e-03 Word.brush->[_that] : 5.189953e-02
+1.000000e-03 Word.brush->[_thats] : 1.557269e-02
+1.000000e-03 Word.brush->[_things] : 3.748177e-03
+1.000000e-03 Word.brush->[_this] : 3.252741e-02
+1.000000e-03 Word.brush->[_though] : 2.526516e-03
+1.000000e-03 Word.brush->[_too] : 6.060357e-03
+1.000000e-03 Word.brush->[_toy] : 6.069099e-03
+1.000000e-03 Word.brush->[_tummy] : 2.813695e-03
+1.000000e-03 Word.brush->[_usually] : 8.076848e-04
+1.000000e-03 Word.brush->[_wait] : 1.036135e-03
+1.000000e-03 Word.brush->[_wanna] : 2.998601e-03
+1.000000e-03 Word.brush->[_way] : 3.850845e-03
+1.000000e-03 Word.brush->[_we] : 1.162161e-02
+1.000000e-03 Word.brush->[_when] : 3.451630e-03
+1.000000e-03 Word.brush->[_whos] : 4.610634e-03
+1.000000e-03 Word.brush->[_windy] : 2.813695e-03
+1.000000e-03 Word.brush->[_with] : 9.405914e-03
+1.000000e-03 Word.brush->[_wonder] : 2.813695e-03
+1.000000e-03 Word.brush->[_work] : 8.076848e-04
+1.000000e-03 Word.brush->[_works] : 2.658898e-03
+1.000000e-03 Word.brush->[_wow] : 2.305466e-03
+1.000000e-03 Word.brush->[_yeah] : 2.683601e-02
+1.000000e-03 Word.brush->[_yes] : 7.511606e-03
+1.000000e-03 Word.brush->[_yick] : 2.813695e-03
+1.000000e-03 Word.brush->[_yicky] : 1.036135e-03
+1.000000e-03 Word.brush->[_you] : 2.291663e-02
+1.000000e-03 Word.brush->[_your] : 5.184687e-02
+1.000000e-03 Word.brush->[_yucky] : 1.036135e-03
+1.000000e-03 Word.brush->[_yum] : 2.813695e-03
+1.000000e-03 Word.bus->[_and] : 7.490317e-02
+1.000000e-03 Word.bus->[_blankey] : 7.904490e-02
+1.000000e-03 Word.bus->[_brush] : 2.912638e-02
+1.000000e-03 Word.bus->[_brushing] : 2.912638e-02
+1.000000e-03 Word.bus->[_bus] : 7.909466e-02
+1.000000e-03 Word.bus->[_erika] : 2.843981e-02
+1.000000e-03 Word.bus->[_for] : 2.742550e-02
+1.000000e-03 Word.bus->[_great] : 2.908831e-02
+1.000000e-03 Word.bus->[_hair] : 2.910219e-02
+1.000000e-03 Word.bus->[_have] : 2.632070e-02
+1.000000e-03 Word.bus->[_huh] : 1.298610e-01
+1.000000e-03 Word.bus->[_is] : 7.252105e-02
+1.000000e-03 Word.bus->[_its] : 2.433683e-02
+1.000000e-03 Word.bus->[_little] : 2.787878e-02
+1.000000e-03 Word.bus->[_not] : 2.800912e-02
+1.000000e-03 Word.bus->[_people] : 2.903403e-02
+1.000000e-03 Word.bus->[_theres] : 1.294316e-01
+1.000000e-03 Word.bus->[_your] : 1.272556e-01
+1.000000e-03 Word.car->[_aaaaah] : 4.606060e-04
+1.000000e-03 Word.car->[_again] : 2.020452e-03
+1.000000e-03 Word.car->[_ahhh] : 1.250807e-03
+1.000000e-03 Word.car->[_another] : 5.689336e-04
+1.000000e-03 Word.car->[_anybody] : 2.877037e-03
+1.000000e-03 Word.car->[_anything] : 2.061716e-03
+1.000000e-03 Word.car->[_arm] : 4.606060e-04
+1.000000e-03 Word.car->[_around] : 3.409943e-03
+1.000000e-03 Word.car->[_axle] : 4.606060e-04
+1.000000e-03 Word.car->[_back] : 3.450753e-03
+1.000000e-03 Word.car->[_beep] : 8.273182e-03
+1.000000e-03 Word.car->[_besides] : 4.606060e-04
+1.000000e-03 Word.car->[_blinkers] : 4.606060e-04
+1.000000e-03 Word.car->[_both] : 3.735213e-03
+1.000000e-03 Word.car->[_boxes] : 1.250739e-03
+1.000000e-03 Word.car->[_boy] : 1.217495e-02
+1.000000e-03 Word.car->[_brown] : 4.606060e-04
+1.000000e-03 Word.car->[_brrrrr] : 4.606060e-04
+1.000000e-03 Word.car->[_by] : 8.046192e-04
+1.000000e-03 Word.car->[_bye] : 2.835240e-03
+1.000000e-03 Word.car->[_byebye] : 9.104803e-03
+1.000000e-03 Word.car->[_calls] : 4.606060e-04
+1.000000e-03 Word.car->[_came] : 1.725384e-03
+1.000000e-03 Word.car->[_car] : 1.329059e-01
+1.000000e-03 Word.car->[_care] : 1.154038e-03
+1.000000e-03 Word.car->[_cars] : 4.919307e-03
+1.000000e-03 Word.car->[_chris] : 3.485197e-03
+1.000000e-03 Word.car->[_chriss] : 4.606060e-04
+1.000000e-03 Word.car->[_close] : 1.105568e-02
+1.000000e-03 Word.car->[_closes] : 4.606060e-04
+1.000000e-03 Word.car->[_comes] : 8.324545e-03
+1.000000e-03 Word.car->[_crash] : 5.622005e-04
+1.000000e-03 Word.car->[_crashed] : 1.250807e-03
+1.000000e-03 Word.car->[_dad] : 1.250807e-03
+1.000000e-03 Word.car->[_daddy] : 4.606060e-04
+1.000000e-03 Word.car->[_distracted] : 4.606060e-04
+1.000000e-03 Word.car->[_does] : 7.296382e-03
+1.000000e-03 Word.car->[_door] : 5.949252e-02
+1.000000e-03 Word.car->[_doors] : 1.596360e-02
+1.000000e-03 Word.car->[_down] : 6.622616e-03
+1.000000e-03 Word.car->[_drive] : 4.505739e-03
+1.000000e-03 Word.car->[_driving] : 4.606060e-04
+1.000000e-03 Word.car->[_dual] : 4.606060e-04
+1.000000e-03 Word.car->[_eat] : 3.582445e-03
+1.000000e-03 Word.car->[_em] : 7.872128e-04
+1.000000e-03 Word.car->[_england] : 1.250807e-03
+1.000000e-03 Word.car->[_english] : 4.606060e-04
+1.000000e-03 Word.car->[_everything] : 1.502966e-03
+1.000000e-03 Word.car->[_fall] : 2.061716e-03
+1.000000e-03 Word.car->[_fancy] : 4.606060e-04
+1.000000e-03 Word.car->[_fast] : 6.138987e-03
+1.000000e-03 Word.car->[_ferrari] : 4.606060e-04
+1.000000e-03 Word.car->[_finger] : 2.877037e-03
+1.000000e-03 Word.car->[_forth] : 2.061716e-03
+1.000000e-03 Word.car->[_fun] : 9.440081e-04
+1.000000e-03 Word.car->[_go] : 2.208353e-02
+1.000000e-03 Word.car->[_goes] : 7.004248e-03
+1.000000e-03 Word.car->[_gon] : 4.606060e-04
+1.000000e-03 Word.car->[_good] : 1.321188e-02
+1.000000e-03 Word.car->[_gotcha] : 2.877037e-03
+1.000000e-03 Word.car->[_ha] : 9.753978e-03
+1.000000e-03 Word.car->[_hard] : 2.870695e-03
+1.000000e-03 Word.car->[_headlights] : 1.250807e-03
+1.000000e-03 Word.car->[_hear] : 9.165668e-04
+1.000000e-03 Word.car->[_heavy] : 1.250807e-03
+1.000000e-03 Word.car->[_here] : 1.286235e-02
+1.000000e-03 Word.car->[_hey] : 2.387624e-03
+1.000000e-03 Word.car->[_hmm] : 1.217145e-03
+1.000000e-03 Word.car->[_hood] : 4.606060e-04
+1.000000e-03 Word.car->[_horn] : 4.606060e-04
+1.000000e-03 Word.car->[_horse] : 1.250807e-03
+1.000000e-03 Word.car->[_huh] : 2.054431e-02
+1.000000e-03 Word.car->[_in] : 1.341804e-07
+1.000000e-03 Word.car->[_instead] : 4.606060e-04
+1.000000e-03 Word.car->[_is] : 5.611587e-03
+1.000000e-03 Word.car->[_it] : 3.000505e-02
+1.000000e-03 Word.car->[_jaguar] : 2.061716e-03
+1.000000e-03 Word.car->[_jonathan] : 1.250807e-03
+1.000000e-03 Word.car->[_lemme] : 4.606060e-04
+1.000000e-03 Word.car->[_likes] : 9.169339e-04
+1.000000e-03 Word.car->[_look] : 2.245134e-02
+1.000000e-03 Word.car->[_looks] : 2.271872e-03
+1.000000e-03 Word.car->[_many] : 4.606060e-04
+1.000000e-03 Word.car->[_marie] : 1.250807e-03
+1.000000e-03 Word.car->[_matter] : 3.693958e-03
+1.000000e-03 Word.car->[_megan] : 3.282306e-03
+1.000000e-03 Word.car->[_mhmmm] : 1.241210e-03
+1.000000e-03 Word.car->[_mommys] : 1.391350e-03
+1.000000e-03 Word.car->[_mouth] : 8.406126e-03
+1.000000e-03 Word.car->[_move] : 2.785408e-03
+1.000000e-03 Word.car->[_moving] : 1.250807e-03
+1.000000e-03 Word.car->[_mufflers] : 1.250807e-03
+1.000000e-03 Word.car->[_nah] : 4.850385e-04
+1.000000e-03 Word.car->[_no] : 3.026337e-03
+1.000000e-03 Word.car->[_nobody] : 4.606060e-04
+1.000000e-03 Word.car->[_noisy] : 4.606060e-04
+1.000000e-03 Word.car->[_oh] : 4.505263e-03
+1.000000e-03 Word.car->[_ohh] : 9.347611e-04
+1.000000e-03 Word.car->[_ohhhh] : 4.606060e-04
+1.000000e-03 Word.car->[_okay] : 1.051253e-02
+1.000000e-03 Word.car->[_on] : 2.803559e-03
+1.000000e-03 Word.car->[_one] : 9.600569e-03
+1.000000e-03 Word.car->[_only] : 4.606060e-04
+1.000000e-03 Word.car->[_ooh] : 5.289327e-04
+1.000000e-03 Word.car->[_oooh] : 1.320807e-03
+1.000000e-03 Word.car->[_oooo] : 2.587674e-03
+1.000000e-03 Word.car->[_open] : 4.710194e-02
+1.000000e-03 Word.car->[_opens] : 9.383959e-03
+1.000000e-03 Word.car->[_other] : 1.204973e-03
+1.000000e-03 Word.car->[_piggies] : 1.250807e-03
+1.000000e-03 Word.car->[_please] : 1.975193e-03
+1.000000e-03 Word.car->[_pretty] : 6.514155e-03
+1.000000e-03 Word.car->[_pull] : 1.767349e-03
+1.000000e-03 Word.car->[_ready] : 8.881135e-04
+1.000000e-03 Word.car->[_red] : 2.740335e-02
+1.000000e-03 Word.car->[_right] : 4.431741e-03
+1.000000e-03 Word.car->[_road] : 4.606060e-04
+1.000000e-03 Word.car->[_rolling] : 4.606060e-04
+1.000000e-03 Word.car->[_round] : 2.877037e-03
+1.000000e-03 Word.car->[_seat] : 2.061716e-03
+1.000000e-03 Word.car->[_see] : 1.410487e-02
+1.000000e-03 Word.car->[_shawns] : 3.693958e-03
+1.000000e-03 Word.car->[_she] : 1.487436e-03
+1.000000e-03 Word.car->[_shift] : 4.606060e-04
+1.000000e-03 Word.car->[_shiny] : 4.606060e-04
+1.000000e-03 Word.car->[_shut] : 6.905480e-03
+1.000000e-03 Word.car->[_shuts] : 4.606060e-04
+1.000000e-03 Word.car->[_side] : 5.662324e-03
+1.000000e-03 Word.car->[_sit] : 1.600525e-03
+1.000000e-03 Word.car->[_sits] : 1.250807e-03
+1.000000e-03 Word.car->[_small] : 4.606060e-04
+1.000000e-03 Word.car->[_smart] : 1.250807e-03
+1.000000e-03 Word.car->[_sports] : 2.061716e-03
+1.000000e-03 Word.car->[_steering] : 2.061716e-03
+1.000000e-03 Word.car->[_stick] : 8.454578e-04
+1.000000e-03 Word.car->[_taste] : 8.752853e-04
+1.000000e-03 Word.car->[_that] : 4.107270e-02
+1.000000e-03 Word.car->[_them] : 1.786108e-03
+1.000000e-03 Word.car->[_there] : 2.320312e-02
+1.000000e-03 Word.car->[_think] : 4.706210e-03
+1.000000e-03 Word.car->[_this] : 2.141536e-02
+1.000000e-03 Word.car->[_tire] : 4.606060e-04
+1.000000e-03 Word.car->[_too] : 7.785317e-03
+1.000000e-03 Word.car->[_top] : 2.770262e-03
+1.000000e-03 Word.car->[_truck] : 9.071629e-03
+1.000000e-03 Word.car->[_trunk] : 2.061716e-03
+1.000000e-03 Word.car->[_try] : 1.111223e-03
+1.000000e-03 Word.car->[_turn] : 6.333452e-03
+1.000000e-03 Word.car->[_two] : 4.861581e-03
+1.000000e-03 Word.car->[_uhhuh] : 9.347610e-04
+1.000000e-03 Word.car->[_uhoh] : 2.196036e-03
+1.000000e-03 Word.car->[_up] : 3.459659e-03
+1.000000e-03 Word.car->[_upside] : 4.573014e-04
+1.000000e-03 Word.car->[_van] : 4.606060e-04
+1.000000e-03 Word.car->[_vermont] : 4.606060e-04
+1.000000e-03 Word.car->[_vraaa] : 4.606060e-04
+1.000000e-03 Word.car->[_vroom] : 2.905486e-02
+1.000000e-03 Word.car->[_vroooom] : 1.271085e-03
+1.000000e-03 Word.car->[_vrooooom] : 4.606060e-04
+1.000000e-03 Word.car->[_vroooooooom] : 4.606060e-04
+1.000000e-03 Word.car->[_wanna] : 4.940966e-04
+1.000000e-03 Word.car->[_way] : 3.322046e-03
+1.000000e-03 Word.car->[_weeeee] : 1.250807e-03
+1.000000e-03 Word.car->[_well] : 1.124997e-03
+1.000000e-03 Word.car->[_wheel] : 8.602588e-03
+1.000000e-03 Word.car->[_wheels] : 1.815227e-02
+1.000000e-03 Word.car->[_whoom] : 4.606060e-04
+1.000000e-03 Word.car->[_whoooo] : 4.606060e-04
+1.000000e-03 Word.car->[_whoops] : 4.606060e-04
+1.000000e-03 Word.car->[_window] : 4.606060e-04
+1.000000e-03 Word.car->[_windshield] : 4.606060e-04
+1.000000e-03 Word.car->[_wipers] : 4.606060e-04
+1.000000e-03 Word.car->[_wouldnt] : 4.606060e-04
+1.000000e-03 Word.car->[_wow] : 5.222914e-03
+1.000000e-03 Word.car->[_wrong] : 2.877037e-03
+1.000000e-03 Word.car->[_xjs] : 4.606060e-04
+1.000000e-03 Word.car->[_yeah] : 3.920203e-02
+1.000000e-03 Word.car->[_yes] : 4.350278e-03
+1.000000e-03 Word.car->[_yet] : 4.482881e-04
+1.000000e-03 Word.car->[_you] : 5.035512e-03
+1.000000e-03 Word.car->[_yourself] : 1.250807e-03
+1.000000e-03 Word.car->[_yuck] : 1.120962e-03
+1.000000e-03 Word.car->[_zekes] : 1.250807e-03
+1.000000e-03 Word.car->[_zoom] : 1.198355e-02
+1.000000e-03 Word.cheese->[_back] : 1.003562e-02
+1.000000e-03 Word.cheese->[_cheese] : 1.060804e-01
+1.000000e-03 Word.cheese->[_did] : 4.181020e-03
+1.000000e-03 Word.cheese->[_didnt] : 1.311927e-02
+1.000000e-03 Word.cheese->[_em] : 3.595179e-02
+1.000000e-03 Word.cheese->[_everythings] : 1.324869e-02
+1.000000e-03 Word.cheese->[_girl] : 3.596493e-02
+1.000000e-03 Word.cheese->[_good] : 3.181115e-02
+1.000000e-03 Word.cheese->[_ha] : 5.918469e-02
+1.000000e-03 Word.cheese->[_huh] : 5.915798e-02
+1.000000e-03 Word.cheese->[_in] : 1.200342e-02
+1.000000e-03 Word.cheese->[_is] : 3.409500e-02
+1.000000e-03 Word.cheese->[_it] : 9.427293e-02
+1.000000e-03 Word.cheese->[_leg] : 3.597306e-02
+1.000000e-03 Word.cheese->[_mmmm] : 1.322211e-02
+1.000000e-03 Word.cheese->[_oh] : 4.437285e-02
+1.000000e-03 Word.cheese->[_other] : 3.378380e-02
+1.000000e-03 Word.cheese->[_out] : 3.438863e-02
+1.000000e-03 Word.cheese->[_pepperoni] : 1.324869e-02
+1.000000e-03 Word.cheese->[_piece] : 3.597771e-02
+1.000000e-03 Word.cheese->[_push] : 3.550460e-02
+1.000000e-03 Word.cheese->[_shaking] : 1.324869e-02
+1.000000e-03 Word.cheese->[_there] : 5.666875e-02
+1.000000e-03 Word.cheese->[_uh] : 1.032473e-02
+1.000000e-03 Word.cheese->[_under] : 3.587865e-02
+1.000000e-03 Word.cheese->[_wheres] : 4.295276e-02
+1.000000e-03 Word.cheese->[_yeah] : 7.828715e-02
+1.000000e-03 Word.cheese->[_youre] : 7.060905e-03
+1.000000e-03 Word.dog->[_a] : 5.986930e-03
+1.000000e-03 Word.dog->[_aarf] : 7.693378e-03
+1.000000e-03 Word.dog->[_adore] : 4.551766e-04
+1.000000e-03 Word.dog->[_ah] : 7.418064e-03
+1.000000e-03 Word.dog->[_are] : 8.023904e-03
+1.000000e-03 Word.dog->[_aye] : 6.075576e-03
+1.000000e-03 Word.dog->[_ba] : 4.569684e-04
+1.000000e-03 Word.dog->[_baby] : 1.166289e-03
+1.000000e-03 Word.dog->[_been] : 4.551766e-04
+1.000000e-03 Word.dog->[_best] : 1.031933e-03
+1.000000e-03 Word.dog->[_bigger] : 4.551766e-04
+1.000000e-03 Word.dog->[_boo] : 1.390435e-02
+1.000000e-03 Word.dog->[_boujeval] : 1.236063e-03
+1.000000e-03 Word.dog->[_boy] : 8.845940e-03
+1.000000e-03 Word.dog->[_buppie] : 4.551766e-04
+1.000000e-03 Word.dog->[_buppies] : 2.037414e-03
+1.000000e-03 Word.dog->[_call] : 4.551766e-04
+1.000000e-03 Word.dog->[_cats] : 1.236063e-03
+1.000000e-03 Word.dog->[_comes] : 6.862552e-03
+1.000000e-03 Word.dog->[_crib] : 4.551766e-04
+1.000000e-03 Word.dog->[_cute] : 4.551914e-04
+1.000000e-03 Word.dog->[_dance] : 1.236063e-03
+1.000000e-03 Word.dog->[_dee] : 4.462185e-03
+1.000000e-03 Word.dog->[_does] : 6.873216e-03
+1.000000e-03 Word.dog->[_dog] : 4.610739e-02
+1.000000e-03 Word.dog->[_doggie] : 4.643049e-02
+1.000000e-03 Word.dog->[_doggies] : 3.650416e-03
+1.000000e-03 Word.dog->[_doggy] : 6.993143e-02
+1.000000e-03 Word.dog->[_doggys] : 9.794880e-03
+1.000000e-03 Word.dog->[_dogs] : 4.877416e-03
+1.000000e-03 Word.dog->[_ear] : 2.037414e-03
+1.000000e-03 Word.dog->[_ears] : 1.107544e-02
+1.000000e-03 Word.dog->[_eat] : 5.720519e-03
+1.000000e-03 Word.dog->[_extra] : 4.551766e-04
+1.000000e-03 Word.dog->[_eye] : 2.834601e-03
+1.000000e-03 Word.dog->[_eyes] : 6.053178e-03
+1.000000e-03 Word.dog->[_feet] : 2.037414e-03
+1.000000e-03 Word.dog->[_figment] : 2.037414e-03
+1.000000e-03 Word.dog->[_funny] : 9.760516e-04
+1.000000e-03 Word.dog->[_get] : 5.550934e-03
+1.000000e-03 Word.dog->[_go] : 2.419050e-03
+1.000000e-03 Word.dog->[_goes] : 1.967767e-03
+1.000000e-03 Word.dog->[_going] : 4.844075e-03
+1.000000e-03 Word.dog->[_gonna] : 6.079600e-03
+1.000000e-03 Word.dog->[_good] : 5.094729e-03
+1.000000e-03 Word.dog->[_grab] : 1.228807e-03
+1.000000e-03 Word.dog->[_ha] : 2.917093e-02
+1.000000e-03 Word.dog->[_ham] : 1.853407e-03
+1.000000e-03 Word.dog->[_happy] : 5.266890e-03
+1.000000e-03 Word.dog->[_hard] : 2.037414e-03
+1.000000e-03 Word.dog->[_harder] : 4.551766e-04
+1.000000e-03 Word.dog->[_he] : 1.548992e-02
+1.000000e-03 Word.dog->[_hello] : 1.982979e-03
+1.000000e-03 Word.dog->[_here] : 4.961872e-03
+1.000000e-03 Word.dog->[_hi] : 7.634392e-03
+1.000000e-03 Word.dog->[_him] : 6.178301e-03
+1.000000e-03 Word.dog->[_his] : 1.179790e-02
+1.000000e-03 Word.dog->[_hmm] : 1.203918e-03
+1.000000e-03 Word.dog->[_honey] : 1.132979e-03
+1.000000e-03 Word.dog->[_hug] : 1.306676e-03
+1.000000e-03 Word.dog->[_huh] : 1.404467e-02
+1.000000e-03 Word.dog->[_husband] : 4.551766e-04
+1.000000e-03 Word.dog->[_im] : 6.919977e-03
+1.000000e-03 Word.dog->[_is] : 1.269566e-02
+1.000000e-03 Word.dog->[_it] : 7.645548e-03
+1.000000e-03 Word.dog->[_kissing] : 4.551766e-04
+1.000000e-03 Word.dog->[_lah] : 2.843124e-03
+1.000000e-03 Word.dog->[_listen] : 4.551766e-04
+1.000000e-03 Word.dog->[_lot] : 4.551766e-04
+1.000000e-03 Word.dog->[_loves] : 4.551766e-04
+1.000000e-03 Word.dog->[_makes] : 2.021474e-03
+1.000000e-03 Word.dog->[_megan] : 1.937589e-03
+1.000000e-03 Word.dog->[_minute] : 4.551766e-04
+1.000000e-03 Word.dog->[_misty] : 1.236063e-03
+1.000000e-03 Word.dog->[_misunderstand] : 4.551766e-04
+1.000000e-03 Word.dog->[_moo] : 4.458450e-03
+1.000000e-03 Word.dog->[_my] : 3.329803e-03
+1.000000e-03 Word.dog->[_neighbors] : 4.551766e-04
+1.000000e-03 Word.dog->[_nice] : 1.723312e-02
+1.000000e-03 Word.dog->[_nose] : 1.465367e-02
+1.000000e-03 Word.dog->[_oh] : 8.009282e-03
+1.000000e-03 Word.dog->[_ol] : 4.551766e-04
+1.000000e-03 Word.dog->[_one] : 5.338318e-03
+1.000000e-03 Word.dog->[_over] : 2.308697e-03
+1.000000e-03 Word.dog->[_paws] : 1.236063e-03
+1.000000e-03 Word.dog->[_peekaboo] : 6.884422e-03
+1.000000e-03 Word.dog->[_pig] : 6.498592e-03
+1.000000e-03 Word.dog->[_piggy] : 2.322865e-03
+1.000000e-03 Word.dog->[_pigs] : 1.170138e-03
+1.000000e-03 Word.dog->[_po] : 4.551766e-04
+1.000000e-03 Word.dog->[_point] : 4.551766e-04
+1.000000e-03 Word.dog->[_poo] : 1.658389e-02
+1.000000e-03 Word.dog->[_poop] : 4.551766e-04
+1.000000e-03 Word.dog->[_poor] : 4.551766e-04
+1.000000e-03 Word.dog->[_puppy] : 9.454751e-03
+1.000000e-03 Word.dog->[_puppys] : 4.551766e-04
+1.000000e-03 Word.dog->[_ready] : 2.037414e-03
+1.000000e-03 Word.dog->[_remember] : 4.551766e-04
+1.000000e-03 Word.dog->[_right] : 9.116229e-03
+1.000000e-03 Word.dog->[_ruff] : 3.437280e-02
+1.000000e-03 Word.dog->[_rug] : 4.551766e-04
+1.000000e-03 Word.dog->[_ruh] : 2.037414e-03
+1.000000e-03 Word.dog->[_sam] : 1.895355e-03
+1.000000e-03 Word.dog->[_samantha] : 4.551766e-04
+1.000000e-03 Word.dog->[_samanthas] : 4.551766e-04
+1.000000e-03 Word.dog->[_sammy] : 1.236063e-03
+1.000000e-03 Word.dog->[_saw] : 2.843124e-03
+1.000000e-03 Word.dog->[_say] : 1.840327e-02
+1.000000e-03 Word.dog->[_scratching] : 4.551766e-04
+1.000000e-03 Word.dog->[_sister] : 4.551766e-04
+1.000000e-03 Word.dog->[_sneeze] : 4.551766e-04
+1.000000e-03 Word.dog->[_soft] : 4.555471e-04
+1.000000e-03 Word.dog->[_song] : 4.551766e-04
+1.000000e-03 Word.dog->[_sound] : 8.442901e-04
+1.000000e-03 Word.dog->[_squeak] : 4.426331e-04
+1.000000e-03 Word.dog->[_such] : 2.189814e-03
+1.000000e-03 Word.dog->[_suppose] : 4.551766e-04
+1.000000e-03 Word.dog->[_tail] : 6.833869e-03
+1.000000e-03 Word.dog->[_tails] : 1.236063e-03
+1.000000e-03 Word.dog->[_teach] : 1.236063e-03
+1.000000e-03 Word.dog->[_that] : 2.437420e-02
+1.000000e-03 Word.dog->[_thats] : 9.629817e-03
+1.000000e-03 Word.dog->[_there] : 5.396396e-03
+1.000000e-03 Word.dog->[_think] : 1.886398e-03
+1.000000e-03 Word.dog->[_this] : 2.263875e-02
+1.000000e-03 Word.dog->[_tickle] : 3.611633e-03
+1.000000e-03 Word.dog->[_tickler] : 4.551766e-04
+1.000000e-03 Word.dog->[_time] : 2.754710e-03
+1.000000e-03 Word.dog->[_tnt] : 4.551765e-04
+1.000000e-03 Word.dog->[_toes] : 4.355524e-03
+1.000000e-03 Word.dog->[_tsh] : 3.650416e-03
+1.000000e-03 Word.dog->[_tst] : 2.307870e-02
+1.000000e-03 Word.dog->[_tuning] : 1.236063e-03
+1.000000e-03 Word.dog->[_under] : 1.070112e-03
+1.000000e-03 Word.dog->[_up] : 5.492354e-03
+1.000000e-03 Word.dog->[_wa] : 1.236063e-03
+1.000000e-03 Word.dog->[_wagging] : 2.037414e-03
+1.000000e-03 Word.dog->[_wags] : 4.551766e-04
+1.000000e-03 Word.dog->[_what] : 1.109944e-02
+1.000000e-03 Word.dog->[_whats] : 1.153235e-02
+1.000000e-03 Word.dog->[_where] : 5.800697e-03
+1.000000e-03 Word.dog->[_wheres] : 7.315364e-03
+1.000000e-03 Word.dog->[_which] : 2.357841e-03
+1.000000e-03 Word.dog->[_woo] : 7.704271e-03
+1.000000e-03 Word.dog->[_woof] : 8.364135e-02
+1.000000e-03 Word.dog->[_yeah] : 2.710076e-02
+1.000000e-03 Word.dog->[_yeow] : 4.551766e-04
+1.000000e-03 Word.dog->[_yes] : 1.511768e-02
+1.000000e-03 Word.dog->[_yesterday] : 2.843124e-03
+1.000000e-03 Word.dog->[_you] : 4.323250e-02
+1.000000e-03 Word.dog->[_zeeky] : 4.551766e-04
+1.000000e-03 Word.dog->[_zeke] : 3.644920e-03
+1.000000e-03 Word.doll->[_after] : 2.695746e-03
+1.000000e-03 Word.doll->[_at] : 1.328195e-02
+1.000000e-03 Word.doll->[_aww] : 2.695746e-03
+1.000000e-03 Word.doll->[_be] : 4.986839e-02
+1.000000e-03 Word.doll->[_box] : 1.206916e-02
+1.000000e-03 Word.doll->[_come] : 1.002880e-02
+1.000000e-03 Word.doll->[_doll] : 1.087124e-01
+1.000000e-03 Word.doll->[_dolls] : 2.719387e-03
+1.000000e-03 Word.doll->[_dollys] : 2.719387e-03
+1.000000e-03 Word.doll->[_erika] : 2.137140e-02
+1.000000e-03 Word.doll->[_eyes] : 2.176237e-02
+1.000000e-03 Word.doll->[_find] : 2.719387e-03
+1.000000e-03 Word.doll->[_fruit] : 7.384680e-03
+1.000000e-03 Word.doll->[_get] : 4.217826e-03
+1.000000e-03 Word.doll->[_go] : 1.100676e-02
+1.000000e-03 Word.doll->[_gonna] : 4.151876e-03
+1.000000e-03 Word.doll->[_gotta] : 2.569146e-03
+1.000000e-03 Word.doll->[_hand] : 2.678969e-03
+1.000000e-03 Word.doll->[_has] : 2.144654e-03
+1.000000e-03 Word.doll->[_have] : 1.971872e-02
+1.000000e-03 Word.doll->[_head] : 2.719387e-03
+1.000000e-03 Word.doll->[_her] : 3.125307e-02
+1.000000e-03 Word.doll->[_heres] : 6.346793e-03
+1.000000e-03 Word.doll->[_huh] : 2.151551e-02
+1.000000e-03 Word.doll->[_is] : 3.544983e-02
+1.000000e-03 Word.doll->[_isnt] : 2.119538e-03
+1.000000e-03 Word.doll->[_look] : 1.749178e-02
+1.000000e-03 Word.doll->[_lost] : 2.719387e-03
+1.000000e-03 Word.doll->[_me] : 6.405123e-03
+1.000000e-03 Word.doll->[_mommy] : 1.269183e-03
+1.000000e-03 Word.doll->[_nice] : 6.511873e-02
+1.000000e-03 Word.doll->[_no] : 5.674615e-03
+1.000000e-03 Word.doll->[_oh] : 5.329784e-03
+1.000000e-03 Word.doll->[_pretty] : 1.669817e-02
+1.000000e-03 Word.doll->[_quick] : 2.708183e-03
+1.000000e-03 Word.doll->[_rabbit] : 2.719387e-03
+1.000000e-03 Word.doll->[_raggedy] : 2.708168e-03
+1.000000e-03 Word.doll->[_real] : 2.598088e-03
+1.000000e-03 Word.doll->[_remember] : 2.719387e-03
+1.000000e-03 Word.doll->[_right] : 2.130938e-02
+1.000000e-03 Word.doll->[_see] : 9.631345e-03
+1.000000e-03 Word.doll->[_shell] : 2.695746e-03
+1.000000e-03 Word.doll->[_shoe] : 7.384680e-03
+1.000000e-03 Word.doll->[_show] : 6.683729e-03
+1.000000e-03 Word.doll->[_something] : 2.259756e-03
+1.000000e-03 Word.doll->[_that] : 2.725726e-02
+1.000000e-03 Word.doll->[_thats] : 7.590089e-02
+1.000000e-03 Word.doll->[_the] : 7.451882e-02
+1.000000e-03 Word.doll->[_to] : 4.943877e-02
+1.000000e-03 Word.doll->[_tv] : 7.371074e-03
+1.000000e-03 Word.doll->[_wanna] : 1.172858e-02
+1.000000e-03 Word.doll->[_who] : 7.103088e-03
+1.000000e-03 Word.doll->[_whose] : 2.719387e-03
+1.000000e-03 Word.doll->[_wont] : 2.719387e-03
+1.000000e-03 Word.doll->[_yeah] : 5.931403e-02
+1.000000e-03 Word.doll->[_you] : 7.542480e-02
+1.000000e-03 Word.doll->[_your] : 1.845844e-02
+1.000000e-03 Word.dough->[_bag] : 4.311304e-02
+1.000000e-03 Word.dough->[_bit] : 9.317441e-03
+1.000000e-03 Word.dough->[_blue] : 9.292135e-03
+1.000000e-03 Word.dough->[_brush] : 2.615587e-02
+1.000000e-03 Word.dough->[_can] : 1.397924e-02
+1.000000e-03 Word.dough->[_dough] : 6.016241e-02
+1.000000e-03 Word.dough->[_else] : 8.437206e-03
+1.000000e-03 Word.dough->[_em] : 9.473732e-03
+1.000000e-03 Word.dough->[_girl] : 9.554086e-03
+1.000000e-03 Word.dough->[_ha] : 4.267071e-02
+1.000000e-03 Word.dough->[_harder] : 9.631840e-03
+1.000000e-03 Word.dough->[_help] : 8.458958e-03
+1.000000e-03 Word.dough->[_here] : 5.106451e-02
+1.000000e-03 Word.dough->[_hold] : 7.734051e-03
+1.000000e-03 Word.dough->[_hum] : 9.551598e-03
+1.000000e-03 Word.dough->[_in] : 1.135890e-01
+1.000000e-03 Word.dough->[_is] : 4.491365e-02
+1.000000e-03 Word.dough->[_it] : 3.281719e-02
+1.000000e-03 Word.dough->[_me] : 5.674110e-02
+1.000000e-03 Word.dough->[_onto] : 9.497074e-03
+1.000000e-03 Word.dough->[_open] : 2.495865e-02
+1.000000e-03 Word.dough->[_pizza] : 4.303100e-02
+1.000000e-03 Word.dough->[_pull] : 9.030731e-03
+1.000000e-03 Word.dough->[_put] : 1.268711e-02
+1.000000e-03 Word.dough->[_show] : 4.004764e-02
+1.000000e-03 Word.dough->[_that] : 6.544496e-02
+1.000000e-03 Word.dough->[_there] : 1.099465e-01
+1.000000e-03 Word.dough->[_was] : 8.364650e-03
+1.000000e-03 Word.dough->[_wha] : 9.603454e-03
+1.000000e-03 Word.dough->[_whats] : 4.617320e-02
+1.000000e-03 Word.dough->[_you] : 5.455719e-02
+1.000000e-03 Word.ernie->[_do] : 1.696266e-01
+1.000000e-03 Word.ernie->[_does] : 3.717045e-02
+1.000000e-03 Word.ernie->[_dont] : 3.628141e-02
+1.000000e-03 Word.ernie->[_ernie] : 1.057391e-01
+1.000000e-03 Word.ernie->[_go] : 3.752148e-02
+1.000000e-03 Word.ernie->[_he] : 3.791323e-02
+1.000000e-03 Word.ernie->[_him] : 3.871923e-02
+1.000000e-03 Word.ernie->[_how] : 1.049038e-01
+1.000000e-03 Word.ernie->[_huh] : 3.871486e-02
+1.000000e-03 Word.ernie->[_i] : 3.565997e-02
+1.000000e-03 Word.ernie->[_know] : 1.053671e-01
+1.000000e-03 Word.ernie->[_oh] : 3.276374e-02
+1.000000e-03 Word.ernie->[_one] : 3.849060e-02
+1.000000e-03 Word.ernie->[_theres] : 3.786026e-02
+1.000000e-03 Word.ernie->[_to] : 3.138051e-02
+1.000000e-03 Word.ernie->[_uh] : 3.845420e-02
+1.000000e-03 Word.ernie->[_wanna] : 3.849567e-02
+1.000000e-03 Word.ernie->[_wheres] : 3.493774e-02
+1.000000e-03 Word.firetruck->[_are] : 1.377954e-02
+1.000000e-03 Word.firetruck->[_around] : 1.851672e-02
+1.000000e-03 Word.firetruck->[_at] : 1.151142e-02
+1.000000e-03 Word.firetruck->[_book] : 1.857849e-02
+1.000000e-03 Word.firetruck->[_doggy] : 1.821949e-02
+1.000000e-03 Word.firetruck->[_duck] : 1.856332e-02
+1.000000e-03 Word.firetruck->[_eric] : 5.023010e-02
+1.000000e-03 Word.firetruck->[_go] : 4.946641e-02
+1.000000e-03 Word.firetruck->[_gonna] : 1.408855e-02
+1.000000e-03 Word.firetruck->[_kitty] : 1.853749e-02
+1.000000e-03 Word.firetruck->[_look] : 1.116376e-01
+1.000000e-03 Word.firetruck->[_make] : 8.165037e-02
+1.000000e-03 Word.firetruck->[_now] : 1.707118e-02
+1.000000e-03 Word.firetruck->[_one] : 1.775104e-02
+1.000000e-03 Word.firetruck->[_ooh] : 1.857849e-02
+1.000000e-03 Word.firetruck->[_rooster] : 5.045115e-02
+1.000000e-03 Word.firetruck->[_snoopy] : 1.857849e-02
+1.000000e-03 Word.firetruck->[_this] : 2.120166e-01
+1.000000e-03 Word.firetruck->[_turn] : 1.844169e-02
+1.000000e-03 Word.firetruck->[_wanna] : 1.787162e-02
+1.000000e-03 Word.firetruck->[_watch] : 1.844130e-02
+1.000000e-03 Word.firetruck->[_whats] : 1.128421e-01
+1.000000e-03 Word.firetruck->[_yes] : 1.781118e-02
+1.000000e-03 Word.firetruck->[_you] : 5.536566e-02
+1.000000e-03 Word.flashlight->[_about] : 1.413595e-02
+1.000000e-03 Word.flashlight->[_alphabets] : 1.660074e-02
+1.000000e-03 Word.flashlight->[_and] : 3.828838e-02
+1.000000e-03 Word.flashlight->[_bun] : 1.660074e-02
+1.000000e-03 Word.flashlight->[_come] : 1.210638e-02
+1.000000e-03 Word.flashlight->[_did] : 1.450686e-02
+1.000000e-03 Word.flashlight->[_does] : 1.294250e-02
+1.000000e-03 Word.flashlight->[_em] : 4.491771e-02
+1.000000e-03 Word.flashlight->[_emily] : 4.508042e-02
+1.000000e-03 Word.flashlight->[_flashlight] : 4.508516e-02
+1.000000e-03 Word.flashlight->[_here] : 3.853221e-02
+1.000000e-03 Word.flashlight->[_how] : 7.278005e-02
+1.000000e-03 Word.flashlight->[_huh] : 7.633865e-02
+1.000000e-03 Word.flashlight->[_in] : 6.949702e-02
+1.000000e-03 Word.flashlight->[_one] : 4.349077e-02
+1.000000e-03 Word.flashlight->[_or] : 4.460020e-02
+1.000000e-03 Word.flashlight->[_other] : 4.432261e-02
+1.000000e-03 Word.flashlight->[_plate] : 4.508043e-02
+1.000000e-03 Word.flashlight->[_put] : 4.181883e-02
+1.000000e-03 Word.flashlight->[_some] : 1.590495e-02
+1.000000e-03 Word.flashlight->[_take] : 1.552558e-02
+1.000000e-03 Word.flashlight->[_that] : 3.601362e-02
+1.000000e-03 Word.flashlight->[_the] : 9.509708e-02
+1.000000e-03 Word.flashlight->[_there] : 1.465171e-02
+1.000000e-03 Word.flashlight->[_those] : 1.468572e-02
+1.000000e-03 Word.flashlight->[_wha] : 4.505477e-02
+1.000000e-03 Word.flashlight->[_whats] : 9.740224e-03
+1.000000e-03 Word.flashlight->[_whos] : 1.660074e-02
+1.000000e-03 Word.hotdog->[_are] : 3.803183e-02
+1.000000e-03 Word.hotdog->[_back] : 4.484684e-03
+1.000000e-03 Word.hotdog->[_bit] : 4.665648e-03
+1.000000e-03 Word.hotdog->[_bring] : 4.609128e-03
+1.000000e-03 Word.hotdog->[_bun] : 4.682523e-03
+1.000000e-03 Word.hotdog->[_can] : 1.288829e-02
+1.000000e-03 Word.hotdog->[_do] : 2.724170e-02
+1.000000e-03 Word.hotdog->[_dropped] : 4.682523e-03
+1.000000e-03 Word.hotdog->[_eat] : 2.013443e-02
+1.000000e-03 Word.hotdog->[_else] : 3.908450e-03
+1.000000e-03 Word.hotdog->[_em] : 4.648361e-03
+1.000000e-03 Word.hotdog->[_emmy] : 4.676603e-03
+1.000000e-03 Word.hotdog->[_go] : 1.648839e-02
+1.000000e-03 Word.hotdog->[_goes] : 1.150641e-02
+1.000000e-03 Word.hotdog->[_ha] : 4.577862e-02
+1.000000e-03 Word.hotdog->[_here] : 2.604925e-02
+1.000000e-03 Word.hotdog->[_hotdog] : 7.082484e-02
+1.000000e-03 Word.hotdog->[_hotdogs] : 2.924798e-02
+1.000000e-03 Word.hotdog->[_huh] : 2.968326e-02
+1.000000e-03 Word.hotdog->[_i] : 9.496955e-03
+1.000000e-03 Word.hotdog->[_in] : 5.308262e-02
+1.000000e-03 Word.hotdog->[_is] : 1.072547e-02
+1.000000e-03 Word.hotdog->[_it] : 4.362393e-02
+1.000000e-03 Word.hotdog->[_look] : 5.617773e-03
+1.000000e-03 Word.hotdog->[_me] : 1.067260e-02
+1.000000e-03 Word.hotdog->[_need] : 3.919792e-03
+1.000000e-03 Word.hotdog->[_now] : 1.111255e-02
+1.000000e-03 Word.hotdog->[_on] : 5.000568e-02
+1.000000e-03 Word.hotdog->[_one] : 1.245494e-02
+1.000000e-03 Word.hotdog->[_opp] : 4.682523e-03
+1.000000e-03 Word.hotdog->[_out] : 2.812152e-03
+1.000000e-03 Word.hotdog->[_patricks] : 4.609127e-03
+1.000000e-03 Word.hotdog->[_push] : 4.643362e-03
+1.000000e-03 Word.hotdog->[_put] : 2.277819e-02
+1.000000e-03 Word.hotdog->[_sitting] : 2.095942e-02
+1.000000e-03 Word.hotdog->[_straighten] : 4.682523e-03
+1.000000e-03 Word.hotdog->[_that] : 2.843765e-02
+1.000000e-03 Word.hotdog->[_them] : 1.252559e-02
+1.000000e-03 Word.hotdog->[_there] : 9.455649e-02
+1.000000e-03 Word.hotdog->[_thing] : 4.644343e-03
+1.000000e-03 Word.hotdog->[_think] : 2.627158e-02
+1.000000e-03 Word.hotdog->[_top] : 2.056772e-02
+1.000000e-03 Word.hotdog->[_tops] : 4.682523e-03
+1.000000e-03 Word.hotdog->[_two] : 1.190088e-02
+1.000000e-03 Word.hotdog->[_waffles] : 4.682523e-03
+1.000000e-03 Word.hotdog->[_well] : 1.091453e-02
+1.000000e-03 Word.hotdog->[_whats] : 2.020409e-02
+1.000000e-03 Word.hotdog->[_where] : 1.732680e-02
+1.000000e-03 Word.hotdog->[_wheres] : 3.473620e-02
+1.000000e-03 Word.hotdog->[_you] : 6.843657e-02
+1.000000e-03 Word.mickey->[_a] : 4.601815e-02
+1.000000e-03 Word.mickey->[_ahh] : 1.417198e-02
+1.000000e-03 Word.mickey->[_animals] : 3.845411e-02
+1.000000e-03 Word.mickey->[_car] : 1.382753e-01
+1.000000e-03 Word.mickey->[_dont] : 2.879674e-02
+1.000000e-03 Word.mickey->[_few] : 1.417198e-02
+1.000000e-03 Word.mickey->[_find] : 3.848496e-02
+1.000000e-03 Word.mickey->[_first] : 1.416888e-02
+1.000000e-03 Word.mickey->[_give] : 1.033297e-02
+1.000000e-03 Word.mickey->[_go] : 3.828342e-02
+1.000000e-03 Word.mickey->[_good] : 3.514390e-02
+1.000000e-03 Word.mickey->[_i] : 2.633827e-02
+1.000000e-03 Word.mickey->[_kiss] : 1.415586e-02
+1.000000e-03 Word.mickey->[_know] : 3.839191e-02
+1.000000e-03 Word.mickey->[_maybe] : 1.245689e-02
+1.000000e-03 Word.mickey->[_mickey] : 1.388144e-01
+1.000000e-03 Word.mickey->[_minutes] : 1.409603e-02
+1.000000e-03 Word.mickey->[_mouse] : 3.848496e-02
+1.000000e-03 Word.mickey->[_oh] : 2.866931e-13
+1.000000e-03 Word.mickey->[_okay] : 3.728303e-02
+1.000000e-03 Word.mickey->[_show] : 1.111936e-02
+1.000000e-03 Word.mickey->[_sweetie] : 1.409603e-02
+1.000000e-03 Word.mickey->[_the] : 1.307752e-01
+1.000000e-03 Word.mickey->[_to] : 3.895532e-02
+1.000000e-03 Word.mickey->[_want] : 1.928607e-02
+1.000000e-03 Word.mickey->[_well] : 1.168648e-02
+1.000000e-03 Word.mickey->[_whered] : 3.775785e-02
+1.000000e-03 Word.oscar->[_book] : 8.703413e-02
+1.000000e-03 Word.oscar->[_here] : 8.401025e-02
+1.000000e-03 Word.oscar->[_in] : 2.351579e-01
+1.000000e-03 Word.oscar->[_ohhh] : 8.698742e-02
+1.000000e-03 Word.oscar->[_oscar] : 8.703413e-02
+1.000000e-03 Word.oscar->[_papa] : 8.703413e-02
+1.000000e-03 Word.oscar->[_the] : 7.382524e-02
+1.000000e-03 Word.oscar->[_theres] : 8.656126e-02
+1.000000e-03 Word.oscar->[_wheres] : 8.532142e-02
+1.000000e-03 Word.oscar->[_whos] : 8.703413e-02
+1.000000e-03 Word.pepperoni->[_about] : 3.808279e-02
+1.000000e-03 Word.pepperoni->[_and] : 3.615968e-02
+1.000000e-03 Word.pepperoni->[_another] : 1.429419e-02
+1.000000e-03 Word.pepperoni->[_back] : 3.868264e-02
+1.000000e-03 Word.pepperoni->[_can] : 5.971594e-02
+1.000000e-03 Word.pepperoni->[_cheese] : 6.414171e-02
+1.000000e-03 Word.pepperoni->[_do] : 3.482383e-02
+1.000000e-03 Word.pepperoni->[_emmy] : 1.428865e-02
+1.000000e-03 Word.pepperoni->[_have] : 3.746791e-02
+1.000000e-03 Word.pepperoni->[_hungry] : 1.429419e-02
+1.000000e-03 Word.pepperoni->[_in] : 1.144090e-02
+1.000000e-03 Word.pepperoni->[_on] : 3.835693e-02
+1.000000e-03 Word.pepperoni->[_pieces] : 1.428938e-02
+1.000000e-03 Word.pepperoni->[_push] : 1.421396e-02
+1.000000e-03 Word.pepperoni->[_put] : 6.278433e-02
+1.000000e-03 Word.pepperoni->[_the] : 1.512197e-01
+1.000000e-03 Word.pepperoni->[_there] : 3.841919e-02
+1.000000e-03 Word.pepperoni->[_tomato] : 1.429419e-02
+1.000000e-03 Word.pepperoni->[_top] : 8.922149e-02
+1.000000e-03 Word.pepperoni->[_two] : 1.410811e-02
+1.000000e-03 Word.pepperoni->[_what] : 3.475471e-02
+1.000000e-03 Word.pepperoni->[_wheres] : 3.661286e-02
+1.000000e-03 Word.pepperoni->[_you] : 1.283327e-01
+1.000000e-03 Word.phone->[_bear] : 3.863254e-02
+1.000000e-03 Word.phone->[_bell] : 8.666341e-03
+1.000000e-03 Word.phone->[_best] : 8.617566e-03
+1.000000e-03 Word.phone->[_do] : 6.254348e-02
+1.000000e-03 Word.phone->[_doing] : 8.580088e-03
+1.000000e-03 Word.phone->[_dont] : 3.542340e-02
+1.000000e-03 Word.phone->[_enough] : 8.530857e-03
+1.000000e-03 Word.phone->[_getting] : 8.666341e-03
+1.000000e-03 Word.phone->[_how] : 2.202091e-02
+1.000000e-03 Word.phone->[_i] : 1.887292e-02
+1.000000e-03 Word.phone->[_isnt] : 7.939983e-03
+1.000000e-03 Word.phone->[_know] : 5.347658e-02
+1.000000e-03 Word.phone->[_mhmm] : 2.350271e-02
+1.000000e-03 Word.phone->[_necklace] : 8.666341e-03
+1.000000e-03 Word.phone->[_no] : 5.254470e-02
+1.000000e-03 Word.phone->[_ok] : 8.673101e-03
+1.000000e-03 Word.phone->[_on] : 3.107590e-03
+1.000000e-03 Word.phone->[_open] : 3.850168e-02
+1.000000e-03 Word.phone->[_press] : 5.413171e-02
+1.000000e-03 Word.phone->[_ring] : 8.666341e-03
+1.000000e-03 Word.phone->[_shes] : 8.554750e-03
+1.000000e-03 Word.phone->[_strong] : 8.666341e-03
+1.000000e-03 Word.phone->[_sure] : 8.615062e-03
+1.000000e-03 Word.phone->[_talking] : 8.636207e-03
+1.000000e-03 Word.phone->[_telephone] : 3.878088e-02
+1.000000e-03 Word.phone->[_that] : 4.875565e-02
+1.000000e-03 Word.phone->[_the] : 3.196953e-02
+1.000000e-03 Word.phone->[_there] : 7.801140e-03
+1.000000e-03 Word.phone->[_to] : 9.208453e-02
+1.000000e-03 Word.phone->[_tr] : 8.666341e-03
+1.000000e-03 Word.phone->[_trying] : 2.330238e-02
+1.000000e-03 Word.phone->[_use] : 8.666341e-03
+1.000000e-03 Word.phone->[_wear] : 8.422529e-03
+1.000000e-03 Word.phone->[_what] : 3.018191e-02
+1.000000e-03 Word.phone->[_ya] : 8.651746e-03
+1.000000e-03 Word.phone->[_you] : 9.106594e-02
+1.000000e-03 Word.phone->[_your] : 4.975380e-02
+1.000000e-03 Word.phone->[_youre] : 3.765974e-02
+1.000000e-03 Word.pig->[_aaaah] : 4.125180e-04
+1.000000e-03 Word.pig->[_adam] : 1.118857e-03
+1.000000e-03 Word.pig->[_ahhh] : 2.573533e-03
+1.000000e-03 Word.pig->[_alright] : 1.118857e-03
+1.000000e-03 Word.pig->[_arms] : 4.120157e-04
+1.000000e-03 Word.pig->[_awfully] : 4.120157e-04
+1.000000e-03 Word.pig->[_ba] : 4.103946e-04
+1.000000e-03 Word.pig->[_because] : 4.125072e-04
+1.000000e-03 Word.pig->[_betcha] : 4.120157e-04
+1.000000e-03 Word.pig->[_blah] : 1.118857e-03
+1.000000e-03 Word.pig->[_boo] : 5.915983e-03
+1.000000e-03 Word.pig->[_boop] : 4.767472e-03
+1.000000e-03 Word.pig->[_brandon] : 4.035690e-03
+1.000000e-03 Word.pig->[_brynie] : 1.118857e-03
+1.000000e-03 Word.pig->[_bum] : 1.118857e-03
+1.000000e-03 Word.pig->[_bump] : 1.118857e-03
+1.000000e-03 Word.pig->[_caitlin] : 1.085053e-03
+1.000000e-03 Word.pig->[_cmon] : 4.120157e-04
+1.000000e-03 Word.pig->[_comes] : 4.787266e-03
+1.000000e-03 Word.pig->[_cute] : 4.120024e-04
+1.000000e-03 Word.pig->[_da] : 9.889394e-03
+1.000000e-03 Word.pig->[_dee] : 4.088871e-04
+1.000000e-03 Word.pig->[_different] : 2.573533e-03
+1.000000e-03 Word.pig->[_dirty] : 1.129446e-03
+1.000000e-03 Word.pig->[_does] : 4.639790e-03
+1.000000e-03 Word.pig->[_doggie] : 1.883779e-03
+1.000000e-03 Word.pig->[_doggy] : 2.395738e-02
+1.000000e-03 Word.pig->[_doing] : 5.334431e-03
+1.000000e-03 Word.pig->[_doo] : 1.130639e-03
+1.000000e-03 Word.pig->[_doot] : 1.118857e-03
+1.000000e-03 Word.pig->[_down] : 2.915099e-03
+1.000000e-03 Word.pig->[_ear] : 4.120159e-04
+1.000000e-03 Word.pig->[_ears] : 1.048512e-02
+1.000000e-03 Word.pig->[_eat] : 1.256468e-03
+1.000000e-03 Word.pig->[_eating] : 7.866295e-04
+1.000000e-03 Word.pig->[_eric] : 2.515657e-03
+1.000000e-03 Word.pig->[_eye] : 1.828626e-03
+1.000000e-03 Word.pig->[_eyes] : 3.133991e-03
+1.000000e-03 Word.pig->[_fat] : 4.120157e-04
+1.000000e-03 Word.pig->[_feel] : 1.118857e-03
+1.000000e-03 Word.pig->[_figure] : 4.120157e-04
+1.000000e-03 Word.pig->[_find] : 1.844222e-03
+1.000000e-03 Word.pig->[_fixed] : 4.120157e-04
+1.000000e-03 Word.pig->[_flat] : 4.120157e-04
+1.000000e-03 Word.pig->[_forehead] : 4.120157e-04
+1.000000e-03 Word.pig->[_forward] : 4.120157e-04
+1.000000e-03 Word.pig->[_friend] : 4.120157e-04
+1.000000e-03 Word.pig->[_fur] : 4.120157e-04
+1.000000e-03 Word.pig->[_fuzz] : 1.118857e-03
+1.000000e-03 Word.pig->[_girls] : 1.118857e-03
+1.000000e-03 Word.pig->[_giving] : 4.120157e-04
+1.000000e-03 Word.pig->[_go] : 8.825599e-03
+1.000000e-03 Word.pig->[_god] : 4.120157e-04
+1.000000e-03 Word.pig->[_goo] : 1.844222e-03
+1.000000e-03 Word.pig->[_good] : 5.952578e-03
+1.000000e-03 Word.pig->[_goodness] : 1.106368e-03
+1.000000e-03 Word.pig->[_got] : 4.222105e-03
+1.000000e-03 Word.pig->[_grab] : 1.850852e-03
+1.000000e-03 Word.pig->[_great] : 1.472608e-03
+1.000000e-03 Word.pig->[_grip] : 4.120157e-04
+1.000000e-03 Word.pig->[_grrrr] : 4.120157e-04
+1.000000e-03 Word.pig->[_ha] : 1.142458e-02
+1.000000e-03 Word.pig->[_haaaa] : 4.120157e-04
+1.000000e-03 Word.pig->[_hand] : 1.171824e-02
+1.000000e-03 Word.pig->[_hands] : 1.455574e-03
+1.000000e-03 Word.pig->[_he] : 1.074249e-02
+1.000000e-03 Word.pig->[_head] : 1.844222e-03
+1.000000e-03 Word.pig->[_heh] : 4.035690e-03
+1.000000e-03 Word.pig->[_hello] : 3.905432e-03
+1.000000e-03 Word.pig->[_here] : 8.483233e-03
+1.000000e-03 Word.pig->[_hes] : 3.752698e-03
+1.000000e-03 Word.pig->[_hey] : 2.958134e-03
+1.000000e-03 Word.pig->[_hi] : 2.668738e-02
+1.000000e-03 Word.pig->[_him] : 7.599904e-03
+1.000000e-03 Word.pig->[_his] : 1.062496e-02
+1.000000e-03 Word.pig->[_hiyah] : 4.120157e-04
+1.000000e-03 Word.pig->[_hop] : 2.573533e-03
+1.000000e-03 Word.pig->[_hot] : 1.062276e-03
+1.000000e-03 Word.pig->[_house] : 1.106139e-03
+1.000000e-03 Word.pig->[_hug] : 7.339524e-04
+1.000000e-03 Word.pig->[_huh] : 1.230421e-02
+1.000000e-03 Word.pig->[_hum] : 1.812599e-03
+1.000000e-03 Word.pig->[_im] : 5.123889e-03
+1.000000e-03 Word.pig->[_in] : 2.985162e-03
+1.000000e-03 Word.pig->[_it] : 2.436510e-02
+1.000000e-03 Word.pig->[_jono] : 5.007005e-03
+1.000000e-03 Word.pig->[_jonos] : 4.120157e-04
+1.000000e-03 Word.pig->[_kate] : 4.120157e-04
+1.000000e-03 Word.pig->[_kiss] : 9.586046e-03
+1.000000e-03 Word.pig->[_lay] : 1.118857e-03
+1.000000e-03 Word.pig->[_life] : 4.120157e-04
+1.000000e-03 Word.pig->[_look] : 2.239916e-02
+1.000000e-03 Word.pig->[_losing] : 1.118857e-03
+1.000000e-03 Word.pig->[_machine] : 4.120157e-04
+1.000000e-03 Word.pig->[_magic] : 4.120157e-04
+1.000000e-03 Word.pig->[_make] : 3.629698e-03
+1.000000e-03 Word.pig->[_marie] : 1.844222e-03
+1.000000e-03 Word.pig->[_me] : 1.084864e-02
+1.000000e-03 Word.pig->[_megan] : 2.455093e-03
+1.000000e-03 Word.pig->[_microphone] : 2.502093e-03
+1.000000e-03 Word.pig->[_mister] : 1.489935e-03
+1.000000e-03 Word.pig->[_mmmmm] : 4.120157e-04
+1.000000e-03 Word.pig->[_mom] : 1.084736e-03
+1.000000e-03 Word.pig->[_mouth] : 5.195942e-03
+1.000000e-03 Word.pig->[_my] : 3.540548e-03
+1.000000e-03 Word.pig->[_na] : 4.767472e-03
+1.000000e-03 Word.pig->[_name] : 4.120157e-04
+1.000000e-03 Word.pig->[_nice] : 2.104497e-03
+1.000000e-03 Word.pig->[_noise] : 2.653460e-03
+1.000000e-03 Word.pig->[_nose] : 2.228013e-02
+1.000000e-03 Word.pig->[_num] : 4.035690e-03
+1.000000e-03 Word.pig->[_oh] : 2.393311e-02
+1.000000e-03 Word.pig->[_ohhhh] : 1.118857e-03
+1.000000e-03 Word.pig->[_oink] : 9.992146e-02
+1.000000e-03 Word.pig->[_okay] : 6.394186e-03
+1.000000e-03 Word.pig->[_old] : 4.124171e-04
+1.000000e-03 Word.pig->[_on] : 1.171891e-03
+1.000000e-03 Word.pig->[_only] : 4.120157e-04
+1.000000e-03 Word.pig->[_ooooh] : 1.118857e-03
+1.000000e-03 Word.pig->[_ooooo] : 1.118857e-03
+1.000000e-03 Word.pig->[_oooooh] : 4.120157e-04
+1.000000e-03 Word.pig->[_panda] : 4.120157e-04
+1.000000e-03 Word.pig->[_party] : 1.118857e-03
+1.000000e-03 Word.pig->[_pig] : 8.331256e-02
+1.000000e-03 Word.pig->[_piggie] : 6.231625e-03
+1.000000e-03 Word.pig->[_piggly] : 2.573533e-03
+1.000000e-03 Word.pig->[_piggy] : 5.940137e-02
+1.000000e-03 Word.pig->[_piggys] : 9.610820e-03
+1.000000e-03 Word.pig->[_pigs] : 1.287665e-02
+1.000000e-03 Word.pig->[_pop] : 6.231625e-03
+1.000000e-03 Word.pig->[_pull] : 2.560344e-03
+1.000000e-03 Word.pig->[_puppet] : 8.426426e-03
+1.000000e-03 Word.pig->[_puppy] : 4.794588e-03
+1.000000e-03 Word.pig->[_pushed] : 4.120157e-04
+1.000000e-03 Word.pig->[_really] : 6.434944e-04
+1.000000e-03 Word.pig->[_ride] : 1.804848e-03
+1.000000e-03 Word.pig->[_room] : 4.120157e-04
+1.000000e-03 Word.pig->[_said] : 4.120157e-04
+1.000000e-03 Word.pig->[_sam] : 1.837434e-03
+1.000000e-03 Word.pig->[_say] : 1.345287e-02
+1.000000e-03 Word.pig->[_saying] : 4.120157e-04
+1.000000e-03 Word.pig->[_says] : 3.491652e-03
+1.000000e-03 Word.pig->[_shake] : 1.726960e-03
+1.000000e-03 Word.pig->[_share] : 1.118857e-03
+1.000000e-03 Word.pig->[_shoes] : 1.118857e-03
+1.000000e-03 Word.pig->[_short] : 1.118857e-03
+1.000000e-03 Word.pig->[_sleeping] : 4.120157e-04
+1.000000e-03 Word.pig->[_smile] : 1.844222e-03
+1.000000e-03 Word.pig->[_smooch] : 4.120157e-04
+1.000000e-03 Word.pig->[_snout] : 1.118857e-03
+1.000000e-03 Word.pig->[_soft] : 5.499114e-03
+1.000000e-03 Word.pig->[_squeak] : 1.063328e-02
+1.000000e-03 Word.pig->[_squeaker] : 3.304275e-03
+1.000000e-03 Word.pig->[_squeaks] : 2.573533e-03
+1.000000e-03 Word.pig->[_squeeze] : 4.120157e-04
+1.000000e-03 Word.pig->[_strong] : 1.844222e-03
+1.000000e-03 Word.pig->[_studio] : 4.120157e-04
+1.000000e-03 Word.pig->[_sweet] : 4.120157e-04
+1.000000e-03 Word.pig->[_tail] : 2.228716e-02
+1.000000e-03 Word.pig->[_tails] : 4.120157e-04
+1.000000e-03 Word.pig->[_talk] : 3.304275e-03
+1.000000e-03 Word.pig->[_talks] : 1.118857e-03
+1.000000e-03 Word.pig->[_tastes] : 1.118857e-03
+1.000000e-03 Word.pig->[_that] : 2.602912e-02
+1.000000e-03 Word.pig->[_there] : 1.484715e-02
+1.000000e-03 Word.pig->[_this] : 8.458799e-03
+1.000000e-03 Word.pig->[_tickle] : 1.504653e-02
+1.000000e-03 Word.pig->[_tickling] : 4.120157e-04
+1.000000e-03 Word.pig->[_tnt] : 4.120159e-04
+1.000000e-03 Word.pig->[_to] : 4.173025e-03
+1.000000e-03 Word.pig->[_toes] : 3.102011e-03
+1.000000e-03 Word.pig->[_together] : 4.120157e-04
+1.000000e-03 Word.pig->[_too] : 3.537409e-03
+1.000000e-03 Word.pig->[_tshk] : 2.573533e-03
+1.000000e-03 Word.pig->[_tst] : 1.059697e-02
+1.000000e-03 Word.pig->[_tummies] : 1.118857e-03
+1.000000e-03 Word.pig->[_ummmmmm] : 4.120157e-04
+1.000000e-03 Word.pig->[_vice] : 4.120157e-04
+1.000000e-03 Word.pig->[_vrrooom] : 4.120157e-04
+1.000000e-03 Word.pig->[_washing] : 4.120157e-04
+1.000000e-03 Word.pig->[_well] : 8.293396e-04
+1.000000e-03 Word.pig->[_whooo] : 4.120157e-04
+1.000000e-03 Word.pig->[_whos] : 1.844439e-03
+1.000000e-03 Word.pig->[_wiggling] : 4.120157e-04
+1.000000e-03 Word.pig->[_wiggly] : 1.118857e-03
+1.000000e-03 Word.pig->[_wigglys] : 1.118857e-03
+1.000000e-03 Word.pig->[_wind] : 1.844222e-03
+1.000000e-03 Word.pig->[_woo] : 1.109135e-03
+1.000000e-03 Word.pig->[_woof] : 3.907616e-04
+1.000000e-03 Word.pig->[_yea] : 1.118857e-03
+1.000000e-03 Word.pig->[_yeah] : 3.480744e-02
+1.000000e-03 Word.pig->[_yeeaa] : 4.120157e-04
+1.000000e-03 Word.pig->[_yes] : 7.979991e-03
+1.000000e-03 Word.pig->[_yoohoo] : 4.120157e-04
+1.000000e-03 Word.pig->[_you] : 2.251554e-02
+1.000000e-03 Word.popnpals->[_about] : 2.195032e-02
+1.000000e-03 Word.popnpals->[_andrew] : 1.721018e-02
+1.000000e-03 Word.popnpals->[_around] : 5.742589e-03
+1.000000e-03 Word.popnpals->[_back] : 4.355077e-03
+1.000000e-03 Word.popnpals->[_ball] : 5.724408e-03
+1.000000e-03 Word.popnpals->[_bert] : 5.776076e-03
+1.000000e-03 Word.popnpals->[_bounce] : 9.520760e-03
+1.000000e-03 Word.popnpals->[_bouncy] : 5.776076e-03
+1.000000e-03 Word.popnpals->[_can] : 3.532883e-02
+1.000000e-03 Word.popnpals->[_car] : 1.894885e-02
+1.000000e-03 Word.popnpals->[_come] : 8.536869e-03
+1.000000e-03 Word.popnpals->[_concentration] : 2.127023e-03
+1.000000e-03 Word.popnpals->[_do] : 5.261054e-02
+1.000000e-03 Word.popnpals->[_does] : 2.894769e-02
+1.000000e-03 Word.popnpals->[_door] : 4.818002e-03
+1.000000e-03 Word.popnpals->[_ernie] : 5.767872e-03
+1.000000e-03 Word.popnpals->[_funny] : 1.285881e-02
+1.000000e-03 Word.popnpals->[_ga] : 2.127023e-03
+1.000000e-03 Word.popnpals->[_game] : 2.059388e-03
+1.000000e-03 Word.popnpals->[_good] : 6.879573e-03
+1.000000e-03 Word.popnpals->[_here] : 1.085267e-02
+1.000000e-03 Word.popnpals->[_hum] : 5.705201e-03
+1.000000e-03 Word.popnpals->[_humm] : 5.776076e-03
+1.000000e-03 Word.popnpals->[_it] : 7.465038e-02
+1.000000e-03 Word.popnpals->[_its] : 8.409671e-03
+1.000000e-03 Word.popnpals->[_joke] : 5.776076e-03
+1.000000e-03 Word.popnpals->[_let] : 1.209847e-02
+1.000000e-03 Word.popnpals->[_like] : 2.333170e-02
+1.000000e-03 Word.popnpals->[_mamas] : 2.127023e-03
+1.000000e-03 Word.popnpals->[_me] : 1.023600e-02
+1.000000e-03 Word.popnpals->[_not] : 2.273218e-02
+1.000000e-03 Word.popnpals->[_now] : 7.990320e-03
+1.000000e-03 Word.popnpals->[_of] : 8.943101e-03
+1.000000e-03 Word.popnpals->[_one] : 5.029985e-02
+1.000000e-03 Word.popnpals->[_pound] : 2.127023e-03
+1.000000e-03 Word.popnpals->[_push] : 3.950963e-02
+1.000000e-03 Word.popnpals->[_race] : 5.776076e-03
+1.000000e-03 Word.popnpals->[_rattle] : 5.776076e-03
+1.000000e-03 Word.popnpals->[_see] : 2.628886e-02
+1.000000e-03 Word.popnpals->[_shaker] : 5.776076e-03
+1.000000e-03 Word.popnpals->[_shutting] : 2.127023e-03
+1.000000e-03 Word.popnpals->[_take] : 4.325880e-03
+1.000000e-03 Word.popnpals->[_that] : 6.943708e-02
+1.000000e-03 Word.popnpals->[_thats] : 1.405287e-02
+1.000000e-03 Word.popnpals->[_these] : 4.262694e-03
+1.000000e-03 Word.popnpals->[_think] : 1.098362e-02
+1.000000e-03 Word.popnpals->[_this] : 6.069662e-02
+1.000000e-03 Word.popnpals->[_those] : 3.771118e-03
+1.000000e-03 Word.popnpals->[_to] : 1.722075e-02
+1.000000e-03 Word.popnpals->[_toy] : 4.715628e-02
+1.000000e-03 Word.popnpals->[_toys] : 5.428819e-03
+1.000000e-03 Word.popnpals->[_try] : 1.207121e-02
+1.000000e-03 Word.popnpals->[_um] : 9.520760e-03
+1.000000e-03 Word.popnpals->[_watch] : 5.844464e-03
+1.000000e-03 Word.popnpals->[_what] : 5.739566e-02
+1.000000e-03 Word.popnpals->[_whats] : 4.998866e-03
+1.000000e-03 Word.popnpals->[_wheels] : 9.520627e-03
+1.000000e-03 Word.popnpals->[_which] : 1.213605e-02
+1.000000e-03 Word.popnpals->[_you] : 5.780119e-02
+1.000000e-03 Word.rabbit->[_am] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_and] : 3.411656e-02
+1.000000e-03 Word.rabbit->[_boopie] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_by] : 1.657520e-02
+1.000000e-03 Word.rabbit->[_couch] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_dad] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_diaper] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_do] : 2.765595e-02
+1.000000e-03 Word.rabbit->[_doing] : 1.660863e-02
+1.000000e-03 Word.rabbit->[_dollie] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_dolls] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_is] : 5.909018e-02
+1.000000e-03 Word.rabbit->[_just] : 4.289677e-02
+1.000000e-03 Word.rabbit->[_kinda] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_ok] : 4.508296e-02
+1.000000e-03 Word.rabbit->[_or] : 1.567990e-02
+1.000000e-03 Word.rabbit->[_over] : 1.026495e-01
+1.000000e-03 Word.rabbit->[_playing] : 1.662509e-02
+1.000000e-03 Word.rabbit->[_rabbit] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_rosy] : 1.633482e-01
+1.000000e-03 Word.rabbit->[_rosys] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_shes] : 1.648334e-02
+1.000000e-03 Word.rabbit->[_sitting] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_supposed] : 1.625462e-02
+1.000000e-03 Word.rabbit->[_that] : 3.220645e-02
+1.000000e-03 Word.rabbit->[_there] : 1.029109e-01
+1.000000e-03 Word.rabbit->[_to] : 2.576937e-02
+1.000000e-03 Word.rabbit->[_wanted] : 1.667671e-02
+1.000000e-03 Word.rabbit->[_wheres] : 6.592587e-02
+1.000000e-03 Word.rings->[_and] : 1.472361e-02
+1.000000e-03 Word.rings->[_bet] : 2.987054e-02
+1.000000e-03 Word.rings->[_better] : 3.001973e-02
+1.000000e-03 Word.rings->[_dont] : 7.613220e-02
+1.000000e-03 Word.rings->[_fits] : 3.007383e-02
+1.000000e-03 Word.rings->[_i] : 7.485393e-02
+1.000000e-03 Word.rings->[_lap] : 3.002850e-02
+1.000000e-03 Word.rings->[_like] : 1.785207e-02
+1.000000e-03 Word.rings->[_my] : 2.853189e-02
+1.000000e-03 Word.rings->[_next] : 2.995622e-02
+1.000000e-03 Word.rings->[_ok] : 2.925423e-02
+1.000000e-03 Word.rings->[_on] : 7.729588e-02
+1.000000e-03 Word.rings->[_one] : 7.973885e-02
+1.000000e-03 Word.rings->[_play] : 2.801880e-02
+1.000000e-03 Word.rings->[_sit] : 2.814959e-02
+1.000000e-03 Word.rings->[_there] : 2.739245e-02
+1.000000e-03 Word.rings->[_those] : 8.016763e-02
+1.000000e-03 Word.rings->[_throwing] : 3.002850e-02
+1.000000e-03 Word.rings->[_why] : 2.908082e-02
+1.000000e-03 Word.rings->[_ya] : 3.003049e-02
+1.000000e-03 Word.rings->[_you] : 1.988002e-01
+1.000000e-03 Word.train->[_a] : 2.665755e-02
+1.000000e-03 Word.train->[_alexis] : 8.842764e-03
+1.000000e-03 Word.train->[_are] : 2.199486e-02
+1.000000e-03 Word.train->[_at] : 2.064304e-02
+1.000000e-03 Word.train->[_back] : 2.507667e-02
+1.000000e-03 Word.train->[_being] : 2.541015e-02
+1.000000e-03 Word.train->[_big] : 7.883711e-03
+1.000000e-03 Word.train->[_bunny] : 2.543370e-02
+1.000000e-03 Word.train->[_car] : 9.152618e-02
+1.000000e-03 Word.train->[_careful] : 9.014743e-03
+1.000000e-03 Word.train->[_find] : 9.365886e-03
+1.000000e-03 Word.train->[_girl] : 2.534379e-02
+1.000000e-03 Word.train->[_goes] : 4.152560e-02
+1.000000e-03 Word.train->[_haa] : 9.349640e-03
+1.000000e-03 Word.train->[_has] : 9.307452e-03
+1.000000e-03 Word.train->[_here] : 3.939633e-02
+1.000000e-03 Word.train->[_if] : 8.369944e-03
+1.000000e-03 Word.train->[_is] : 1.501738e-02
+1.000000e-03 Word.train->[_it] : 1.831358e-02
+1.000000e-03 Word.train->[_lets] : 2.354887e-02
+1.000000e-03 Word.train->[_look] : 5.476872e-02
+1.000000e-03 Word.train->[_mommy] : 4.131628e-02
+1.000000e-03 Word.train->[_morning] : 9.365886e-03
+1.000000e-03 Word.train->[_our] : 9.284548e-03
+1.000000e-03 Word.train->[_rabbit] : 2.543370e-02
+1.000000e-03 Word.train->[_send] : 2.541308e-02
+1.000000e-03 Word.train->[_that] : 3.509335e-02
+1.000000e-03 Word.train->[_the] : 6.040785e-02
+1.000000e-03 Word.train->[_there] : 4.116605e-02
+1.000000e-03 Word.train->[_those] : 9.253859e-03
+1.000000e-03 Word.train->[_truck] : 7.388013e-02
+1.000000e-03 Word.train->[_vroom] : 5.850113e-02
+1.000000e-03 Word.train->[_want] : 1.945858e-02
+1.000000e-03 Word.train->[_yeah] : 2.441750e-02
+1.000000e-03 Word.train->[_you] : 5.021750e-02
+1.000000e-03 Word.truck->[_again] : 6.142397e-03
+1.000000e-03 Word.truck->[_alright] : 3.097095e-03
+1.000000e-03 Word.truck->[_another] : 5.334304e-04
+1.000000e-03 Word.truck->[_arches] : 6.919190e-04
+1.000000e-03 Word.truck->[_around] : 2.635558e-03
+1.000000e-03 Word.truck->[_ask] : 6.919190e-04
+1.000000e-03 Word.truck->[_bear] : 2.218169e-02
+1.000000e-03 Word.truck->[_bears] : 4.321865e-03
+1.000000e-03 Word.truck->[_bee] : 9.235550e-03
+1.000000e-03 Word.truck->[_beep] : 2.371120e-02
+1.000000e-03 Word.truck->[_behind] : 6.919190e-04
+1.000000e-03 Word.truck->[_belong] : 6.919190e-04
+1.000000e-03 Word.truck->[_best] : 1.909976e-03
+1.000000e-03 Word.truck->[_better] : 2.951878e-03
+1.000000e-03 Word.truck->[_both] : 2.220592e-03
+1.000000e-03 Word.truck->[_bribe] : 6.919190e-04
+1.000000e-03 Word.truck->[_brrrrrn] : 6.919190e-04
+1.000000e-03 Word.truck->[_bryn] : 6.919190e-04
+1.000000e-03 Word.truck->[_byebye] : 8.506273e-03
+1.000000e-03 Word.truck->[_cal] : 1.612280e-03
+1.000000e-03 Word.truck->[_car] : 1.334057e-02
+1.000000e-03 Word.truck->[_cars] : 2.278673e-03
+1.000000e-03 Word.truck->[_caught] : 6.919190e-04
+1.000000e-03 Word.truck->[_chew] : 1.918808e-03
+1.000000e-03 Word.truck->[_choo] : 2.728021e-03
+1.000000e-03 Word.truck->[_circus] : 6.919190e-04
+1.000000e-03 Word.truck->[_clean] : 6.919190e-04
+1.000000e-03 Word.truck->[_color] : 9.699554e-04
+1.000000e-03 Word.truck->[_colors] : 6.919190e-04
+1.000000e-03 Word.truck->[_come] : 3.630926e-03
+1.000000e-03 Word.truck->[_comes] : 2.071173e-02
+1.000000e-03 Word.truck->[_cookie] : 4.938200e-03
+1.000000e-03 Word.truck->[_cookies] : 1.878953e-03
+1.000000e-03 Word.truck->[_crash] : 2.934746e-03
+1.000000e-03 Word.truck->[_day] : 6.919190e-04
+1.000000e-03 Word.truck->[_didnt] : 1.609422e-03
+1.000000e-03 Word.truck->[_doing] : 3.612788e-03
+1.000000e-03 Word.truck->[_doo] : 2.943779e-03
+1.000000e-03 Word.truck->[_door] : 4.398024e-03
+1.000000e-03 Word.truck->[_doubt] : 6.919190e-04
+1.000000e-03 Word.truck->[_down] : 7.182410e-03
+1.000000e-03 Word.truck->[_drive] : 7.001169e-04
+1.000000e-03 Word.truck->[_drooling] : 6.919190e-04
+1.000000e-03 Word.truck->[_drrrrrn] : 6.919190e-04
+1.000000e-03 Word.truck->[_everything] : 2.572945e-03
+1.000000e-03 Word.truck->[_explore] : 6.919190e-04
+1.000000e-03 Word.truck->[_eye] : 1.596814e-03
+1.000000e-03 Word.truck->[_flirting] : 1.878953e-03
+1.000000e-03 Word.truck->[_front] : 1.878953e-03
+1.000000e-03 Word.truck->[_ga] : 6.919190e-04
+1.000000e-03 Word.truck->[_gave] : 6.919190e-04
+1.000000e-03 Word.truck->[_get] : 3.316360e-03
+1.000000e-03 Word.truck->[_getting] : 1.878953e-03
+1.000000e-03 Word.truck->[_go] : 1.037605e-02
+1.000000e-03 Word.truck->[_goes] : 2.987959e-03
+1.000000e-03 Word.truck->[_going] : 3.466976e-03
+1.000000e-03 Word.truck->[_good] : 9.128217e-03
+1.000000e-03 Word.truck->[_got] : 4.767435e-03
+1.000000e-03 Word.truck->[_green] : 1.415092e-02
+1.000000e-03 Word.truck->[_guy] : 6.919190e-04
+1.000000e-03 Word.truck->[_ha] : 5.037358e-03
+1.000000e-03 Word.truck->[_hard] : 1.888366e-03
+1.000000e-03 Word.truck->[_here] : 3.065460e-02
+1.000000e-03 Word.truck->[_herself] : 6.919190e-04
+1.000000e-03 Word.truck->[_hey] : 1.052571e-02
+1.000000e-03 Word.truck->[_hm] : 1.540304e-03
+1.000000e-03 Word.truck->[_hmmm] : 1.886346e-03
+1.000000e-03 Word.truck->[_huh] : 2.311354e-02
+1.000000e-03 Word.truck->[_hurts] : 6.919190e-04
+1.000000e-03 Word.truck->[_id] : 6.919190e-04
+1.000000e-03 Word.truck->[_inter] : 6.919190e-04
+1.000000e-03 Word.truck->[_into] : 1.878953e-03
+1.000000e-03 Word.truck->[_is] : 8.030546e-03
+1.000000e-03 Word.truck->[_it] : 3.279425e-02
+1.000000e-03 Word.truck->[_ka] : 3.097095e-03
+1.000000e-03 Word.truck->[_kidding] : 6.919190e-04
+1.000000e-03 Word.truck->[_lady] : 3.097095e-03
+1.000000e-03 Word.truck->[_like] : 3.391922e-03
+1.000000e-03 Word.truck->[_liked] : 1.878953e-03
+1.000000e-03 Word.truck->[_look] : 2.190127e-02
+1.000000e-03 Word.truck->[_lookit] : 1.275923e-03
+1.000000e-03 Word.truck->[_lots] : 1.878953e-03
+1.000000e-03 Word.truck->[_mad] : 1.878953e-03
+1.000000e-03 Word.truck->[_making] : 1.612284e-03
+1.000000e-03 Word.truck->[_mommys] : 6.078658e-03
+1.000000e-03 Word.truck->[_mouth] : 1.840000e-03
+1.000000e-03 Word.truck->[_move] : 5.478539e-03
+1.000000e-03 Word.truck->[_moves] : 6.919190e-04
+1.000000e-03 Word.truck->[_nah] : 6.554319e-04
+1.000000e-03 Word.truck->[_no] : 1.114757e-02
+1.000000e-03 Word.truck->[_nontoxic] : 6.919190e-04
+1.000000e-03 Word.truck->[_nope] : 1.878953e-03
+1.000000e-03 Word.truck->[_now] : 3.594482e-03
+1.000000e-03 Word.truck->[_oh] : 1.896644e-02
+1.000000e-03 Word.truck->[_okay] : 9.909194e-03
+1.000000e-03 Word.truck->[_older] : 6.919190e-04
+1.000000e-03 Word.truck->[_on] : 8.244086e-03
+1.000000e-03 Word.truck->[_one] : 2.243465e-02
+1.000000e-03 Word.truck->[_ooh] : 5.909591e-04
+1.000000e-03 Word.truck->[_oooh] : 6.972707e-04
+1.000000e-03 Word.truck->[_oopsie] : 6.919190e-04
+1.000000e-03 Word.truck->[_other] : 6.119026e-04
+1.000000e-03 Word.truck->[_over] : 2.485816e-03
+1.000000e-03 Word.truck->[_ow] : 6.919190e-04
+1.000000e-03 Word.truck->[_paint] : 6.919190e-04
+1.000000e-03 Word.truck->[_painted] : 6.919190e-04
+1.000000e-03 Word.truck->[_pretty] : 9.364720e-03
+1.000000e-03 Word.truck->[_ready] : 3.650567e-03
+1.000000e-03 Word.truck->[_reasonably] : 6.919190e-04
+1.000000e-03 Word.truck->[_red] : 5.571507e-03
+1.000000e-03 Word.truck->[_remember] : 6.919190e-04
+1.000000e-03 Word.truck->[_resistant] : 6.919190e-04
+1.000000e-03 Word.truck->[_right] : 7.161906e-03
+1.000000e-03 Word.truck->[_robert] : 5.549038e-03
+1.000000e-03 Word.truck->[_rolls] : 6.919190e-04
+1.000000e-03 Word.truck->[_rrrzzzshhhrrr] : 6.919190e-04
+1.000000e-03 Word.truck->[_rzzshhhhrrrr] : 6.919190e-04
+1.000000e-03 Word.truck->[_sakes] : 6.919190e-04
+1.000000e-03 Word.truck->[_say] : 5.548448e-03
+1.000000e-03 Word.truck->[_see] : 1.866094e-02
+1.000000e-03 Word.truck->[_seem] : 6.919190e-04
+1.000000e-03 Word.truck->[_shes] : 2.429411e-03
+1.000000e-03 Word.truck->[_shhhhhhm] : 1.878953e-03
+1.000000e-03 Word.truck->[_side] : 3.348323e-03
+1.000000e-03 Word.truck->[_sitting] : 1.878953e-03
+1.000000e-03 Word.truck->[_sorry] : 6.919190e-04
+1.000000e-03 Word.truck->[_spin] : 4.321865e-03
+1.000000e-03 Word.truck->[_sun] : 6.919190e-04
+1.000000e-03 Word.truck->[_sure] : 1.942503e-03
+1.000000e-03 Word.truck->[_tape] : 6.919190e-04
+1.000000e-03 Word.truck->[_tastes] : 6.919190e-04
+1.000000e-03 Word.truck->[_teddy] : 1.660776e-02
+1.000000e-03 Word.truck->[_telling] : 6.919190e-04
+1.000000e-03 Word.truck->[_that] : 4.581120e-02
+1.000000e-03 Word.truck->[_them] : 3.905402e-03
+1.000000e-03 Word.truck->[_there] : 1.022075e-02
+1.000000e-03 Word.truck->[_thing] : 1.955599e-03
+1.000000e-03 Word.truck->[_think] : 8.386155e-04
+1.000000e-03 Word.truck->[_this] : 2.616963e-02
+1.000000e-03 Word.truck->[_thought] : 6.919190e-04
+1.000000e-03 Word.truck->[_too] : 8.225512e-03
+1.000000e-03 Word.truck->[_toy] : 3.664007e-03
+1.000000e-03 Word.truck->[_truck] : 1.530100e-01
+1.000000e-03 Word.truck->[_tst] : 4.321865e-03
+1.000000e-03 Word.truck->[_turn] : 3.682251e-03
+1.000000e-03 Word.truck->[_turning] : 6.919190e-04
+1.000000e-03 Word.truck->[_turns] : 6.919190e-04
+1.000000e-03 Word.truck->[_uh] : 5.013663e-03
+1.000000e-03 Word.truck->[_uhuh] : 1.872364e-03
+1.000000e-03 Word.truck->[_up] : 8.015896e-03
+1.000000e-03 Word.truck->[_upset] : 6.919190e-04
+1.000000e-03 Word.truck->[_upside] : 6.968871e-04
+1.000000e-03 Word.truck->[_vrooom] : 3.097095e-03
+1.000000e-03 Word.truck->[_vroooom] : 1.848505e-03
+1.000000e-03 Word.truck->[_waa] : 6.919190e-04
+1.000000e-03 Word.truck->[_was] : 5.031634e-03
+1.000000e-03 Word.truck->[_watch] : 9.789606e-03
+1.000000e-03 Word.truck->[_water] : 6.919190e-04
+1.000000e-03 Word.truck->[_way] : 2.973141e-03
+1.000000e-03 Word.truck->[_weeee] : 1.878953e-03
+1.000000e-03 Word.truck->[_what] : 9.780859e-03
+1.000000e-03 Word.truck->[_whaty] : 3.097095e-03
+1.000000e-03 Word.truck->[_wheels] : 2.069290e-02
+1.000000e-03 Word.truck->[_whos] : 6.785799e-03
+1.000000e-03 Word.truck->[_windows] : 1.878953e-03
+1.000000e-03 Word.truck->[_wins] : 6.919190e-04
+1.000000e-03 Word.truck->[_wonderful] : 6.919190e-04
+1.000000e-03 Word.truck->[_wood] : 6.919190e-04
+1.000000e-03 Word.truck->[_wooden] : 6.919190e-04
+1.000000e-03 Word.truck->[_working] : 1.878953e-03
+1.000000e-03 Word.truck->[_yeah] : 3.251088e-02
+1.000000e-03 Word.truck->[_yellow] : 6.919190e-04
+1.000000e-03 Word.truck->[_you] : 1.230264e-02
+1.000000e-03 Word.truck->[_younger] : 6.919190e-04
+1.000000e-03 Word.truck->[_yourself] : 6.919190e-04
+1.000000e-03 Word.truck->[_youve] : 1.497250e-03
+1.000000e-03 Word.truck->[_zoom] : 5.384026e-03
+1.000000e-03 Word.waffles->[_box] : 4.242191e-02
+1.000000e-03 Word.waffles->[_can] : 5.532670e-02
+1.000000e-03 Word.waffles->[_emily] : 4.255339e-02
+1.000000e-03 Word.waffles->[_ha] : 1.902507e-01
+1.000000e-03 Word.waffles->[_hotdog] : 1.155300e-01
+1.000000e-03 Word.waffles->[_huh] : 1.152274e-01
+1.000000e-03 Word.waffles->[_like] : 9.269450e-02
+1.000000e-03 Word.waffles->[_not] : 3.545137e-02
+1.000000e-03 Word.waffles->[_quite] : 4.239278e-02
+1.000000e-03 Word.waffles->[_those] : 3.692361e-02
+1.000000e-03 Word.waffles->[_two] : 4.075459e-02
+1.000000e-03 Word.waffles->[_waffles] : 1.904730e-01
+1.000000e-03 Word.None->[_a] : 4.237023e-02
+1.000000e-03 Word.None->[_aaaaa] : 5.674977e-05
+1.000000e-03 Word.None->[_aaaah] : 1.540341e-04
+1.000000e-03 Word.None->[_aaah] : 2.540174e-04
+1.000000e-03 Word.None->[_about] : 4.066179e-03
+1.000000e-03 Word.None->[_actually] : 6.958348e-05
+1.000000e-03 Word.None->[_after] : 5.724361e-05
+1.000000e-03 Word.None->[_again] : 7.292416e-04
+1.000000e-03 Word.None->[_ah] : 5.905449e-04
+1.000000e-03 Word.None->[_ahead] : 1.541078e-04
+1.000000e-03 Word.None->[_alex] : 6.958348e-05
+1.000000e-03 Word.None->[_alexis] : 1.110622e-03
+1.000000e-03 Word.None->[_all] : 2.064430e-03
+1.000000e-03 Word.None->[_almost] : 1.541078e-04
+1.000000e-03 Word.None->[_always] : 5.674977e-05
+1.000000e-03 Word.None->[_an] : 1.541078e-04
+1.000000e-03 Word.None->[_and] : 1.454726e-02
+1.000000e-03 Word.None->[_andrew] : 2.063559e-03
+1.000000e-03 Word.None->[_angel] : 5.674977e-05
+1.000000e-03 Word.None->[_angry] : 5.674977e-05
+1.000000e-03 Word.None->[_animals] : 5.686574e-05
+1.000000e-03 Word.None->[_any] : 1.541078e-04
+1.000000e-03 Word.None->[_are] : 9.199326e-03
+1.000000e-03 Word.None->[_arent] : 3.544705e-04
+1.000000e-03 Word.None->[_around] : 2.322688e-04
+1.000000e-03 Word.None->[_as] : 2.540174e-04
+1.000000e-03 Word.None->[_ashley] : 5.558634e-04
+1.000000e-03 Word.None->[_at] : 1.260170e-02
+1.000000e-03 Word.None->[_attention] : 5.674977e-05
+1.000000e-03 Word.None->[_away] : 1.107041e-03
+1.000000e-03 Word.None->[_aww] : 5.724361e-05
+1.000000e-03 Word.None->[_azerbaijan] : 5.674977e-05
+1.000000e-03 Word.None->[_baby] : 6.501010e-05
+1.000000e-03 Word.None->[_back] : 1.800829e-03
+1.000000e-03 Word.None->[_ball] : 3.581873e-04
+1.000000e-03 Word.None->[_bang] : 6.806001e-05
+1.000000e-03 Word.None->[_banging] : 5.674977e-05
+1.000000e-03 Word.None->[_bath] : 5.674977e-05
+1.000000e-03 Word.None->[_be] : 3.529854e-03
+1.000000e-03 Word.None->[_bear] : 5.031309e-04
+1.000000e-03 Word.None->[_because] : 1.540357e-04
+1.000000e-03 Word.None->[_beep] : 2.161646e-04
+1.000000e-03 Word.None->[_before] : 5.674977e-05
+1.000000e-03 Word.None->[_being] : 6.496455e-05
+1.000000e-03 Word.None->[_best] : 1.902527e-04
+1.000000e-03 Word.None->[_bet] : 2.544301e-04
+1.000000e-03 Word.None->[_better] : 7.104782e-05
+1.000000e-03 Word.None->[_big] : 2.988577e-03
+1.000000e-03 Word.None->[_bird] : 5.674977e-05
+1.000000e-03 Word.None->[_birdy] : 5.674977e-05
+1.000000e-03 Word.None->[_birdys] : 5.674977e-05
+1.000000e-03 Word.None->[_bit] : 1.563035e-04
+1.000000e-03 Word.None->[_black] : 1.541078e-04
+1.000000e-03 Word.None->[_blankey] : 1.542048e-04
+1.000000e-03 Word.None->[_bless] : 5.674977e-05
+1.000000e-03 Word.None->[_blocks] : 1.542093e-04
+1.000000e-03 Word.None->[_blue] : 1.687329e-04
+1.000000e-03 Word.None->[_boo] : 4.295845e-04
+1.000000e-03 Word.None->[_boom] : 9.745580e-04
+1.000000e-03 Word.None->[_bored] : 1.541078e-04
+1.000000e-03 Word.None->[_boring] : 5.674977e-05
+1.000000e-03 Word.None->[_bossy] : 5.674977e-05
+1.000000e-03 Word.None->[_both] : 4.217090e-04
+1.000000e-03 Word.None->[_bottom] : 2.540174e-04
+1.000000e-03 Word.None->[_bout] : 2.540174e-04
+1.000000e-03 Word.None->[_box] : 5.242293e-04
+1.000000e-03 Word.None->[_boy] : 1.282009e-03
+1.000000e-03 Word.None->[_boys] : 5.674977e-05
+1.000000e-03 Word.None->[_bright] : 5.674977e-05
+1.000000e-03 Word.None->[_bring] : 5.764083e-05
+1.000000e-03 Word.None->[_brother] : 5.674977e-05
+1.000000e-03 Word.None->[_buddy] : 5.674977e-05
+1.000000e-03 Word.None->[_burp] : 5.674977e-05
+1.000000e-03 Word.None->[_but] : 1.791699e-03
+1.000000e-03 Word.None->[_buy] : 1.541078e-04
+1.000000e-03 Word.None->[_by] : 1.107615e-04
+1.000000e-03 Word.None->[_bye] : 8.634845e-04
+1.000000e-03 Word.None->[_byebye] : 2.518622e-04
+1.000000e-03 Word.None->[_caitlin] : 1.587677e-04
+1.000000e-03 Word.None->[_cal] : 7.766316e-05
+1.000000e-03 Word.None->[_called] : 1.541078e-04
+1.000000e-03 Word.None->[_came] : 9.634116e-05
+1.000000e-03 Word.None->[_camera] : 5.558634e-04
+1.000000e-03 Word.None->[_can] : 2.559024e-02
+1.000000e-03 Word.None->[_cant] : 6.566567e-04
+1.000000e-03 Word.None->[_car] : 1.709720e-03
+1.000000e-03 Word.None->[_cardinal] : 1.541078e-04
+1.000000e-03 Word.None->[_care] : 5.679658e-04
+1.000000e-03 Word.None->[_careful] : 6.164190e-04
+1.000000e-03 Word.None->[_carla] : 5.674977e-05
+1.000000e-03 Word.None->[_carries] : 1.541078e-04
+1.000000e-03 Word.None->[_cars] : 9.458351e-05
+1.000000e-03 Word.None->[_cause] : 4.551206e-04
+1.000000e-03 Word.None->[_chair] : 1.059897e-03
+1.000000e-03 Word.None->[_cheese] : 5.683973e-05
+1.000000e-03 Word.None->[_chew] : 3.511626e-04
+1.000000e-03 Word.None->[_chews] : 1.541078e-04
+1.000000e-03 Word.None->[_choice] : 5.674977e-05
+1.000000e-03 Word.None->[_choo] : 1.841885e-04
+1.000000e-03 Word.None->[_choose] : 5.674977e-05
+1.000000e-03 Word.None->[_chris] : 6.823994e-04
+1.000000e-03 Word.None->[_climb] : 1.541078e-04
+1.000000e-03 Word.None->[_closed] : 2.540174e-04
+1.000000e-03 Word.None->[_color] : 2.299304e-04
+1.000000e-03 Word.None->[_come] : 6.998765e-03
+1.000000e-03 Word.None->[_coming] : 1.541078e-04
+1.000000e-03 Word.None->[_cookie] : 8.076331e-04
+1.000000e-03 Word.None->[_could] : 9.591824e-04
+1.000000e-03 Word.None->[_curious] : 5.674977e-05
+1.000000e-03 Word.None->[_daddys] : 1.541078e-04
+1.000000e-03 Word.None->[_dangerous] : 5.676320e-05
+1.000000e-03 Word.None->[_dd] : 1.541078e-04
+1.000000e-03 Word.None->[_did] : 3.431226e-03
+1.000000e-03 Word.None->[_didnt] : 7.846233e-05
+1.000000e-03 Word.None->[_dirty] : 5.538281e-05
+1.000000e-03 Word.None->[_do] : 2.168504e-02
+1.000000e-03 Word.None->[_does] : 5.878581e-03
+1.000000e-03 Word.None->[_doesnt] : 1.866030e-03
+1.000000e-03 Word.None->[_dog] : 1.109132e-03
+1.000000e-03 Word.None->[_doggie] : 6.001213e-05
+1.000000e-03 Word.None->[_doggy] : 1.343680e-03
+1.000000e-03 Word.None->[_doggys] : 6.968259e-04
+1.000000e-03 Word.None->[_dogs] : 1.030122e-04
+1.000000e-03 Word.None->[_doing] : 3.356437e-04
+1.000000e-03 Word.None->[_doll] : 1.546444e-04
+1.000000e-03 Word.None->[_done] : 2.734588e-04
+1.000000e-03 Word.None->[_dont] : 8.715798e-03
+1.000000e-03 Word.None->[_dontcha] : 5.674977e-05
+1.000000e-03 Word.None->[_doo] : 6.676479e-04
+1.000000e-03 Word.None->[_down] : 1.433250e-03
+1.000000e-03 Word.None->[_draw] : 3.544705e-04
+1.000000e-03 Word.None->[_drop] : 5.674977e-05
+1.000000e-03 Word.None->[_duck] : 5.679610e-05
+1.000000e-03 Word.None->[_each] : 3.544705e-04
+1.000000e-03 Word.None->[_eat] : 9.072021e-04
+1.000000e-03 Word.None->[_eating] : 2.002794e-04
+1.000000e-03 Word.None->[_else] : 5.737647e-04
+1.000000e-03 Word.None->[_em] : 3.160356e-04
+1.000000e-03 Word.None->[_emmy] : 5.706458e-05
+1.000000e-03 Word.None->[_enough] : 2.549724e-04
+1.000000e-03 Word.None->[_eric] : 7.661529e-04
+1.000000e-03 Word.None->[_erik] : 5.674977e-05
+1.000000e-03 Word.None->[_erika] : 1.876623e-03
+1.000000e-03 Word.None->[_erikas] : 5.674977e-05
+1.000000e-03 Word.None->[_erin] : 1.541078e-04
+1.000000e-03 Word.None->[_ernie] : 5.696418e-05
+1.000000e-03 Word.None->[_even] : 3.544705e-04
+1.000000e-03 Word.None->[_everybodys] : 5.674977e-05
+1.000000e-03 Word.None->[_everything] : 2.657736e-04
+1.000000e-03 Word.None->[_eye] : 8.197585e-05
+1.000000e-03 Word.None->[_eyes] : 2.451810e-04
+1.000000e-03 Word.None->[_fact] : 5.674977e-05
+1.000000e-03 Word.None->[_fake] : 1.541078e-04
+1.000000e-03 Word.None->[_far] : 5.674977e-05
+1.000000e-03 Word.None->[_fast] : 5.778366e-05
+1.000000e-03 Word.None->[_favorite] : 1.541078e-04
+1.000000e-03 Word.None->[_feeling] : 5.674977e-05
+1.000000e-03 Word.None->[_feels] : 4.551206e-04
+1.000000e-03 Word.None->[_fell] : 3.557752e-04
+1.000000e-03 Word.None->[_fight] : 5.674977e-05
+1.000000e-03 Word.None->[_finish] : 5.674977e-05
+1.000000e-03 Word.None->[_first] : 5.676217e-05
+1.000000e-03 Word.None->[_fit] : 5.935792e-05
+1.000000e-03 Word.None->[_floppy] : 5.674977e-05
+1.000000e-03 Word.None->[_for] : 4.591531e-03
+1.000000e-03 Word.None->[_found] : 6.566567e-04
+1.000000e-03 Word.None->[_from] : 2.540174e-04
+1.000000e-03 Word.None->[_frustrating] : 5.674977e-05
+1.000000e-03 Word.None->[_fun] : 1.921816e-04
+1.000000e-03 Word.None->[_funny] : 1.003594e-03
+1.000000e-03 Word.None->[_game] : 5.856071e-05
+1.000000e-03 Word.None->[_garbage] : 3.544705e-04
+1.000000e-03 Word.None->[_get] : 8.558210e-03
+1.000000e-03 Word.None->[_girl] : 1.558564e-04
+1.000000e-03 Word.None->[_give] : 2.588572e-03
+1.000000e-03 Word.None->[_go] : 4.709120e-03
+1.000000e-03 Word.None->[_goes] : 1.191017e-03
+1.000000e-03 Word.None->[_goin] : 5.674977e-05
+1.000000e-03 Word.None->[_going] : 3.551993e-03
+1.000000e-03 Word.None->[_gone] : 4.703902e-04
+1.000000e-03 Word.None->[_gonna] : 8.704573e-03
+1.000000e-03 Word.None->[_good] : 3.144540e-03
+1.000000e-03 Word.None->[_goodness] : 5.836705e-05
+1.000000e-03 Word.None->[_googoo] : 5.674977e-05
+1.000000e-03 Word.None->[_got] : 5.241211e-03
+1.000000e-03 Word.None->[_gotta] : 3.578628e-04
+1.000000e-03 Word.None->[_great] : 1.049897e-04
+1.000000e-03 Word.None->[_gund] : 3.544705e-04
+1.000000e-03 Word.None->[_ha] : 1.233885e-03
+1.000000e-03 Word.None->[_haa] : 3.555301e-04
+1.000000e-03 Word.None->[_had] : 1.541078e-04
+1.000000e-03 Word.None->[_hair] : 6.665658e-05
+1.000000e-03 Word.None->[_ham] : 7.918123e-05
+1.000000e-03 Word.None->[_hand] : 2.049031e-04
+1.000000e-03 Word.None->[_handle] : 2.540174e-04
+1.000000e-03 Word.None->[_hands] : 1.096490e-04
+1.000000e-03 Word.None->[_happened] : 2.540174e-04
+1.000000e-03 Word.None->[_happens] : 5.676930e-05
+1.000000e-03 Word.None->[_has] : 1.277185e-03
+1.000000e-03 Word.None->[_have] : 7.466042e-03
+1.000000e-03 Word.None->[_havent] : 5.674977e-05
+1.000000e-03 Word.None->[_having] : 2.540174e-04
+1.000000e-03 Word.None->[_he] : 3.434874e-03
+1.000000e-03 Word.None->[_hear] : 2.958249e-04
+1.000000e-03 Word.None->[_hears] : 1.541078e-04
+1.000000e-03 Word.None->[_hello] : 8.008131e-05
+1.000000e-03 Word.None->[_help] : 5.638392e-04
+1.000000e-03 Word.None->[_helps] : 5.674977e-05
+1.000000e-03 Word.None->[_her] : 7.924638e-04
+1.000000e-03 Word.None->[_here] : 1.092001e-02
+1.000000e-03 Word.None->[_heres] : 3.106026e-03
+1.000000e-03 Word.None->[_hes] : 2.714992e-03
+1.000000e-03 Word.None->[_hey] : 5.587905e-04
+1.000000e-03 Word.None->[_hi] : 4.671946e-04
+1.000000e-03 Word.None->[_hide] : 5.674977e-05
+1.000000e-03 Word.None->[_him] : 1.514745e-03
+1.000000e-03 Word.None->[_his] : 1.958256e-03
+1.000000e-03 Word.None->[_hit] : 1.646303e-04
+1.000000e-03 Word.None->[_hm] : 1.897119e-04
+1.000000e-03 Word.None->[_hmm] : 2.622541e-04
+1.000000e-03 Word.None->[_hmmm] : 2.534054e-04
+1.000000e-03 Word.None->[_hold] : 8.832505e-04
+1.000000e-03 Word.None->[_honda] : 5.674977e-05
+1.000000e-03 Word.None->[_honey] : 9.298036e-04
+1.000000e-03 Word.None->[_hope] : 1.541078e-04
+1.000000e-03 Word.None->[_horde] : 5.674977e-05
+1.000000e-03 Word.None->[_hot] : 2.618914e-04
+1.000000e-03 Word.None->[_hours] : 2.540174e-04
+1.000000e-03 Word.None->[_house] : 5.939470e-05
+1.000000e-03 Word.None->[_how] : 3.596318e-03
+1.000000e-03 Word.None->[_hows] : 1.541078e-04
+1.000000e-03 Word.None->[_hug] : 1.988214e-04
+1.000000e-03 Word.None->[_hugging] : 5.674977e-05
+1.000000e-03 Word.None->[_huh] : 1.541820e-03
+1.000000e-03 Word.None->[_hum] : 1.608223e-04
+1.000000e-03 Word.None->[_hurt] : 5.689891e-05
+1.000000e-03 Word.None->[_i] : 1.068804e-02
+1.000000e-03 Word.None->[_if] : 2.074187e-03
+1.000000e-03 Word.None->[_ill] : 1.261377e-03
+1.000000e-03 Word.None->[_im] : 1.510115e-03
+1.000000e-03 Word.None->[_in] : 1.157484e-02
+1.000000e-03 Word.None->[_inside] : 6.010928e-04
+1.000000e-03 Word.None->[_interested] : 3.544705e-04
+1.000000e-03 Word.None->[_interesting] : 9.591824e-04
+1.000000e-03 Word.None->[_is] : 2.269136e-02
+1.000000e-03 Word.None->[_isnt] : 1.334048e-03
+1.000000e-03 Word.None->[_it] : 1.819861e-02
+1.000000e-03 Word.None->[_itll] : 5.674977e-05
+1.000000e-03 Word.None->[_its] : 1.239137e-02
+1.000000e-03 Word.None->[_jewelry] : 1.541078e-04
+1.000000e-03 Word.None->[_jono] : 3.628003e-04
+1.000000e-03 Word.None->[_just] : 3.285572e-03
+1.000000e-03 Word.None->[_k] : 5.674977e-05
+1.000000e-03 Word.None->[_keep] : 2.540174e-04
+1.000000e-03 Word.None->[_keys] : 1.541078e-04
+1.000000e-03 Word.None->[_kids] : 1.541078e-04
+1.000000e-03 Word.None->[_kind] : 7.574808e-04
+1.000000e-03 Word.None->[_kinds] : 1.541078e-04
+1.000000e-03 Word.None->[_kiss] : 2.956861e-04
+1.000000e-03 Word.None->[_kisses] : 5.674977e-05
+1.000000e-03 Word.None->[_kitty] : 1.542413e-04
+1.000000e-03 Word.None->[_knock] : 5.676965e-05
+1.000000e-03 Word.None->[_know] : 2.173658e-03
+1.000000e-03 Word.None->[_knows] : 5.674977e-05
+1.000000e-03 Word.None->[_lap] : 5.683533e-05
+1.000000e-03 Word.None->[_last] : 5.674977e-05
+1.000000e-03 Word.None->[_later] : 3.544705e-04
+1.000000e-03 Word.None->[_leave] : 2.540174e-04
+1.000000e-03 Word.None->[_leg] : 5.676849e-05
+1.000000e-03 Word.None->[_legs] : 5.778101e-05
+1.000000e-03 Word.None->[_let] : 1.293138e-03
+1.000000e-03 Word.None->[_lets] : 5.114488e-03
+1.000000e-03 Word.None->[_lid] : 2.760324e-04
+1.000000e-03 Word.None->[_like] : 1.266726e-02
+1.000000e-03 Word.None->[_likes] : 2.957786e-04
+1.000000e-03 Word.None->[_little] : 3.386979e-03
+1.000000e-03 Word.None->[_look] : 1.522801e-02
+1.000000e-03 Word.None->[_lookey] : 5.674977e-05
+1.000000e-03 Word.None->[_looking] : 4.551206e-04
+1.000000e-03 Word.None->[_lookit] : 4.398474e-04
+1.000000e-03 Word.None->[_looks] : 4.291432e-04
+1.000000e-03 Word.None->[_love] : 1.462901e-03
+1.000000e-03 Word.None->[_made] : 6.566567e-04
+1.000000e-03 Word.None->[_make] : 4.446850e-03
+1.000000e-03 Word.None->[_makes] : 1.560770e-04
+1.000000e-03 Word.None->[_making] : 7.766288e-05
+1.000000e-03 Word.None->[_mama] : 1.541078e-04
+1.000000e-03 Word.None->[_may] : 1.541078e-04
+1.000000e-03 Word.None->[_maybe] : 1.236256e-03
+1.000000e-03 Word.None->[_me] : 4.036481e-03
+1.000000e-03 Word.None->[_mean] : 1.541078e-04
+1.000000e-03 Word.None->[_megan] : 1.332950e-04
+1.000000e-03 Word.None->[_mess] : 5.674977e-05
+1.000000e-03 Word.None->[_mh] : 5.674977e-05
+1.000000e-03 Word.None->[_mhmm] : 1.557297e-04
+1.000000e-03 Word.None->[_mhmmm] : 5.859437e-05
+1.000000e-03 Word.None->[_michael] : 1.170365e-03
+1.000000e-03 Word.None->[_microphone] : 3.643120e-04
+1.000000e-03 Word.None->[_milky] : 1.541078e-04
+1.000000e-03 Word.None->[_mind] : 1.541078e-04
+1.000000e-03 Word.None->[_mine] : 1.541078e-04
+1.000000e-03 Word.None->[_minutes] : 5.705405e-05
+1.000000e-03 Word.None->[_mister] : 2.026819e-04
+1.000000e-03 Word.None->[_mmm] : 5.558634e-04
+1.000000e-03 Word.None->[_mmmm] : 2.541398e-04
+1.000000e-03 Word.None->[_mom] : 1.588115e-04
+1.000000e-03 Word.None->[_mommy] : 2.609998e-03
+1.000000e-03 Word.None->[_mommys] : 3.431263e-04
+1.000000e-03 Word.None->[_money] : 5.674977e-05
+1.000000e-03 Word.None->[_monster] : 2.540174e-04
+1.000000e-03 Word.None->[_montgomery] : 5.674977e-05
+1.000000e-03 Word.None->[_more] : 1.399788e-03
+1.000000e-03 Word.None->[_mouth] : 7.260260e-04
+1.000000e-03 Word.None->[_move] : 7.278285e-05
+1.000000e-03 Word.None->[_mr] : 5.558634e-04
+1.000000e-03 Word.None->[_much] : 4.551206e-04
+1.000000e-03 Word.None->[_my] : 1.943349e-03
+1.000000e-03 Word.None->[_names] : 5.674977e-05
+1.000000e-03 Word.None->[_neat] : 6.477108e-05
+1.000000e-03 Word.None->[_need] : 5.659516e-04
+1.000000e-03 Word.None->[_neednt] : 5.674977e-05
+1.000000e-03 Word.None->[_never] : 5.674977e-05
+1.000000e-03 Word.None->[_new] : 6.566567e-04
+1.000000e-03 Word.None->[_next] : 1.543443e-04
+1.000000e-03 Word.None->[_nice] : 8.023502e-04
+1.000000e-03 Word.None->[_no] : 4.981044e-03
+1.000000e-03 Word.None->[_noise] : 6.456290e-04
+1.000000e-03 Word.None->[_nose] : 3.116083e-04
+1.000000e-03 Word.None->[_not] : 3.037796e-03
+1.000000e-03 Word.None->[_now] : 3.120406e-03
+1.000000e-03 Word.None->[_of] : 6.317401e-03
+1.000000e-03 Word.None->[_off] : 7.936310e-04
+1.000000e-03 Word.None->[_oh] : 1.958568e-02
+1.000000e-03 Word.None->[_ohh] : 1.933386e-04
+1.000000e-03 Word.None->[_ohhh] : 3.555137e-04
+1.000000e-03 Word.None->[_ok] : 4.643600e-04
+1.000000e-03 Word.None->[_okay] : 2.248172e-03
+1.000000e-03 Word.None->[_old] : 1.540489e-04
+1.000000e-03 Word.None->[_on] : 6.910160e-03
+1.000000e-03 Word.None->[_one] : 3.067418e-03
+1.000000e-03 Word.None->[_ones] : 4.559257e-04
+1.000000e-03 Word.None->[_onto] : 6.745106e-05
+1.000000e-03 Word.None->[_ooo] : 2.957052e-04
+1.000000e-03 Word.None->[_oooh] : 9.354452e-05
+1.000000e-03 Word.None->[_oooo] : 3.901432e-04
+1.000000e-03 Word.None->[_ooops] : 5.674977e-05
+1.000000e-03 Word.None->[_oops] : 1.545239e-04
+1.000000e-03 Word.None->[_open] : 7.600821e-04
+1.000000e-03 Word.None->[_opens] : 6.089449e-05
+1.000000e-03 Word.None->[_or] : 1.065241e-03
+1.000000e-03 Word.None->[_other] : 1.691694e-03
+1.000000e-03 Word.None->[_our] : 1.756294e-04
+1.000000e-03 Word.None->[_out] : 1.220323e-03
+1.000000e-03 Word.None->[_outside] : 3.544705e-04
+1.000000e-03 Word.None->[_outta] : 5.674977e-05
+1.000000e-03 Word.None->[_over] : 2.393221e-03
+1.000000e-03 Word.None->[_p] : 5.674977e-05
+1.000000e-03 Word.None->[_pairs] : 5.674977e-05
+1.000000e-03 Word.None->[_park] : 5.674977e-05
+1.000000e-03 Word.None->[_part] : 2.060513e-04
+1.000000e-03 Word.None->[_patricks] : 5.764084e-05
+1.000000e-03 Word.None->[_pen] : 5.674977e-05
+1.000000e-03 Word.None->[_penache] : 1.541078e-04
+1.000000e-03 Word.None->[_people] : 2.542110e-04
+1.000000e-03 Word.None->[_perkier] : 5.674977e-05
+1.000000e-03 Word.None->[_person] : 5.674977e-05
+1.000000e-03 Word.None->[_pick] : 7.087806e-05
+1.000000e-03 Word.None->[_picks] : 5.674977e-05
+1.000000e-03 Word.None->[_picture] : 6.618973e-05
+1.000000e-03 Word.None->[_pictures] : 1.541078e-04
+1.000000e-03 Word.None->[_pieces] : 5.676886e-05
+1.000000e-03 Word.None->[_pig] : 6.734895e-04
+1.000000e-03 Word.None->[_pigg] : 5.674977e-05
+1.000000e-03 Word.None->[_piggys] : 9.312610e-05
+1.000000e-03 Word.None->[_pizza] : 5.719937e-05
+1.000000e-03 Word.None->[_place] : 5.771676e-05
+1.000000e-03 Word.None->[_play] : 2.516096e-03
+1.000000e-03 Word.None->[_playing] : 2.544167e-04
+1.000000e-03 Word.None->[_please] : 4.675477e-04
+1.000000e-03 Word.None->[_pretty] : 1.009651e-03
+1.000000e-03 Word.None->[_proper] : 5.674977e-05
+1.000000e-03 Word.None->[_pull] : 2.959881e-04
+1.000000e-03 Word.None->[_puppy] : 3.326322e-04
+1.000000e-03 Word.None->[_push] : 3.631324e-04
+1.000000e-03 Word.None->[_pushing] : 5.674977e-05
+1.000000e-03 Word.None->[_put] : 7.141150e-03
+1.000000e-03 Word.None->[_puts] : 1.541078e-04
+1.000000e-03 Word.None->[_quick] : 5.698369e-05
+1.000000e-03 Word.None->[_quiet] : 1.541078e-04
+1.000000e-03 Word.None->[_quite] : 7.321862e-05
+1.000000e-03 Word.None->[_raggedy] : 5.698401e-05
+1.000000e-03 Word.None->[_rather] : 4.551206e-04
+1.000000e-03 Word.None->[_reach] : 1.543759e-04
+1.000000e-03 Word.None->[_real] : 2.901136e-04
+1.000000e-03 Word.None->[_really] : 3.208574e-04
+1.000000e-03 Word.None->[_record] : 5.674977e-05
+1.000000e-03 Word.None->[_ride] : 5.613111e-04
+1.000000e-03 Word.None->[_right] : 2.629047e-03
+1.000000e-03 Word.None->[_rock] : 5.674977e-05
+1.000000e-03 Word.None->[_rocking] : 3.544705e-04
+1.000000e-03 Word.None->[_rocky] : 5.674977e-05
+1.000000e-03 Word.None->[_roll] : 4.551206e-04
+1.000000e-03 Word.None->[_row] : 5.674977e-05
+1.000000e-03 Word.None->[_run] : 5.674977e-05
+1.000000e-03 Word.None->[_running] : 5.674977e-05
+1.000000e-03 Word.None->[_sam] : 3.731795e-04
+1.000000e-03 Word.None->[_say] : 3.366010e-03
+1.000000e-03 Word.None->[_says] : 8.324992e-04
+1.000000e-03 Word.None->[_school] : 5.674977e-05
+1.000000e-03 Word.None->[_second] : 5.674977e-05
+1.000000e-03 Word.None->[_see] : 1.012384e-02
+1.000000e-03 Word.None->[_seen] : 5.674977e-05
+1.000000e-03 Word.None->[_send] : 5.686702e-05
+1.000000e-03 Word.None->[_shake] : 2.701804e-04
+1.000000e-03 Word.None->[_shaky] : 5.674977e-05
+1.000000e-03 Word.None->[_shall] : 7.574808e-04
+1.000000e-03 Word.None->[_she] : 1.836505e-03
+1.000000e-03 Word.None->[_shell] : 5.724361e-05
+1.000000e-03 Word.None->[_shes] : 2.101382e-04
+1.000000e-03 Word.None->[_shhhhhh] : 5.674977e-05
+1.000000e-03 Word.None->[_should] : 1.362135e-03
+1.000000e-03 Word.None->[_show] : 2.114066e-03
+1.000000e-03 Word.None->[_shut] : 8.467145e-05
+1.000000e-03 Word.None->[_shy] : 1.541078e-04
+1.000000e-03 Word.None->[_side] : 2.929002e-04
+1.000000e-03 Word.None->[_silly] : 5.558634e-04
+1.000000e-03 Word.None->[_singing] : 5.674977e-05
+1.000000e-03 Word.None->[_sit] : 2.361288e-03
+1.000000e-03 Word.None->[_size] : 5.674977e-05
+1.000000e-03 Word.None->[_smiling] : 5.674977e-05
+1.000000e-03 Word.None->[_snap] : 2.540174e-04
+1.000000e-03 Word.None->[_so] : 2.974871e-03
+1.000000e-03 Word.None->[_socks] : 5.674977e-05
+1.000000e-03 Word.None->[_some] : 1.196187e-03
+1.000000e-03 Word.None->[_someone] : 3.544705e-04
+1.000000e-03 Word.None->[_someones] : 5.674977e-05
+1.000000e-03 Word.None->[_something] : 1.040182e-03
+1.000000e-03 Word.None->[_sound] : 9.867152e-04
+1.000000e-03 Word.None->[_spaceship] : 5.674977e-05
+1.000000e-03 Word.None->[_span] : 5.674977e-05
+1.000000e-03 Word.None->[_spencer] : 1.541654e-04
+1.000000e-03 Word.None->[_spencers] : 5.679339e-05
+1.000000e-03 Word.None->[_spend] : 5.674977e-05
+1.000000e-03 Word.None->[_spit] : 5.674977e-05
+1.000000e-03 Word.None->[_stage] : 5.674977e-05
+1.000000e-03 Word.None->[_stanford] : 5.674977e-05
+1.000000e-03 Word.None->[_stay] : 5.674977e-05
+1.000000e-03 Word.None->[_step] : 5.674977e-05
+1.000000e-03 Word.None->[_sterling] : 5.674977e-05
+1.000000e-03 Word.None->[_stick] : 1.053504e-04
+1.000000e-03 Word.None->[_still] : 1.541078e-04
+1.000000e-03 Word.None->[_stop] : 5.674977e-05
+1.000000e-03 Word.None->[_stuck] : 3.544705e-04
+1.000000e-03 Word.None->[_study] : 1.541078e-04
+1.000000e-03 Word.None->[_stuff] : 1.541078e-04
+1.000000e-03 Word.None->[_stuffed] : 5.674977e-05
+1.000000e-03 Word.None->[_stupid] : 5.674977e-05
+1.000000e-03 Word.None->[_such] : 3.354273e-04
+1.000000e-03 Word.None->[_suns] : 5.674977e-05
+1.000000e-03 Word.None->[_supposed] : 4.566737e-04
+1.000000e-03 Word.None->[_sure] : 1.492580e-04
+1.000000e-03 Word.None->[_sweater] : 5.674977e-05
+1.000000e-03 Word.None->[_sweetie] : 5.705405e-05
+1.000000e-03 Word.None->[_switch] : 5.674977e-05
+1.000000e-03 Word.None->[_sword] : 1.541078e-04
+1.000000e-03 Word.None->[_tail] : 6.816608e-05
+1.000000e-03 Word.None->[_take] : 1.833077e-03
+1.000000e-03 Word.None->[_talking] : 5.694718e-05
+1.000000e-03 Word.None->[_taste] : 1.812470e-03
+1.000000e-03 Word.None->[_teeth] : 3.588339e-04
+1.000000e-03 Word.None->[_tele] : 5.674977e-05
+1.000000e-03 Word.None->[_telephone] : 5.681367e-05
+1.000000e-03 Word.None->[_telephones] : 5.674977e-05
+1.000000e-03 Word.None->[_tell] : 8.583248e-04
+1.000000e-03 Word.None->[_ten] : 5.674977e-05
+1.000000e-03 Word.None->[_than] : 2.540174e-04
+1.000000e-03 Word.None->[_thank] : 3.388590e-03
+1.000000e-03 Word.None->[_thanks] : 5.674977e-05
+1.000000e-03 Word.None->[_that] : 1.680875e-02
+1.000000e-03 Word.None->[_thats] : 1.497236e-02
+1.000000e-03 Word.None->[_the] : 9.493492e-02
+1.000000e-03 Word.None->[_theater] : 5.674977e-05
+1.000000e-03 Word.None->[_them] : 2.239198e-03
+1.000000e-03 Word.None->[_then] : 7.574808e-04
+1.000000e-03 Word.None->[_there] : 3.266750e-03
+1.000000e-03 Word.None->[_theres] : 3.592936e-03
+1.000000e-03 Word.None->[_these] : 1.907210e-03
+1.000000e-03 Word.None->[_they] : 2.974871e-03
+1.000000e-03 Word.None->[_theyre] : 1.261377e-03
+1.000000e-03 Word.None->[_thing] : 3.536109e-04
+1.000000e-03 Word.None->[_things] : 7.056782e-04
+1.000000e-03 Word.None->[_think] : 4.471428e-03
+1.000000e-03 Word.None->[_this] : 1.185109e-02
+1.000000e-03 Word.None->[_those] : 2.443614e-03
+1.000000e-03 Word.None->[_though] : 1.698823e-04
+1.000000e-03 Word.None->[_threw] : 5.674977e-05
+1.000000e-03 Word.None->[_throw] : 7.652363e-04
+1.000000e-03 Word.None->[_throwing] : 5.683533e-05
+1.000000e-03 Word.None->[_time] : 3.685673e-04
+1.000000e-03 Word.None->[_tired] : 3.544705e-04
+1.000000e-03 Word.None->[_to] : 2.354404e-02
+1.000000e-03 Word.None->[_toast] : 5.674977e-05
+1.000000e-03 Word.None->[_today] : 5.679212e-05
+1.000000e-03 Word.None->[_toes] : 2.945797e-04
+1.000000e-03 Word.None->[_tongue] : 5.674977e-05
+1.000000e-03 Word.None->[_too] : 1.691130e-03
+1.000000e-03 Word.None->[_tootles] : 2.540174e-04
+1.000000e-03 Word.None->[_top] : 4.071018e-04
+1.000000e-03 Word.None->[_touch] : 2.067619e-03
+1.000000e-03 Word.None->[_tower] : 5.674977e-05
+1.000000e-03 Word.None->[_toy] : 5.345330e-04
+1.000000e-03 Word.None->[_toys] : 2.379435e-03
+1.000000e-03 Word.None->[_train] : 1.541078e-04
+1.000000e-03 Word.None->[_trouble] : 1.541078e-04
+1.000000e-03 Word.None->[_tru] : 5.674977e-05
+1.000000e-03 Word.None->[_truck] : 1.470510e-03
+1.000000e-03 Word.None->[_trucks] : 6.688009e-05
+1.000000e-03 Word.None->[_try] : 1.847003e-03
+1.000000e-03 Word.None->[_trying] : 5.574016e-04
+1.000000e-03 Word.None->[_tshhhhhhh] : 5.674977e-05
+1.000000e-03 Word.None->[_turn] : 2.906274e-04
+1.000000e-03 Word.None->[_tv] : 5.701636e-05
+1.000000e-03 Word.None->[_twenty] : 5.674977e-05
+1.000000e-03 Word.None->[_two] : 8.091428e-04
+1.000000e-03 Word.None->[_ugly] : 5.674977e-05
+1.000000e-03 Word.None->[_uh] : 1.626027e-03
+1.000000e-03 Word.None->[_uhhuh] : 1.933386e-04
+1.000000e-03 Word.None->[_uhoh] : 5.392478e-04
+1.000000e-03 Word.None->[_uhuh] : 5.725728e-05
+1.000000e-03 Word.None->[_umhum] : 1.541078e-04
+1.000000e-03 Word.None->[_under] : 7.692598e-05
+1.000000e-03 Word.None->[_unuh] : 5.674977e-05
+1.000000e-03 Word.None->[_up] : 1.425749e-03
+1.000000e-03 Word.None->[_usually] : 6.958348e-05
+1.000000e-03 Word.None->[_vegetables] : 2.540174e-04
+1.000000e-03 Word.None->[_very] : 3.075683e-03
+1.000000e-03 Word.None->[_wail] : 5.674977e-05
+1.000000e-03 Word.None->[_walk] : 4.551206e-04
+1.000000e-03 Word.None->[_walker] : 5.674977e-05
+1.000000e-03 Word.None->[_walking] : 5.674977e-05
+1.000000e-03 Word.None->[_wampus] : 5.674977e-05
+1.000000e-03 Word.None->[_wanna] : 1.488039e-03
+1.000000e-03 Word.None->[_want] : 1.549201e-02
+1.000000e-03 Word.None->[_wants] : 6.578218e-04
+1.000000e-03 Word.None->[_warm] : 1.541078e-04
+1.000000e-03 Word.None->[_was] : 6.065648e-04
+1.000000e-03 Word.None->[_wash] : 1.541078e-04
+1.000000e-03 Word.None->[_watch] : 5.166656e-04
+1.000000e-03 Word.None->[_way] : 6.553877e-04
+1.000000e-03 Word.None->[_we] : 9.816827e-03
+1.000000e-03 Word.None->[_wear] : 4.568472e-04
+1.000000e-03 Word.None->[_well] : 1.753964e-03
+1.000000e-03 Word.None->[_went] : 3.147580e-04
+1.000000e-03 Word.None->[_were] : 6.662330e-04
+1.000000e-03 Word.None->[_wha] : 5.699943e-05
+1.000000e-03 Word.None->[_what] : 2.207577e-02
+1.000000e-03 Word.None->[_whatd] : 2.540174e-04
+1.000000e-03 Word.None->[_whatevers] : 5.674977e-05
+1.000000e-03 Word.None->[_whats] : 9.893501e-03
+1.000000e-03 Word.None->[_when] : 5.205345e-04
+1.000000e-03 Word.None->[_where] : 3.865270e-03
+1.000000e-03 Word.None->[_whered] : 6.953025e-04
+1.000000e-03 Word.None->[_wheres] : 1.297649e-02
+1.000000e-03 Word.None->[_which] : 1.755870e-03
+1.000000e-03 Word.None->[_white] : 2.540174e-04
+1.000000e-03 Word.None->[_who] : 8.642878e-04
+1.000000e-03 Word.None->[_whoa] : 5.674977e-05
+1.000000e-03 Word.None->[_why] : 1.233378e-03
+1.000000e-03 Word.None->[_will] : 6.214736e-04
+1.000000e-03 Word.None->[_wipe] : 1.541078e-04
+1.000000e-03 Word.None->[_wire] : 5.694207e-05
+1.000000e-03 Word.None->[_wires] : 5.674977e-05
+1.000000e-03 Word.None->[_wisdom] : 5.674977e-05
+1.000000e-03 Word.None->[_with] : 6.852993e-03
+1.000000e-03 Word.None->[_woof] : 6.676146e-05
+1.000000e-03 Word.None->[_woop] : 5.674977e-05
+1.000000e-03 Word.None->[_word] : 5.674977e-05
+1.000000e-03 Word.None->[_words] : 2.540174e-04
+1.000000e-03 Word.None->[_work] : 6.958347e-05
+1.000000e-03 Word.None->[_works] : 6.477107e-05
+1.000000e-03 Word.None->[_would] : 1.364573e-03
+1.000000e-03 Word.None->[_wow] : 2.066422e-04
+1.000000e-03 Word.None->[_ya] : 5.692718e-05
+1.000000e-03 Word.None->[_yay] : 5.674977e-05
+1.000000e-03 Word.None->[_yeah] : 5.180424e-03
+1.000000e-03 Word.None->[_year] : 5.674977e-05
+1.000000e-03 Word.None->[_yes] : 1.614899e-03
+1.000000e-03 Word.None->[_yet] : 5.827194e-05
+1.000000e-03 Word.None->[_you] : 7.654603e-02
+1.000000e-03 Word.None->[_youd] : 6.566567e-04
+1.000000e-03 Word.None->[_youll] : 5.674977e-05
+1.000000e-03 Word.None->[_your] : 1.187343e-02
+1.000000e-03 Word.None->[_youre] : 2.956766e-03
+1.000000e-03 Word.None->[_yours] : 2.574268e-04
+1.000000e-03 Word.None->[_youve] : 1.094038e-04
+1.000000e-03 Word.None->[_yuck] : 7.197922e-05
+1.000000e-03 Word.None->[_zeke] : 5.738483e-05
+1.000000e+10 Topic.None->[_##] : 5.000001e-01
+1.000000e+10 Topic.None->[T.None Topic.None] : 4.999999e-01
+1.000000e+00 PSEUDO.ALPHABET->[_.alphabet] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.ALPHABET Socials.NotTopical.kid.eyes] : 3.788554e-03
+1.000000e+00 PSEUDO.BABY->[_.baby] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.BABY Socials.NotTopical.kid.eyes] : 2.730111e-03
+1.000000e+00 PSEUDO.BALL->[_.ball] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.BALL Socials.NotTopical.kid.eyes] : 4.731510e-03
+1.000000e+00 PSEUDO.BEAR->[_.bear] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.BEAR Socials.NotTopical.kid.eyes] : 3.339788e-04
+1.000000e+00 PSEUDO.BLOCK->[_.block] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.BLOCK Socials.NotTopical.kid.eyes] : 1.226784e-04
+1.000000e+00 PSEUDO.BLOCKS->[_.blocks] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.BLOCKS Socials.NotTopical.kid.eyes] : 9.850486e-04
+1.000000e+00 PSEUDO.BOOK->[_.book] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.BOOK Socials.NotTopical.kid.eyes] : 4.663178e-03
+1.000000e+00 PSEUDO.BOX->[_.box] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.BOX Socials.NotTopical.kid.eyes] : 7.563375e-02
+1.000000e+00 PSEUDO.BRUSH->[_.brush] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.BRUSH Socials.NotTopical.kid.eyes] : 1.123631e-01
+1.000000e+00 PSEUDO.BUS->[_.bus] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.BUS Socials.NotTopical.kid.eyes] : 1.226410e-04
+1.000000e+00 PSEUDO.CAR->[_.car] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.CAR Socials.NotTopical.kid.eyes] : 1.573575e-01
+1.000000e+00 PSEUDO.CHEESE->[_.cheese] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.CHEESE Socials.NotTopical.kid.eyes] : 4.913280e-03
+1.000000e+00 PSEUDO.DOG->[_.dog] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.DOG Socials.NotTopical.kid.eyes] : 2.038757e-01
+1.000000e+00 PSEUDO.DOLL->[_.doll] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.DOLL Socials.NotTopical.kid.eyes] : 5.343377e-03
+1.000000e+00 PSEUDO.DOUGH->[_.dough] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.DOUGH Socials.NotTopical.kid.eyes] : 1.226427e-04
+1.000000e+00 PSEUDO.ERNIE->[_.ernie] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.ERNIE Socials.NotTopical.kid.eyes] : 1.421208e-03
+1.000000e+00 PSEUDO.FIRETRUCK->[_.firetruck] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.FIRETRUCK Socials.NotTopical.kid.eyes] : 1.226428e-04
+1.000000e+00 PSEUDO.FLASHLIGHT->[_.flashlight] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.FLASHLIGHT Socials.NotTopical.kid.eyes] : 2.918215e-03
+1.000000e+00 PSEUDO.HOTDOG->[_.hotdog] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.HOTDOG Socials.NotTopical.kid.eyes] : 1.133779e-02
+1.000000e+00 PSEUDO.MICKEY->[_.mickey] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.MICKEY Socials.NotTopical.kid.eyes] : 5.492308e-04
+1.000000e+00 PSEUDO.OSCAR->[_.oscar] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.OSCAR Socials.NotTopical.kid.eyes] : 1.857744e-03
+1.000000e+00 PSEUDO.PEPPERONI->[_.pepperoni] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.PEPPERONI Socials.NotTopical.kid.eyes] : 7.528783e-03
+1.000000e+00 PSEUDO.PHONE->[_.phone] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.PHONE Socials.NotTopical.kid.eyes] : 1.635744e-03
+1.000000e+00 PSEUDO.PIG->[_.pig] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes] : 1.642716e-01
+1.000000e+00 PSEUDO.POPNPALS->[_.popnpals] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.POPNPALS Socials.NotTopical.kid.eyes] : 7.081932e-03
+1.000000e+00 PSEUDO.RABBIT->[_.rabbit] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.RABBIT Socials.NotTopical.kid.eyes] : 1.226409e-04
+1.000000e+00 PSEUDO.RINGS->[_.rings] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.RINGS Socials.NotTopical.kid.eyes] : 4.261073e-03
+1.000000e+00 PSEUDO.TRAIN->[_.train] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.TRAIN Socials.NotTopical.kid.eyes] : 3.379984e-04
+1.000000e+00 PSEUDO.TRUCK->[_.truck] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.TRUCK Socials.NotTopical.kid.eyes] : 2.193248e-01
+1.000000e+00 PSEUDO.WAFFLES->[_.waffles] : 1.000000e+00
+1.000000e+00 T.None->[PSEUDO.WAFFLES Socials.NotTopical.kid.eyes] : 1.414960e-04
+1.000000e+10 Topic.alphabet->[T.alphabet Topic.None] : 1.000000e+00
+1.000000e+00 T.alphabet->[PSEUDO.ALPHABET Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.baby->[T.baby Topic.None] : 1.000000e+00
+1.000000e+00 T.baby->[PSEUDO.BABY Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.ball->[T.ball Topic.None] : 1.000000e+00
+1.000000e+00 T.ball->[PSEUDO.BALL Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.bear->[T.bear Topic.None] : 5.000000e-01
+1.000000e+10 Topic.bear->[T.None Topic.bear] : 5.000000e-01
+1.000000e+00 T.bear->[PSEUDO.BEAR Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.block->[T.block Topic.None] : 5.000000e-01
+1.000000e+10 Topic.block->[T.None Topic.block] : 5.000000e-01
+1.000000e+00 T.block->[PSEUDO.BLOCK Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.blocks->[T.blocks Topic.None] : 5.000000e-01
+1.000000e+10 Topic.blocks->[T.None Topic.blocks] : 5.000000e-01
+1.000000e+00 T.blocks->[PSEUDO.BLOCKS Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.book->[T.book Topic.None] : 5.000000e-01
+1.000000e+10 Topic.book->[T.None Topic.book] : 5.000000e-01
+1.000000e+00 T.book->[PSEUDO.BOOK Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.box->[T.box Topic.None] : 5.000000e-01
+1.000000e+10 Topic.box->[T.None Topic.box] : 5.000000e-01
+1.000000e+00 T.box->[PSEUDO.BOX Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.brush->[T.brush Topic.None] : 5.000000e-01
+1.000000e+10 Topic.brush->[T.None Topic.brush] : 5.000000e-01
+1.000000e+00 T.brush->[PSEUDO.BRUSH Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.bus->[T.bus Topic.None] : 5.000000e-01
+1.000000e+10 Topic.bus->[T.None Topic.bus] : 5.000000e-01
+1.000000e+00 T.bus->[PSEUDO.BUS Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.car->[T.car Topic.None] : 5.000000e-01
+1.000000e+10 Topic.car->[T.None Topic.car] : 5.000000e-01
+1.000000e+00 T.car->[PSEUDO.CAR Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.cheese->[T.cheese Topic.None] : 5.000000e-01
+1.000000e+10 Topic.cheese->[T.None Topic.cheese] : 5.000000e-01
+1.000000e+00 T.cheese->[PSEUDO.CHEESE Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.dog->[T.dog Topic.None] : 5.000000e-01
+1.000000e+10 Topic.dog->[T.None Topic.dog] : 5.000000e-01
+1.000000e+00 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.doll->[T.doll Topic.None] : 5.000000e-01
+1.000000e+10 Topic.doll->[T.None Topic.doll] : 5.000000e-01
+1.000000e+00 T.doll->[PSEUDO.DOLL Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.dough->[T.dough Topic.None] : 5.000000e-01
+1.000000e+10 Topic.dough->[T.None Topic.dough] : 5.000000e-01
+1.000000e+00 T.dough->[PSEUDO.DOUGH Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.ernie->[T.ernie Topic.None] : 5.000000e-01
+1.000000e+10 Topic.ernie->[T.None Topic.ernie] : 5.000000e-01
+1.000000e+00 T.ernie->[PSEUDO.ERNIE Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.firetruck->[T.firetruck Topic.None] : 5.000000e-01
+1.000000e+10 Topic.firetruck->[T.None Topic.firetruck] : 5.000000e-01
+1.000000e+00 T.firetruck->[PSEUDO.FIRETRUCK Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.flashlight->[T.flashlight Topic.None] : 5.000000e-01
+1.000000e+10 Topic.flashlight->[T.None Topic.flashlight] : 5.000000e-01
+1.000000e+00 T.flashlight->[PSEUDO.FLASHLIGHT Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.hotdog->[T.hotdog Topic.None] : 5.000000e-01
+1.000000e+10 Topic.hotdog->[T.None Topic.hotdog] : 5.000000e-01
+1.000000e+00 T.hotdog->[PSEUDO.HOTDOG Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.mickey->[T.mickey Topic.None] : 5.000000e-01
+1.000000e+10 Topic.mickey->[T.None Topic.mickey] : 5.000000e-01
+1.000000e+00 T.mickey->[PSEUDO.MICKEY Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.oscar->[T.oscar Topic.None] : 5.000000e-01
+1.000000e+10 Topic.oscar->[T.None Topic.oscar] : 5.000000e-01
+1.000000e+00 T.oscar->[PSEUDO.OSCAR Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.pepperoni->[T.pepperoni Topic.None] : 5.000000e-01
+1.000000e+10 Topic.pepperoni->[T.None Topic.pepperoni] : 5.000000e-01
+1.000000e+00 T.pepperoni->[PSEUDO.PEPPERONI Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.phone->[T.phone Topic.None] : 1.000000e+00
+1.000000e+00 T.phone->[PSEUDO.PHONE Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.pig->[T.pig Topic.None] : 5.000000e-01
+1.000000e+10 Topic.pig->[T.None Topic.pig] : 5.000000e-01
+1.000000e+00 T.pig->[PSEUDO.PIG Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.popnpals->[T.popnpals Topic.None] : 5.000000e-01
+1.000000e+10 Topic.popnpals->[T.None Topic.popnpals] : 5.000000e-01
+1.000000e+00 T.popnpals->[PSEUDO.POPNPALS Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.rabbit->[T.rabbit Topic.None] : 5.000000e-01
+1.000000e+10 Topic.rabbit->[T.None Topic.rabbit] : 5.000000e-01
+1.000000e+00 T.rabbit->[PSEUDO.RABBIT Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.rings->[T.rings Topic.None] : 5.000000e-01
+1.000000e+10 Topic.rings->[T.None Topic.rings] : 5.000000e-01
+1.000000e+00 T.rings->[PSEUDO.RINGS Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.train->[T.train Topic.None] : 5.000000e-01
+1.000000e+10 Topic.train->[T.None Topic.train] : 5.000000e-01
+1.000000e+00 T.train->[PSEUDO.TRAIN Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.truck->[T.truck Topic.None] : 5.000000e-01
+1.000000e+10 Topic.truck->[T.None Topic.truck] : 5.000000e-01
+1.000000e+00 T.truck->[PSEUDO.TRUCK Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+10 Topic.waffles->[T.waffles Topic.None] : 5.000000e-01
+1.000000e+10 Topic.waffles->[T.None Topic.waffles] : 5.000000e-01
+1.000000e+00 T.waffles->[PSEUDO.WAFFLES Socials.Topical.kid.eyes] : 1.000000e+00
+1.000000e+00 PSEUDOKID.EYES->[_kid.eyes] : 1.000000e+00
+1.000000e+00 Socials.NotTopical.kid.eyes->[PSEUDOKID.EYES Socials.NotTopical.kid.hands] : 8.215775e-02
+1.000000e+00 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands] : 9.178422e-01
+1.000000e+00 PSEUDOKID.HANDS->[_kid.hands] : 1.000000e+00
+1.000000e+00 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes] : 1.707240e-01
+1.000000e+00 Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes] : 8.292760e-01
+1.000000e+00 PSEUDOMOM.EYES->[_mom.eyes] : 1.000000e+00
+1.000000e+00 Socials.NotTopical.mom.eyes->[PSEUDOMOM.EYES Socials.NotTopical.mom.hands] : 4.033921e-02
+1.000000e+00 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands] : 9.596608e-01
+1.000000e+00 PSEUDOMOM.HANDS->[_mom.hands] : 1.000000e+00
+1.000000e+00 Socials.NotTopical.mom.hands->[PSEUDOMOM.HANDS Socials.NotTopical.mom.point] : 1.189732e-01
+1.000000e+00 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point] : 8.810268e-01
+1.000000e+00 PSEUDOMOM.POINT->[_mom.point] : 1.000000e+00
+1.000000e+00 PSEUDO#->[_#] : 1.000000e+00
+1.000000e+00 Socials.NotTopical.mom.point->[PSEUDOMOM.POINT PSEUDO#] : 8.891529e-03
+1.000000e+00 Socials.NotTopical.mom.point->[_#] : 9.911085e-01
+1.000000e+00 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands] : 6.632023e-01
+1.000000e+00 Socials.Topical.kid.eyes->[Socials.Topical.kid.hands] : 3.367977e-01
+1.000000e+00 Socials.Topical.kid.hands->[PSEUDOKID.HANDS Socials.Topical.mom.eyes] : 4.388453e-01
+1.000000e+00 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes] : 5.611547e-01
+1.000000e+00 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands] : 3.425314e-01
+1.000000e+00 Socials.Topical.mom.eyes->[Socials.Topical.mom.hands] : 6.574686e-01
+1.000000e+00 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point] : 5.012177e-01
+1.000000e+00 Socials.Topical.mom.hands->[Socials.Topical.mom.point] : 4.987823e-01
+1.000000e+00 Socials.Topical.mom.point->[PSEUDOMOM.POINT PSEUDO#] : 7.068434e-02
+1.000000e+00 Socials.Topical.mom.point->[_#] : 9.293157e-01

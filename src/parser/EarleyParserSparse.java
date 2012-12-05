@@ -5,6 +5,7 @@ package parser;
 
 import java.io.BufferedReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -175,7 +176,7 @@ public class EarleyParserSparse extends EarleyParser {
     if(forwardProb.containsKey(linear(left, right))){
       return forwardProb.get(linear(left, right)).keySet();
     } else {
-      return null;
+      return new HashSet<Integer>();
     }
   }
   
@@ -199,7 +200,7 @@ public class EarleyParserSparse extends EarleyParser {
     if(outerProb.containsKey(linear(left, right))){
       return outerProb.get(linear(left, right)).keySet();
     } else {
-      return null;
+      return new HashSet<Integer>();
     }
   }
   
