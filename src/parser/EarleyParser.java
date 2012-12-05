@@ -2086,6 +2086,8 @@ public abstract class EarleyParser implements Parser {
   public String socialSentMarginalDecoding(int sentLeft, int sentRight, int doubleHashPos){
     StringBuffer sb = new StringBuffer();
     
+    System.err.println(" [" + sentLeft + ", " + sentRight + "]: " + words.subList(sentLeft, sentRight));
+    
     // sent tag
     Map<Integer, Double> sentMarginalMap = computeMarginalMap(sentLeft, sentRight);
     
