@@ -423,6 +423,7 @@ public abstract class EarleyParser implements Parser {
       }
       
       if(socialMarginalWriter != null){ // social marginal, need to compute expected counts
+        expectedCounts = new HashMap<Integer, Double>();
         computeOutsideProbs();
           
         List<String> treeStrs = socialMarginalDecoding();
@@ -585,6 +586,7 @@ public abstract class EarleyParser implements Parser {
     initOuterProbs();
     computeOutsideProbs(rootInnerScore);
   }
+  
   // print expected rule count to string
   public String sprintExpectedCounts(){
     StringBuffer sb = new StringBuffer("# Expected counts\n");
@@ -2070,7 +2072,7 @@ public abstract class EarleyParser implements Parser {
     double bestScore = operator.zero();
     for(int tag : marginalMap.keySet()){
 //      System.err.println(parserTagIndex.get(tag) + "\t" + marginalMap.get(tag));
-      assert(parserTagIndex.get(tag).startsWith(prefixFilter));
+      assert(parserTagIndex.get(tag).startsWith(prefixFilter) || parserTagIndex.get(tag).equals(""));
       
       if(marginalMap.get(tag) > bestScore){
         bestTag = tag;
@@ -2086,6 +2088,7 @@ public abstract class EarleyParser implements Parser {
     
     // sent tag
     Map<Integer, Double> sentMarginalMap = computeMarginalMap(sentLeft, sentRight);
+    
     int sentTag = argmax(sentMarginalMap, "Sentence");
     assert(sentTag>=0);
     sb.append(parserTagIndex.get(sentTag));
@@ -2184,6 +2187,8 @@ public abstract class EarleyParser implements Parser {
     
     if(objectives.contains("viterbi")){
       decodeOpt = 1;
+    } else if(objectives.contains("socialmarginal")){
+      decodeOpt = 2;
     }
   }
   
