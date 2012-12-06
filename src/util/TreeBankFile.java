@@ -150,7 +150,6 @@ public class TreeBankFile {
     Label mother = tree.label();
     
     if(mother.value().startsWith("Sentence")) { // a sent tree
-      mother.setValue("Sentence");
       sentTrees.add(tree);
     } else {
       for(Tree childTree : tree.getChildrenAsList()){

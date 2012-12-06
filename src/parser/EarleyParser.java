@@ -2014,7 +2014,7 @@ public abstract class EarleyParser implements Parser {
       String word = words.get(i).word();
       
       if(word.charAt(0) == '.' || word.equals("##")){ // start a social cue
-        if(doubleHashPos>0){ // this means we have finished processing a sentence
+        if(doubleHashPos>=0){ // this means we have finished processing a sentence
           String result = socialSentMarginalDecoding(sentLeft, sentRight, doubleHashPos);
           results.add(result);
           
