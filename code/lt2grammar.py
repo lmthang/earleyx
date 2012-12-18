@@ -15,6 +15,7 @@ import sys
 import argparse # option parsing
 import re # regular expression
 import string
+import random
 ### Global variables ###
 
 
@@ -40,6 +41,7 @@ def process_command_line(argv):
 
   # optional arguments
   parser.add_argument('-d', '--debug', dest='debug', action='store_true', default=False, help='enable debugging mode (default: false)') 
+  parser.add_argument('-r', '--random', dest='random', action='store_true', default=False, help='add random noise to rule probabilities (default: false)') 
   
   args = parser.parse_args(argv)
   sys.stderr.write("# parsed arguments: %s" % str(args))
@@ -77,7 +79,7 @@ def process_rule_line(eachline):
   
   return (bias, tag, children)
 
-def process_files(in_file, out_file):
+def process_files(in_file, out_file, is_random):
   """
   Read data from in_file, and output to out_file
   """
@@ -141,6 +143,9 @@ def process_files(in_file, out_file):
 
   for tag in ruleHash:
     prob = 1.0/len(ruleHash[tag].keys()) # uniform prob
+    if is_random:
+      prob = prob + random.uniform(-0.01, 0.01)
+
     for children in ruleHash[tag]:
       ruleHash[tag][children] = prob
 
@@ -166,7 +171,7 @@ def main(argv=None):
   if args.debug == True:
     sys.stderr.write('Debug mode\n')
 
-  process_files(args.in_file, args.out_file)
+  process_files(args.in_file, args.out_file, args.random)
 
   return 0 # success
 
