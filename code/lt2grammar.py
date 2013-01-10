@@ -142,12 +142,21 @@ def process_files(in_file, out_file, is_random):
   inf.close()
 
   for tag in ruleHash:
-    prob = 1.0/len(ruleHash[tag].keys()) # uniform prob
-    if is_random:
-      prob = prob + random.uniform(-0.01, 0.01)
-
+    uniform_prob = 1.0/len(ruleHash[tag].keys()) # uniform prob
+  
+    sum = 0.0
     for children in ruleHash[tag]:
+      if is_random:
+        prob = random.uniform(0, 1) #uniform_prob + random.uniform(-uniform_prob/10.0, uniform_prob/10.0)
+        sum = sum + prob
+      else:
+        prob = uniform_prob
       ruleHash[tag][children] = prob
+
+    if is_random: # renormalized
+      assert sum>0.0
+      for children in ruleHash[tag]:
+        ruleHash[tag][children] = ruleHash[tag][children]/sum
 
   sys.stderr.write('Done! Num lines = %d\n' % line_id)
   
