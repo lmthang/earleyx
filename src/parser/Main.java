@@ -256,7 +256,7 @@ public class Main {
       if(insideOutsideOpt==0){
         parser.parseSentences(sentences, indices, outPrefix);
       } else if(insideOutsideOpt>0){
-        parser.insideOutside(sentences);
+        parser.insideOutside(sentences, outPrefix);
         
         // output rule prob
         List<ProbRule> allRules = parser.getAllRules();
