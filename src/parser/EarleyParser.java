@@ -1825,6 +1825,10 @@ public abstract class EarleyParser implements Parser {
   }
   
   public List<Double> insideOutside(List<String> sentences){
+    return insideOutside(sentences, "");
+  }
+  
+  public List<Double> insideOutside(List<String> sentences, String outPrefix){
     int minIteration = 1;
     int maxIteration = 0; // 0: run until convergence
     double stopTol = 1e-7;
@@ -1855,7 +1859,18 @@ public abstract class EarleyParser implements Parser {
         System.err.println("# iteration " + numIterations + ", numRules=" + numRules 
             + ", sumNegLogProb = " + sumNegLogProb);
       }
-
+      
+      // output intermediate IO grammars
+      if (numIterations % 5 == 0 && !outPrefix.equals("")){ 
+        String outGrammarFile = outPrefix + ".iogrammar." + numIterations;
+        try {
+          RuleFile.printRules(outGrammarFile, getAllRules(), getParserWordIndex(), getParserTagIndex());
+        } catch (IOException e) {
+          System.err.println("! Error outputing intermediate grammar " + outGrammarFile);
+          System.exit(1);
+        }
+      }
+      
       /** update model params **/
       buildGrammar();
       Map<Integer, Counter<Integer>> tag2wordsMap = lex.getTag2wordsMap();
