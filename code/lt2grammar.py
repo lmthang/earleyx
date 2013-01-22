@@ -41,7 +41,7 @@ def process_command_line(argv):
 
   # optional arguments
   parser.add_argument('-d', '--debug', dest='debug', action='store_true', default=False, help='enable debugging mode (default: false)') 
-  parser.add_argument('-r', '--random', dest='random', action='store_true', default=False, help='add random noise to rule probabilities (default: false)') 
+  parser.add_argument('-r', '--random', dest='random_range', type=float, default=0, help='add random noise to rule probabilities -r specify the range of random noise being added (default: false)') 
   
   args = parser.parse_args(argv)
   sys.stderr.write("# parsed arguments: %s" % str(args))
@@ -79,7 +79,7 @@ def process_rule_line(eachline):
   
   return (bias, tag, children)
 
-def process_files(in_file, out_file, is_random):
+def process_files(in_file, out_file, random_range):
   """
   Read data from in_file, and output to out_file
   """
@@ -145,15 +145,16 @@ def process_files(in_file, out_file, is_random):
     uniform_prob = 1.0/len(ruleHash[tag].keys()) # uniform prob
   
     sum = 0.0
+    distort_range = min(uniform_prob, random_range)
     for children in ruleHash[tag]:
-      if is_random:
-        prob = random.uniform(0, 1) #uniform_prob + random.uniform(-uniform_prob/10.0, uniform_prob/10.0)
+      if random_range > 0:
+        prob = uniform_prob + random.uniform(-distort_range, distort_range) #uniform_prob + random.uniform(-uniform_prob/10.0, uniform_prob/10.0)
         sum = sum + prob
       else:
         prob = uniform_prob
       ruleHash[tag][children] = prob
 
-    if is_random: # renormalized
+    if random_range: # renormalized
       assert sum>0.0
       for children in ruleHash[tag]:
         ruleHash[tag][children] = ruleHash[tag][children]/sum
@@ -180,7 +181,7 @@ def main(argv=None):
   if args.debug == True:
     sys.stderr.write('Debug mode\n')
 
-  process_files(args.in_file, args.out_file, args.random)
+  process_files(args.in_file, args.out_file, args.random_range)
 
   return 0 # success
 
