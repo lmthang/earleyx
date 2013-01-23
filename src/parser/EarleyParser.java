@@ -943,7 +943,7 @@ public abstract class EarleyParser implements Parser {
 
     if(completions.length>0){ // there exists a completion
       double inner = getInnerScore(middle, right, nextEdge);
-      if (verbose>=3){
+      if (verbose>=2){
         System.err.println(completionInfo(middle, right, nextEdge, inner, completions));
       }
  
@@ -988,7 +988,7 @@ public abstract class EarleyParser implements Parser {
             }
 
 
-            if (verbose >= 3) {
+            if (verbose >= 2) {
               System.err.println("  start " + edgeScoreInfo(left, middle, completion.activeEdge) 
                   + " -> new " + edgeScoreInfo(left, right, newEdge, newForwardProb, newInnerProb));
 
@@ -1835,8 +1835,9 @@ public abstract class EarleyParser implements Parser {
     int minIteration = 1;
     int maxIteration = 0; // 0: run until convergence
     double stopTol = 1e-7;
-    double minRuleProb = 1e-20;
+    double minRuleProb = 1e-50;
     
+    System.err.println("## Inside-Outisde stopTol=" + stopTol + ", minRuleProb=" + minRuleProb);
     List<Double> sumNegLogProbList = new ArrayList<Double>();
     int numIterations = 0;
     int prevNumRules = 0;
@@ -1975,6 +1976,7 @@ public abstract class EarleyParser implements Parser {
               tagSums.get(tag)));
         
           if(newProb<minRuleProb){ // filter
+            System.err.println("Filter: " + newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
             newProb = 0.0; 
           } else {
             numRules++;
@@ -1997,6 +1999,7 @@ public abstract class EarleyParser implements Parser {
           ruleSet.setProb(ruleId, newProb);
           
           if(newProb<minRuleProb){ // filter
+            System.err.println("Filter: " + newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
             newProb = 0.0; 
           } else {
             numRules++;
@@ -2047,7 +2050,8 @@ public abstract class EarleyParser implements Parser {
     }
   
     assert(sentLeft<sentRight);
-    
+
+    // marginal decoding a sent
     String result = socialSentMarginalDecoding(sentLeft, sentRight, doubleHashPos);
     results.add(result);
     
@@ -2110,13 +2114,11 @@ public abstract class EarleyParser implements Parser {
     assert(sentTag>=0);
     sb.append(parserTagIndex.get(sentTag));
     
-//  if(verbose>=3){
     System.err.println(parserTagIndex.get(sentTag) + " [" + sentLeft + ", " + sentRight + "]: " + words.subList(sentLeft, sentRight));
     
     for(int tag : sentMarginalMap.keySet()){
       System.err.println(parserTagIndex.get(tag) + "\t" + sentMarginalMap.get(tag));
     }
-//  }
 
     // word tags
     for(int i=doubleHashPos+1; i<sentRight; i++){

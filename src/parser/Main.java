@@ -198,7 +198,7 @@ public class Main {
     String outPrefix = null;
     if (argsMap.keySet().contains("-out")) {
       outPrefix = argsMap.get("-out")[0];
-      File outDir = (new File(outPrefix)).getParentFile();
+      File outDir = (new File(outPrefix)).getAbsoluteFile().getParentFile();
       if(!outDir.exists()){
         System.err.println("# Creating output directory " + outDir.getAbsolutePath());
         outDir.mkdirs();
