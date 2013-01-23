@@ -4,6 +4,7 @@ import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.ling.Tag;
 import edu.stanford.nlp.ling.Word;
+import edu.stanford.nlp.math.SloppyMath;
 import edu.stanford.nlp.parser.Parser;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.Counter;
@@ -1951,28 +1952,28 @@ public abstract class EarleyParser implements Parser {
     
     // normalized probs
     int numRules = 0;
-    Map<Integer, Double> vbTagSums = null;
+    Map<Integer, Double> vbTagLogSums = null;
+    Map<Integer, Double> vbRuleLogProbs = null;
     if(insideOutsideOpt==2){ // for VB we need to renormalize later
-      vbTagSums = new HashMap<Integer, Double>();
+      vbTagLogSums = new HashMap<Integer, Double>();
+      vbRuleLogProbs = new HashMap<Integer, Double>();
     }
     for (int ruleId = 0; ruleId < ruleSet.size(); ruleId++) {
-      double newProb = 0.0;
-      
       if(expectedCounts.containsKey(ruleId)){
         assert(operator.getProb(expectedCounts.get(ruleId))>0);
         int tag = ruleSet.getMother(ruleId);
         
         if(insideOutsideOpt==2){ // VB
-          newProb = Math.exp(Dirichlet.digamma(operator.getProb(expectedCounts.get(ruleId))) 
-              - Dirichlet.digamma(operator.getProb(tagSums.get(tag))));
-          
-          if(!vbTagSums.containsKey(tag)){
-            vbTagSums.put(tag, 0.0);
+          double logProb = Dirichlet.digamma(operator.getProb(expectedCounts.get(ruleId))) 
+            - Dirichlet.digamma(operator.getProb(tagSums.get(tag)));
+          vbRuleLogProbs.put(ruleId, logProb);
+          if(!vbTagLogSums.containsKey(tag)){
+            vbTagLogSums.put(tag, Double.NEGATIVE_INFINITY);
           }
           
-          vbTagSums.put(tag, vbTagSums.get(tag) + newProb);
+          vbTagLogSums.put(tag, SloppyMath.logAdd(vbTagLogSums.get(tag),logProb));
         } else { // MLE
-          newProb = operator.getProb(operator.divide(expectedCounts.get(ruleId), 
+          double newProb = operator.getProb(operator.divide(expectedCounts.get(ruleId), 
               tagSums.get(tag)));
         
           if(newProb<minRuleProb){ // filter
@@ -1984,10 +1985,12 @@ public abstract class EarleyParser implements Parser {
               System.err.println(newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
             }
           }
-        }
+          
+          ruleSet.setProb(ruleId, newProb);
+        } // end insideOutsideOpt
       }
       
-      ruleSet.setProb(ruleId, newProb);
+      
     }
     
     // VB, renormalize
@@ -1995,15 +1998,13 @@ public abstract class EarleyParser implements Parser {
       for (int ruleId = 0; ruleId < ruleSet.size(); ruleId++) {
         if(expectedCounts.containsKey(ruleId)){
           int tag = ruleSet.getMother(ruleId);
-          double newProb = ruleSet.get(ruleId).getProb()/vbTagSums.get(tag);
+          double newProb = Math.exp(vbRuleLogProbs.get(ruleId)- vbTagLogSums.get(tag));
           ruleSet.setProb(ruleId, newProb);
           
           if(newProb<minRuleProb){ // filter
             System.err.println("Filter: " + newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex)
-                + "\texpected count=" + operator.getProb(expectedCounts.get(ruleId)) + 
-                ", digamma=" + Dirichlet.digamma(operator.getProb(expectedCounts.get(ruleId))) + 
-                "\t, total count=" + operator.getProb(tagSums.get(tag)) + ", digamma=" + 
-                Dirichlet.digamma(operator.getProb(tagSums.get(tag))));
+                + "\t" + operator.getProb(expectedCounts.get(ruleId)) + 
+                ", " + operator.getProb(tagSums.get(tag)));
             newProb = 0.0; 
           } else {
             numRules++;
