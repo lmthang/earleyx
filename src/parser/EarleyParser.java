@@ -1999,7 +1999,11 @@ public abstract class EarleyParser implements Parser {
           ruleSet.setProb(ruleId, newProb);
           
           if(newProb<minRuleProb){ // filter
-            System.err.println("Filter: " + newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
+            System.err.println("Filter: " + newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex)
+                + "\texpected count=" + operator.getProb(expectedCounts.get(ruleId)) + 
+                ", digamma=" + Dirichlet.digamma(operator.getProb(expectedCounts.get(ruleId))) + 
+                "\t, total count=" + operator.getProb(tagSums.get(tag)) + ", digamma=" + 
+                Dirichlet.digamma(operator.getProb(tagSums.get(tag))));
             newProb = 0.0; 
           } else {
             numRules++;
