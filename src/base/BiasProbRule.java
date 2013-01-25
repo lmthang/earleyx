@@ -16,11 +16,11 @@ public class BiasProbRule extends ProbRule {
   
   // 1 X->[a b c] : 0.1
   public String toString(Index<String> tagIndex, Index<String> wordIndex) {
-    return String.format("%e %s : %e", bias, rule.toString(tagIndex, wordIndex), prob);
+    return String.format("%g %s : %g", bias, rule.toString(tagIndex, wordIndex), prob);
   }
   
   // format read by Mark's code
   public String markString(Index<String> tagIndex, Index<String> wordIndex) {
-    return bias + " " + prob + " " + rule.markString(tagIndex, wordIndex);
+    return String.format("%g %g %s", bias, prob, rule.markString(tagIndex, wordIndex));
   }
 }

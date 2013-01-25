@@ -164,7 +164,7 @@ public class EarleyParserTest extends TestCase {
     inputSentences.add("d c");
     
     if(insideOutsideOpt>0){
-      List<Double> sumNegLogProbList = parser.insideOutside(inputSentences);
+      List<Double> sumNegLogProbList = parser.insideOutside(inputSentences, "", 1e-20);
       System.err.println(sumNegLogProbList);
       assertEquals(sumNegLogProbList.size()==3, true);
       

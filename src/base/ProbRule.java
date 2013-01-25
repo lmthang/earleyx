@@ -79,7 +79,7 @@ public class ProbRule {
   
   // X->[a b c] : 0.1
   public String toString(Index<String> tagIndex, Index<String> wordIndex) {
-    return String.format("%s : %e", rule.toString(tagIndex, wordIndex), prob);
+    return String.format("%s : %g", rule.toString(tagIndex, wordIndex), prob);
   }
   
   public String schemeString(Index<String> tagIndex, Index<String> wordIndex) {
@@ -88,12 +88,12 @@ public class ProbRule {
   
   // format read by Mark's code
   public String markString(Index<String> tagIndex, Index<String> wordIndex) {
-    return prob + " " + rule.markString(tagIndex, wordIndex);
+    return String.format("%g", prob) + " " + rule.markString(tagIndex, wordIndex);
   }
 
   // format read by Tim's code
   public String timString(Index<String> tagIndex, Index<String> wordIndex) {
-    return Math.log(prob) + " " + rule.timString(tagIndex, wordIndex);
+    return String.format("%g", Math.log(prob)) + " " + rule.timString(tagIndex, wordIndex);
   }
 }
 

@@ -1833,10 +1833,15 @@ public abstract class EarleyParser implements Parser {
   }
   
   public List<Double> insideOutside(List<String> sentences, String outPrefix){
+    double minRuleProb = 1e-50;
+    return insideOutside(sentences, outPrefix, minRuleProb);
+  }
+  
+  public List<Double> insideOutside(List<String> sentences, String outPrefix, double minRuleProb){
     int minIteration = 1;
     int maxIteration = 0; // 0: run until convergence
     double stopTol = 1e-7;
-    double minRuleProb = 1e-50;
+    
     
     System.err.println("## Inside-Outisde stopTol=" + stopTol + ", minRuleProb=" + minRuleProb);
     List<Double> sumNegLogProbList = new ArrayList<Double>();
