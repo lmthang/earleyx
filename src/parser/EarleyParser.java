@@ -66,7 +66,7 @@ public abstract class EarleyParser implements Parser {
   protected boolean isLogProb = false;
   protected int insideOutsideOpt = 0; // 1: EM, 2: VB
   protected int decodeOpt = 0; // 1: Viterbi (Label Tree), 2: Label Recall
-  protected boolean isFastComplete = true; //false; 
+  protected boolean isFastComplete = false; 
   protected Operator operator; // either ProbOperator or LogProbOperator
   
   protected Grammar g;
@@ -944,7 +944,7 @@ public abstract class EarleyParser implements Parser {
 
     if(completions.length>0){ // there exists a completion
       double inner = getInnerScore(middle, right, nextEdge);
-      if (verbose>=2){
+      if (verbose>=3){
         System.err.println(completionInfo(middle, right, nextEdge, inner, completions));
       }
  
@@ -982,14 +982,14 @@ public abstract class EarleyParser implements Parser {
             } else {
               addActiveEdgeInfo(left, right, newEdge);
             }
-        
+            
             // Viterbi: store backtrack info
             if(decodeOpt==1){
               addBacktrack(left, middle, right, nextEdge, newEdge, newInnerProb);
             }
 
 
-            if (verbose >= 2) {
+            if (verbose >= 3) {
               System.err.println("  start " + edgeScoreInfo(left, middle, completion.activeEdge) 
                   + " -> new " + edgeScoreInfo(left, right, newEdge, newForwardProb, newInnerProb));
 
@@ -1035,7 +1035,7 @@ public abstract class EarleyParser implements Parser {
     // set of completions X -> \alpha . Z \beta
     Completion[] completions = g.getCompletions(tag);
     
-    if (verbose>=3 && completions.length>0){
+    if (verbose>=2 && completions.length>0){
       System.err.println(completionInfo(middle, right, nextEdge, inner, completions));
     }
     
@@ -1053,8 +1053,8 @@ public abstract class EarleyParser implements Parser {
         addCompleteTmpForwardScore(newEdge, newForwardProb);
         addCompleteTmpInnerScore(newEdge, newInnerProb);
     
-        // inside-outside info to help outside computation later
-        if(insideOutsideOpt>0){
+        // inside-outside info to help outside computation later or marginal decoding later
+        if(insideOutsideOpt>0 || decodeOpt==2){
           Edge edgeObj = edgeSpace.get(newEdge);
           
           if(edgeObj.numRemainingChildren()==0){ // complete right: left X -> _ Y .
@@ -1067,7 +1067,7 @@ public abstract class EarleyParser implements Parser {
           addBacktrack(left, middle, right, nextEdge, newEdge, newInnerProb);
         }
         
-        if (verbose >= 3) {
+        if (verbose >= 2) {
           System.err.println("  start " + edgeScoreInfo(left, middle, completion.activeEdge) 
               + " -> new " + edgeScoreInfo(left, right, newEdge, newForwardProb, newInnerProb));
 

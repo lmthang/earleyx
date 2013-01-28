@@ -27,6 +27,7 @@ public class EarleyParserSparse extends EarleyParser {
       boolean isScaling, boolean isLogProb, int insideOutsideOpt,
       String objString) {
     super(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
+    isFastComplete = true;
     // TODO Auto-generated constructor stub
   }
 
@@ -35,6 +36,7 @@ public class EarleyParserSparse extends EarleyParser {
       int insideOutsideOpt, String objString) {
     super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
         insideOutsideOpt, objString);
+    isFastComplete = true;
     // TODO Auto-generated constructor stub
   }
 

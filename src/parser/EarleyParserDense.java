@@ -25,6 +25,7 @@ public class EarleyParserDense extends EarleyParser{
       boolean isScaling, boolean isLogProb, int insideOutsideOpt,
       String objString) {
     super(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
+    isFastComplete = false;
     // TODO Auto-generated constructor stub
   }
 
@@ -33,6 +34,7 @@ public class EarleyParserDense extends EarleyParser{
       int insideOutsideOpt, String objString) {
     super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
         insideOutsideOpt, objString);
+    isFastComplete = false;
     // TODO Auto-generated constructor stub
   }
 
