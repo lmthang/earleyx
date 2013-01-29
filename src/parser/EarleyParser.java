@@ -1912,17 +1912,22 @@ public abstract class EarleyParser implements Parser {
           System.exit(1);
         }
         
+        int oldVerbose = EarleyParser.verbose;
+        EarleyParser.verbose = -1;
         parseSentences(sentences, outPrefix + "." + numIterations);
+        EarleyParser.verbose = oldVerbose;
       }
       
       // convergence test
       if(numIterations>=minIteration && numRules==prevNumRules){
-        if(maxIteration>0 && numIterations>=maxIteration){ // exceed max iterations
-          if(verbose>=3){
-            System.err.println("# Exceed number of iterations " + maxIteration + ", stop");
+        if(maxIteration>0){
+          if(numIterations>=maxIteration){ // exceed max iterations
+            if(verbose>=3){
+              System.err.println("# Exceed number of iterations " + maxIteration + ", stop");
+            }
+            
+            break;
           }
-          
-          break;
         } else if(sumNegLogProb==0){
           if(verbose>=0){
             System.err.println("# Reach minimum sumNegLogProb = 0.0, stop");

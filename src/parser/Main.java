@@ -164,6 +164,7 @@ public class Main {
     System.err.println("# isLogProb = " + isLogProb);
     System.err.println("# isScaling = " + isScaling);
     System.err.println("# insideOutsideOpt = " + insideOutsideOpt);
+    System.err.println("# maxIteration = " + maxiteration);
     System.err.println("# Verbose opt = " + verbose);
 
     /******************/
