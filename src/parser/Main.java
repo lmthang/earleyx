@@ -80,6 +80,7 @@ public class Main {
     flags.put("-root", new Integer(1)); // root symbol
     flags.put("-io", new Integer(1)); // inside-outside computation
     flags.put("-maxiteration", new Integer(1)); // number of iterations to run IO
+    flags.put("-intermediate", new Integer(1)); // print grammars and parsers every intermediate iteration
     flags.put("-id", new Integer(1)); // sentence indices
     flags.put("-sparse", new Integer(0)); // optimize for sparse grammars
     flags.put("-normalprob", new Integer(0)); // normal prob 
