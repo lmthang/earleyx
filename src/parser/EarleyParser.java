@@ -359,6 +359,10 @@ public abstract class EarleyParser implements Parser {
   }
   
   public List<Double> parseSentences(List<String> sentences){
+    return parseSentences(sentences, "");
+  }
+  
+  public List<Double> parseSentences(List<String> sentences, String outPrefix){
     List<String> indices = new ArrayList<String>();
     for (int i = 0; i < sentences.size(); i++) {
       indices.add(i + "");
@@ -366,7 +370,7 @@ public abstract class EarleyParser implements Parser {
     
     List<Double> sentLogProbs = null;
     try {
-      sentLogProbs = parseSentences(sentences, indices, "");
+      sentLogProbs = parseSentences(sentences, indices, outPrefix);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -1838,8 +1842,18 @@ public abstract class EarleyParser implements Parser {
   }
   
   public List<Double> insideOutside(List<String> sentences, String outPrefix, double minRuleProb){
+    return insideOutside(sentences, outPrefix, 0, 0, minRuleProb);
+  }
+  
+  public List<Double> insideOutside(List<String> sentences, String outPrefix, 
+      int maxiteration, int intermediate){
+    double minRuleProb = 1e-50;
+    return insideOutside(sentences, outPrefix, maxiteration, intermediate, minRuleProb);
+  }
+  
+  public List<Double> insideOutside(List<String> sentences, String outPrefix, 
+      int maxIteration, int intermediate, double minRuleProb){
     int minIteration = 1;
-    int maxIteration = 0; // 0: run until convergence
     double stopTol = 1e-7;
     
     
@@ -1870,17 +1884,6 @@ public abstract class EarleyParser implements Parser {
             + ", sumNegLogProb = " + sumNegLogProb);
       }
       
-      // output intermediate IO grammars
-      if (numIterations % 5 == 0 && !outPrefix.equals("")){ 
-        String outGrammarFile = outPrefix + ".iogrammar." + numIterations;
-        try {
-          RuleFile.printRules(outGrammarFile, getAllRules(), getParserWordIndex(), getParserTagIndex());
-        } catch (IOException e) {
-          System.err.println("! Error outputing intermediate grammar " + outGrammarFile);
-          System.exit(1);
-        }
-      }
-      
       /** update model params **/
       buildGrammar();
       Map<Integer, Counter<Integer>> tag2wordsMap = lex.getTag2wordsMap();
@@ -1897,6 +1900,19 @@ public abstract class EarleyParser implements Parser {
       // update lex
       for(ProbRule probRule : ruleSet.getTerminalRules()){
         tag2wordsMap.get(probRule.getMother()).setCount(probRule.getChild(0), Math.log(probRule.getProb()));
+      }
+      
+      // output intermediate IO grammars & parses
+      if (intermediate>0 && numIterations % intermediate == 0 && !outPrefix.equals("")){ 
+        String outGrammarFile = outPrefix + "." + numIterations + ".iogrammar" ;
+        try {
+          RuleFile.printRules(outGrammarFile, getAllRules(), getParserWordIndex(), getParserTagIndex());
+        } catch (IOException e) {
+          System.err.println("! Error outputing intermediate grammar " + outGrammarFile);
+          System.exit(1);
+        }
+        
+        parseSentences(sentences, outPrefix + "." + numIterations);
       }
       
       // convergence test
@@ -1929,6 +1945,7 @@ public abstract class EarleyParser implements Parser {
       prevSumNegLogProb = sumNegLogProb;
     }
     
+    parseSentences(sentences, outPrefix);
     return sumNegLogProbList;
   }
   

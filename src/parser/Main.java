@@ -30,7 +30,7 @@ public class Main {
     System.err.println("! " + message);
     System.err.println("Main -in inFile  -out outPrefix (-grammar grammarFile | -treebank treebankFile) " +
         "-obj objectives\n" + 
-        "\t[-root rootSymbol] [-io opt] [-sparse] [-normalprob] [-scale] [-verbose opt]");
+        "\t[-root rootSymbol] [-io opt -maxiteration n -intermediate n] [-sparse] [-normalprob] [-scale] [-verbose opt]");
     
     // compulsory
     System.err.println("\tCompulsory:");
@@ -39,21 +39,22 @@ public class Main {
     System.err.println("\t\tgrammar|treebank \t\t either read directly from a grammar file or from a treebank." +
     		"For the latter, a grammar file will be output as outPrefix.grammar .");
     System.err.println("\t\t obj \t\t a comma separated list consitsing of any of the following values: " + 
-        "surprisal, stringprob, viterbi, socialmarginal. Default is \"surprisal,stringprob,viterbi\" if -io is not specified, " + 
-        "and \"\" if -io is specified. Output files will be outPrefix.obj .");
+        "surprisal, stringprob, viterbi, socialmarginal. Default is \"surprisal,stringprob,viterbi\". Output files will be outPrefix.obj .");
     System.err.println();
 
     // optional
     System.err.println("\t Optional:");
     System.err.println("\t\t root \t\t specify the start symbol of sentences (default \"ROOT\")");
-    System.err.println("\t\t io \t\t run inside-outside algorithm, " + 
-        "output final grammar to outPrefix.io.grammar. 1: EM, 2: VB");
     System.err.println("\t\t sparse \t\t optimize for sparse grammars (default: run with dense grammars)");
     System.err.println("\t\t normalprob \t\t perform numeric computation in normal prob (cf. log-prob). This switch is best to be used with -scale.");
     System.err.println("\t\t scale \t\t rescaling approach to parse extremely long sentences");
     System.err.println("\t\t verbose \t\t -1 -- no debug info (default), " + 
         "0: surprisal per word, 1-4 -- increasing more details");
     
+    System.err.println("\n\t\t io \t\t run inside-outside algorithm, " + 
+        "output final grammar to outPrefix.io.grammar. 1: EM, 2: VB");
+    System.err.println("\t\t maxiteration \t\t number of iterations to run Inside-Outside. If not specified, will run until convergence.");
+    System.err.println("\t\t intermediate \t\t Output grammars and parse trees every intermediate iterations.");
     System.exit(1);
   }
   
@@ -78,6 +79,7 @@ public class Main {
     // optional
     flags.put("-root", new Integer(1)); // root symbol
     flags.put("-io", new Integer(1)); // inside-outside computation
+    flags.put("-maxiteration", new Integer(1)); // number of iterations to run IO
     flags.put("-id", new Integer(1)); // sentence indices
     flags.put("-sparse", new Integer(0)); // optimize for sparse grammars
     flags.put("-normalprob", new Integer(0)); // normal prob 
@@ -131,21 +133,29 @@ public class Main {
         printHelp(args, "insideOutsideOpt!=1 && insideOutsideOpt!=2");
       }
     }
+    int maxiteration = 0;
+    if (argsMap.keySet().contains("-maxiteration")) {
+      maxiteration = Integer.parseInt(argsMap.get("-maxiteration")[0]);
+      if(maxiteration<=0){
+        printHelp(args, "maxiteration<=0");
+      }
+    }
+    int intermediate = 0;
+    if (argsMap.keySet().contains("-intermediate")) {
+      intermediate = Integer.parseInt(argsMap.get("-intermediate")[0]);
+      if(intermediate<=0 || (maxiteration>0 && intermediate>maxiteration)){
+        printHelp(args, "intermediate<=0 || (maxiteration>0 && intermediate>maxiteration)");
+      }
+    }
     
     /* obj opt */
     String objString = "";
     if (argsMap.keySet().contains("-obj")) {
       objString = argsMap.get("-obj")[0];
     }
-    if(insideOutsideOpt>0){
-      if(!objString.equals("")){
-        printHelp(args, "! For -io, no need to specify -obj\n");
-      }
-    } else {
-      if(objString.equals("")){
-        // default values
-        objString = EarleyParser.SURPRISAL_OBJ + "," + EarleyParser.STRINGPROB_OBJ + "," + EarleyParser.VITERBI_OBJ;
-      }
+    if(objString.equals("")){
+      // default values
+      objString = EarleyParser.SURPRISAL_OBJ + "," + EarleyParser.STRINGPROB_OBJ + "," + EarleyParser.VITERBI_OBJ;
     }
     
     System.err.println("# Root symbol = " + rootSymbol);
@@ -256,7 +266,7 @@ public class Main {
       if(insideOutsideOpt==0){
         parser.parseSentences(sentences, indices, outPrefix);
       } else if(insideOutsideOpt>0){
-        parser.insideOutside(sentences, outPrefix);
+        parser.insideOutside(sentences, outPrefix, maxiteration, intermediate);
         
         // output rule prob
         List<ProbRule> allRules = parser.getAllRules();
