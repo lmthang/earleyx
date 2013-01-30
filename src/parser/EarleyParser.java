@@ -1950,7 +1950,8 @@ public abstract class EarleyParser implements Parser {
       prevSumNegLogProb = sumNegLogProb;
     }
     
-    parseSentences(sentences, outPrefix);
+    // if we do parsing exptected counts will be double
+    //parseSentences(sentences, outPrefix);
     return sumNegLogProbList;
   }
   

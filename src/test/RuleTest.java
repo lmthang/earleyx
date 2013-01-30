@@ -27,7 +27,7 @@ public class RuleTest extends TestCase{
     assertEquals(r1.equals(r3), false);
     assertEquals(r1.equals(r4), false);
     assertEquals(r1.equals(r5), false);
-    assertEquals(r1.toString(tagIndex, wordIndex), "X->[_a _b _c] : 1.000000e-01");
+    assertEquals(r1.toString(tagIndex, wordIndex), "X->[_a _b _c] : 0.100000");
     assertEquals(r1.schemeString(tagIndex, wordIndex), "(X (_ _a) (_ _b) (_ _c))");
     assertEquals(r1.markString(tagIndex, wordIndex), "0.1 X --> _a _b _c");
     assertEquals(r1.timString(tagIndex, wordIndex), "-2.3025850929940455 X _a _b _c");

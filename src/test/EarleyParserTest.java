@@ -27,7 +27,7 @@ import util.Util;
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
   private String rootSymbol = "ROOT";
-  private int parserOpt = 0; // 0: dense, 1: sparse, 2: sparse IO
+  private int parserOpt = 1; // 0: dense, 1: sparse, 2: sparse IO
   private boolean isScaling = false; // 
   private boolean isLogProb = true; 
   private int insideOutsideOpt = 2; // false; //          
