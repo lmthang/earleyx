@@ -489,7 +489,9 @@ public abstract class EarleyParser implements Parser {
     chartPredict(0); // start expanding from ROOT
     addToChart(0, 0, startEdge, operator.one(), operator.one()); // this is a bit of a hack needed because chartPredict(0) wipes out the seeded rootActiveEdge chart entry.
     addInnerScore(0, numWords, startEdge, operator.one()); // set inside score 1.0 for "" -> . ROOT
-    addActiveEdgeInfo(0, 0, startEdge);
+    if (isFastComplete){
+      addActiveEdgeInfo(0, 0, startEdge);
+    }
     
     if(verbose>=3){
       dumpChart();
@@ -654,7 +656,7 @@ public abstract class EarleyParser implements Parser {
     
     /** Handle normal rules **/
     Set<IntTaggedWord> iTWs = lex.tagsForWord(word);
-    if (verbose>=0){
+    if (verbose>=1){
       System.err.println("# " + right + "\t" + word + ", numTags=" + iTWs.size());
     }
     for (IntTaggedWord itw : iTWs) { // go through each POS tag the current word could have
@@ -821,8 +823,10 @@ public abstract class EarleyParser implements Parser {
       addPredictTmpInnerScore(newEdge, newInnerProb);
       
       // store activeEdgeInfo: right: right X -> . \alpha
-      assert(edgeSpace.get(newEdge).numChildren()>0 && edgeSpace.get(newEdge).getDot()==0);
-      addActiveEdgeInfo(right, right, newEdge);
+      if(isFastComplete){
+        assert(edgeSpace.get(newEdge).numChildren()>0 && edgeSpace.get(newEdge).getDot()==0);
+        addActiveEdgeInfo(right, right, newEdge);
+      }
       
       if (verbose >= 3) {
         System.err.println("  to " + edgeScoreInfo(right, right, newEdge, newForwardProb, newInnerProb));
@@ -1563,9 +1567,11 @@ public abstract class EarleyParser implements Parser {
     
     // completion info
     completedEdges = new HashMap<Integer, Set<Integer>>();
-    activeEdgeInfo = new HashMap<Integer, Map<Integer, Set<Integer>>>();
-    for(int i=0; i<=numWords; i++)
-      activeEdgeInfo.put(i, new HashMap<Integer, Set<Integer>>());
+    if(isFastComplete){
+      activeEdgeInfo = new HashMap<Integer, Map<Integer, Set<Integer>>>();
+      for(int i=0; i<=numWords; i++)
+        activeEdgeInfo.put(i, new HashMap<Integer, Set<Integer>>());
+    }
     
     // result lists
     surprisalList = new ArrayList<Double>();
