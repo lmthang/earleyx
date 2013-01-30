@@ -974,8 +974,8 @@ public abstract class EarleyParser implements Parser {
             addInnerScore(left, right, newEdge, newInnerProb);
             addForwardScore(left, right, newEdge, newForwardProb);
             if(this instanceof EarleyParserDense && !containsInsideEdge(left, right, newEdge)){
-              ((EarleyParserDense) this).chartCount[linear(left, right)]++;
-              ((EarleyParserDense) this).chartEntries[linear(left, right)][newEdge] = true;
+              ((EarleyParserDense) this).chartCount[left][right]++;
+              ((EarleyParserDense) this).chartEntries[left][right][newEdge] = true;
             }
             
             // complete info

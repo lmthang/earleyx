@@ -192,10 +192,13 @@ public class Util {
   
   public static void init(double[][] dl, double value) {
     for (int i = 0; i < dl.length; i++) {
-      double[] doubles = dl[i];
-      for (int j = 0; j < doubles.length; j++) {
-        doubles[j] = value;
-      }
+      init(dl[i], value);
+    }
+  }
+  
+  public static void init(double[][][] dl, double value) {
+    for (int i = 0; i < dl.length; i++) {
+      init(dl[i], value);
     }
   }
   
