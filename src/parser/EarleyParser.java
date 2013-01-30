@@ -654,7 +654,7 @@ public abstract class EarleyParser implements Parser {
     
     /** Handle normal rules **/
     Set<IntTaggedWord> iTWs = lex.tagsForWord(word);
-    if (verbose>=1){
+    if (verbose>=0){
       System.err.println("# " + right + "\t" + word + ", numTags=" + iTWs.size());
     }
     for (IntTaggedWord itw : iTWs) { // go through each POS tag the current word could have
