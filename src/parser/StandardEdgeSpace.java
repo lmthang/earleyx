@@ -17,6 +17,9 @@ public class StandardEdgeSpace extends EdgeSpace {
    */
   public StandardEdgeSpace(Index<String> tagIndex, Index<String> wordIndex) {
     super(tagIndex, wordIndex);
+    if(verbose>=0){
+      System.err.println("# Standard Edge Space");
+    }
   }
 
   @Override
