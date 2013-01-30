@@ -574,7 +574,7 @@ public abstract class EarleyParser implements Parser {
     
     // end
     if(verbose>=0){
-      Timing.tick("NegLogProb=" + -stringLogProbability(numWords) + ". finished parsing sentence. ");
+      Timing.tick("NegLogProb=" + -stringLogProbability(numWords) + ". finished parsing sentence. Num words = " + numWords);
     }
     if (-stringLogProbability(numWords) == Double.NaN){
       System.err.print("! Stop since NegLogProb=NaN");
