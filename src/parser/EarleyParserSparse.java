@@ -98,6 +98,7 @@ public class EarleyParserSparse extends EarleyParser {
     int tag = edgeSpace.get(edge).getMother();
     assert(edgeSpace.get(edge).numRemainingChildren()==0);
     
+    int lmIndex = linear(left, middle); // left middle index    
     Completion[] completions = g.getCompletions(tag);
     
     if (verbose>=3 && completions.length>0){
@@ -109,8 +110,6 @@ public class EarleyParserSparse extends EarleyParser {
       inner = operator.multiply(inner, getScaling(middle, right));
     }
     
-    int lmIndex = linear(left, middle); // left middle index
-    assert(forwardProb.containsKey(lmIndex));
     Map<Integer, Double> forwardMap = forwardProb.get(lmIndex);
     
     // the current AG rule: Y -> w_middle ... w_(right-1) .
@@ -265,6 +264,11 @@ public class EarleyParserSparse extends EarleyParser {
   /****************************/
   /** Forward probabilities **/
   /***************************/
+  @Override
+  protected boolean isForwardCellEmpty(int left, int right) {
+    return !forwardProb.containsKey(linear(left, right));
+  }
+  
   protected double getForwardScore(int left, int right, int edge){
     int lrIndex = linear(left, right);
     
@@ -278,7 +282,7 @@ public class EarleyParserSparse extends EarleyParser {
       return forwardProb.get(lrIndex).get(edge);
     }
   }
-  
+
   protected void addForwardScore(int left, int right, int edge, double score){
     int lrIndex = linear(left, right);
     

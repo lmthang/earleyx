@@ -77,8 +77,8 @@ public class RuleFileTest extends TestCase{
     assertEquals(tagIndex.toString(), "[0=ROOT,1=A,2=B,3=C,4=D]");
     assertEquals(wordIndex.toString(), "[0=b,1=c,2=d,3=UNK,4=UNK-1]");
     
-    assertEquals(Util.sprint(tagRules, wordIndex, tagIndex), "ROOT->[A] : 1.000000e+00\nA->[B C] : 4.000000e-01\nA->[D B] : 4.000000e-01\n");
-    assertEquals(Util.sprint(multiTerminalRules, wordIndex, tagIndex), "A->[_b _c] : 1.000000e-01\nA->[_d _b] : 1.000000e-01\n");
+    assertEquals(Util.sprint(tagRules, wordIndex, tagIndex), "ROOT->[A] : 1.00000\nA->[B C] : 0.400000\nA->[D B] : 0.400000\n");
+    assertEquals(Util.sprint(multiTerminalRules, wordIndex, tagIndex), "A->[_b _c] : 0.100000\nA->[_d _b] : 0.100000\n");
     
     assertEquals(Util.sprint(tagIndex, nonterminalMap.keySet()), "[ROOT, A]");
     assertEquals(Util.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=0.9, UNK=0.1}, C={c=0.9, UNK=0.1}, D={d=0.8, UNK=0.1, UNK-1=0.1}");
@@ -106,7 +106,7 @@ public class RuleFileTest extends TestCase{
       e.printStackTrace();
     }
     
-    assertEquals(ruleSet.toString(tagIndex, wordIndex), "\n# Ruleset\nS->[NP VP] : 1.000000e+00\nNP->[Det N] : 5.000000e-01\nNP->[N Det] : 5.000000e-01\nVP->[V] : 2.000000e-01\nVP->[V NP] : 2.000000e-01\nVP->[NP V] : 2.000000e-01\nVP->[V NP NP] : 2.000000e-01\nVP->[NP NP V] : 2.000000e-01\n1.000000e-02 Det->[_the] : 1.428571e-01\nN->[_the] : 1.428571e-01\nV->[_the] : 1.428571e-01\n1.000000e-02 Det->[_a] : 1.428571e-01\nN->[_a] : 1.428571e-01\nV->[_a] : 1.428571e-01\n1.000000e-02 Det->[_dog] : 1.428571e-01\nN->[_dog] : 1.428571e-01\nV->[_dog] : 1.428571e-01\n1.000000e-02 Det->[_cat] : 1.428571e-01\nN->[_cat] : 1.428571e-01\nV->[_cat] : 1.428571e-01\n1.000000e-02 Det->[_bone] : 1.428571e-01\nN->[_bone] : 1.428571e-01\nV->[_bone] : 1.428571e-01\n1.000000e-02 Det->[_bites] : 1.428571e-01\nN->[_bites] : 1.428571e-01\nV->[_bites] : 1.428571e-01\n1.000000e-02 Det->[_gives] : 1.428571e-01\nN->[_gives] : 1.428571e-01\nV->[_gives] : 1.428571e-01\n");
+    assertEquals(ruleSet.toString(tagIndex, wordIndex), "\n# Ruleset\nS->[NP VP] : 1.00000\nNP->[Det N] : 0.500000\nNP->[N Det] : 0.500000\nVP->[V] : 0.200000\nVP->[V NP] : 0.200000\nVP->[NP V] : 0.200000\nVP->[V NP NP] : 0.200000\nVP->[NP NP V] : 0.200000\n0.0100000 Det->[_the] : 0.142857\nN->[_the] : 0.142857\nV->[_the] : 0.142857\n0.0100000 Det->[_a] : 0.142857\nN->[_a] : 0.142857\nV->[_a] : 0.142857\n0.0100000 Det->[_dog] : 0.142857\nN->[_dog] : 0.142857\nV->[_dog] : 0.142857\n0.0100000 Det->[_cat] : 0.142857\nN->[_cat] : 0.142857\nV->[_cat] : 0.142857\n0.0100000 Det->[_bone] : 0.142857\nN->[_bone] : 0.142857\nV->[_bone] : 0.142857\n0.0100000 Det->[_bites] : 0.142857\nN->[_bites] : 0.142857\nV->[_bites] : 0.142857\n0.0100000 Det->[_gives] : 0.142857\nN->[_gives] : 0.142857\nV->[_gives] : 0.142857\n");
   }
   
   public void testRuleSmoothing(){
@@ -130,7 +130,7 @@ public class RuleFileTest extends TestCase{
     Collection<ProbRule> tagRules = ruleSet.getTagRules();
     Collection<ProbRule> multiTerminalRules = ruleSet.getMultiTerminalRules();
     
-    assertEquals(Util.sprint(tagRules, wordIndex, tagIndex), "ROOT->[A] : 5.000000e+00\nA->[B C] : 4.000000e+00\nA->[D B] : 4.000000e+00\n");
+    assertEquals(Util.sprint(tagRules, wordIndex, tagIndex), "ROOT->[A] : 5.00000\nA->[B C] : 4.00000\nA->[D B] : 4.00000\n");
     
     /* Smooth */
     assertEquals(Util.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0}, C={C=1.0}, D={d=1.0}");

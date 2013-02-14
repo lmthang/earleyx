@@ -552,6 +552,7 @@ public abstract class EarleyParser implements Parser {
       if(verbose>=1){
         System.err.println(sb.toString());
       }
+      
       if(verbose>=0 && right%100==0){
         System.err.print(" (" + right + ") ");
       }
@@ -903,8 +904,19 @@ public abstract class EarleyParser implements Parser {
     }
     
     /** Handle multi-terminal rules **/
-    if(hasMultiTerminalRule){
-      handleMultiTerminalRules(left, middle, right);
+    if(hasMultiTerminalRule && !isForwardCellEmpty(left, middle)){
+      Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(
+          wordIndices.subList(middle, right));
+      
+      if(valueMap != null){
+        if(verbose >= 1){
+          System.err.println("# AG prefix " + "[" + middle + ", " + right + "]: " + 
+              Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
+              ": " + Util.sprint(valueMap, parserTagIndex));
+        }
+        
+        handleMultiTerminalRules(left, middle, right, valueMap);
+      }
     }
     
     // completions yield edges: right: left X -> \alpha Y . \beta
@@ -930,11 +942,10 @@ public abstract class EarleyParser implements Parser {
       
       // could be made faster
       /** Handle multi-terminal rules **/
-      for(int left=middle; left>=0; left--){
-        if(hasMultiTerminalRule){
-          handleMultiTerminalRules(left, middle, right);
-        }
+      if(hasMultiTerminalRule){
+        handleMultiTerminalRules(middle, right);
       }
+      
     }
     
     storePrefixProb(right);
@@ -1016,23 +1027,32 @@ public abstract class EarleyParser implements Parser {
     } // end if completions.length
   }
   
-  protected void handleMultiTerminalRules(int left, int middle, int right){
+  protected void handleMultiTerminalRules(int middle, int right){
     Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(
         wordIndices.subList(middle, right));
     
     if(valueMap != null){
-      if(verbose >= 2){
-        System.err.println("# AG prefix " + Util.sprint(parserWordIndex, 
-            wordIndices.subList(middle, right)) + 
+      if(verbose >= 1){
+        System.err.println("# AG prefix " + "[" + middle + ", " + right + "]: " + 
+            Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
             ": " + Util.sprint(valueMap, parserTagIndex));
       }
-      for(Entry<Integer, Double> entry : valueMap.entrySet()){
-        int tag = entry.getKey();
-        int edge = edgeSpace.indexOfTag(tag);
-        double score = entry.getValue();
-        addPrefixProbExtendedRule(left, middle, right, edge, score);
+      for(int left=middle; left>=0; left--){
+        if(isForwardCellEmpty(left, middle)){
+          continue;
+        }
+        handleMultiTerminalRules(left, middle, right, valueMap);
       }
-    }  
+    }
+  }
+  
+  protected void handleMultiTerminalRules(int left, int middle, int right, Map<Integer, Double> valueMap){
+    for(Entry<Integer, Double> entry : valueMap.entrySet()){
+      int tag = entry.getKey();
+      int edge = edgeSpace.indexOfTag(tag);
+      double score = entry.getValue();
+      addPrefixProbExtendedRule(left, middle, right, edge, score);
+    }
   }
   
   protected void complete(int left, int middle, int right, int nextEdge, double inner) {
@@ -1492,6 +1512,7 @@ public abstract class EarleyParser implements Parser {
   protected abstract void storeCompleteTmpScores(int left, int right);
   
   // forward probabilities
+  protected abstract boolean isForwardCellEmpty(int left, int right);
   protected abstract double getForwardScore(int left, int right, int edge);
   protected abstract void addForwardScore(int left, int right, int edge, double score);
   

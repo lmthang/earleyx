@@ -287,6 +287,11 @@ public class EarleyParserDense extends EarleyParser{
   /****************************/
   /** Forward probabilities **/
   /***************************/
+  @Override
+  protected boolean isForwardCellEmpty(int left, int right) {
+    return (chartCount[left][right]==0);
+  }
+  
   protected double getForwardScore(int left, int right, int edge){
     return forwardProb[left][right][edge];
   }
