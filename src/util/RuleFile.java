@@ -42,7 +42,8 @@ public class RuleFile {
       Map<Integer, Set<IntTaggedWord>> word2tagsMap,
       Map<Integer, Integer> nonterminalMap,
       Index<String> wordIndex,
-      Index<String> tagIndex
+      Index<String> tagIndex,
+      boolean isBias // true if file contains bias
       ) throws IOException{
     String inputLine;
     
@@ -77,6 +78,10 @@ public class RuleFile {
           rhs = biasM.group(3);
           prob = Double.parseDouble(biasM.group(4));
         } else if(m.matches()){
+          if(isBias){ // no explicit bias, set to 1.0
+            bias = 1.0;
+          }
+          
           // sanity check
           if(m.groupCount() != 3){
             System.err.println("! Num of matched groups != 3 for line \"" + inputLine + "\"");
@@ -334,7 +339,7 @@ public class RuleFile {
     /* Input */
     try {
       RuleFile.parseRuleFile(Util.getBufferedReaderFromFile(ruleFile), ruleSet, tag2wordsMap, 
-          word2tagsMap, nonterminalMap, wordIndex, tagIndex); //, tagHash, seenEnd); // we don't care much about extended rules, just treat them as rules
+          word2tagsMap, nonterminalMap, wordIndex, tagIndex, false); //, tagHash, seenEnd); // we don't care much about extended rules, just treat them as rules
       //rules.addAll(extendedRules);
     } catch (IOException e){
       System.err.println("Can't read rule file: " + ruleFile);

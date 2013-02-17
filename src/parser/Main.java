@@ -2,6 +2,8 @@ package parser;
 
 import edu.stanford.nlp.util.StringUtils;
 
+import induction.InsideOutside;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +32,8 @@ public class Main {
     System.err.println("! " + message);
     System.err.println("Main -in inFile  -out outPrefix (-grammar grammarFile | -treebank treebankFile) " +
         "-obj objectives\n" + 
-        "\t[-root rootSymbol] [-io opt -maxiteration n -intermediate n] [-sparse] [-normalprob] [-scale] [-verbose opt]");
+        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-verbose opt]" + 
+        "\t[-io opt -maxiteration n -intermediate n -minprob f]\n");
     
     // compulsory
     System.err.println("\tCompulsory:");
@@ -52,9 +55,10 @@ public class Main {
         "0: surprisal per word, 1-4 -- increasing more details");
     
     System.err.println("\n\t\t io \t\t run inside-outside algorithm, " + 
-        "output final grammar to outPrefix.io.grammar. 1: EM, 2: VB");
+        "output final grammar to outPrefix.io.grammar. opt should be \"em\" or \"vb\"");
     System.err.println("\t\t maxiteration \t\t number of iterations to run Inside-Outside. If not specified, will run until convergence.");
     System.err.println("\t\t intermediate \t\t Output grammars and parse trees every intermediate iterations.");
+    System.err.println("\t\t minprob \t\t prunning rules with probs below threshold. If not specified, no pruning.");
     System.exit(1);
   }
   
@@ -78,14 +82,16 @@ public class Main {
     
     // optional
     flags.put("-root", new Integer(1)); // root symbol
-    flags.put("-io", new Integer(1)); // inside-outside computation
-    flags.put("-maxiteration", new Integer(1)); // number of iterations to run IO
-    flags.put("-intermediate", new Integer(1)); // print grammars and parsers every intermediate iteration
     flags.put("-id", new Integer(1)); // sentence indices
     flags.put("-sparse", new Integer(0)); // optimize for sparse grammars
     flags.put("-normalprob", new Integer(0)); // normal prob 
     flags.put("-scale", new Integer(0)); // scaling 
     flags.put("-verbose", new Integer(1)); 
+    
+    flags.put("-io", new Integer(1)); // inside-outside computation
+    flags.put("-maxiteration", new Integer(1)); // number of iterations to run IO
+    flags.put("-minprob", new Integer(1)); // pruning threshold
+    flags.put("-intermediate", new Integer(1)); // print grammars and parsers every intermediate iteration
     
     Map<String, String[]> argsMap = StringUtils.argsToMap(args, flags);
     args = argsMap.get(null);
@@ -129,20 +135,42 @@ public class Main {
     /* io opt */
     int insideOutsideOpt = 0;
     if (argsMap.keySet().contains("-io")) {
-      insideOutsideOpt = Integer.parseInt(argsMap.get("-io")[0]);
+      String opt = argsMap.get("-io")[0];
+      if(opt.equalsIgnoreCase("em")){
+        insideOutsideOpt = 1;
+      } else if(opt.equalsIgnoreCase("vb")){
+        insideOutsideOpt = 2;
+      }
       if(insideOutsideOpt!=1 && insideOutsideOpt!=2){
-        printHelp(args, "insideOutsideOpt!=1 && insideOutsideOpt!=2");
+        printHelp(args, "-io, opt should be either em or vb");
       }
     }
     int maxiteration = 0;
     if (argsMap.keySet().contains("-maxiteration")) {
+      if(insideOutsideOpt==0){
+        printHelp(args, "-maxiteration only used with -io");
+      }
       maxiteration = Integer.parseInt(argsMap.get("-maxiteration")[0]);
       if(maxiteration<=0){
         printHelp(args, "maxiteration<=0");
       }
     }
+    double minRuleProb = 0;
+    if (argsMap.keySet().contains("-minprob")) {
+      if(insideOutsideOpt==0){
+        printHelp(args, "-minprob only used with -io");
+      }
+      minRuleProb = Integer.parseInt(argsMap.get("-minprob")[0]);
+      if(minRuleProb<0.0){
+        printHelp(args, "minprob<=0");
+      }
+    }
     int intermediate = 0;
     if (argsMap.keySet().contains("-intermediate")) {
+      if(insideOutsideOpt==0){
+        printHelp(args, "-intermediate only used with -io");
+      }
+      
       intermediate = Integer.parseInt(argsMap.get("-intermediate")[0]);
       if(intermediate<=0 || (maxiteration>0 && intermediate>maxiteration)){
         printHelp(args, "intermediate<=0 || (maxiteration>0 && intermediate>maxiteration)");
@@ -268,7 +296,8 @@ public class Main {
       if(insideOutsideOpt==0){
         parser.parseSentences(sentences, indices, outPrefix);
       } else if(insideOutsideOpt>0){
-        parser.insideOutside(sentences, outPrefix, maxiteration, intermediate);
+        InsideOutside io = new InsideOutside(parser);
+        io.insideOutside(sentences, outPrefix, maxiteration, intermediate, minRuleProb);
         
         // output rule prob
         List<ProbRule> allRules = parser.getAllRules();

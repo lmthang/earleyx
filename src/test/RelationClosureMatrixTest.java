@@ -54,7 +54,7 @@ public class RelationClosureMatrixTest extends TestCase{
     try {
       RuleFile.parseRuleFile(Util.getBufferedReaderFromString(ruleString), 
           ruleSet, tag2wordsMap, word2tagsMap, 
-          nonterminalMap, wordIndex, tagIndex);
+          nonterminalMap, wordIndex, tagIndex, false);
     } catch (IOException e){
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();

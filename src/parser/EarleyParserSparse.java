@@ -173,7 +173,7 @@ public class EarleyParserSparse extends EarleyParser {
   }
   
   @Override
-  protected Set<Integer> listInsideEdges(int left, int right) {
+  public Set<Integer> listInsideEdges(int left, int right) {
     if(forwardProb.containsKey(linear(left, right))){
       return forwardProb.get(linear(left, right)).keySet();
     } else {
@@ -197,7 +197,7 @@ public class EarleyParserSparse extends EarleyParser {
   }
 
   @Override
-  protected Set<Integer> listOutsideEdges(int left, int right) {
+  public Set<Integer> listOutsideEdges(int left, int right) {
     if(outerProb.containsKey(linear(left, right))){
       return outerProb.get(linear(left, right)).keySet();
     } else {
@@ -297,7 +297,7 @@ public class EarleyParserSparse extends EarleyParser {
   /*************************/
   /** Inner probabilities **/
   /*************************/
-  protected double getInnerScore(int left, int right, int edge){
+  public double getInnerScore(int left, int right, int edge){
     int lrIndex = linear(left, right);
     if(!innerProb.containsKey(lrIndex)){
       return operator.zero();
@@ -323,7 +323,7 @@ public class EarleyParserSparse extends EarleyParser {
   /*************************/
   /** Outside computation **/
   /*************************/
-  protected double getOuterScore(int left, int right, int edge){
+  public double getOuterScore(int left, int right, int edge){
     int lrIndex = linear(left, right);
     
     if(!outerProb.containsKey(lrIndex)){

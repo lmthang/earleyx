@@ -168,7 +168,7 @@ public class EarleyParserDense extends EarleyParser{
 
   
   @Override
-  protected Set<Integer> listInsideEdges(int left, int right) {
+  public Set<Integer> listInsideEdges(int left, int right) {
     Set<Integer> edges = new HashSet<Integer>();
     for (int edge = 0; edge < edgeSpaceSize; edge++) {
       if(containsInsideEdge(left, right, edge)){
@@ -190,7 +190,7 @@ public class EarleyParserDense extends EarleyParser{
   }
 
   @Override
-  protected Set<Integer> listOutsideEdges(int left, int right) {
+  public Set<Integer> listOutsideEdges(int left, int right) {
     Set<Integer> edges = new HashSet<Integer>();
     for (int edge = 0; edge < edgeSpaceSize; edge++) {
       if(containsOutsideEdge(left, right, edge)){
@@ -304,7 +304,7 @@ public class EarleyParserDense extends EarleyParser{
   /*************************/
   /** Inner probabilities **/
   /*************************/
-  protected double getInnerScore(int left, int right, int edge){
+  public double getInnerScore(int left, int right, int edge){
     return innerProb[left][right][edge];
   }
   
@@ -316,7 +316,7 @@ public class EarleyParserDense extends EarleyParser{
   /*************************/
   /** Outer probabilities **/
   /*************************/
-  protected double getOuterScore(int left, int right, int edge){
+  public double getOuterScore(int left, int right, int edge){
     return outerProb[left][right][edge];
   }
 

@@ -1,10 +1,11 @@
 package parser;
 
+import decoder.MarginalDecoder;
+import decoder.ViterbiDecoder;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.ling.Tag;
 import edu.stanford.nlp.ling.Word;
-import edu.stanford.nlp.math.SloppyMath;
 import edu.stanford.nlp.parser.Parser;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.Counter;
@@ -30,10 +31,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import cc.mallet.types.Dirichlet;
-
 import base.BackTrack;
 import base.BaseLexicon;
+import base.BiasProbRule;
 import base.Edge;
 import base.ProbRule;
 import base.Rule;
@@ -60,20 +60,36 @@ public abstract class EarleyParser implements Parser {
   public static final String SURPRISAL_OBJ = "surprisal";
   public static final String STRINGPROB_OBJ = "stringprob";
   public static final String VITERBI_OBJ = "viterbi";
-  public static final String SOCIALMARGINAL_OBJ = "socialmarginal";
+  public static final String MARGINAL_OBJ = "marginal";
+  public static final String SOCIALMARGINAL_OBJ = "socialmarginal"; // for social cue data, we only decode spans that cover utterances, since we know utterance boundaries
   
   protected boolean isScaling = true;
   protected boolean isLogProb = false;
   protected int insideOutsideOpt = 0; // 1: EM, 2: VB
+  public int getInsideOutsideOpt() {
+    return insideOutsideOpt;
+  }
   protected int decodeOpt = 0; // 1: Viterbi (Label Tree), 2: Label Recall
   protected boolean isFastComplete = false; 
   protected Operator operator; // either ProbOperator or LogProbOperator
   
+  public Operator getOperator() {
+    return operator;
+  }
   protected Grammar g;
   protected EdgeSpace edgeSpace;
+  public EdgeSpace getEdgeSpace() {
+    return edgeSpace;
+  }
   protected BaseLexicon lex;
   
+  public BaseLexicon getLex() {
+    return lex;
+  }
   protected RuleSet ruleSet;
+  public RuleSet getRuleSet() {
+    return ruleSet;
+  }
   protected boolean hasMultiTerminalRule = false;
   
   // root
@@ -135,6 +151,13 @@ public abstract class EarleyParser implements Parser {
 
   protected Map<Integer, Double> expectedCounts; // map rule indices (allRules) to expected counts
 
+  public Map<Integer, Double> getExpectedCounts() {
+    return expectedCounts;
+  }
+  public void setExpectedCounts(Map<Integer, Double> expectedCounts) {
+    this.expectedCounts = expectedCounts;
+  }
+  
   /** Decode options **/
   // backtrack info for computing Viterbi parse
   // .get(linear(left, right)).get(edge): back track info
@@ -142,12 +165,17 @@ public abstract class EarleyParser implements Parser {
   // backtrack info is right: middle Y -> v . that leads
   // to X -> \alpha Y . \beta with maximum inner probabilities
   protected Map<Integer, Map<Integer, BackTrack>> backtrackChart;
+  protected ViterbiDecoder viterbiDecoder;
+  protected MarginalDecoder marginalDecoder;
   
   /** current sentence info **/
   //  protected int[][] linear; // convert matrix indices [left][right] into linear indices
   // protected int numCells; // numCells==((numWords+2)*(numWords+1)/2)
   
   protected List<? extends HasWord> words;
+  public List<? extends HasWord> getWords() {
+    return words;
+  }
   protected List<Integer> wordIndices; // indices from parserWordIndex
   protected int numWords = 0;
 
@@ -213,7 +241,20 @@ public abstract class EarleyParser implements Parser {
     this.isScaling = isScaling;
     this.isLogProb = isLogProb;
     this.insideOutsideOpt = insideOutsideOpt;
-    setObjectives(objString); 
+    
+    // objectives
+    objectives = new HashSet<String>();
+    for(String objective : objString.split(",")){
+      objectives.add(objective);
+    }
+    
+    if(objectives.contains(VITERBI_OBJ)){
+      decodeOpt = 1;
+      viterbiDecoder = new ViterbiDecoder(this, verbose);
+    } else if(objectives.contains(SOCIALMARGINAL_OBJ) || objectives.contains(MARGINAL_OBJ)){
+      decodeOpt = 2;
+      marginalDecoder = new MarginalDecoder(this, verbose);
+    }
     
     if(isLogProb){
       operator = new LogProbOperator();
@@ -228,7 +269,12 @@ public abstract class EarleyParser implements Parser {
     
     // root symbol
     this.rootSymbol = rootSymbol;
-    rootRule = new ProbRule(new TagRule(ORIG_SYMBOL, Arrays.asList(rootSymbol), parserTagIndex), 1.0);
+    if(insideOutsideOpt==2){
+      rootRule = new BiasProbRule(new TagRule(ORIG_SYMBOL, Arrays.asList(rootSymbol), parserTagIndex), 1.0, 1.0);
+    } else {
+      rootRule = new ProbRule(new TagRule(ORIG_SYMBOL, Arrays.asList(rootSymbol), parserTagIndex), 1.0);
+    }
+    
     origSymbolIndex = parserTagIndex.indexOf(ORIG_SYMBOL);
     rootSymbolIndex = parserTagIndex.indexOf(rootSymbol);
     parserNonterminalMap.put(origSymbolIndex, parserNonterminalMap.size());
@@ -261,8 +307,13 @@ public abstract class EarleyParser implements Parser {
     Map<Integer, Set<IntTaggedWord>> word2tagsMap = new HashMap<Integer, Set<IntTaggedWord>>();
         
     try {
-      RuleFile.parseRuleFile(br, 
-          ruleSet, tag2wordsMap, word2tagsMap, parserNonterminalMap, parserWordIndex, parserTagIndex);
+      if (insideOutsideOpt==2){
+        RuleFile.parseRuleFile(br, 
+            ruleSet, tag2wordsMap, word2tagsMap, parserNonterminalMap, parserWordIndex, parserTagIndex, true);
+      } else {
+        RuleFile.parseRuleFile(br, 
+            ruleSet, tag2wordsMap, word2tagsMap, parserNonterminalMap, parserWordIndex, parserTagIndex, false);
+      }
     } catch (IOException e) {
       System.err.println("! Problem initializing Earley parser");
       e.printStackTrace();
@@ -321,7 +372,7 @@ public abstract class EarleyParser implements Parser {
     edgeSpace.build(ruleSet.getTagRules());    
   }
   
-  private void buildGrammar(){
+  public void buildGrammar(){
     /* learn grammar */
     if (verbose>=1){
       System.err.println("\n### Learning grammar ... ");
@@ -387,7 +438,7 @@ public abstract class EarleyParser implements Parser {
     BufferedWriter surprisalWriter = null;
     BufferedWriter stringprobWriter = null;
     BufferedWriter viterbiWriter = null;
-    BufferedWriter socialMarginalWriter = null;
+    BufferedWriter marginalWriter = null;
     if(!outPrefix.equals("")) {
     	if (objectives.contains(SURPRISAL_OBJ))
     		surprisalWriter = new BufferedWriter(new FileWriter(outPrefix + "." + SURPRISAL_OBJ));
@@ -395,8 +446,8 @@ public abstract class EarleyParser implements Parser {
         	stringprobWriter = new BufferedWriter(new FileWriter(outPrefix + "." + STRINGPROB_OBJ));
     	if (objectives.contains(VITERBI_OBJ)) 
     		viterbiWriter = new BufferedWriter(new FileWriter(outPrefix + "." + VITERBI_OBJ));
-    	if (objectives.contains(SOCIALMARGINAL_OBJ)) 
-        socialMarginalWriter = new BufferedWriter(new FileWriter(outPrefix + "." + SOCIALMARGINAL_OBJ));
+    	if (objectives.contains(SOCIALMARGINAL_OBJ) || objectives.contains(MARGINAL_OBJ)) 
+        marginalWriter = new BufferedWriter(new FileWriter(outPrefix + "." + SOCIALMARGINAL_OBJ));
     }
     
     List<Double> sentLogProbs = new ArrayList<Double>();
@@ -427,13 +478,18 @@ public abstract class EarleyParser implements Parser {
         viterbiWriter.write(viterbiParse.toString() + "\n");
       }
       
-      if(socialMarginalWriter != null){ // social marginal, need to compute expected counts
+      if(marginalWriter != null){ // social marginal, need to compute expected counts
         expectedCounts = new HashMap<Integer, Double>();
         computeOutsideProbs();
-          
-        List<String> treeStrs = socialMarginalDecoding();
-        for(String treeStr : treeStrs){
-          socialMarginalWriter.write(treeStr + "\n");
+         
+        if (objectives.contains(SOCIALMARGINAL_OBJ)){
+          List<String> treeStrs = marginalDecoder.socialMarginalDecoding();
+          for(String treeStr : treeStrs){
+            marginalWriter.write(treeStr + "\n");
+          }
+        } else {
+          Tree marginalParse = marginalDecoder.getBestParse();
+          marginalWriter.write(marginalParse.toString() + "\n");
         }
       }
       
@@ -450,8 +506,8 @@ public abstract class EarleyParser implements Parser {
     if(viterbiWriter != null){ // viterbi
       viterbiWriter.close();
     }
-    if(socialMarginalWriter != null){ // social marginal
-      socialMarginalWriter.close();
+    if(marginalWriter != null){ // social marginal
+      marginalWriter.close();
     }
     
     return sentLogProbs;
@@ -590,7 +646,9 @@ public abstract class EarleyParser implements Parser {
     double rootInnerScore = getInnerScore(0, numWords, goalEdge);
     assert(rootInnerScore>operator.zero());
     
-    System.err.println("# EarleyParser: computeOutsideProbs");
+    if(verbose>0){
+      System.err.println("# EarleyParser: computeOutsideProbs");
+    }
     initOuterProbs();
     computeOutsideProbs(rootInnerScore);
   }
@@ -1176,16 +1234,6 @@ public abstract class EarleyParser implements Parser {
     }
   }
   
-//  protected void computeExpectedCounts(double rootInsideScore){
-//    for (int ruleId = 1; ruleId < allRules.size(); ruleId++) {
-//      ProbRule probRule = allRules.get(ruleId);
-//      double expectedCount = 0.0;
-//      if(expectedCounts.containsKey(ruleId)){
-//        expectedCount = operator.getProb(expectedCounts.get(ruleId)); 
-//      }
-//    }
-//  }
-  
   public boolean hasParse(){
     return (numWords>0 && sentLogProb()>Double.NEGATIVE_INFINITY);
   }
@@ -1490,12 +1538,12 @@ public abstract class EarleyParser implements Parser {
   // inside
   protected abstract boolean containsInsideEdge(int left, int right, int edge);
   protected abstract int insideChartCount(int left, int right);
-  protected abstract Set<Integer> listInsideEdges(int left, int right);
+  public abstract Set<Integer> listInsideEdges(int left, int right);
   
   // outside
   protected abstract boolean containsOutsideEdge(int left, int right, int edge);
   protected abstract int outsideChartCount(int left, int right);
-  protected abstract Set<Integer> listOutsideEdges(int left, int right);
+  public abstract Set<Integer> listOutsideEdges(int left, int right);
   protected abstract void initOuterProbs();
   
   // tmp predict probabilities
@@ -1518,11 +1566,11 @@ public abstract class EarleyParser implements Parser {
   
   
   // inner probabilities
-  protected abstract double getInnerScore(int left, int right, int edge);
+  public abstract double getInnerScore(int left, int right, int edge);
   protected abstract void addInnerScore(int left, int right, int edge, double score);
   
   // outer probabilities
-  protected abstract double getOuterScore(int left, int right, int edge);
+  public abstract double getOuterScore(int left, int right, int edge);
   protected abstract void addOuterScore(int left, int right, int edge, double score);
   
   // debug
@@ -1859,348 +1907,10 @@ public abstract class EarleyParser implements Parser {
     return dumpCatChart(computeCatChart("Outside"), "Outside");
   }
   
-  public List<Double> insideOutside(List<String> sentences){
-    return insideOutside(sentences, "");
-  }
   
-  public List<Double> insideOutside(List<String> sentences, String outPrefix){
-    double minRuleProb = 1e-50;
-    return insideOutside(sentences, outPrefix, minRuleProb);
-  }
   
-  public List<Double> insideOutside(List<String> sentences, String outPrefix, double minRuleProb){
-    return insideOutside(sentences, outPrefix, 0, 0, minRuleProb);
-  }
   
-  public List<Double> insideOutside(List<String> sentences, String outPrefix, 
-      int maxiteration, int intermediate){
-    double minRuleProb = 1e-50;
-    return insideOutside(sentences, outPrefix, maxiteration, intermediate, minRuleProb);
-  }
-  
-  public List<Double> insideOutside(List<String> sentences, String outPrefix, 
-      int maxIteration, int intermediate, double minRuleProb){
-    int minIteration = 1;
-    double stopTol = 1e-7;
     
-    
-    System.err.println("## Inside-Outisde stopTol=" + stopTol + ", minRuleProb=" + minRuleProb);
-    List<Double> sumNegLogProbList = new ArrayList<Double>();
-    int numIterations = 0;
-    int prevNumRules = 0;
-    double prevSumNegLogProb = Double.POSITIVE_INFINITY;
-    while(true){
-      numIterations++;
-      if(verbose>=3){
-        System.err.println(ruleSet.toString(parserTagIndex, parserWordIndex));
-      }
-      
-      // sumLogProbs
-      List<Double> sentLogProbs = parseSentences(sentences);
-      double sumNegLogProb = 0.0;
-      for (Double sentLogProb : sentLogProbs) {
-        sumNegLogProb -= sentLogProb;
-      }
-      sumNegLogProbList.add(sumNegLogProb);
-      
-      // update rule probs
-      int numRules = updateRuleset(minRuleProb);
-      
-      if(verbose>=-1){
-        System.err.println("# iteration " + numIterations + ", numRules=" + numRules 
-            + ", sumNegLogProb = " + sumNegLogProb);
-      }
-      
-      /** update model params **/
-      buildGrammar();
-      Map<Integer, Counter<Integer>> tag2wordsMap = lex.getTag2wordsMap();
-      
-      // reset lex
-      for(int tag : tag2wordsMap.keySet()){ // tag
-        Counter<Integer> counter = tag2wordsMap.get(tag);
-        
-        for(int word : counter.keySet()){
-          counter.setCount(word, Double.NEGATIVE_INFINITY); // zero
-        }
-      }
-      
-      // update lex
-      for(ProbRule probRule : ruleSet.getTerminalRules()){
-        tag2wordsMap.get(probRule.getMother()).setCount(probRule.getChild(0), Math.log(probRule.getProb()));
-      }
-      
-      // output intermediate IO grammars & parses
-      if (intermediate>0 && numIterations % intermediate == 0 && !outPrefix.equals("")){ 
-        String outGrammarFile = outPrefix + "." + numIterations + ".iogrammar" ;
-        try {
-          RuleFile.printRules(outGrammarFile, getAllRules(), getParserWordIndex(), getParserTagIndex());
-        } catch (IOException e) {
-          System.err.println("! Error outputing intermediate grammar " + outGrammarFile);
-          System.exit(1);
-        }
-        
-        int oldVerbose = EarleyParser.verbose;
-        EarleyParser.verbose = -1;
-        parseSentences(sentences, outPrefix + "." + numIterations);
-        EarleyParser.verbose = oldVerbose;
-      }
-      
-      // convergence test
-      if(numIterations>=minIteration && numRules==prevNumRules){
-        if(maxIteration>0){
-          if(numIterations>=maxIteration){ // exceed max iterations
-            if(verbose>=3){
-              System.err.println("# Exceed number of iterations " + maxIteration + ", stop");
-            }
-            
-            break;
-          }
-        } else if(sumNegLogProb==0){
-          if(verbose>=0){
-            System.err.println("# Reach minimum sumNegLogProb = 0.0, stop");
-          }
-          break;
-        } else {
-          double relativeChange = (prevSumNegLogProb-sumNegLogProb)/Math.abs(sumNegLogProb);
-          if (relativeChange<stopTol){ // change is too small
-            if(verbose>=0){
-              System.err.println("# Relative change " + relativeChange + " < " + stopTol + ", stop");
-            }
-            break;
-          }
-        }
-      }
-      
-      // reset
-      expectedCounts = new HashMap<Integer, Double>();
-      prevNumRules = numRules;
-      prevSumNegLogProb = sumNegLogProb;
-    }
-    
-    // if we do parsing exptected counts will be double
-    //parseSentences(sentences, outPrefix);
-    return sumNegLogProbList;
-  }
-  
-  public int updateRuleset(double minRuleProb){ 
-    if(verbose>=3){
-      System.err.println("\n# Update rule probs");
-    }
-    
-    // compute sums per tag
-    Map<Integer, Double> tagSums = new HashMap<Integer, Double>();
-    for (int ruleId : expectedCounts.keySet()) {
-      int tag = ruleSet.getMother(ruleId);
-      
-      if(insideOutsideOpt==2){ // VB
-        // add bias
-        expectedCounts.put(ruleId, operator.add(expectedCounts.get(ruleId), 
-             operator.getScore(ruleSet.getBias(ruleId))));        
-      }
-      
-      if(!tagSums.containsKey(tag)){
-        tagSums.put(tag, operator.zero());
-      }
-      
-      tagSums.put(tag, operator.add(tagSums.get(tag), expectedCounts.get(ruleId)));
-    }
-    
-    // normalized probs
-    int numRules = 0;
-    Map<Integer, Double> vbTagLogSums = null;
-    Map<Integer, Double> vbRuleLogProbs = null;
-    if(insideOutsideOpt==2){ // for VB we need to renormalize later
-      vbTagLogSums = new HashMap<Integer, Double>();
-      vbRuleLogProbs = new HashMap<Integer, Double>();
-    }
-    for (int ruleId = 0; ruleId < ruleSet.size(); ruleId++) {
-      if(expectedCounts.containsKey(ruleId)){
-        assert(operator.getProb(expectedCounts.get(ruleId))>0);
-        int tag = ruleSet.getMother(ruleId);
-        
-        if(insideOutsideOpt==2){ // VB
-          double logProb = Dirichlet.digamma(operator.getProb(expectedCounts.get(ruleId))) 
-            - Dirichlet.digamma(operator.getProb(tagSums.get(tag)));
-          vbRuleLogProbs.put(ruleId, logProb);
-          if(!vbTagLogSums.containsKey(tag)){
-            vbTagLogSums.put(tag, Double.NEGATIVE_INFINITY);
-          }
-          
-          vbTagLogSums.put(tag, SloppyMath.logAdd(vbTagLogSums.get(tag),logProb));
-        } else { // MLE
-          double newProb = operator.getProb(operator.divide(expectedCounts.get(ruleId), 
-              tagSums.get(tag)));
-        
-          if(newProb<minRuleProb){ // filter
-            System.err.println("Filter: " + newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
-            newProb = 0.0; 
-          } else {
-            numRules++;
-            if(verbose>=3){
-              System.err.println(newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
-            }
-          }
-          
-          ruleSet.setProb(ruleId, newProb);
-        } // end insideOutsideOpt
-      }
-      
-      
-    }
-    
-    // VB, renormalize
-    if(insideOutsideOpt==2){ 
-      for (int ruleId = 0; ruleId < ruleSet.size(); ruleId++) {
-        if(expectedCounts.containsKey(ruleId)){
-          int tag = ruleSet.getMother(ruleId);
-          double newProb = Math.exp(vbRuleLogProbs.get(ruleId)- vbTagLogSums.get(tag));
-          ruleSet.setProb(ruleId, newProb);
-          
-          if(newProb<minRuleProb){ // filter
-            System.err.println("Filter: " + newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex)
-                + "\t" + operator.getProb(expectedCounts.get(ruleId)) + 
-                ", " + operator.getProb(tagSums.get(tag)));
-            newProb = 0.0; 
-          } else {
-            numRules++;
-            if(verbose>=3){
-              System.err.println(newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
-            }
-          }
-        }
-      }
-    }
-    
-    return numRules;
-  }
-  
-  public List<String> socialMarginalDecoding(){
-    // mark left and right boundary of a sentence
-    // for example if the first sentence has 5 words, then sentLeft = 0, sentRight = 5
-    int sentLeft = 0;
-    int sentRight = 0;
-    
-    // .dog kid.eyes mom.eyes # .pig kid.hands # ## and whats that is this a puppy dog
-    int doubleHashPos = -1; // if we have seen ## (doubleHashPos>0), that means we have passed through all social cues
-    
-    if(verbose>0){
-      System.err.println("# social marginal decoding: num words = " + numWords);
-    }
-    
-    List<String> results = new ArrayList<String>();
-    for (int i = 0; i < numWords; i++) {
-      String word = words.get(i).word();
-      
-      if(word.charAt(0) == '.' || word.equals("##")){ // start a social cue
-        if(doubleHashPos>=0){ // this means we have finished processing a sentence
-          String result = socialSentMarginalDecoding(sentLeft, sentRight, doubleHashPos);
-          results.add(result);
-          
-          // reset
-          sentLeft = sentRight;
-          doubleHashPos = -1;
-        }
-      }
-
-      if(word.equals("##")){ // start processing terminals
-        doubleHashPos = i;
-      }
-      
-      sentRight++;
-    }
-  
-    assert(sentLeft<sentRight);
-
-    // marginal decoding a sent
-    String result = socialSentMarginalDecoding(sentLeft, sentRight, doubleHashPos);
-    results.add(result);
-    
-    return results;
-  }
-  
-  public Map<Integer, Double> computeMarginalMap(int left, int right){
-    // edges with both inside and outside scores over [left, right]
-    Set<Integer> edges = listInsideEdges(left, right);
-    edges.retainAll(listOutsideEdges(left, right));
-    
-    Map<Integer, Double> marginalMap = new HashMap<Integer, Double>();
-    for (int edge : edges) { // edge
-      Edge edgeObj = edgeSpace.get(edge);
-      if(edgeObj.numRemainingChildren()==0){ // completed edge
-        int tag = edgeObj.getMother();
-
-        // numerator of expected count
-        double score = operator.multiply(getOuterScore(left, right, edge), getInnerScore(left, right, edge)); 
-        assert(score > operator.zero());
-        
-        if(!marginalMap.containsKey(tag)){ // new tag
-          marginalMap.put(tag, score);
-        } else { // old tag
-          marginalMap.put(tag, operator.add(marginalMap.get(tag), score));
-        }
-      }
-    }
-
-    return marginalMap;
-  }
-  
-  public int argmax(Map<Integer, Double> marginalMap, String prefixFilter){
-    assert(marginalMap.size()>0);
-    
-    int bestTag = -1;
-    double bestScore = operator.zero();
-    for(int tag : marginalMap.keySet()){
-//      System.err.println(parserTagIndex.get(tag) + "\t" + marginalMap.get(tag));
-      assert(parserTagIndex.get(tag).startsWith(prefixFilter) || parserTagIndex.get(tag).equals(""));
-      
-      if(marginalMap.get(tag) > bestScore){
-        bestTag = tag;
-        bestScore = marginalMap.get(tag);
-      }
-    }
-    
-    return bestTag;
-  }
-  
-  public String socialSentMarginalDecoding(int sentLeft, int sentRight, int doubleHashPos){
-    StringBuffer sb = new StringBuffer();
-    
-    System.err.println(" [" + sentLeft + ", " + sentRight + "]: " + words.subList(sentLeft, sentRight));
-    
-    // sent tag
-    Map<Integer, Double> sentMarginalMap = computeMarginalMap(sentLeft, sentRight);
-    
-    int sentTag = argmax(sentMarginalMap, "Sentence");
-    assert(sentTag>=0);
-    sb.append(parserTagIndex.get(sentTag));
-    
-    System.err.println(parserTagIndex.get(sentTag) + " [" + sentLeft + ", " + sentRight + "]: " + words.subList(sentLeft, sentRight));
-    
-    for(int tag : sentMarginalMap.keySet()){
-      System.err.println(parserTagIndex.get(tag) + "\t" + sentMarginalMap.get(tag));
-    }
-
-    // word tags
-    for(int i=doubleHashPos+1; i<sentRight; i++){
-      String word = words.get(i).word();
-      
-      Map<Integer, Double> wordMarginalMap = computeMarginalMap(i, i+1);
-      int wordTag = argmax(wordMarginalMap, "Word");
-      assert(wordTag>=0);
-      
-      sb.append(" (" + parserTagIndex.get(wordTag) + " " + word + ")");
-      
-//    if(verbose>=3){
-      System.err.println(parserTagIndex.get(wordTag) + " [" + i + ", " + (i+1) + "] " + word);
-      
-      for(int tag : wordMarginalMap.keySet()){
-        System.err.println(parserTagIndex.get(tag) + "\t" + wordMarginalMap.get(tag));
-      }
-//    }
-    }
-    
-    return sb.toString();
-  }
 //  public void labelRecalParsing(){
 //    for (int length = 2; length <= numWords; length++) {
 //      for (int left = 0; left <= (numWords-length); left++) {
@@ -2257,20 +1967,7 @@ public abstract class EarleyParser implements Parser {
   
   /**
    * Getters & Setters
-   */
-  protected void setObjectives(String objString) {
-    objectives = new HashSet<String>();
-    for(String objective : objString.split(",")){
-      objectives.add(objective);
-    }
-    
-    if(objectives.contains("viterbi")){
-      decodeOpt = 1;
-    } else if(objectives.contains("socialmarginal")){
-      decodeOpt = 2;
-    }
-  }
-  
+   */  
   public BaseLexicon getLexicon(){
     return lex;
   }
