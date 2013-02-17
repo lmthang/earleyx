@@ -297,12 +297,16 @@ public class Main {
         parser.parseSentences(sentences, indices, outPrefix);
       } else if(insideOutsideOpt>0){
         InsideOutside io = new InsideOutside(parser);
-        io.insideOutside(sentences, outPrefix, maxiteration, intermediate, minRuleProb);
+        List<Double> objectiveList = io.insideOutside(sentences, outPrefix, maxiteration, intermediate, minRuleProb);
         
         // output rule prob
         List<ProbRule> allRules = parser.getAllRules();
         String outGrammarFile = outPrefix + ".iogrammar"; //argsMap.get("-saveGrammar")[0];
         RuleFile.printRules(outGrammarFile, allRules, parser.getParserWordIndex(), parser.getParserTagIndex());
+//        for (int i = 0; i < objectiveList.size(); i++) {
+//          System.err.println((i+1) + "\t" + objectiveList.get(i));
+//        }
+        System.err.println("# Final objective = " + objectiveList.get(objectiveList.size()-1));;
       }
     } catch (IOException e) {
       System.err.println("! Main: error printing output during parsing to outprefix " + outPrefix);

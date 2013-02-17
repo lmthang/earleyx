@@ -104,6 +104,8 @@ public class EarleyParserTest extends TestCase {
   String wsj5 = "grammars/wsj5unk.grammar";
   String social = "grammars/social.iogrammar";
   String socialDiscourse = "grammars/socialDiscourse.grammar";
+  String socialDiscourseColloc = "grammars/colloc.grammar";
+  String socialDiscourseUnigram = "grammars/unigram.grammar";
   String markGrammarFile = "grammars/testengger.grammar";
   String markGrammarVBFile = "grammars/testengger-bayes.grammar";
   
@@ -891,18 +893,43 @@ public class EarleyParserTest extends TestCase {
 //    EarleyParser.verbose = 3;
     MarginalDecoder decoder = new MarginalDecoder(parser, EarleyParser.verbose);
     List<String> results = decoder.socialMarginalDecoding();
-    for(String result : results){
-      System.err.println(result);
-    }
-    assertEquals(results.size(), 5);
-    assertEquals(results.get(0), "Sentence.dog (Words.dog (Word.None and) (Words.dog (Word.None whats) (Words.dog (Word.None that) (Words.dog (Word.None is) (Words.dog (Word.None this) (Words.dog (Word.None a) (Words.dog (Word.None puppy) (Word.None dog))))))))");
-    assertEquals(results.get(1), "Sentence.dog (Words.dog (Word.None woof) (Words.dog (Word.None dog) (Word.None woof)))");
-    assertEquals(results.get(2), "Sentence.dog (Words.dog (Word.None woof) (Words.dog (Word.None dog) (Words.dog (Word.None woof) (Words.dog (Word.None woof) (Word.None woof)))))");
-    assertEquals(results.get(3), "Sentence.dog (Words.dog (Word.None thats) (Word.None nice))");
-    assertEquals(results.get(4), "Sentence.None (Words.None (Word.None come) (Words.None (Word.None here) (Words.None (Word.None you) (Words.None (Word.None come) (Words.None (Word.None here) (Word.None you))))))");
-
+    assertEquals(results.toString(), "[Sentence.dog (Words.dog (Word.None and) (Words.dog (Word.None whats) (Words.dog (Word.None that) (Words.dog (Word.None is) (Words.dog (Word.None this) (Words.dog (Word.None a) (Words.dog (Word.None puppy) (Word.None dog)))))))), Sentence.dog (Words.dog (Word.None woof) (Words.dog (Word.None dog) (Word.None woof))), Sentence.dog (Words.dog (Word.None woof) (Words.dog (Word.None dog) (Words.dog (Word.None woof) (Words.dog (Word.None woof) (Word.None woof))))), Sentence.dog (Words.dog (Word.None thats) (Word.None nice)), Sentence.None (Words.None (Word.None come) (Words.None (Word.None here) (Words.None (Word.None you) (Words.None (Word.None come) (Words.None (Word.None here) (Word.None you))))))]");
   }
 
+  @Test
+  public void testSocialMarginalDecodingColloc(){
+    rootSymbol = "Discourse";
+    initParserFromFile(socialDiscourseColloc);
+    
+    String inputSent = ".dog kid.eyes mom.eyes # .pig kid.hands # ## and whats that is this a puppy dog .dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof dog woof .dog mom.hands # ## woof dog woof woof woof .dog kid.eyes mom.hands # ## thats nice ## come here you come here you"; 
+
+    parser.parseSentence(inputSent);
+    parser.computeOutsideProbs();
+
+//    EarleyParser.verbose = 3;
+    MarginalDecoder decoder = new MarginalDecoder(parser, EarleyParser.verbose);
+    List<String> results = decoder.socialMarginalDecoding();
+    System.err.println(results.toString());
+    assertEquals(results.toString(), "[Sentence.dog (Collocs.dog (Colloc.None and) (Collocs.dog (Colloc.dog (Colloc.None whats) (Colloc.None that)) (Collocs.dog (Colloc.None (Colloc.None (Colloc.None is) (Colloc.None this)) (Colloc.None a)) (Colloc.dog (Colloc.dog puppy) (Colloc.dog dog))))), Sentence.dog (Collocs.dog (Colloc.dog woof) (Collocs.dog (Colloc.dog dog) (Colloc.dog woof))), Sentence.dog (Collocs.dog (Colloc.dog woof) (Collocs.dog (Colloc.dog dog) (Colloc.dog (Colloc.dog woof) (Colloc.dog (Colloc.dog woof) (Colloc.dog woof))))), Sentence.dog (Colloc.dog (Colloc.None thats) (Word.dog nice)), Sentence.None (Collocs.None (Colloc.None (Colloc.None come) (Colloc.None here)) (Collocs.None (Colloc.None you) (Collocs.None (Colloc.None (Colloc.None come) (Colloc.None here)) (Colloc.None you))))]");
+  }
+  
+  @Test
+  public void testSocialMarginalDecodingUnigram(){
+    rootSymbol = "Sentence";
+    initParserFromFile(socialDiscourseUnigram);
+    
+    String inputSent = ".dog kid.eyes mom.eyes # .pig kid.hands # ## and whats that is this a puppy dog"; 
+
+    parser.parseSentence(inputSent);
+    parser.computeOutsideProbs();
+
+//    EarleyParser.verbose = 3;
+    MarginalDecoder decoder = new MarginalDecoder(parser, EarleyParser.verbose);
+    List<String> results = decoder.socialMarginalDecoding();
+    System.err.println(results.toString());
+    assertEquals(results.toString(), "[ (Words.dog (Word.None and) (Words.dog (Word.None whats) (Words.dog (Word.dog that) (Words.dog (Word.None is) (Words.dog (Word.dog this) (Words.dog (Word.None a) (Words.dog (Word.dog puppy) (Word.dog dog))))))))]");
+  }
+  
   public void testExtendedRule(){
     initParserFromString(extendedGrammarString);
     

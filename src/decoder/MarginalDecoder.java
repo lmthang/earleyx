@@ -144,24 +144,7 @@ public class MarginalDecoder extends Decoder {
 
     Tree bestParse = getBestParse(doubleHashPos+1, sentRight);
     sb.append(" " + bestParse.toString());
-    // word tags
-//    for(int i=doubleHashPos+1; i<sentRight; i++){
-//      String word = words.get(i).word();
-//      
-//      Map<Integer, Double> wordMarginalMap = computeMarginalMap(i, i+1);
-//      int wordTag = argmax(wordMarginalMap, "Word");
-//      assert(wordTag>=0);
-//      
-//      sb.append(" (" + parserTagIndex.get(wordTag) + " " + word + ")");
-//      
-//      if(verbose>=0){
-//        System.err.println(parserTagIndex.get(wordTag) + " [" + i + ", " + (i+1) + "] " + word);
-//        
-//        for(int tag : wordMarginalMap.keySet()){
-//          System.err.println(parserTagIndex.get(tag) + "\t" + wordMarginalMap.get(tag));
-//        }
-//      }
-//    }
+
     
     return sb.toString();
   }
@@ -199,6 +182,7 @@ public class MarginalDecoder extends Decoder {
       }
     }
     
+    // span length >= 3
     for (int length = 2; length <= numSpanWords; length++) { // length
       for (int left = startIndex; left <= endIndex-length; left++) {
         int right = left + length;
@@ -221,11 +205,16 @@ public class MarginalDecoder extends Decoder {
           
           double score = operator.add(cellScores[left-startIndex][middle-startIndex], 
               cellScores[middle-startIndex][right-startIndex]);
-          if (score > bestScore){
-            bestScore = score;
+          
+          if (score > bestSplitScore){
+            bestSplitScore = score;
             bestSplit = middle;
           }
         }
+        if (bestSplit == -1) { // can't find a split point
+          continue;
+        }
+        
         bestScore = operator.add(bestScore, bestSplitScore);
         
         // construct best parse
@@ -251,3 +240,22 @@ public class MarginalDecoder extends Decoder {
 
   }
 }
+
+// word tags
+//for(int i=doubleHashPos+1; i<sentRight; i++){
+//String word = words.get(i).word();
+//
+//Map<Integer, Double> wordMarginalMap = computeMarginalMap(i, i+1);
+//int wordTag = argmax(wordMarginalMap, "Word");
+//assert(wordTag>=0);
+//
+//sb.append(" (" + parserTagIndex.get(wordTag) + " " + word + ")");
+//
+//if(verbose>=0){
+//  System.err.println(parserTagIndex.get(wordTag) + " [" + i + ", " + (i+1) + "] " + word);
+//  
+//  for(int tag : wordMarginalMap.keySet()){
+//    System.err.println(parserTagIndex.get(tag) + "\t" + wordMarginalMap.get(tag));
+//  }
+//}
+//}
