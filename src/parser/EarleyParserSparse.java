@@ -37,7 +37,7 @@ public class EarleyParserSparse extends EarleyParser {
     super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
         insideOutsideOpt, objString);
     isFastComplete = true;
-    // TODO Auto-generated constructor stub
+    System.err.println("# EarleyParserSparse");
   }
 
   protected void sentInit(){

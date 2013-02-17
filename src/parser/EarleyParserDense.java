@@ -35,6 +35,7 @@ public class EarleyParserDense extends EarleyParser{
     super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
         insideOutsideOpt, objString);
     isFastComplete = false;
+    System.err.println("# EarleyParserDense");
     // TODO Auto-generated constructor stub
   }
 

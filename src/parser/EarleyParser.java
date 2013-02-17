@@ -242,20 +242,6 @@ public abstract class EarleyParser implements Parser {
     this.isLogProb = isLogProb;
     this.insideOutsideOpt = insideOutsideOpt;
     
-    // objectives
-    objectives = new HashSet<String>();
-    for(String objective : objString.split(",")){
-      objectives.add(objective);
-    }
-    
-    if(objectives.contains(VITERBI_OBJ)){
-      decodeOpt = 1;
-      viterbiDecoder = new ViterbiDecoder(this, verbose);
-    } else if(objectives.contains(SOCIALMARGINAL_OBJ) || objectives.contains(MARGINAL_OBJ)){
-      decodeOpt = 2;
-      marginalDecoder = new MarginalDecoder(this, verbose);
-    }
-    
     if(isLogProb){
       operator = new LogProbOperator();
     } else {
@@ -289,6 +275,24 @@ public abstract class EarleyParser implements Parser {
       expectedCounts = new HashMap<Integer, Double>();
     }
     
+    // objectives
+    objectives = new HashSet<String>();
+    for(String objective : objString.split(",")){
+      objectives.add(objective);
+    }
+    
+    if(objectives.contains(VITERBI_OBJ) && 
+        (objectives.contains(SOCIALMARGINAL_OBJ) || objectives.contains(MARGINAL_OBJ))){
+      System.err.println("! For -obj: viterbi is mutually exclusive with socialmarginal|marginal");
+      System.exit(1);
+    }
+   
+    if(objectives.contains(VITERBI_OBJ)){
+      decodeOpt = 1;
+    } else if(objectives.contains(SOCIALMARGINAL_OBJ) || objectives.contains(MARGINAL_OBJ)){
+      decodeOpt = 2;
+    }
+    
     // edgespace
     if(insideOutsideOpt > 0 || decodeOpt > 0){
       edgeSpace = new StandardEdgeSpace(parserTagIndex, parserWordIndex);
@@ -298,6 +302,13 @@ public abstract class EarleyParser implements Parser {
       // (children on the right of the dot) are collapsed into the same edge X -> * . \\alpha.
       // This speeds up parsing time if we only care about inner/forward probs + surprisal values
       edgeSpace = new LeftWildcardEdgeSpace(parserTagIndex, parserWordIndex);
+    }
+   
+    // note this initialization should be at the very bottom so that all components of the parser has been initialized
+    if(decodeOpt == 1){
+      viterbiDecoder = new ViterbiDecoder(this, verbose);
+    } else if(decodeOpt == 2){
+      marginalDecoder = new MarginalDecoder(this, verbose);
     }
   }
   
@@ -1334,6 +1345,7 @@ public abstract class EarleyParser implements Parser {
         List<Integer> removeEdges = new ArrayList<Integer>();
         for(int edge : copyEdges){ // use copyEdges cause outside(left, middle, right, ...) will update edges
           Edge edgeObj = edgeSpace.get(edge);
+          //System.err.println(edge + "\t" + goalEdge + "\t" + edgeObj.toString(parserTagIndex, parserWordIndex));
           assert((edge == goalEdge || edgeObj.numChildren()>1) && edgeObj.getDot()>0);
           if(edgeObj.getDot() > 1){
             continue;
