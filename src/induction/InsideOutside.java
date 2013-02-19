@@ -19,7 +19,7 @@ import base.BaseLexicon;
 import base.ProbRule;
 import base.RuleSet;
 import cc.mallet.types.Dirichlet;
-import edu.stanford.nlp.math.SloppyMath;
+import cc.mallet.util.Maths;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
@@ -115,6 +115,7 @@ public class InsideOutside {
       }
       objectiveList.add(objective);
       bw.write("iteration " + numIterations + " " + sumNegLogProb + " " + objective + "\n");
+      bw.flush();
       
       /** update model params **/
       updateModel();
@@ -280,15 +281,15 @@ public class InsideOutside {
       priorBiasSums.put(tag, priorBiasSums.get(tag) + priorBias);
       
       // free energy
-      freeEnergy -= Math.log(SloppyMath.gamma(posteriorBias)/SloppyMath.gamma(priorBias));
+      freeEnergy -= Math.log(Maths.gamma(posteriorBias)/Maths.gamma(priorBias));
 //      System.err.println("freeEnergy2 " + freeEnergy + "\t" + posteriorBias + "\t" + priorBias 
 //          + "\t" + ruleSet.get(ruleId).toString(parserTagIndex, parserWordIndex));
     }
     
     // free energy
     for(int tag : posteriorBiasSums.keySet()){
-      freeEnergy += Math.log(SloppyMath.gamma(posteriorBiasSums.get(tag))/
-          SloppyMath.gamma(priorBiasSums.get(tag)));
+      freeEnergy += Math.log(Maths.gamma(posteriorBiasSums.get(tag))/
+          Maths.gamma(priorBiasSums.get(tag)));
 //      System.err.println("freeEnergy3 " + freeEnergy + "\t" + posteriorBiasSums.get(tag) 
 //          + "\t" + priorBiasSums.get(tag));
     }
@@ -330,8 +331,8 @@ public class InsideOutside {
       }
     }
     
-    if(freeEnergy == Double.NaN){
-      System.err.println("Fee energy = NaN");
+    if(Double.isNaN(freeEnergy) || Double.isInfinite(freeEnergy)){
+      System.err.println("Fee energy = NaN or Infinity");
       System.exit(1);
     }
     return new Pair<Integer, Double>(numRules, freeEnergy);
