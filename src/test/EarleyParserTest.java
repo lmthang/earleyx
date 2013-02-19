@@ -4,6 +4,7 @@ package test;
 import induction.InsideOutside;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -172,7 +173,13 @@ public class EarleyParserTest extends TestCase {
     
     if(insideOutsideOpt>0){
       InsideOutside io = new InsideOutside(parser);
-      List<Double> objectiveList = io.insideOutside(inputSentences, "", 1e-20);
+      List<Double> objectiveList = new ArrayList<Double>();
+      try {
+        objectiveList = io.insideOutside(inputSentences, "", 1e-20);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
       System.err.println(objectiveList);
       
       if(insideOutsideOpt==1){
@@ -268,7 +275,13 @@ public class EarleyParserTest extends TestCase {
 
     if(insideOutsideOpt>0){
       InsideOutside io = new InsideOutside(parser);
-      List<Double> objectiveList = io.insideOutside(inputSentences, minRuleProb);
+      List<Double> objectiveList = new ArrayList<Double>();
+      try {
+        objectiveList = io.insideOutside(inputSentences, minRuleProb);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
       
       if(insideOutsideOpt==1){
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n6.000000 S->[NP VP]\n6.500000 NP->[Det N]\n6.500000 NP->[N Det]\n1.000000 VP->[V]\n3.000000 VP->[V NP]\n2.000000 VP->[V NP NP]\n3.000000 Det->[_the]\n3.000000 N->[_the]\n3.500000 Det->[_a]\n3.500000 N->[_a]\n3.000000 Det->[_dog]\n3.000000 N->[_dog]\n2.000000 Det->[_cat]\n2.000000 N->[_cat]\n1.500000 Det->[_bone]\n1.500000 N->[_bone]\n4.000000 V->[_bites]\n2.000000 V->[_gives]\n");

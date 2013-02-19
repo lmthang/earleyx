@@ -3,6 +3,9 @@
  */
 package induction;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,16 +54,16 @@ public class InsideOutside {
     this.verbose = verbose;
   }
   
-  public List<Double> insideOutside(List<String> sentences, double minRuleProb){
+  public List<Double> insideOutside(List<String> sentences, double minRuleProb) throws IOException{
     return insideOutside(sentences, "", minRuleProb);
   }
   
-  public List<Double> insideOutside(List<String> sentences, String outPrefix, double minRuleProb){
+  public List<Double> insideOutside(List<String> sentences, String outPrefix, double minRuleProb) throws IOException{
     return insideOutside(sentences, outPrefix, 0, 0, minRuleProb);
   }
   
   public List<Double> insideOutside(List<String> sentences, String outPrefix, 
-      int maxIteration, int intermediate, double minRuleProb){
+      int maxIteration, int intermediate, double minRuleProb) throws IOException{
     int minIteration = 1;
     double stopTol = 1e-7;
     
@@ -69,6 +72,8 @@ public class InsideOutside {
     int numIterations = 0;
     double prevObjective = Double.POSITIVE_INFINITY;
     double objective = Double.POSITIVE_INFINITY; 
+    
+    BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outPrefix + ".obj")));
     while(true){
       numIterations++;
       if(verbose>=3){
@@ -104,8 +109,12 @@ public class InsideOutside {
       } else {
         System.err.println("! Invalid inside outside opt " + insideOutsideOpt);
       }
+      if(objective>prevObjective){
+        System.err.println("Objective increased! Stop");
+        break;
+      }
       objectiveList.add(objective);
-      
+      bw.write("iteration " + numIterations + " " + sumNegLogProb + " " + objective + "\n");
       
       /** update model params **/
       updateModel();
@@ -137,6 +146,7 @@ public class InsideOutside {
       prevObjective = objective;
     }
     
+    bw.close();
     // if we do parsing exptected counts will be double
     //parseSentences(sentences, outPrefix);
     return objectiveList;
@@ -250,10 +260,14 @@ public class InsideOutside {
     Map<Integer, Double> posteriorBiasSums = new HashMap<Integer, Double>();
     
     for (int ruleId : expectedCounts.keySet()) { // go through each rule
+      double priorBias = ruleSet.getBias(ruleId);
+      if(priorBias>1e+9){ //Mark specifies large pseudo count to not learn a rule. We want to exclude this value to avoid blowing up the free energy
+        continue;
+      }
+      
       int tag = ruleSet.getMother(ruleId);
       
       // posterior bias = prior bias + expected count
-      double priorBias = ruleSet.getBias(ruleId);
       double posteriorBias = priorBias + operator.getProb(expectedCounts.get(ruleId));
       posteriorBiases.put(ruleId, posteriorBias);
       
@@ -282,20 +296,27 @@ public class InsideOutside {
     // reestimate rule probabilities
     int numRules = 0;
     for (int ruleId = 0; ruleId < ruleSet.size(); ruleId++) {
+      double priorBias = ruleSet.getBias(ruleId);
+      if(priorBias>1e+9){ // we do not want to learn prob for this rule (to be compatible with Mark's grammar)
+        numRules++;
+        continue;
+      }
+      
       if(posteriorBiases.containsKey(ruleId)){
-        assert(posteriorBiases.get(ruleId)>0);
+        double posteriorBias = posteriorBiases.get(ruleId);
+        assert(posteriorBias>0);
         int tag = ruleSet.getMother(ruleId);
-        double logProb = Dirichlet.digamma(posteriorBiases.get(ruleId)) - 
+        double logProb = Dirichlet.digamma(posteriorBias) - 
         Dirichlet.digamma(posteriorBiasSums.get(tag));
         double newProb = Math.exp(logProb);
         
         // free energy
-        freeEnergy += (posteriorBiases.get(ruleId) - ruleSet.getBias(ruleId))*logProb;
+        freeEnergy += (posteriorBias - priorBias)*logProb;
 //        System.err.println("freeEnergy4 " + freeEnergy + "\t" + logProb);
         
         if(newProb<minRuleProb){ // filter
           System.err.println("Filter: " + newProb + "\t" + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex)
-              + "\t" + posteriorBiases.get(ruleId) + 
+              + "\t" + posteriorBias + 
               ", " + posteriorBiasSums.get(tag));
           newProb = 0.0; 
         } else {
@@ -309,6 +330,10 @@ public class InsideOutside {
       }
     }
     
+    if(freeEnergy == Double.NaN){
+      System.err.println("Fee energy = NaN");
+      System.exit(1);
+    }
     return new Pair<Integer, Double>(numRules, freeEnergy);
   }
   

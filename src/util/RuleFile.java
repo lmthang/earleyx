@@ -80,6 +80,7 @@ public class RuleFile {
         } else if(m.matches()){
           if(isBias){ // no explicit bias, set to 1.0
             bias = 1.0;
+//            System.err.println("! No bias value, set to 1.0: " + inputLine);
           }
           
           // sanity check
