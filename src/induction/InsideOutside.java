@@ -262,10 +262,6 @@ public class InsideOutside {
     
     for (int ruleId : expectedCounts.keySet()) { // go through each rule
       double priorBias = ruleSet.getBias(ruleId);
-      if(priorBias>1e+9){ //Mark specifies large pseudo count to not learn a rule. We want to exclude this value to avoid blowing up the free energy
-        continue;
-      }
-      
       int tag = ruleSet.getMother(ruleId);
       
       // posterior bias = prior bias + expected count
@@ -281,15 +277,14 @@ public class InsideOutside {
       priorBiasSums.put(tag, priorBiasSums.get(tag) + priorBias);
       
       // free energy
-      freeEnergy -= Math.log(Maths.gamma(posteriorBias)/Maths.gamma(priorBias));
+      freeEnergy -= (Maths.logGamma(posteriorBias) - Maths.logGamma(priorBias));
 //      System.err.println("freeEnergy2 " + freeEnergy + "\t" + posteriorBias + "\t" + priorBias 
 //          + "\t" + ruleSet.get(ruleId).toString(parserTagIndex, parserWordIndex));
     }
     
     // free energy
     for(int tag : posteriorBiasSums.keySet()){
-      freeEnergy += Math.log(Maths.gamma(posteriorBiasSums.get(tag))/
-          Maths.gamma(priorBiasSums.get(tag)));
+      freeEnergy += Maths.logGamma(posteriorBiasSums.get(tag)) - Maths.logGamma(priorBiasSums.get(tag));
 //      System.err.println("freeEnergy3 " + freeEnergy + "\t" + posteriorBiasSums.get(tag) 
 //          + "\t" + priorBiasSums.get(tag));
     }
@@ -298,10 +293,10 @@ public class InsideOutside {
     int numRules = 0;
     for (int ruleId = 0; ruleId < ruleSet.size(); ruleId++) {
       double priorBias = ruleSet.getBias(ruleId);
-      if(priorBias>1e+9){ // we do not want to learn prob for this rule (to be compatible with Mark's grammar)
-        numRules++;
-        continue;
-      }
+//      if(priorBias>1e+9){ // we do not want to learn prob for this rule (to be compatible with Mark's grammar)
+//        numRules++;
+//        continue;
+//      }
       
       if(posteriorBiases.containsKey(ruleId)){
         double posteriorBias = posteriorBiases.get(ruleId);
