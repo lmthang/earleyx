@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 import base.Edge;
+import base.Rule;
 import base.ProbRule;
-import base.TagRule;
 
 import cern.colt.matrix.DoubleMatrix2D;
 
@@ -33,12 +33,69 @@ import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.stats.Distribution;
 import edu.stanford.nlp.stats.TwoDimensionalCounter;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.util.Generics;
 import edu.stanford.nlp.util.Index;
 
 public class Util {
   public static DecimalFormat df = new DecimalFormat("0.0");
   public static DecimalFormat df1 = new DecimalFormat("0.0000");
   public static DecimalFormat df3 = new DecimalFormat("000");
+  
+  /**
+   * Returns the intersection of sets s1 and s2 (use set sizes to determine intersection order
+   */
+  public static <E> Set<E> intersection(Set<E> s1, Set<E> s2) {
+    Set<E> s = Generics.newHashSet();
+    if(s1.size()<s2.size()){
+      for(E e : s1){
+        if (s2.contains(e)){
+          s.add(e);
+        }
+      }
+    } else {
+      for(E e : s2){
+        if (s1.contains(e)){
+          s.add(e);
+        }
+      }
+    }
+    
+    return s;
+  }
+  
+  public static boolean isEqual(int[] values1, int[] values2){
+    if (values1.length != values2.length){
+      return false;
+    } else {
+      for (int i = 0; i < values1.length; i++) {
+        if(values1[i] != values2[i]){
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+  
+  public static List<Integer> toList(int[] values){
+    List<Integer> valueList = new ArrayList<Integer>(values.length);
+    for (int value : values) {
+      valueList.add(value);
+    }
+    
+    return valueList;
+  }
+  
+  public static int[] subArray(int[] values, int start, int end){
+    if (end<=start){
+      return new int[0];
+    }
+    
+    int[] newValues = new int[end-start]; 
+    for (int i = start; i < end; i++) {
+      newValues[i-start] = values[i];
+    }
+    return newValues;
+  }
   
   public static BufferedReader getBufferedReaderFromFile(String inFile){
     BufferedReader br = null;
@@ -130,7 +187,7 @@ public class Util {
       Distribution<List<Integer>> normalizedChildren = 
         Distribution.getDistribution(ruleCounts.getCounter(mother));
       for(List<Integer> childList : normalizedChildren.keySet()){
-        rules.add(new ProbRule(new TagRule(mother, childList), normalizedChildren.getCount(childList)));
+        rules.add(new ProbRule(new Rule(mother, childList, true), normalizedChildren.getCount(childList)));
       }
     }
 
@@ -230,18 +287,57 @@ public class Util {
     return sb.toString();
   }
   
-  public static String sprint(Index<Edge> edgeIndex, Index<String> motherIndex, Index<String> childIndex){
+  public static String sprint(Index<Edge> edgeIndex, Index<String> tagIndex, Index<String> wordIndex){
     StringBuffer sb = new StringBuffer("[");
     
     if(edgeIndex.size() > 0){
       for (int i = 0; i < edgeIndex.size(); i++) {
-        sb.append(edgeIndex.get(i).toString(motherIndex, childIndex) + ", ");
+        sb.append(edgeIndex.get(i).toString(tagIndex, wordIndex) + ", ");
       }
     }
     sb.delete(sb.length()-2, sb.length());
     sb.append("]");
     return sb.toString();
   }
+  
+  public static String sprint(Set<Integer> edges, EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex){
+    StringBuffer sb = new StringBuffer("[");
+    
+    if(edges.size() > 0){
+      for (Integer edge : edges) {
+        sb.append(edgeSpace.get(edge).toString(tagIndex, wordIndex) + ", ");
+      }
+    }
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
+    return sb.toString();
+  }
+  
+  public static String sprint(List<Integer> edges, EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex){
+    StringBuffer sb = new StringBuffer("[");
+    
+    if(edges.size() > 0){
+      for (Integer edge : edges) {
+        sb.append(edgeSpace.get(edge).toString(tagIndex, wordIndex) + ", ");
+      }
+    }
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
+    return sb.toString();
+  }
+  
+//  public static String sprintEdgeMap(Map<Integer, Set<Integer>> edgeMap, EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex){
+//    StringBuffer sb = new StringBuffer("[");
+//    
+//    List<Integer> sortedIndices = new ArrayList<Integer>(edgeMap.keySet());
+//    Collections.sort(sortedIndices);
+//    if(sortedIndices.size() > 0){
+//      for (Integer edge : sortedIndices) {
+//        sb.append(Util.sprint(edgeMap.get(edge), edgeSpace, tagIndex, wordIndex) + "\n");
+//      }
+//    }
+//    return sb.toString();
+//  }
   
   public static String sprint(Map<Integer, Double> valueMap, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer("(");
@@ -299,6 +395,18 @@ public class Util {
     return sb.toString();
   }
   
+  public static String sprint(Index<String> tagIndex, int[] indices){
+    StringBuffer sb = new StringBuffer("[");
+    for(int index : indices){
+      //sb.append("(" + index + ", " + tagIndex.get(index) + ") ");
+      sb.append(tagIndex.get(index) + ", ");
+    }
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
+    return sb.toString();
+  }
+  
+  
   public static String sprint(Map<Integer, Map<Integer, Double>> unaryEdgeMap, 
       EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex){
     StringBuffer sb = new StringBuffer("{");
@@ -322,7 +430,7 @@ public class Util {
     return sb.toString();
   }
   
-  public static String sprint(Collection<ProbRule> rules, Index<String> wordIndex, Index<String> tagIndex){
+  public static String sprint(Collection<ProbRule> rules, Index<String> tagIndex, Index<String> wordIndex){
     StringBuffer sb = new StringBuffer("");
     for(ProbRule rule : rules){
       sb.append(rule.toString(tagIndex, wordIndex) + "\n");
@@ -356,6 +464,19 @@ public class Util {
     return sb.toString();
   }
 
+  public static String sprint(Set<Integer> edges, Index<String> index){
+    StringBuffer sb = new StringBuffer("[");
+    
+    if(edges.size() > 0){
+      for (Integer edge : edges) {
+        sb.append(index.get(edge) + ", ");
+      }
+    }
+    sb.delete(sb.length()-2, sb.length());
+    sb.append("]");
+    return sb.toString();
+  }
+  
   public static String sprintWord2Tags(Map<Integer, Set<IntTaggedWord>> word2tagsMap
       , Index<String> wordIndex, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer("{");

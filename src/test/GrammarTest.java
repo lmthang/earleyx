@@ -10,8 +10,7 @@ import java.util.Set;
 
 import base.ProbRule;
 import base.RuleSet;
-import base.TagRule;
-import base.TerminalRule;
+import base.Rule;
 
 import parser.EdgeSpace;
 import parser.Grammar;
@@ -83,14 +82,14 @@ public class GrammarTest extends TestCase{
     Collection<ProbRule> rules = new ArrayList<ProbRule>();
     Index<String> tagIndex = new HashIndex<String>();
     Index<String> wordIndex = new HashIndex<String>();
-    ProbRule s = new ProbRule(new TagRule("S", Arrays.asList(new String[]{"NP", "VP"}), tagIndex), 1.0);
-    ProbRule vp = new ProbRule(new TagRule("VP", Arrays.asList(new String[]{"V", "NP"}), tagIndex), 0.9);
-    ProbRule np1 = new ProbRule(new TagRule("NP", Arrays.asList(new String[]{"NP", "PP"}), tagIndex), 0.4);
-    ProbRule np2 = new ProbRule(new TagRule("NP", Arrays.asList(new String[]{"DT", "NN"}), tagIndex), 0.2);
-    ProbRule np3 = new ProbRule(new TagRule("NP", Arrays.asList(new String[]{"PP"}), tagIndex), 0.1);
-    ProbRule pp = new ProbRule(new TagRule("PP", Arrays.asList(new String[]{"P", "NP"}), tagIndex), 0.6);
-    ProbRule pp1 = new ProbRule(new TagRule("PP", Arrays.asList(new String[]{"NP"}), tagIndex), 0.4); 
-    ProbRule root = new ProbRule(new TagRule("ROOT", Arrays.asList(new String[]{"S"}), tagIndex), 1.0); 
+    ProbRule s = new ProbRule(new Rule("S", Arrays.asList(new String[]{"NP", "VP"}), tagIndex, wordIndex, true), 1.0);
+    ProbRule vp = new ProbRule(new Rule("VP", Arrays.asList(new String[]{"V", "NP"}), tagIndex, wordIndex, true), 0.9);
+    ProbRule np1 = new ProbRule(new Rule("NP", Arrays.asList(new String[]{"NP", "PP"}), tagIndex, wordIndex, true), 0.4);
+    ProbRule np2 = new ProbRule(new Rule("NP", Arrays.asList(new String[]{"DT", "NN"}), tagIndex, wordIndex, true), 0.2);
+    ProbRule np3 = new ProbRule(new Rule("NP", Arrays.asList(new String[]{"PP"}), tagIndex, wordIndex, true), 0.1);
+    ProbRule pp = new ProbRule(new Rule("PP", Arrays.asList(new String[]{"P", "NP"}), tagIndex, wordIndex, true), 0.6);
+    ProbRule pp1 = new ProbRule(new Rule("PP", Arrays.asList(new String[]{"NP"}), tagIndex, wordIndex, true), 0.4); 
+    ProbRule root = new ProbRule(new Rule("ROOT", Arrays.asList(new String[]{"S"}), tagIndex, wordIndex, true), 1.0); 
 
     rules.add(s);
     rules.add(vp);
@@ -101,10 +100,10 @@ public class GrammarTest extends TestCase{
     rules.add(pp1);
     rules.add(root);
     
-    ProbRule achefNP = new ProbRule(new TerminalRule("NP", Arrays.asList(new String[]{"a", "chef"}), tagIndex, wordIndex), 0.15);
-    ProbRule thechefNP = new ProbRule(new TerminalRule("NP", Arrays.asList(new String[]{"the", "chef"}), tagIndex, wordIndex), 0.1);
-    ProbRule asoupNP = new ProbRule(new TerminalRule("NP", Arrays.asList(new String[]{"a", "soup"}), tagIndex, wordIndex), 0.05);
-    ProbRule cooksoupVP = new ProbRule(new TerminalRule("VP", Arrays.asList(new String[]{"cook", "soup"}), tagIndex, wordIndex), 0.1);
+    ProbRule achefNP = new ProbRule(new Rule("NP", Arrays.asList(new String[]{"a", "chef"}), tagIndex, wordIndex, false), 0.15);
+    ProbRule thechefNP = new ProbRule(new Rule("NP", Arrays.asList(new String[]{"the", "chef"}), tagIndex, wordIndex, false), 0.1);
+    ProbRule asoupNP = new ProbRule(new Rule("NP", Arrays.asList(new String[]{"a", "soup"}), tagIndex, wordIndex, false), 0.05);
+    ProbRule cooksoupVP = new ProbRule(new Rule("VP", Arrays.asList(new String[]{"cook", "soup"}), tagIndex, wordIndex, false), 0.1);
 
     Collection<ProbRule> extendedRules = new ArrayList<ProbRule>();
     extendedRules.add(achefNP);

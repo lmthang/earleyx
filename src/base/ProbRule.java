@@ -1,8 +1,5 @@
 package base;
 
-import java.util.List;
-
-
 import edu.stanford.nlp.util.Index;
 
 /**
@@ -27,13 +24,15 @@ public class ProbRule {
   public int getMother(){
     return rule.getMother();
   }
-  public List<Integer> getChildren(){
+  public int[] getChildren(){
     return rule.getChildren();
   }
   public int getChild(int pos){
     return rule.getChild(pos);
   }
-  
+  public boolean isTag(int pos){
+    return rule.isTag(pos);
+  }
   // Return dot rule: X -> . a b c
   public Edge getEdge(){
     return new Edge(rule, 0);
@@ -94,6 +93,10 @@ public class ProbRule {
   // format read by Tim's code
   public String timString(Index<String> tagIndex, Index<String> wordIndex) {
     return String.format("%g", Math.log(prob)) + " " + rule.timString(tagIndex, wordIndex);
+  }
+  
+  public String toString(){
+    return String.format("%s : %g", rule.toString(), prob);
   }
 }
 

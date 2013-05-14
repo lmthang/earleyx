@@ -11,10 +11,10 @@ import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Timing;
 
 public class EarleyParserDense extends EarleyParser{
-  protected boolean[][][] chartEntries; // chartEntries[linear(left, right)][edge]
+  protected boolean[][][] chartEntries;
   protected double[][][] forwardProb;
   protected double[][][] innerProb;
-  protected int[][] chartCount; // chartCount[linear(left, right)]: how many edges at the cell [left, right]
+  protected int[][] chartCount; // how many edges at the cell [left, right]
   
   // outside
   protected boolean[][][] outsideChartEntries;
@@ -26,7 +26,10 @@ public class EarleyParserDense extends EarleyParser{
       String objString) {
     super(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
     isFastComplete = false;
-    // TODO Auto-generated constructor stub
+    
+    if(verbose>0){
+      System.err.println("# EarleyParserDense");
+    }
   }
 
   public EarleyParserDense(String grammarFile, int inGrammarType,
@@ -35,8 +38,10 @@ public class EarleyParserDense extends EarleyParser{
     super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
         insideOutsideOpt, objString);
     isFastComplete = false;
-    System.err.println("# EarleyParserDense");
-    // TODO Auto-generated constructor stub
+    
+    if(verbose>0){
+      System.err.println("# EarleyParserDense");
+    }
   }
 
   protected void sentInit(){

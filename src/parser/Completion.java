@@ -11,6 +11,7 @@ import base.ClosureMatrix;
 import base.Edge;
 
 import util.Operator;
+import util.Util;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Timing;
 
@@ -63,7 +64,13 @@ public class Completion {
       tag2completionsMap.put(tag, new HashSet<Completion>());
     }
     
-    for(int activeEdge : edgeSpace.getActiveEdges()){ // go through active states, X -> Z \alpha      
+    for(int activeEdge : edgeSpace.getActiveEdges()){ // go through active states, X -> Z \alpha
+      if(!edgeSpace.get(activeEdge).isTagAfterDot(0)){
+        if(verbose>=3){
+          System.err.println("constructCompletions: skip " + edgeSpace.get(activeEdge).toString(tagIndex, wordIndex));
+        }
+        continue;
+      }
       int viaTag = edgeSpace.get(activeEdge).getChildAfterDot(0); // Z
      
       if(unaryClosures.containsRow(viaTag)){ // non-zero rows in closure matrix, there exists some Y that R(Z->Y) is non-zero 
@@ -128,7 +135,7 @@ public class Completion {
         }
         
         // compare children: children of active shifted 1 to the right should be equal to those of result
-        if (!active.getChildrenAfterDot(1).equals(result.getChildrenAfterDot(0))) {
+        if (!Util.isEqual(active.getChildrenAfterDot(1), result.getChildrenAfterDot(0))) {
           System.err.println("Error " + completion.toString(edgeSpace, tagIndex, wordIndex, operator) + "-- dtrs lists of active edge " + active.toString(tagIndex, tagIndex)  + 
               active + " and result " + result.toString(tagIndex, wordIndex) + result + " are not consistent.");
           satisfied = false;

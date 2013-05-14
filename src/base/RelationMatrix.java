@@ -45,6 +45,9 @@ public class RelationMatrix {
     
     int numRules = 0;
     for (ProbRule r:rules) {
+      if(!r.isTag(0)){ // ignore rules like X -> _y Z T
+        continue;
+      }
       int firstChild = r.getChild(0); //categories.indexOf(stateSpace.indexOf(r.getChildEdge(0)));
       if (nonterminalMap.containsKey(firstChild)) { // if the first child is a non-terminal
         assert(nonterminalMap.containsKey(r.getMother()));

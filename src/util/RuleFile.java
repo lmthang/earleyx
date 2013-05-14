@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,10 +18,9 @@ import java.util.regex.Pattern;
 import parser.SmoothLexicon;
 
 import base.BiasProbRule;
+import base.Rule;
 import base.ProbRule;
 import base.RuleSet;
-import base.TagRule;
-import base.TerminalRule;
 
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.ClassicCounter;
@@ -36,6 +34,22 @@ public class RuleFile {
   private static Pattern p = Pattern.compile("(.+?)->\\[(.+?)\\] : ([0-9\\.\\+\\-Ee]+)");
   private static Pattern biasP = Pattern.compile("([0-9\\.\\+\\-Ee]+) (.+?)->\\[(.+?)\\] : ([0-9\\.\\+\\-Ee]+)");
   //private static String UNK = "UNK";
+
+  
+  public static void printHelp(String[] args, String message){
+    System.err.println("! " + message);
+    System.err.println("RuleFile -in inFile -out outFile -opt outputOption"); // [-smooth]
+    
+    // compulsory
+    System.err.println("\tCompulsory:");
+    System.err.println("\t\t in \t\t input grammar");
+    System.err.println("\t\t out \t\t output file");
+//    System.err.println("\t\t smooth \t\t smooth grammar");
+    System.err.println("\t\t opt \t\t output option: 0 -- format read by Earleyx (default), 1 -- format read by Tim's program, " + 
+        "2 -- to format read by Mark's IO code");
+    System.err.println();
+    System.exit(1);
+  }
   
   public static void parseRuleFile(BufferedReader br, RuleSet ruleSet, 
       Map<Integer, Counter<Integer>> tag2wordsMap,
@@ -65,7 +79,7 @@ public class RuleFile {
         String rhs = null;
         double prob = 0.0;
         
-        if(biasM.matches()){
+        if(biasM.matches()){ // has bias counts for grammar rule induction
           // sanity check
           if(biasM.groupCount() != 4){
             System.err.println("! Num of matched groups != 4 for line \"" + inputLine + "\"");
@@ -106,14 +120,15 @@ public class RuleFile {
         int numChilds = children.length;
         
         // create a rule node or a tagged word
-        if (numChilds == 1 && children[0].startsWith("_")){ // terminal symbol, update distribution
+        ProbRule rule = null;
+        if (numChilds == 1 && children[0].startsWith("_")){ // X -> _y, terminal symbol, update distribution
           int iW = wordIndex.indexOf(children[0].substring(1), true);
           addWord(iW, iT, prob, tag2wordsMap, word2tagsMap);
           
           if(bias == 0.0){
-            ruleSet.add(new ProbRule(new TerminalRule(iT, Arrays.asList(iW)), prob));
+            rule = new ProbRule(new Rule(iT, iW, false), prob);
           } else {
-            ruleSet.add(new BiasProbRule(new TerminalRule(iT, Arrays.asList(iW)), prob, bias));
+            rule = new BiasProbRule(new Rule(iT, iW, false), prob, bias);
           }
         } else { // rule
           if(!nonterminalMap.containsKey(iT)){
@@ -121,36 +136,27 @@ public class RuleFile {
           }
           
           // child indices
-          List<Integer> childIndices = new ArrayList<Integer>();
-          int numTerminals = 0;
+          int[] childIndices = new int[numChilds];
+          boolean[] tagFlags = new boolean[numChilds];
           for (int i=0; i<numChilds; ++i){
             String child = children[i];
             if(!child.startsWith("_")){ // tag 
-              childIndices.add(tagIndex.indexOf(child, true)); // tag index
+              childIndices[i] = tagIndex.indexOf(child, true); // tag index
+              tagFlags[i] = true;
             } else { // terminal
-              numTerminals++;
-              childIndices.add(wordIndex.indexOf(child.substring(1), true)); // word index
-            }
-          }
-          assert(numTerminals==0 || numTerminals==childIndices.size()); // either all terminals or all tags
-          
-          ProbRule rule = null;
-          if (numTerminals==childIndices.size()){ // process extended rule X -> _a _b _c
-            if(bias == 0.0){
-              rule = new ProbRule(new TerminalRule(iT, childIndices), prob);
-            } else {
-              rule = new BiasProbRule(new TerminalRule(iT, childIndices), prob, bias);
-            }
-          } else {
-            if(bias == 0.0){
-              rule = new ProbRule(new TagRule(iT, childIndices), prob);
-            } else {
-              rule = new BiasProbRule(new TagRule(iT, childIndices), prob, bias);
+              childIndices[i] = wordIndex.indexOf(child.substring(1), true); // word index
+              tagFlags[i] = false;
             }
           }
           
-          ruleSet.add(rule);
+          if(bias == 0.0){
+            rule = new ProbRule(new Rule(iT, childIndices, tagFlags), prob);
+          } else { // bias rule
+            rule = new BiasProbRule(new Rule(iT, childIndices, tagFlags), prob, bias);
+          }
         }
+        
+        ruleSet.add(rule);
       } else {
         System.err.println("! Fail to match line \"" + inputLine + "\"");
         System.exit(1);
@@ -167,7 +173,7 @@ public class RuleFile {
       System.err.println(" Done! Total lines = " + count);
     }
     if (verbose>=4){
-      System.err.println("# ruleSet " + ruleSet.size() + "\n" + Util.sprint(ruleSet.getAllRules(), wordIndex, tagIndex));
+      System.err.println("# ruleSet " + ruleSet.size() + "\n" + Util.sprint(ruleSet.getAllRules(), tagIndex, wordIndex));
       System.err.println(Util.sprint(tag2wordsMap, tagIndex, wordIndex));
     }
     
@@ -269,21 +275,6 @@ public class RuleFile {
     return sb.toString();
   }
   
-  public static void printHelp(String[] args, String message){
-    System.err.println("! " + message);
-    System.err.println("RuleFile -in inFile -out outFile -opt option]");
-    
-    // compulsory
-    System.err.println("\tCompulsory:");
-    System.err.println("\t\t in \t\t input grammar");
-    System.err.println("\t\t out \t\t output file");
-    System.err.println("\t\t opt \t\t 1 -- smooth output to format read by Tim's program, " + 
-        "2 -- output to format read by Mark's IO code, " + 
-        "3 -- output to format read by Tim's code");
-    System.err.println();
-    System.exit(1);
-  }
-  
   public static void main(String[] args) {
     if(args.length==0){
       printHelp(args, "No argument");
@@ -295,6 +286,7 @@ public class RuleFile {
     // compulsory
     flags.put("-in", new Integer(1)); // input filename
     flags.put("-out", new Integer(1)); // output filename
+//    flags.put("-smooth", new Integer(0)); // smooth
     flags.put("-opt", new Integer(1)); // option
     
     Map<String, String[]> argsMap = StringUtils.argsToMap(args, flags);
@@ -316,8 +308,14 @@ public class RuleFile {
       printHelp(args, "No output file, -out option");
     }
     
+//    /* smooth */
+//    int smooth = 0;
+//    if (argsMap.keySet().contains("-smooth")) {
+//      smooth = 1;
+//    }
+    
     /* option */
-    int option = -1;
+    int option = 0;
     if (argsMap.keySet().contains("-opt")) {
       option = Integer.parseInt(argsMap.get("-opt")[0]);
     } else {
@@ -327,6 +325,7 @@ public class RuleFile {
     
     System.err.println("# Input file = " + ruleFile);
     System.err.println("# Output file = " + outRuleFile);
+//    System.err.println("# Smooth = " + smooth);
     System.err.println("# Option = " + option);
     
     // extract rules and taggedWords from grammar file
@@ -347,36 +346,37 @@ public class RuleFile {
       e.printStackTrace();
     }
     
-    if(option==1){
-      /* Smooth */
-      SmoothLexicon.smooth(tag2wordsMap, wordIndex, tagIndex, word2tagsMap);
-      
-      /* Output */
-      try {
-        //RuleFile.printRules(outRuleFile, rules, newWordCounterTagMap);
-        RuleFile.printUnkLexiconSchemeFormat(outRuleFile, tag2wordsMap, wordIndex, tagIndex);
-      } catch (IOException e){
-        System.err.println("Can't write to: " + outRuleFile);
-        e.printStackTrace();
-      }
-    } else { 
-      try {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(outRuleFile));
-        for(ProbRule rule : ruleSet.getAllRules()){
-          if (option==2){ // Output in format that could be read by Mark's IO code
-            bw.write("0.0 " + rule.markString(tagIndex, wordIndex) + "\n");
-          } else if (option==3){ // Output in format that could be read by Tim's code
-            bw.write(rule.timString(tagIndex, wordIndex) + "\n");
-          }
+    try {
+      BufferedWriter bw = new BufferedWriter(new FileWriter(outRuleFile));
+      for(ProbRule rule : ruleSet.getAllRules()){
+        if (option==3){ // Output in format that could be read by Tim's code
+          bw.write(rule.timString(tagIndex, wordIndex) + "\n");
+        } else if (option==2){ // Output in format that could be read by Mark's IO code
+          bw.write("0.0 " + rule.markString(tagIndex, wordIndex) + "\n");
+        } else { // Earleyx format
+          bw.write(rule.toString(tagIndex, wordIndex) + "\n");
         }
-        
-        bw.close();
-      } catch (IOException e){
-        System.err.println("Can't write to: " + outRuleFile);
-        e.printStackTrace();
       }
-      
+      bw.close();
+    } catch (IOException e){
+      System.err.println("Can't write to: " + outRuleFile);
+      e.printStackTrace();
     }
+    
+//    if(smooth==1){
+//      /* Smooth */
+//      SmoothLexicon.smooth(tag2wordsMap, wordIndex, tagIndex, word2tagsMap);
+//      
+//      /* Output */
+//      try {
+//        //RuleFile.printRules(outRuleFile, rules, newWordCounterTagMap);
+//        RuleFile.printUnkLexiconSchemeFormat(outRuleFile, tag2wordsMap, wordIndex, tagIndex);
+//      } catch (IOException e){
+//        System.err.println("Can't write to: " + outRuleFile);
+//        e.printStackTrace();
+//      }
+//    } else {   
+//    }
     
     
   }

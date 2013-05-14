@@ -4,14 +4,14 @@
     </description>
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
-  <property name="build" location="bin"/>
+  <property name="bin" location="bin"/>
   <property name="dist"  location="."/>
 
   <target name="init">
     <!-- Create the time stamp -->
     <tstamp/>
     <!-- Create the build directory structure used by compile -->
-    <mkdir dir="${build}"/>
+    <mkdir dir="${bin}"/>
   </target>
 
   <!-- Thang added classpaths -->
@@ -24,8 +24,8 @@
 
   <target name="compile" depends="init"
         description="compile the source " >
-    <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+    <!-- Compile the java code from ${src} into ${bin} -->
+    <javac srcdir="${src}" destdir="${bin}" includeantruntime="false">
       <!-- Thang added classpaths -->
       <classpath refid="compile.classpath"/>
     </javac>
@@ -36,13 +36,15 @@
     <!-- Create the distribution directory -->
     <mkdir dir="${dist}"/>
 
-    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
-    <jar jarfile="${dist}/earleyx.jar" basedir="${build}"/>
+    <!-- Put everything in ${bin} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="${dist}/earleyx.jar" basedir="${bin}">
+      <fileset dir="${bin}"/>
+    </jar>
   </target>
 
   <target name="clean"
         description="clean up" >
-    <!-- Delete the ${build} and ${dist} directory trees -->
-    <delete dir="${build}"/>
+    <!-- Delete the ${bin} and ${dist} directory trees -->
+    <delete dir="${bin}"/>
   </target>
 </project>

@@ -1,9 +1,5 @@
 package base;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 import edu.stanford.nlp.util.Index;
 
 /**
@@ -37,7 +33,7 @@ public class Edge {
   public int getMother(){
     return rule.getMother();
   }
-  public List<Integer> getChildren(){
+  public int[] getChildren(){
     return rule.getChildren();
   }
   public int numChildren(){
@@ -46,18 +42,21 @@ public class Edge {
   public int numRemainingChildren(){
     return rule.numChildren()-dot;
   }
-  public List<Integer> getChildrenAfterDot(int pos){
+  public int[] getChildrenAfterDot(int pos){
     return rule.getChildren(dot+pos);
   }
   public int getChildAfterDot(int pos){
     return rule.getChild(dot+pos);
+  }
+  public boolean isTagAfterDot(int pos){
+    return rule.isTag(dot+pos);
   }
   public int getChild(int pos){
     return rule.getChild(pos);
   }
   
   public boolean isTerminalEdge(){
-    return (rule instanceof TerminalRule) || numChildren()==0;
+    return rule.isTerminalRule(); 
   }
   
   public Edge getPrevEdge(){
@@ -73,7 +72,7 @@ public class Edge {
   * @return
   */
   public Edge getMotherEdge(){
-    return new Edge(new TagRule(rule.getMother(), new ArrayList<Integer>()), 0);
+    return new Edge(Rule.buildLhsOnlyRule(rule.getMother()), 0);
   }
 
   /** 
@@ -81,8 +80,8 @@ public class Edge {
   * @return
   */
   public Edge getViaEdge(){ // first child after the dot
-    if(rule instanceof TagRule){
-      return new Edge(new TagRule(rule.getChildren().get(dot), new ArrayList<Integer>()), 0);
+    if(rule.isTag(dot)){  // next child is a tag
+      return new Edge(Rule.buildLhsOnlyRule(rule.getChild(dot)), 0);
     } else {
       return null;
     }
@@ -93,7 +92,7 @@ public class Edge {
    * @return
    */
    public Edge getToEdge(){
-     return new Edge(new TagRule(rule.getMother(), rule.getChildren(dot+1)), 0);
+     return new Edge(Rule.buildToRule(rule, dot), 0);
    }
    
   public boolean equals(Object o) {
@@ -106,7 +105,7 @@ public class Edge {
     } 
 
     Edge otherEdge = (Edge) o;
-    
+    //System.err.println("compare " + this + "\t" + otherEdge);
     // compare dot position & children
     if (this.dot != otherEdge.getDot() || !rule.equals(otherEdge.getRule())){
       return false;
@@ -123,22 +122,29 @@ public class Edge {
   public String toString(Index<String> tagIndex, Index<String> wordIndex){
     StringBuffer sb = new StringBuffer();
     sb.append(rule.lhsString(tagIndex) + " -> ");
-    List<Integer> children = rule.getChildren();
+//    List<Integer> children = rule.getChildren();
+    int[] children = rule.getChildren();
     for (int i = 0; i < dot; i++) {
-      if(rule instanceof TagRule){
-        sb.append(tagIndex.get(children.get(i)) + " ");
-      } else {
-        sb.append("_" + wordIndex.get(children.get(i)) + " ");
-      }
+      sb.append(rule.getChildStr(tagIndex, wordIndex, i) + " ");
     }
     sb.append(".");
-    for (int i = dot; i < children.size(); i++) {
-      if(rule instanceof TagRule){        
-        sb.append(" " + tagIndex.get(children.get(i)));
-      } else {
-        sb.append(" " + wordIndex.get(children.get(i)));
-      }
-      
+    for (int i = dot; i < children.length; i++) {
+      sb.append(" " + rule.getChildStr(tagIndex, wordIndex, i));
+    }
+    return sb.toString();
+  }
+  
+  public String toString(){
+    StringBuffer sb = new StringBuffer();
+    sb.append(rule.getMother() + " -> ");
+//    List<Integer> children = rule.getChildren();
+    int[] children = rule.getChildren();
+    for (int i = 0; i < dot; i++) {
+      sb.append(children[i] + " ");
+    }
+    sb.append(".");
+    for (int i = dot; i < children.length; i++) {
+      sb.append(" " + children[i]);
     }
     return sb.toString();
   }

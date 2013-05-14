@@ -15,6 +15,7 @@ import java.util.Map;
 import parser.EarleyParser;
 import util.Operator;
 import util.RuleFile;
+import util.Util;
 import base.BaseLexicon;
 import base.ProbRule;
 import base.RuleSet;
@@ -116,6 +117,11 @@ public class InsideOutside {
       objectiveList.add(objective);
       bw.write("iteration " + numIterations + " " + sumNegLogProb + " " + objective + "\n");
       bw.flush();
+      
+//      System.err.println("\n# iteration " + numIterations + "\n" + Util.sprint(ruleSet.getTagRules(), parserTagIndex, parserWordIndex));
+//      if(numIterations == 2){
+//        System.exit(1);
+//      }
       
       /** update model params **/
       updateModel();
@@ -293,10 +299,6 @@ public class InsideOutside {
     int numRules = 0;
     for (int ruleId = 0; ruleId < ruleSet.size(); ruleId++) {
       double priorBias = ruleSet.getBias(ruleId);
-//      if(priorBias>1e+9){ // we do not want to learn prob for this rule (to be compatible with Mark's grammar)
-//        numRules++;
-//        continue;
-//      }
       
       if(posteriorBiases.containsKey(ruleId)){
         double posteriorBias = posteriorBiases.get(ruleId);

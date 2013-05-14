@@ -1,8 +1,6 @@
 package base;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,9 +19,9 @@ public abstract class BaseLexicon {
   /* handle OOV word */
   public static String UNKNOWN_WORD = "UNK"; 
   
-  public static Set<String> PRETERMINALS = new HashSet<String>(Arrays.asList(new String[]{"CC", "CD", "DT", "EX", 
-      "FW", "IN", "JJ", "JJR", "JJS", "LS", "MD", "NN", "NNS", "NNP", "NNPS", "PDT", "POS", "PRP", "PRP$", "RB", 
-      "RBR", "RBS", "RP", "SYM", "TO", "UH", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ", "WDT", "WP", "WP$", "WRB"}));
+//  public static Set<String> PRETERMINALS = new HashSet<String>(Arrays.asList(new String[]{"CC", "CD", "DT", "EX", 
+//      "FW", "IN", "JJ", "JJR", "JJS", "LS", "MD", "NN", "NNS", "NNP", "NNPS", "PDT", "POS", "PRP", "PRP$", "RB", 
+//      "RBR", "RBS", "RP", "SYM", "TO", "UH", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ", "WDT", "WP", "WP$", "WRB"}));
   
   public BaseLexicon(Index<String> wordIndex, Index<String> tagIndex){
     this.wordIndex = wordIndex;
@@ -63,5 +61,9 @@ public abstract class BaseLexicon {
 
   public void setWord2tagsMap(Map<Integer, Set<IntTaggedWord>> word2tagsMap) {
     this.word2tagsMap = word2tagsMap;
+  }
+  
+  public Set<Integer> getAllTags(){
+    return tag2wordsMap.keySet();
   }
 }

@@ -35,11 +35,9 @@ import base.BackTrack;
 import base.BaseLexicon;
 import base.BiasProbRule;
 import base.Edge;
-import base.ProbRule;
 import base.Rule;
+import base.ProbRule;
 import base.RuleSet;
-import base.TagRule;
-import base.TerminalRule;
 
 import util.LogProbOperator;
 import util.Operator;
@@ -91,6 +89,7 @@ public abstract class EarleyParser implements Parser {
     return ruleSet;
   }
   protected boolean hasMultiTerminalRule = false;
+  protected boolean hasFragmentRule = false;
   
   // root
   protected static final String ORIG_SYMBOL = "";
@@ -213,7 +212,7 @@ public abstract class EarleyParser implements Parser {
       for(int iT : tag2wordsMap.keySet()){
         Counter<Integer> counter = tag2wordsMap.get(iT);
         for(int iW : counter.keySet()){
-          ruleSet.add(new ProbRule(new TerminalRule(iT, Arrays.asList(iW)), 
+          ruleSet.add(new ProbRule(new Rule(iT, iW, false), 
               Math.exp(counter.getCount(iW))));
         }
       }
@@ -255,16 +254,18 @@ public abstract class EarleyParser implements Parser {
     
     // root symbol
     this.rootSymbol = rootSymbol;
-    if(insideOutsideOpt==2){
-      rootRule = new BiasProbRule(new TagRule(ORIG_SYMBOL, Arrays.asList(rootSymbol), parserTagIndex), 1.0, 1.0);
-    } else {
-      rootRule = new ProbRule(new TagRule(ORIG_SYMBOL, Arrays.asList(rootSymbol), parserTagIndex), 1.0);
-    }
-    
-    origSymbolIndex = parserTagIndex.indexOf(ORIG_SYMBOL);
-    rootSymbolIndex = parserTagIndex.indexOf(rootSymbol);
+    origSymbolIndex = parserTagIndex.indexOf(ORIG_SYMBOL, true);
+    rootSymbolIndex = parserTagIndex.indexOf(rootSymbol, true);
     parserNonterminalMap.put(origSymbolIndex, parserNonterminalMap.size());
     assert(parserNonterminalMap.get(origSymbolIndex) == 0);
+    
+    if(insideOutsideOpt==2){
+      rootRule = new BiasProbRule(new Rule(origSymbolIndex, rootSymbolIndex, true), 1.0, 1.0);
+    } else {
+      rootRule = new ProbRule(new Rule(origSymbolIndex, rootSymbolIndex, true), 1.0);
+    }
+    
+    
     
     // rules
     ruleSet = new RuleSet(parserTagIndex, parserWordIndex);
@@ -344,7 +345,7 @@ public abstract class EarleyParser implements Parser {
       }
       // Counters.logInPlace(counter);
     }
-    
+
     buildEdgeSpace();
     buildGrammar();
     buildLex(tag2wordsMap, word2tagsMap);
@@ -364,6 +365,7 @@ public abstract class EarleyParser implements Parser {
     numCategories = parserTagIndex.size();
     
     hasMultiTerminalRule = (ruleSet.getMultiTerminalRules().size()>0);
+    hasFragmentRule = (ruleSet.numFragmentRules()>0);
     if(verbose>=1){
       System.err.println("# postInit Earley Parser -- num nonterminals " + parserNonterminalMap.size());
       if(verbose>=2){
@@ -590,7 +592,10 @@ public abstract class EarleyParser implements Parser {
       if(objectives.contains(SURPRISAL_OBJ)){
         if(!isScaling){
           double prefixProbabilityRatio = prefixProbability / lastProbability;
-          assert prefixProbabilityRatio <= 1.0 + 1e-10;
+          if (prefixProbabilityRatio > 1.0 + 1e-10){
+            System.err.println("! Error: prefix probability ratio > 1.0: " + prefixProbabilityRatio);
+            System.exit(1);
+          }
           surprisalList.add(-Math.log(prefixProbabilityRatio));
           
           // syntatic/lexical surprisals
@@ -726,9 +731,20 @@ public abstract class EarleyParser implements Parser {
     
     /** Handle normal rules **/
     Set<IntTaggedWord> iTWs = lex.tagsForWord(word);
+    if(iTWs.size()==0){
+      int iW = parserWordIndex.indexOf(word, true);
+      if(!hasFragmentRule || !edgeSpace.terminal2fragmentEdges.containsKey(iW)){ 
+        // if there's not a fragment rule X -> . _w, then use all tags
+        iTWs = new HashSet<IntTaggedWord>();
+        for(int iT : lex.getAllTags()){
+          iTWs.add(new IntTaggedWord(iW, iT));
+        }
+      }
+    }
     if (verbose>=1){
       System.err.println("# " + right + "\t" + word + ", numTags=" + iTWs.size());
     }
+    
     for (IntTaggedWord itw : iTWs) { // go through each POS tag the current word could have
       // score
       double score = lex.score(itw); // log
@@ -741,6 +757,7 @@ public abstract class EarleyParser implements Parser {
       scanning(right-1, right, itw.tag(), score);
     }
 
+    
     /** Handle multi terminal rules **/
     if(hasMultiTerminalRule){
       for (int i = right-2; i >= 0; --i) {
@@ -768,6 +785,10 @@ public abstract class EarleyParser implements Parser {
     }
     
     if(isFastComplete){
+      if(hasFragmentRule){
+        System.err.println("! We haven't implemented fastChartComplete for fragment rules");
+        System.exit(1);
+      }
       fastChartComplete(right);
     } else {
       chartComplete(right);
@@ -814,7 +835,7 @@ public abstract class EarleyParser implements Parser {
     
     // add terminal rule
     if(insideOutsideOpt>0){   
-      Edge terminalEdge = new Edge(new TerminalRule(tag, wordIndices.subList(left, right)), right-left);
+      Edge terminalEdge = new Edge(new Rule(tag, wordIndices.subList(left, right), false), right-left);
       Rule rule = terminalEdge.getRule();
       if(!ruleSet.contains(rule)){
         ProbRule probRule = new ProbRule(rule, operator.getProb(score));
@@ -988,6 +1009,11 @@ public abstract class EarleyParser implements Parser {
       }
     }
     
+    /** Handle fragment rules **/
+    if(hasFragmentRule && middle==(right-1)){
+      fragmentComplete(left, right);
+    }
+    
     // completions yield edges: right: left X -> \alpha Y . \beta
     storeCompleteTmpScores(left, right);
   }
@@ -1014,7 +1040,6 @@ public abstract class EarleyParser implements Parser {
       if(hasMultiTerminalRule){
         handleMultiTerminalRules(middle, right);
       }
-      
     }
     
     storePrefixProb(right);
@@ -1045,6 +1070,7 @@ public abstract class EarleyParser implements Parser {
           edgeSpace.get(prevEdge).toString(parserTagIndex, parserWordIndex) 
                 + ":  " + activeEdgeInfo.get(middle).get(prevEdge));
           }
+          
           for(int left : activeEdgeInfo.get(middle).get(prevEdge)){ // middle : left X -> \alpha . Z \beta
             assert(edgeSpace.get(prevEdge).numRemainingChildren()>0);
             /* add/update newEdge right: left X -> \alpha Z . \beta */
@@ -1091,6 +1117,8 @@ public abstract class EarleyParser implements Parser {
               addPrefixProb(left, middle, right, newForwardProb, inner, completion);  
             }
           } // end for left
+          
+          
         } // end if completeInfo
       } // end for completion
     } // end if completions.length
@@ -1122,6 +1150,69 @@ public abstract class EarleyParser implements Parser {
       double score = entry.getValue();
       addPrefixProbExtendedRule(left, middle, right, edge, score);
     }
+  }
+  
+  protected void fragmentComplete(int left, int right){
+    String word = words.get(right-1).word();
+    Set<Integer> fragmentEdges = edgeSpace.getFragmentEdges(parserWordIndex.indexOf(word));
+    
+    if(fragmentEdges != null){ // there are fragment edges that start with the current word
+      Set<Integer> predictedEdges = listInsideEdges(left, right-1);
+      
+      if(predictedEdges.size()>0){ // non-empty cell
+//        System.err.println("# [" + left + ", " + (right-1) + "]: " + Util.sprint(predictedEdges, edgeSpace, parserTagIndex, parserWordIndex));
+//        System.err.println("Fragment: " + Util.sprint(fragmentEdges, edgeSpace, parserTagIndex, parserWordIndex));   
+        Set<Integer> intersectEdges = Util.intersection(predictedEdges, fragmentEdges);
+        
+        if(intersectEdges.size()>0){
+          System.err.println("# " + word + "\t[" + left + ", " + (right-1) + 
+              "] " + ": " + Util.sprint(intersectEdges, edgeSpace, parserTagIndex, parserWordIndex));
+          for (Integer edge : intersectEdges) {
+            fragmentComplete(left, right, edge);
+          }
+        }
+      }
+    }
+  }
+  
+  protected void fragmentComplete(int left, int right, int prevEdge){
+    // prevEdge: left: right-1 X -> . _y Z T
+    int middle = right-1;
+    double newForwardProb = getForwardScore(left, middle, prevEdge);
+    double newInnerProb = getInnerScore(left, middle, prevEdge);
+    int newEdge = edgeSpace.to(prevEdge);
+    
+    // add edge, right: left X -> _ Z . _, to tmp storage
+    initCompleteTmpScores(newEdge);
+    addCompleteTmpForwardScore(newEdge, newForwardProb);
+    addCompleteTmpInnerScore(newEdge, newInnerProb);
+
+    // inside-outside info to help outside computation later or marginal decoding later
+    if(insideOutsideOpt>0 || decodeOpt==2){
+      Edge edgeObj = edgeSpace.get(newEdge);
+      
+      if(edgeObj.numRemainingChildren()==0){ // complete right: left X -> _ Y .
+        addCompletedEdges(left, right, newEdge);
+      }
+    }
+    
+    // Viterbi: store backtrack info
+    if(decodeOpt==1){
+      int nextEdge = -1;
+      addBacktrack(left, middle, right, nextEdge, newEdge, newInnerProb);
+    }
+    
+    if (verbose >= 1) {
+      System.err.println("  fragment start " + edgeScoreInfo(left, middle, prevEdge) 
+          + " -> new " + edgeScoreInfo(left, right, newEdge, newForwardProb, newInnerProb));
+
+      if (isGoalEdge(newEdge)) {
+        System.err.println("# fragment string prob +=" + Math.exp(newInnerProb));
+      }
+    }
+
+    //also a careful addition to the prefix probabilities -- is this right?
+    addFragmentPrefixProb(left, right, newForwardProb, prevEdge);
   }
   
   protected void complete(int left, int middle, int right, int nextEdge, double inner) {
@@ -1198,18 +1289,32 @@ public abstract class EarleyParser implements Parser {
     }
   }
   
+  public void addFragmentPrefixProb(int left, int right, double newForwardProb, int prevEdge){
+    int middle = right-1;
+    thisPrefixProb.add(newForwardProb);
+    double synProb = newForwardProb;
+    thisSynPrefixProb.add(synProb); // minus the lexical score
+    if (verbose >= 2) {
+      System.err.println("# Prefix prob += " + operator.getProb(newForwardProb) + "=" + 
+          operator.getProb(getForwardScore(left, middle, prevEdge)) + "\t" + 
+          left + "\t" + middle + "\t" + prevEdge);
+//      System.err.println("# Syn prefix prob += " + operator.getProb(synProb) + "=" + 
+//          operator.getProb(newForwardProb));
+    }
+  }
+  
   public void addPrefixProb(int left, int middle, int right, double newForwardProb, double inner, Completion completion){
     thisPrefixProb.add(newForwardProb);
     double synProb = operator.divide(newForwardProb, inner);
     thisSynPrefixProb.add(synProb); // minus the lexical score
     if (verbose >= 2) {
-      System.err.println("# Prefix prob += " + operator.getProb(newForwardProb) + "=" + 
+      System.err.println("# Fragment prefix prob += " + operator.getProb(newForwardProb) + "=" + 
           operator.getProb(getForwardScore(left, middle, completion.activeEdge)) + "*" + 
           operator.getProb(completion.score) + "*" + operator.getProb(inner) + "\t" + 
           left + "\t" + middle + "\t" + completion.activeEdge);
-      System.err.println("# Syn prefix prob += " + operator.getProb(synProb) + "=" + 
-          operator.getProb(newForwardProb) + "/" + 
-          operator.getProb(inner));
+//      System.err.println("# Syn prefix prob += " + operator.getProb(synProb) + "=" + 
+//          operator.getProb(newForwardProb) + "/" + 
+//          operator.getProb(inner));
     }
   }
   
@@ -1276,7 +1381,7 @@ public abstract class EarleyParser implements Parser {
       }
       
       returnTree = new LabeledScoredTreeNode(motherLabel, daughterTreesList);
-    } else { // X -> \alpha Y . \beta
+    } else { // dot in the middle: X -> \alpha Y . \beta
       assert(edge==goalEdge || edgeObj.numChildren()>1);
       BackTrack backtrack = backtrackChart.get(linear(left, right)).get(edge);
       
@@ -1286,22 +1391,27 @@ public abstract class EarleyParser implements Parser {
       //System.err.println(edgeInfo(left, backtrack.middle, prevEdge));
       returnTree = viterbiParse(left, backtrack.middle, prevEdge);
       
-      // Viterbi parse: Y -> v .
-      int nextEdge = backtrack.edge;
-      Edge nextEdgeObj = edgeSpace.get(nextEdge);
-      Tree nextTree = viterbiParse(backtrack.middle, right, nextEdge);
-      
-      if(prevEdgeObj.getChildAfterDot(0) != nextEdgeObj.getMother()){ // unary chain
-        List<Integer> chain = ruleSet.getUnaryChain(prevEdgeObj.getChildAfterDot(0), 
-            nextEdgeObj.getMother());
-        for (int i = chain.size()-2; i >= 0; i--) {
-          Label label = new Tag(parserTagIndex.get(chain.get(i)));
-          nextTree = new LabeledScoredTreeNode(label, Arrays.asList(nextTree));
+      if(hasFragmentRule && backtrack.edge == -1) { // Z is in fact a terminal _z  due to fragment rules
+        assert(backtrack.middle == (right-1));
+        returnTree.addChild(new LabeledScoredTreeNode(new Word(words.get(backtrack.middle).word())));
+      } else { 
+        // Viterbi parse: Y -> v .
+        int nextEdge = backtrack.edge;
+        Edge nextEdgeObj = edgeSpace.get(nextEdge);
+        Tree nextTree = viterbiParse(backtrack.middle, right, nextEdge);
+        
+        if(prevEdgeObj.getChildAfterDot(0) != nextEdgeObj.getMother()){ // unary chain
+          List<Integer> chain = ruleSet.getUnaryChain(prevEdgeObj.getChildAfterDot(0), 
+              nextEdgeObj.getMother());
+          for (int i = chain.size()-2; i >= 0; i--) {
+            Label label = new Tag(parserTagIndex.get(chain.get(i)));
+            nextTree = new LabeledScoredTreeNode(label, Arrays.asList(nextTree));
+          }
         }
+        
+        // adjoin trees
+        returnTree.addChild(nextTree);
       }
-      
-      // adjoin trees
-      returnTree.addChild(nextTree);
     }
     
     if(verbose>=3){
@@ -1417,56 +1527,74 @@ public abstract class EarleyParser implements Parser {
     }
     
     int mrIndex = linear(middle, right);
-    for(int nextEdge : completedEdges.get(mrIndex)){ // Y -> v .
-      Edge nextEdgeObj = edgeSpace.get(nextEdge);
-      int nextTag = nextEdgeObj.getMother(); // Y
-      double unaryClosureScore = g.getUnaryClosures().get(prevTag, nextTag);
-      
-      if(unaryClosureScore > operator.zero()) { // positive R(Z -> Y)
-        double rightInside = getInnerScore(middle, right, nextEdge);
-        
-        if(verbose>=4) {
-          System.err.println("    next edge [" + middle + ", " + right + "] " + 
-              nextEdgeObj.toString(parserTagIndex, parserWordIndex) + 
-              ", right inside " + operator.getProb(rightInside) + 
-              ", unary(" + parserTagIndex.get(prevTag) + "->" 
-              + parserTagIndex.get(nextTag) + ")=" + operator.getProb(unaryClosureScore));
-        }
-        
-        // left outside = parent outside * right inside
-        // Note: we multiply unaryClosure score here even though Stolcke's paper suggests that we should not
-        // but adding this closure score results in scores match with Mark's code
-        double leftOutsideScore = operator.multiply(operator.multiply(parentOutside, rightInside), unaryClosureScore);
-        if(leftOutsideScore>operator.zero()){
-          outsideUpdate(left, middle, prevEdge, leftOutsideScore, rootInsideScore, verbose);
-        }
-        
-        // right outside = parent outside * left inside * unary score
-        double rightOutsideScore = operator.multiply(operator.multiply(parentOutside, leftInside), unaryClosureScore);
-        if(rightOutsideScore>operator.zero()){
-          outsideUpdate(middle, right, nextEdge, rightOutsideScore, rootInsideScore, verbose);
-        }
-        
-        // to backtrack we might want to check if completedEdge has any children
-        // if it has no, that means it was constructed directly from terminals
-        
-        // recursive call
-        if(middle>left){ // add middle: left X -> \beta . Z \alpha only if left < middle
-          assert(!prevEdgeObj.isTerminalEdge());
-          configurations.get(linear(left, middle)).add(prevEdge);
-        }
-        
-        assert(middle != left || nextEdge != edge);
-        if(!nextEdgeObj.isTerminalEdge()){ // add right: middle Y -> v . if Y -> v. is not a terminal edge
-          configurations.get(mrIndex).add(nextEdge);
-        }
-        
-        // update unary counts
-        if(leftInside>operator.zero() && rightInside>operator.zero()){
-          updateUnaryCount(prevTag, nextTag, parentOutside, leftInside, rightInside, rootInsideScore, verbose);
-        }
+    
+    // for fragment rules, cell [middle][right] might be empty
+    if(!completedEdges.containsKey(mrIndex)){ // X -> \alpha _y . \beta due to fragment rules 
+      if(middle != (right-1) || !hasFragmentRule){
+        System.err.println("! outside: empty completed edges for [middle, right] = [" + middle + ", " + right + "]");
+        System.exit(1);
       }
-    } // end nextEdge
+      
+      
+      // outside to the left: X -> \alpha . _y \beta
+      double rightInside = operator.one();
+      double unaryClosureScore = operator.one();
+      double leftOutsideScore = operator.multiply(operator.multiply(parentOutside, rightInside), unaryClosureScore);
+      if(leftOutsideScore>operator.zero()){
+        outsideUpdate(left, middle, prevEdge, leftOutsideScore, rootInsideScore, verbose);
+      }
+    } else {
+      for(int nextEdge : completedEdges.get(mrIndex)){ // Y -> v .
+        Edge nextEdgeObj = edgeSpace.get(nextEdge);
+        int nextTag = nextEdgeObj.getMother(); // Y
+        double unaryClosureScore = g.getUnaryClosures().get(prevTag, nextTag);
+        
+        if(unaryClosureScore > operator.zero()) { // positive R(Z -> Y)
+          double rightInside = getInnerScore(middle, right, nextEdge);
+          
+          if(verbose>=4) {
+            System.err.println("    next edge [" + middle + ", " + right + "] " + 
+                nextEdgeObj.toString(parserTagIndex, parserWordIndex) + 
+                ", right inside " + operator.getProb(rightInside) + 
+                ", unary(" + parserTagIndex.get(prevTag) + "->" 
+                + parserTagIndex.get(nextTag) + ")=" + operator.getProb(unaryClosureScore));
+          }
+          
+          // left outside = parent outside * right inside
+          // Note: we multiply unaryClosure score here even though Stolcke's paper suggests that we should not
+          // but adding this closure score results in scores match with Mark's code
+          double leftOutsideScore = operator.multiply(operator.multiply(parentOutside, rightInside), unaryClosureScore);
+          if(leftOutsideScore>operator.zero()){
+            outsideUpdate(left, middle, prevEdge, leftOutsideScore, rootInsideScore, verbose);
+          }
+          
+          // right outside = parent outside * left inside * unary score
+          double rightOutsideScore = operator.multiply(operator.multiply(parentOutside, leftInside), unaryClosureScore);
+          if(rightOutsideScore>operator.zero()){
+            outsideUpdate(middle, right, nextEdge, rightOutsideScore, rootInsideScore, verbose);
+          }
+          
+          // to backtrack we might want to check if completedEdge has any children
+          // if it has no, that means it was constructed directly from terminals
+          
+          // recursive call
+          if(middle>left){ // add middle: left X -> \beta . Z \alpha only if left < middle
+            assert(!prevEdgeObj.isTerminalEdge());
+            configurations.get(linear(left, middle)).add(prevEdge);
+          }
+          
+          assert(middle != left || nextEdge != edge);
+          if(!nextEdgeObj.isTerminalEdge()){ // add right: middle Y -> v . if Y -> v. is not a terminal edge
+            configurations.get(mrIndex).add(nextEdge);
+          }
+          
+          // update unary counts
+          if(leftInside>operator.zero() && rightInside>operator.zero()){
+            updateUnaryCount(prevTag, nextTag, parentOutside, leftInside, rightInside, rootInsideScore, verbose);
+          }
+        }
+      } // end nextEdge
+    } // end if fragment rules
   }
   
   protected void outsideUpdate(int left, int right, int edge, double outsideScore, double rootInsideScore, int verbose){
@@ -1485,7 +1613,7 @@ public abstract class EarleyParser implements Parser {
         assert(expectedCount>operator.zero());
         
         if(edgeObj.numChildren()==0){ // tag -> []
-          edgeObj = new Edge(new TerminalRule(edgeObj.getMother(), wordIndices.subList(left, right)), right-left);
+          edgeObj = new Edge(new Rule(edgeObj.getMother(), wordIndices.subList(left, right), false), right-left);
         }
         addScore(expectedCounts, ruleSet.indexOf(edgeObj.getRule()), expectedCount);
 
@@ -1918,36 +2046,7 @@ public abstract class EarleyParser implements Parser {
   public String dumpOutsideChart() {
     return dumpCatChart(computeCatChart("Outside"), "Outside");
   }
-  
-  
-  
-  
     
-//  public void labelRecalParsing(){
-//    for (int length = 2; length <= numWords; length++) {
-//      for (int left = 0; left <= (numWords-length); left++) {
-//        int right = left + length;
-//        
-//        // scaling
-//        double scalingFactor = operator.one();
-////        if (isScaling){
-////          if (isOutsideProb){ // outside prob has a scaling factor for [0,left][right, numWords]
-////            scalingFactor = operator.multiply(scalingMatrix[linear[0][left]], scalingMatrix[linear[right][numWords]]);
-////          } else {
-////            scalingFactor = scalingMatrix[linear(left, right)];
-////          }
-////        }
-//
-//        
-//        double maxG = Double.NEGATIVE_INFINITY;
-//        for (int tag = 0; tag < parserTagIndex.size(); tag++) {
-//          
-//        }
-//        
-//      }
-//    }
-//  }
-  
   /** debug methods **/
   protected void dumpChart() {
     System.err.println("# Chart snapshot, edge space size = " + edgeSpaceSize);
@@ -1972,6 +2071,21 @@ public abstract class EarleyParser implements Parser {
                 + ": " + df.format(operator.getProb(forwardProb)) 
                 + " " + df.format(operator.getProb(innerProb)));
           }
+        }
+      }
+    }
+  }
+  
+  protected void dumpCompletedEdges() {
+    System.err.println("# Completed edges, edge space size = " + edgeSpaceSize);
+    for(int length=1; length<=numWords; length++){ // length
+      for (int left = 0; left <= numWords-length; left++) {
+        int right = left+length;
+
+        if(completedEdges.containsKey(linear(left, right))){ // there're active states
+          System.err.println("[" + left + "," + right + "]: " + 
+              Util.sprint(completedEdges.get(linear(left, right)), edgeSpace
+              , parserTagIndex, parserWordIndex));
         }
       }
     }
@@ -2029,6 +2143,35 @@ public abstract class EarleyParser implements Parser {
 }
 
 /** Unused code **/
+
+
+
+
+//public void labelRecalParsing(){
+//for (int length = 2; length <= numWords; length++) {
+//  for (int left = 0; left <= (numWords-length); left++) {
+//    int right = left + length;
+//    
+//    // scaling
+//    double scalingFactor = operator.one();
+////    if (isScaling){
+////      if (isOutsideProb){ // outside prob has a scaling factor for [0,left][right, numWords]
+////        scalingFactor = operator.multiply(scalingMatrix[linear[0][left]], scalingMatrix[linear[right][numWords]]);
+////      } else {
+////        scalingFactor = scalingMatrix[linear(left, right)];
+////      }
+////    }
+//
+//    
+//    double maxG = Double.NEGATIVE_INFINITY;
+//    for (int tag = 0; tag < parserTagIndex.size(); tag++) {
+//      
+//    }
+//    
+//  }
+//}
+//}
+
 //linear = new int[numWords+1][numWords+1];
 //// go in the order of CKY parsing
 //numCells=0;

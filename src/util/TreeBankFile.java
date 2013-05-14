@@ -14,9 +14,9 @@ import java.util.Map;
 
 import parser.SmoothLexicon;
 import base.BaseLexicon;
+import base.Rule;
 import base.ProbRule;
 import base.RuleSet;
-import base.TerminalRule;
 import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
@@ -238,7 +238,7 @@ public class TreeBankFile {
       for(int iT : tag2wordsMap.keySet()){
         Counter<Integer> counter = tag2wordsMap.get(iT);
         for(int iW : counter.keySet()){
-          ruleSet.add(new ProbRule(new TerminalRule(iT, Arrays.asList(iW)), 
+          ruleSet.add(new ProbRule(new Rule(iT, iW, false), 
               Math.exp(counter.getCount(iW))));
         }
       }

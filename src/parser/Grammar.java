@@ -103,7 +103,7 @@ public class Grammar {
     
     int numExtendedRules = 0;
     for (ProbRule extendedRule : extendedRules) {
-      List<Integer> children = extendedRule.getChildren();
+      List<Integer> children = Util.toList(extendedRule.getChildren());
       ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), 
           operator.getScore(extendedRule.getProb()))); 
       
@@ -118,7 +118,7 @@ public class Grammar {
     }
     
     if (verbose >= 4) {
-      System.err.println(Util.sprint(extendedRules, wordIndex, tagIndex));
+      System.err.println(Util.sprint(extendedRules, tagIndex, wordIndex));
       System.err.println(ruleTrie.toString(wordIndex, tagIndex));
     }
     if (verbose >= 1) {

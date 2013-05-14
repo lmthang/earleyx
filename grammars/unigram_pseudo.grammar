@@ -1,0 +1,1472 @@
+1 Sentence->[Topic.None Words.None] : 0.0322581
+1 Sentence->[Topic.alphabet Words.alphabet] : 0.0322581
+1 Sentence->[Topic.baby Words.baby] : 0.0322581
+1 Sentence->[Topic.ball Words.ball] : 0.0322581
+1 Sentence->[Topic.bear Words.bear] : 0.0322581
+1 Sentence->[Topic.block Words.block] : 0.0322581
+1 Sentence->[Topic.blocks Words.blocks] : 0.0322581
+1 Sentence->[Topic.book Words.book] : 0.0322581
+1 Sentence->[Topic.box Words.box] : 0.0322581
+1 Sentence->[Topic.brush Words.brush] : 0.0322581
+1 Sentence->[Topic.bus Words.bus] : 0.0322581
+1 Sentence->[Topic.car Words.car] : 0.0322581
+1 Sentence->[Topic.cheese Words.cheese] : 0.0322581
+1 Sentence->[Topic.dog Words.dog] : 0.0322581
+1 Sentence->[Topic.doll Words.doll] : 0.0322581
+1 Sentence->[Topic.dough Words.dough] : 0.0322581
+1 Sentence->[Topic.ernie Words.ernie] : 0.0322581
+1 Sentence->[Topic.firetruck Words.firetruck] : 0.0322581
+1 Sentence->[Topic.flashlight Words.flashlight] : 0.0322581
+1 Sentence->[Topic.hotdog Words.hotdog] : 0.0322581
+1 Sentence->[Topic.mickey Words.mickey] : 0.0322581
+1 Sentence->[Topic.oscar Words.oscar] : 0.0322581
+1 Sentence->[Topic.pepperoni Words.pepperoni] : 0.0322581
+1 Sentence->[Topic.phone Words.phone] : 0.0322581
+1 Sentence->[Topic.pig Words.pig] : 0.0322581
+1 Sentence->[Topic.popnpals Words.popnpals] : 0.0322581
+1 Sentence->[Topic.rabbit Words.rabbit] : 0.0322581
+1 Sentence->[Topic.rings Words.rings] : 0.0322581
+1 Sentence->[Topic.train Words.train] : 0.0322581
+1 Sentence->[Topic.truck Words.truck] : 0.0322581
+1 Sentence->[Topic.waffles Words.waffles] : 0.0322581
+1 Words.None->[Word.None] : 0.5
+1 Words.None->[Word.None Words.None] : 0.5
+1 Words.alphabet->[Word.alphabet] : 0.25
+1 Words.alphabet->[Word.None] : 0.25
+1 Words.alphabet->[Word.alphabet Words.alphabet] : 0.25
+1 Words.alphabet->[Word.None Words.alphabet] : 0.25
+1 Words.baby->[Word.baby] : 0.25
+1 Words.baby->[Word.None] : 0.25
+1 Words.baby->[Word.baby Words.baby] : 0.25
+1 Words.baby->[Word.None Words.baby] : 0.25
+1 Words.ball->[Word.ball] : 0.25
+1 Words.ball->[Word.None] : 0.25
+1 Words.ball->[Word.ball Words.ball] : 0.25
+1 Words.ball->[Word.None Words.ball] : 0.25
+1 Words.bear->[Word.bear] : 0.25
+1 Words.bear->[Word.None] : 0.25
+1 Words.bear->[Word.bear Words.bear] : 0.25
+1 Words.bear->[Word.None Words.bear] : 0.25
+1 Words.block->[Word.block] : 0.25
+1 Words.block->[Word.None] : 0.25
+1 Words.block->[Word.block Words.block] : 0.25
+1 Words.block->[Word.None Words.block] : 0.25
+1 Words.blocks->[Word.blocks] : 0.25
+1 Words.blocks->[Word.None] : 0.25
+1 Words.blocks->[Word.blocks Words.blocks] : 0.25
+1 Words.blocks->[Word.None Words.blocks] : 0.25
+1 Words.book->[Word.book] : 0.25
+1 Words.book->[Word.None] : 0.25
+1 Words.book->[Word.book Words.book] : 0.25
+1 Words.book->[Word.None Words.book] : 0.25
+1 Words.box->[Word.box] : 0.25
+1 Words.box->[Word.None] : 0.25
+1 Words.box->[Word.box Words.box] : 0.25
+1 Words.box->[Word.None Words.box] : 0.25
+1 Words.brush->[Word.brush] : 0.25
+1 Words.brush->[Word.None] : 0.25
+1 Words.brush->[Word.brush Words.brush] : 0.25
+1 Words.brush->[Word.None Words.brush] : 0.25
+1 Words.bus->[Word.bus] : 0.25
+1 Words.bus->[Word.None] : 0.25
+1 Words.bus->[Word.bus Words.bus] : 0.25
+1 Words.bus->[Word.None Words.bus] : 0.25
+1 Words.car->[Word.car] : 0.25
+1 Words.car->[Word.None] : 0.25
+1 Words.car->[Word.car Words.car] : 0.25
+1 Words.car->[Word.None Words.car] : 0.25
+1 Words.cheese->[Word.cheese] : 0.25
+1 Words.cheese->[Word.None] : 0.25
+1 Words.cheese->[Word.cheese Words.cheese] : 0.25
+1 Words.cheese->[Word.None Words.cheese] : 0.25
+1 Words.dog->[Word.dog] : 0.25
+1 Words.dog->[Word.None] : 0.25
+1 Words.dog->[Word.dog Words.dog] : 0.25
+1 Words.dog->[Word.None Words.dog] : 0.25
+1 Words.doll->[Word.doll] : 0.25
+1 Words.doll->[Word.None] : 0.25
+1 Words.doll->[Word.doll Words.doll] : 0.25
+1 Words.doll->[Word.None Words.doll] : 0.25
+1 Words.dough->[Word.dough] : 0.25
+1 Words.dough->[Word.None] : 0.25
+1 Words.dough->[Word.dough Words.dough] : 0.25
+1 Words.dough->[Word.None Words.dough] : 0.25
+1 Words.ernie->[Word.ernie] : 0.25
+1 Words.ernie->[Word.None] : 0.25
+1 Words.ernie->[Word.ernie Words.ernie] : 0.25
+1 Words.ernie->[Word.None Words.ernie] : 0.25
+1 Words.firetruck->[Word.firetruck] : 0.25
+1 Words.firetruck->[Word.None] : 0.25
+1 Words.firetruck->[Word.firetruck Words.firetruck] : 0.25
+1 Words.firetruck->[Word.None Words.firetruck] : 0.25
+1 Words.flashlight->[Word.flashlight] : 0.25
+1 Words.flashlight->[Word.None] : 0.25
+1 Words.flashlight->[Word.flashlight Words.flashlight] : 0.25
+1 Words.flashlight->[Word.None Words.flashlight] : 0.25
+1 Words.hotdog->[Word.hotdog] : 0.25
+1 Words.hotdog->[Word.None] : 0.25
+1 Words.hotdog->[Word.hotdog Words.hotdog] : 0.25
+1 Words.hotdog->[Word.None Words.hotdog] : 0.25
+1 Words.mickey->[Word.mickey] : 0.25
+1 Words.mickey->[Word.None] : 0.25
+1 Words.mickey->[Word.mickey Words.mickey] : 0.25
+1 Words.mickey->[Word.None Words.mickey] : 0.25
+1 Words.oscar->[Word.oscar] : 0.25
+1 Words.oscar->[Word.None] : 0.25
+1 Words.oscar->[Word.oscar Words.oscar] : 0.25
+1 Words.oscar->[Word.None Words.oscar] : 0.25
+1 Words.pepperoni->[Word.pepperoni] : 0.25
+1 Words.pepperoni->[Word.None] : 0.25
+1 Words.pepperoni->[Word.pepperoni Words.pepperoni] : 0.25
+1 Words.pepperoni->[Word.None Words.pepperoni] : 0.25
+1 Words.phone->[Word.phone] : 0.25
+1 Words.phone->[Word.None] : 0.25
+1 Words.phone->[Word.phone Words.phone] : 0.25
+1 Words.phone->[Word.None Words.phone] : 0.25
+1 Words.pig->[Word.pig] : 0.25
+1 Words.pig->[Word.None] : 0.25
+1 Words.pig->[Word.pig Words.pig] : 0.25
+1 Words.pig->[Word.None Words.pig] : 0.25
+1 Words.popnpals->[Word.popnpals] : 0.25
+1 Words.popnpals->[Word.None] : 0.25
+1 Words.popnpals->[Word.popnpals Words.popnpals] : 0.25
+1 Words.popnpals->[Word.None Words.popnpals] : 0.25
+1 Words.rabbit->[Word.rabbit] : 0.25
+1 Words.rabbit->[Word.None] : 0.25
+1 Words.rabbit->[Word.rabbit Words.rabbit] : 0.25
+1 Words.rabbit->[Word.None Words.rabbit] : 0.25
+1 Words.rings->[Word.rings] : 0.25
+1 Words.rings->[Word.None] : 0.25
+1 Words.rings->[Word.rings Words.rings] : 0.25
+1 Words.rings->[Word.None Words.rings] : 0.25
+1 Words.train->[Word.train] : 0.25
+1 Words.train->[Word.None] : 0.25
+1 Words.train->[Word.train Words.train] : 0.25
+1 Words.train->[Word.None Words.train] : 0.25
+1 Words.truck->[Word.truck] : 0.25
+1 Words.truck->[Word.None] : 0.25
+1 Words.truck->[Word.truck Words.truck] : 0.25
+1 Words.truck->[Word.None Words.truck] : 0.25
+1 Words.waffles->[Word.waffles] : 0.25
+1 Words.waffles->[Word.None] : 0.25
+1 Words.waffles->[Word.waffles Words.waffles] : 0.25
+1 Words.waffles->[Word.None Words.waffles] : 0.25
+Word.None->[Word] : 1
+Word.alphabet->[Word] : 1
+Word.baby->[Word] : 1
+Word.ball->[Word] : 1
+Word.bear->[Word] : 1
+Word.block->[Word] : 1
+Word.blocks->[Word] : 1
+Word.book->[Word] : 1
+Word.box->[Word] : 1
+Word.brush->[Word] : 1
+Word.bus->[Word] : 1
+Word.car->[Word] : 1
+Word.cheese->[Word] : 1
+Word.dog->[Word] : 1
+Word.doll->[Word] : 1
+Word.dough->[Word] : 1
+Word.ernie->[Word] : 1
+Word.firetruck->[Word] : 1
+Word.flashlight->[Word] : 1
+Word.hotdog->[Word] : 1
+Word.mickey->[Word] : 1
+Word.oscar->[Word] : 1
+Word.pepperoni->[Word] : 1
+Word.phone->[Word] : 1
+Word.pig->[Word] : 1
+Word.popnpals->[Word] : 1
+Word.rabbit->[Word] : 1
+Word.rings->[Word] : 1
+Word.train->[Word] : 1
+Word.truck->[Word] : 1
+Word.waffles->[Word] : 1
+1 Word->[_a] : 0.000900901
+1 Word->[_aaaaa] : 0.000900901
+1 Word->[_aaaaah] : 0.000900901
+1 Word->[_aaaah] : 0.000900901
+1 Word->[_aaah] : 0.000900901
+1 Word->[_aarf] : 0.000900901
+1 Word->[_about] : 0.000900901
+1 Word->[_actually] : 0.000900901
+1 Word->[_adam] : 0.000900901
+1 Word->[_adore] : 0.000900901
+1 Word->[_after] : 0.000900901
+1 Word->[_again] : 0.000900901
+1 Word->[_ah] : 0.000900901
+1 Word->[_ahead] : 0.000900901
+1 Word->[_ahh] : 0.000900901
+1 Word->[_ahhh] : 0.000900901
+1 Word->[_airplane] : 0.000900901
+1 Word->[_alex] : 0.000900901
+1 Word->[_alexis] : 0.000900901
+1 Word->[_all] : 0.000900901
+1 Word->[_almost] : 0.000900901
+1 Word->[_alphabet] : 0.000900901
+1 Word->[_alphabets] : 0.000900901
+1 Word->[_alright] : 0.000900901
+1 Word->[_also] : 0.000900901
+1 Word->[_always] : 0.000900901
+1 Word->[_am] : 0.000900901
+1 Word->[_amazing] : 0.000900901
+1 Word->[_an] : 0.000900901
+1 Word->[_and] : 0.000900901
+1 Word->[_andrew] : 0.000900901
+1 Word->[_angel] : 0.000900901
+1 Word->[_angry] : 0.000900901
+1 Word->[_animals] : 0.000900901
+1 Word->[_another] : 0.000900901
+1 Word->[_any] : 0.000900901
+1 Word->[_anybody] : 0.000900901
+1 Word->[_anything] : 0.000900901
+1 Word->[_apart] : 0.000900901
+1 Word->[_arches] : 0.000900901
+1 Word->[_are] : 0.000900901
+1 Word->[_arent] : 0.000900901
+1 Word->[_arm] : 0.000900901
+1 Word->[_arms] : 0.000900901
+1 Word->[_around] : 0.000900901
+1 Word->[_as] : 0.000900901
+1 Word->[_ashley] : 0.000900901
+1 Word->[_ask] : 0.000900901
+1 Word->[_at] : 0.000900901
+1 Word->[_attention] : 0.000900901
+1 Word->[_away] : 0.000900901
+1 Word->[_awfully] : 0.000900901
+1 Word->[_aww] : 0.000900901
+1 Word->[_axle] : 0.000900901
+1 Word->[_aye] : 0.000900901
+1 Word->[_azerbaijan] : 0.000900901
+1 Word->[_ba] : 0.000900901
+1 Word->[_baby] : 0.000900901
+1 Word->[_back] : 0.000900901
+1 Word->[_bag] : 0.000900901
+1 Word->[_balance] : 0.000900901
+1 Word->[_balanced] : 0.000900901
+1 Word->[_ball] : 0.000900901
+1 Word->[_bandaid] : 0.000900901
+1 Word->[_bang] : 0.000900901
+1 Word->[_banging] : 0.000900901
+1 Word->[_basketball] : 0.000900901
+1 Word->[_bath] : 0.000900901
+1 Word->[_be] : 0.000900901
+1 Word->[_bear] : 0.000900901
+1 Word->[_bears] : 0.000900901
+1 Word->[_because] : 0.000900901
+1 Word->[_becomes] : 0.000900901
+1 Word->[_bee] : 0.000900901
+1 Word->[_been] : 0.000900901
+1 Word->[_beep] : 0.000900901
+1 Word->[_before] : 0.000900901
+1 Word->[_behind] : 0.000900901
+1 Word->[_being] : 0.000900901
+1 Word->[_bell] : 0.000900901
+1 Word->[_belong] : 0.000900901
+1 Word->[_benny] : 0.000900901
+1 Word->[_bert] : 0.000900901
+1 Word->[_besides] : 0.000900901
+1 Word->[_best] : 0.000900901
+1 Word->[_bet] : 0.000900901
+1 Word->[_betcha] : 0.000900901
+1 Word->[_better] : 0.000900901
+1 Word->[_big] : 0.000900901
+1 Word->[_bigger] : 0.000900901
+1 Word->[_bird] : 0.000900901
+1 Word->[_birdy] : 0.000900901
+1 Word->[_birdys] : 0.000900901
+1 Word->[_bit] : 0.000900901
+1 Word->[_black] : 0.000900901
+1 Word->[_blah] : 0.000900901
+1 Word->[_blankey] : 0.000900901
+1 Word->[_bless] : 0.000900901
+1 Word->[_blinkers] : 0.000900901
+1 Word->[_block] : 0.000900901
+1 Word->[_blocks] : 0.000900901
+1 Word->[_blue] : 0.000900901
+1 Word->[_boo] : 0.000900901
+1 Word->[_booboo] : 0.000900901
+1 Word->[_book] : 0.000900901
+1 Word->[_boom] : 0.000900901
+1 Word->[_boop] : 0.000900901
+1 Word->[_boopie] : 0.000900901
+1 Word->[_bored] : 0.000900901
+1 Word->[_boring] : 0.000900901
+1 Word->[_bossy] : 0.000900901
+1 Word->[_both] : 0.000900901
+1 Word->[_bottom] : 0.000900901
+1 Word->[_boujeval] : 0.000900901
+1 Word->[_bounce] : 0.000900901
+1 Word->[_bouncy] : 0.000900901
+1 Word->[_bout] : 0.000900901
+1 Word->[_box] : 0.000900901
+1 Word->[_boxes] : 0.000900901
+1 Word->[_boy] : 0.000900901
+1 Word->[_boys] : 0.000900901
+1 Word->[_brandon] : 0.000900901
+1 Word->[_bribe] : 0.000900901
+1 Word->[_bright] : 0.000900901
+1 Word->[_bring] : 0.000900901
+1 Word->[_bristles] : 0.000900901
+1 Word->[_brother] : 0.000900901
+1 Word->[_brown] : 0.000900901
+1 Word->[_brrrrr] : 0.000900901
+1 Word->[_brrrrrn] : 0.000900901
+1 Word->[_brush] : 0.000900901
+1 Word->[_brushes] : 0.000900901
+1 Word->[_brushing] : 0.000900901
+1 Word->[_brushll] : 0.000900901
+1 Word->[_bryn] : 0.000900901
+1 Word->[_brynie] : 0.000900901
+1 Word->[_buddy] : 0.000900901
+1 Word->[_build] : 0.000900901
+1 Word->[_bum] : 0.000900901
+1 Word->[_bump] : 0.000900901
+1 Word->[_bun] : 0.000900901
+1 Word->[_bunny] : 0.000900901
+1 Word->[_buppie] : 0.000900901
+1 Word->[_buppies] : 0.000900901
+1 Word->[_burp] : 0.000900901
+1 Word->[_bus] : 0.000900901
+1 Word->[_but] : 0.000900901
+1 Word->[_buy] : 0.000900901
+1 Word->[_by] : 0.000900901
+1 Word->[_bye] : 0.000900901
+1 Word->[_byebye] : 0.000900901
+1 Word->[_caitlin] : 0.000900901
+1 Word->[_cal] : 0.000900901
+1 Word->[_call] : 0.000900901
+1 Word->[_called] : 0.000900901
+1 Word->[_calls] : 0.000900901
+1 Word->[_came] : 0.000900901
+1 Word->[_camera] : 0.000900901
+1 Word->[_can] : 0.000900901
+1 Word->[_cant] : 0.000900901
+1 Word->[_car] : 0.000900901
+1 Word->[_cardinal] : 0.000900901
+1 Word->[_care] : 0.000900901
+1 Word->[_careful] : 0.000900901
+1 Word->[_carla] : 0.000900901
+1 Word->[_carries] : 0.000900901
+1 Word->[_cars] : 0.000900901
+1 Word->[_catch] : 0.000900901
+1 Word->[_cats] : 0.000900901
+1 Word->[_caught] : 0.000900901
+1 Word->[_cause] : 0.000900901
+1 Word->[_chair] : 0.000900901
+1 Word->[_cheese] : 0.000900901
+1 Word->[_chew] : 0.000900901
+1 Word->[_chews] : 0.000900901
+1 Word->[_choice] : 0.000900901
+1 Word->[_choo] : 0.000900901
+1 Word->[_choose] : 0.000900901
+1 Word->[_chris] : 0.000900901
+1 Word->[_chriss] : 0.000900901
+1 Word->[_circus] : 0.000900901
+1 Word->[_clap] : 0.000900901
+1 Word->[_clean] : 0.000900901
+1 Word->[_cleaning] : 0.000900901
+1 Word->[_clear] : 0.000900901
+1 Word->[_climb] : 0.000900901
+1 Word->[_close] : 0.000900901
+1 Word->[_closed] : 0.000900901
+1 Word->[_closes] : 0.000900901
+1 Word->[_cmon] : 0.000900901
+1 Word->[_color] : 0.000900901
+1 Word->[_colors] : 0.000900901
+1 Word->[_comb] : 0.000900901
+1 Word->[_come] : 0.000900901
+1 Word->[_comes] : 0.000900901
+1 Word->[_coming] : 0.000900901
+1 Word->[_concentration] : 0.000900901
+1 Word->[_cook] : 0.000900901
+1 Word->[_cookie] : 0.000900901
+1 Word->[_cookies] : 0.000900901
+1 Word->[_cooking] : 0.000900901
+1 Word->[_couch] : 0.000900901
+1 Word->[_could] : 0.000900901
+1 Word->[_crash] : 0.000900901
+1 Word->[_crashed] : 0.000900901
+1 Word->[_crib] : 0.000900901
+1 Word->[_curious] : 0.000900901
+1 Word->[_cute] : 0.000900901
+1 Word->[_cymbals] : 0.000900901
+1 Word->[_da] : 0.000900901
+1 Word->[_dad] : 0.000900901
+1 Word->[_daddy] : 0.000900901
+1 Word->[_daddys] : 0.000900901
+1 Word->[_dance] : 0.000900901
+1 Word->[_dangerous] : 0.000900901
+1 Word->[_dat] : 0.000900901
+1 Word->[_day] : 0.000900901
+1 Word->[_dd] : 0.000900901
+1 Word->[_dee] : 0.000900901
+1 Word->[_destroy] : 0.000900901
+1 Word->[_diaper] : 0.000900901
+1 Word->[_did] : 0.000900901
+1 Word->[_didnt] : 0.000900901
+1 Word->[_different] : 0.000900901
+1 Word->[_dirty] : 0.000900901
+1 Word->[_dishes] : 0.000900901
+1 Word->[_distracted] : 0.000900901
+1 Word->[_do] : 0.000900901
+1 Word->[_does] : 0.000900901
+1 Word->[_doesnt] : 0.000900901
+1 Word->[_dog] : 0.000900901
+1 Word->[_doggie] : 0.000900901
+1 Word->[_doggies] : 0.000900901
+1 Word->[_doggy] : 0.000900901
+1 Word->[_doggys] : 0.000900901
+1 Word->[_dogs] : 0.000900901
+1 Word->[_doing] : 0.000900901
+1 Word->[_doll] : 0.000900901
+1 Word->[_dollie] : 0.000900901
+1 Word->[_dolls] : 0.000900901
+1 Word->[_dollys] : 0.000900901
+1 Word->[_done] : 0.000900901
+1 Word->[_dont] : 0.000900901
+1 Word->[_dontcha] : 0.000900901
+1 Word->[_doo] : 0.000900901
+1 Word->[_door] : 0.000900901
+1 Word->[_doors] : 0.000900901
+1 Word->[_doot] : 0.000900901
+1 Word->[_doubt] : 0.000900901
+1 Word->[_dough] : 0.000900901
+1 Word->[_down] : 0.000900901
+1 Word->[_draw] : 0.000900901
+1 Word->[_drink] : 0.000900901
+1 Word->[_drive] : 0.000900901
+1 Word->[_driving] : 0.000900901
+1 Word->[_drooling] : 0.000900901
+1 Word->[_drop] : 0.000900901
+1 Word->[_dropped] : 0.000900901
+1 Word->[_dropping] : 0.000900901
+1 Word->[_drrrrrn] : 0.000900901
+1 Word->[_dual] : 0.000900901
+1 Word->[_duck] : 0.000900901
+1 Word->[_each] : 0.000900901
+1 Word->[_ear] : 0.000900901
+1 Word->[_ears] : 0.000900901
+1 Word->[_eat] : 0.000900901
+1 Word->[_eating] : 0.000900901
+1 Word->[_edge] : 0.000900901
+1 Word->[_else] : 0.000900901
+1 Word->[_em] : 0.000900901
+1 Word->[_emily] : 0.000900901
+1 Word->[_emmy] : 0.000900901
+1 Word->[_empty] : 0.000900901
+1 Word->[_england] : 0.000900901
+1 Word->[_english] : 0.000900901
+1 Word->[_enough] : 0.000900901
+1 Word->[_eric] : 0.000900901
+1 Word->[_erik] : 0.000900901
+1 Word->[_erika] : 0.000900901
+1 Word->[_erikas] : 0.000900901
+1 Word->[_erin] : 0.000900901
+1 Word->[_ernie] : 0.000900901
+1 Word->[_even] : 0.000900901
+1 Word->[_everybody] : 0.000900901
+1 Word->[_everybodys] : 0.000900901
+1 Word->[_everything] : 0.000900901
+1 Word->[_everythings] : 0.000900901
+1 Word->[_ewwww] : 0.000900901
+1 Word->[_explore] : 0.000900901
+1 Word->[_extra] : 0.000900901
+1 Word->[_eye] : 0.000900901
+1 Word->[_eyes] : 0.000900901
+1 Word->[_fact] : 0.000900901
+1 Word->[_fake] : 0.000900901
+1 Word->[_fall] : 0.000900901
+1 Word->[_fancy] : 0.000900901
+1 Word->[_far] : 0.000900901
+1 Word->[_fast] : 0.000900901
+1 Word->[_fat] : 0.000900901
+1 Word->[_favorite] : 0.000900901
+1 Word->[_feel] : 0.000900901
+1 Word->[_feeling] : 0.000900901
+1 Word->[_feels] : 0.000900901
+1 Word->[_feet] : 0.000900901
+1 Word->[_fell] : 0.000900901
+1 Word->[_ferrari] : 0.000900901
+1 Word->[_few] : 0.000900901
+1 Word->[_fight] : 0.000900901
+1 Word->[_figment] : 0.000900901
+1 Word->[_figure] : 0.000900901
+1 Word->[_find] : 0.000900901
+1 Word->[_finger] : 0.000900901
+1 Word->[_fingers] : 0.000900901
+1 Word->[_finish] : 0.000900901
+1 Word->[_first] : 0.000900901
+1 Word->[_fit] : 0.000900901
+1 Word->[_fits] : 0.000900901
+1 Word->[_fixed] : 0.000900901
+1 Word->[_fixing] : 0.000900901
+1 Word->[_flashlight] : 0.000900901
+1 Word->[_flat] : 0.000900901
+1 Word->[_flirting] : 0.000900901
+1 Word->[_floor] : 0.000900901
+1 Word->[_floppy] : 0.000900901
+1 Word->[_for] : 0.000900901
+1 Word->[_forehead] : 0.000900901
+1 Word->[_forth] : 0.000900901
+1 Word->[_forward] : 0.000900901
+1 Word->[_found] : 0.000900901
+1 Word->[_friend] : 0.000900901
+1 Word->[_from] : 0.000900901
+1 Word->[_front] : 0.000900901
+1 Word->[_fruit] : 0.000900901
+1 Word->[_frustrating] : 0.000900901
+1 Word->[_fun] : 0.000900901
+1 Word->[_funny] : 0.000900901
+1 Word->[_fur] : 0.000900901
+1 Word->[_furniture] : 0.000900901
+1 Word->[_fuzz] : 0.000900901
+1 Word->[_ga] : 0.000900901
+1 Word->[_game] : 0.000900901
+1 Word->[_garbage] : 0.000900901
+1 Word->[_gave] : 0.000900901
+1 Word->[_gentle] : 0.000900901
+1 Word->[_get] : 0.000900901
+1 Word->[_getting] : 0.000900901
+1 Word->[_girl] : 0.000900901
+1 Word->[_girls] : 0.000900901
+1 Word->[_give] : 0.000900901
+1 Word->[_giving] : 0.000900901
+1 Word->[_go] : 0.000900901
+1 Word->[_god] : 0.000900901
+1 Word->[_goes] : 0.000900901
+1 Word->[_goin] : 0.000900901
+1 Word->[_going] : 0.000900901
+1 Word->[_gon] : 0.000900901
+1 Word->[_gone] : 0.000900901
+1 Word->[_gonna] : 0.000900901
+1 Word->[_goo] : 0.000900901
+1 Word->[_good] : 0.000900901
+1 Word->[_goodness] : 0.000900901
+1 Word->[_googoo] : 0.000900901
+1 Word->[_got] : 0.000900901
+1 Word->[_gotcha] : 0.000900901
+1 Word->[_gotta] : 0.000900901
+1 Word->[_grab] : 0.000900901
+1 Word->[_great] : 0.000900901
+1 Word->[_green] : 0.000900901
+1 Word->[_grip] : 0.000900901
+1 Word->[_grrrr] : 0.000900901
+1 Word->[_gund] : 0.000900901
+1 Word->[_guy] : 0.000900901
+1 Word->[_ha] : 0.000900901
+1 Word->[_haa] : 0.000900901
+1 Word->[_haaa] : 0.000900901
+1 Word->[_haaaa] : 0.000900901
+1 Word->[_had] : 0.000900901
+1 Word->[_hair] : 0.000900901
+1 Word->[_ham] : 0.000900901
+1 Word->[_hand] : 0.000900901
+1 Word->[_handle] : 0.000900901
+1 Word->[_hands] : 0.000900901
+1 Word->[_hanging] : 0.000900901
+1 Word->[_happened] : 0.000900901
+1 Word->[_happens] : 0.000900901
+1 Word->[_happy] : 0.000900901
+1 Word->[_hard] : 0.000900901
+1 Word->[_harder] : 0.000900901
+1 Word->[_has] : 0.000900901
+1 Word->[_hat] : 0.000900901
+1 Word->[_have] : 0.000900901
+1 Word->[_havent] : 0.000900901
+1 Word->[_having] : 0.000900901
+1 Word->[_he] : 0.000900901
+1 Word->[_head] : 0.000900901
+1 Word->[_headlights] : 0.000900901
+1 Word->[_hear] : 0.000900901
+1 Word->[_hears] : 0.000900901
+1 Word->[_heavy] : 0.000900901
+1 Word->[_heh] : 0.000900901
+1 Word->[_hello] : 0.000900901
+1 Word->[_help] : 0.000900901
+1 Word->[_helps] : 0.000900901
+1 Word->[_her] : 0.000900901
+1 Word->[_here] : 0.000900901
+1 Word->[_heres] : 0.000900901
+1 Word->[_herself] : 0.000900901
+1 Word->[_hes] : 0.000900901
+1 Word->[_hey] : 0.000900901
+1 Word->[_hi] : 0.000900901
+1 Word->[_hide] : 0.000900901
+1 Word->[_him] : 0.000900901
+1 Word->[_his] : 0.000900901
+1 Word->[_hit] : 0.000900901
+1 Word->[_hiyah] : 0.000900901
+1 Word->[_hm] : 0.000900901
+1 Word->[_hmm] : 0.000900901
+1 Word->[_hmmm] : 0.000900901
+1 Word->[_hold] : 0.000900901
+1 Word->[_honda] : 0.000900901
+1 Word->[_honey] : 0.000900901
+1 Word->[_hood] : 0.000900901
+1 Word->[_hook] : 0.000900901
+1 Word->[_hop] : 0.000900901
+1 Word->[_hope] : 0.000900901
+1 Word->[_horde] : 0.000900901
+1 Word->[_horn] : 0.000900901
+1 Word->[_horse] : 0.000900901
+1 Word->[_hot] : 0.000900901
+1 Word->[_hotdog] : 0.000900901
+1 Word->[_hotdogs] : 0.000900901
+1 Word->[_hours] : 0.000900901
+1 Word->[_house] : 0.000900901
+1 Word->[_how] : 0.000900901
+1 Word->[_hows] : 0.000900901
+1 Word->[_hug] : 0.000900901
+1 Word->[_hugging] : 0.000900901
+1 Word->[_huh] : 0.000900901
+1 Word->[_hum] : 0.000900901
+1 Word->[_humm] : 0.000900901
+1 Word->[_hungry] : 0.000900901
+1 Word->[_hurt] : 0.000900901
+1 Word->[_hurts] : 0.000900901
+1 Word->[_husband] : 0.000900901
+1 Word->[_i] : 0.000900901
+1 Word->[_id] : 0.000900901
+1 Word->[_if] : 0.000900901
+1 Word->[_ill] : 0.000900901
+1 Word->[_im] : 0.000900901
+1 Word->[_in] : 0.000900901
+1 Word->[_inside] : 0.000900901
+1 Word->[_instead] : 0.000900901
+1 Word->[_inter] : 0.000900901
+1 Word->[_interested] : 0.000900901
+1 Word->[_interesting] : 0.000900901
+1 Word->[_into] : 0.000900901
+1 Word->[_is] : 0.000900901
+1 Word->[_isnt] : 0.000900901
+1 Word->[_it] : 0.000900901
+1 Word->[_itll] : 0.000900901
+1 Word->[_its] : 0.000900901
+1 Word->[_jaguar] : 0.000900901
+1 Word->[_jeans] : 0.000900901
+1 Word->[_jewelry] : 0.000900901
+1 Word->[_joey] : 0.000900901
+1 Word->[_joke] : 0.000900901
+1 Word->[_jonathan] : 0.000900901
+1 Word->[_jono] : 0.000900901
+1 Word->[_jonos] : 0.000900901
+1 Word->[_just] : 0.000900901
+1 Word->[_k] : 0.000900901
+1 Word->[_ka] : 0.000900901
+1 Word->[_kate] : 0.000900901
+1 Word->[_kay] : 0.000900901
+1 Word->[_keep] : 0.000900901
+1 Word->[_keys] : 0.000900901
+1 Word->[_kick] : 0.000900901
+1 Word->[_kidding] : 0.000900901
+1 Word->[_kids] : 0.000900901
+1 Word->[_kind] : 0.000900901
+1 Word->[_kinda] : 0.000900901
+1 Word->[_kinds] : 0.000900901
+1 Word->[_kiss] : 0.000900901
+1 Word->[_kisses] : 0.000900901
+1 Word->[_kissing] : 0.000900901
+1 Word->[_kitty] : 0.000900901
+1 Word->[_knock] : 0.000900901
+1 Word->[_know] : 0.000900901
+1 Word->[_knows] : 0.000900901
+1 Word->[_lady] : 0.000900901
+1 Word->[_lah] : 0.000900901
+1 Word->[_lap] : 0.000900901
+1 Word->[_last] : 0.000900901
+1 Word->[_later] : 0.000900901
+1 Word->[_lay] : 0.000900901
+1 Word->[_leave] : 0.000900901
+1 Word->[_leg] : 0.000900901
+1 Word->[_legs] : 0.000900901
+1 Word->[_lemme] : 0.000900901
+1 Word->[_let] : 0.000900901
+1 Word->[_lets] : 0.000900901
+1 Word->[_lid] : 0.000900901
+1 Word->[_life] : 0.000900901
+1 Word->[_like] : 0.000900901
+1 Word->[_liked] : 0.000900901
+1 Word->[_likes] : 0.000900901
+1 Word->[_listen] : 0.000900901
+1 Word->[_little] : 0.000900901
+1 Word->[_look] : 0.000900901
+1 Word->[_lookey] : 0.000900901
+1 Word->[_looking] : 0.000900901
+1 Word->[_lookit] : 0.000900901
+1 Word->[_looks] : 0.000900901
+1 Word->[_losing] : 0.000900901
+1 Word->[_lost] : 0.000900901
+1 Word->[_lot] : 0.000900901
+1 Word->[_lots] : 0.000900901
+1 Word->[_love] : 0.000900901
+1 Word->[_loves] : 0.000900901
+1 Word->[_machine] : 0.000900901
+1 Word->[_mad] : 0.000900901
+1 Word->[_made] : 0.000900901
+1 Word->[_magic] : 0.000900901
+1 Word->[_make] : 0.000900901
+1 Word->[_makes] : 0.000900901
+1 Word->[_making] : 0.000900901
+1 Word->[_mama] : 0.000900901
+1 Word->[_mamas] : 0.000900901
+1 Word->[_man] : 0.000900901
+1 Word->[_many] : 0.000900901
+1 Word->[_marie] : 0.000900901
+1 Word->[_matter] : 0.000900901
+1 Word->[_may] : 0.000900901
+1 Word->[_maybe] : 0.000900901
+1 Word->[_me] : 0.000900901
+1 Word->[_mean] : 0.000900901
+1 Word->[_megan] : 0.000900901
+1 Word->[_mess] : 0.000900901
+1 Word->[_messed] : 0.000900901
+1 Word->[_metal] : 0.000900901
+1 Word->[_mh] : 0.000900901
+1 Word->[_mhmm] : 0.000900901
+1 Word->[_mhmmm] : 0.000900901
+1 Word->[_michael] : 0.000900901
+1 Word->[_mickey] : 0.000900901
+1 Word->[_microphone] : 0.000900901
+1 Word->[_milky] : 0.000900901
+1 Word->[_mind] : 0.000900901
+1 Word->[_mine] : 0.000900901
+1 Word->[_minute] : 0.000900901
+1 Word->[_minutes] : 0.000900901
+1 Word->[_mister] : 0.000900901
+1 Word->[_misty] : 0.000900901
+1 Word->[_misunderstand] : 0.000900901
+1 Word->[_mmm] : 0.000900901
+1 Word->[_mmmm] : 0.000900901
+1 Word->[_mmmmm] : 0.000900901
+1 Word->[_mom] : 0.000900901
+1 Word->[_mommy] : 0.000900901
+1 Word->[_mommys] : 0.000900901
+1 Word->[_money] : 0.000900901
+1 Word->[_monster] : 0.000900901
+1 Word->[_montgomery] : 0.000900901
+1 Word->[_moo] : 0.000900901
+1 Word->[_more] : 0.000900901
+1 Word->[_morning] : 0.000900901
+1 Word->[_mouse] : 0.000900901
+1 Word->[_mouth] : 0.000900901
+1 Word->[_move] : 0.000900901
+1 Word->[_moves] : 0.000900901
+1 Word->[_moving] : 0.000900901
+1 Word->[_mr] : 0.000900901
+1 Word->[_much] : 0.000900901
+1 Word->[_mufflers] : 0.000900901
+1 Word->[_my] : 0.000900901
+1 Word->[_n] : 0.000900901
+1 Word->[_na] : 0.000900901
+1 Word->[_nah] : 0.000900901
+1 Word->[_name] : 0.000900901
+1 Word->[_names] : 0.000900901
+1 Word->[_neat] : 0.000900901
+1 Word->[_necklace] : 0.000900901
+1 Word->[_need] : 0.000900901
+1 Word->[_neednt] : 0.000900901
+1 Word->[_neighbors] : 0.000900901
+1 Word->[_never] : 0.000900901
+1 Word->[_new] : 0.000900901
+1 Word->[_next] : 0.000900901
+1 Word->[_nice] : 0.000900901
+1 Word->[_nicely] : 0.000900901
+1 Word->[_no] : 0.000900901
+1 Word->[_nobody] : 0.000900901
+1 Word->[_noise] : 0.000900901
+1 Word->[_noises] : 0.000900901
+1 Word->[_noisy] : 0.000900901
+1 Word->[_nontoxic] : 0.000900901
+1 Word->[_nope] : 0.000900901
+1 Word->[_nose] : 0.000900901
+1 Word->[_not] : 0.000900901
+1 Word->[_nothing] : 0.000900901
+1 Word->[_now] : 0.000900901
+1 Word->[_num] : 0.000900901
+1 Word->[_of] : 0.000900901
+1 Word->[_off] : 0.000900901
+1 Word->[_oh] : 0.000900901
+1 Word->[_ohh] : 0.000900901
+1 Word->[_ohhh] : 0.000900901
+1 Word->[_ohhhh] : 0.000900901
+1 Word->[_oink] : 0.000900901
+1 Word->[_ok] : 0.000900901
+1 Word->[_okay] : 0.000900901
+1 Word->[_ol] : 0.000900901
+1 Word->[_old] : 0.000900901
+1 Word->[_older] : 0.000900901
+1 Word->[_on] : 0.000900901
+1 Word->[_one] : 0.000900901
+1 Word->[_ones] : 0.000900901
+1 Word->[_only] : 0.000900901
+1 Word->[_onto] : 0.000900901
+1 Word->[_ooh] : 0.000900901
+1 Word->[_ooo] : 0.000900901
+1 Word->[_oooh] : 0.000900901
+1 Word->[_oooo] : 0.000900901
+1 Word->[_ooooh] : 0.000900901
+1 Word->[_ooooo] : 0.000900901
+1 Word->[_oooooh] : 0.000900901
+1 Word->[_ooops] : 0.000900901
+1 Word->[_oop] : 0.000900901
+1 Word->[_oops] : 0.000900901
+1 Word->[_oopsie] : 0.000900901
+1 Word->[_open] : 0.000900901
+1 Word->[_opened] : 0.000900901
+1 Word->[_opening] : 0.000900901
+1 Word->[_opens] : 0.000900901
+1 Word->[_opp] : 0.000900901
+1 Word->[_or] : 0.000900901
+1 Word->[_oscar] : 0.000900901
+1 Word->[_other] : 0.000900901
+1 Word->[_our] : 0.000900901
+1 Word->[_out] : 0.000900901
+1 Word->[_outside] : 0.000900901
+1 Word->[_outta] : 0.000900901
+1 Word->[_over] : 0.000900901
+1 Word->[_ow] : 0.000900901
+1 Word->[_p] : 0.000900901
+1 Word->[_paint] : 0.000900901
+1 Word->[_painted] : 0.000900901
+1 Word->[_pairs] : 0.000900901
+1 Word->[_panda] : 0.000900901
+1 Word->[_papa] : 0.000900901
+1 Word->[_park] : 0.000900901
+1 Word->[_part] : 0.000900901
+1 Word->[_party] : 0.000900901
+1 Word->[_patricks] : 0.000900901
+1 Word->[_paws] : 0.000900901
+1 Word->[_peekaboo] : 0.000900901
+1 Word->[_pen] : 0.000900901
+1 Word->[_penache] : 0.000900901
+1 Word->[_pens] : 0.000900901
+1 Word->[_people] : 0.000900901
+1 Word->[_pepperoni] : 0.000900901
+1 Word->[_perkier] : 0.000900901
+1 Word->[_person] : 0.000900901
+1 Word->[_persons] : 0.000900901
+1 Word->[_pick] : 0.000900901
+1 Word->[_picks] : 0.000900901
+1 Word->[_picture] : 0.000900901
+1 Word->[_pictures] : 0.000900901
+1 Word->[_piece] : 0.000900901
+1 Word->[_pieces] : 0.000900901
+1 Word->[_pig] : 0.000900901
+1 Word->[_pigg] : 0.000900901
+1 Word->[_piggie] : 0.000900901
+1 Word->[_piggies] : 0.000900901
+1 Word->[_piggly] : 0.000900901
+1 Word->[_piggy] : 0.000900901
+1 Word->[_piggys] : 0.000900901
+1 Word->[_pigs] : 0.000900901
+1 Word->[_pizza] : 0.000900901
+1 Word->[_place] : 0.000900901
+1 Word->[_plastic] : 0.000900901
+1 Word->[_plate] : 0.000900901
+1 Word->[_play] : 0.000900901
+1 Word->[_player] : 0.000900901
+1 Word->[_playing] : 0.000900901
+1 Word->[_please] : 0.000900901
+1 Word->[_po] : 0.000900901
+1 Word->[_point] : 0.000900901
+1 Word->[_polyethylene] : 0.000900901
+1 Word->[_poo] : 0.000900901
+1 Word->[_poop] : 0.000900901
+1 Word->[_poor] : 0.000900901
+1 Word->[_pop] : 0.000900901
+1 Word->[_potatoes] : 0.000900901
+1 Word->[_pound] : 0.000900901
+1 Word->[_press] : 0.000900901
+1 Word->[_pretty] : 0.000900901
+1 Word->[_probably] : 0.000900901
+1 Word->[_proper] : 0.000900901
+1 Word->[_pull] : 0.000900901
+1 Word->[_puppet] : 0.000900901
+1 Word->[_puppy] : 0.000900901
+1 Word->[_puppys] : 0.000900901
+1 Word->[_push] : 0.000900901
+1 Word->[_pushed] : 0.000900901
+1 Word->[_pushing] : 0.000900901
+1 Word->[_put] : 0.000900901
+1 Word->[_puts] : 0.000900901
+1 Word->[_quick] : 0.000900901
+1 Word->[_quiet] : 0.000900901
+1 Word->[_quite] : 0.000900901
+1 Word->[_rabbit] : 0.000900901
+1 Word->[_race] : 0.000900901
+1 Word->[_raggedy] : 0.000900901
+1 Word->[_rather] : 0.000900901
+1 Word->[_rattle] : 0.000900901
+1 Word->[_reach] : 0.000900901
+1 Word->[_read] : 0.000900901
+1 Word->[_ready] : 0.000900901
+1 Word->[_real] : 0.000900901
+1 Word->[_really] : 0.000900901
+1 Word->[_reasonably] : 0.000900901
+1 Word->[_record] : 0.000900901
+1 Word->[_red] : 0.000900901
+1 Word->[_remember] : 0.000900901
+1 Word->[_resistant] : 0.000900901
+1 Word->[_rest] : 0.000900901
+1 Word->[_ride] : 0.000900901
+1 Word->[_right] : 0.000900901
+1 Word->[_ring] : 0.000900901
+1 Word->[_road] : 0.000900901
+1 Word->[_robert] : 0.000900901
+1 Word->[_rock] : 0.000900901
+1 Word->[_rocking] : 0.000900901
+1 Word->[_rocky] : 0.000900901
+1 Word->[_roll] : 0.000900901
+1 Word->[_rolling] : 0.000900901
+1 Word->[_rolls] : 0.000900901
+1 Word->[_room] : 0.000900901
+1 Word->[_rooster] : 0.000900901
+1 Word->[_rosy] : 0.000900901
+1 Word->[_rosys] : 0.000900901
+1 Word->[_round] : 0.000900901
+1 Word->[_row] : 0.000900901
+1 Word->[_rrrzzzshhhrrr] : 0.000900901
+1 Word->[_ruff] : 0.000900901
+1 Word->[_rug] : 0.000900901
+1 Word->[_ruh] : 0.000900901
+1 Word->[_run] : 0.000900901
+1 Word->[_running] : 0.000900901
+1 Word->[_rzzshhhhrrrr] : 0.000900901
+1 Word->[_said] : 0.000900901
+1 Word->[_sakes] : 0.000900901
+1 Word->[_sam] : 0.000900901
+1 Word->[_samantha] : 0.000900901
+1 Word->[_samanthas] : 0.000900901
+1 Word->[_sammy] : 0.000900901
+1 Word->[_saw] : 0.000900901
+1 Word->[_say] : 0.000900901
+1 Word->[_saying] : 0.000900901
+1 Word->[_says] : 0.000900901
+1 Word->[_school] : 0.000900901
+1 Word->[_scrapping] : 0.000900901
+1 Word->[_scratch] : 0.000900901
+1 Word->[_scratching] : 0.000900901
+1 Word->[_scrub] : 0.000900901
+1 Word->[_scrubbing] : 0.000900901
+1 Word->[_seat] : 0.000900901
+1 Word->[_second] : 0.000900901
+1 Word->[_see] : 0.000900901
+1 Word->[_seem] : 0.000900901
+1 Word->[_seen] : 0.000900901
+1 Word->[_send] : 0.000900901
+1 Word->[_set] : 0.000900901
+1 Word->[_shake] : 0.000900901
+1 Word->[_shaker] : 0.000900901
+1 Word->[_shaking] : 0.000900901
+1 Word->[_shaky] : 0.000900901
+1 Word->[_shall] : 0.000900901
+1 Word->[_share] : 0.000900901
+1 Word->[_sharp] : 0.000900901
+1 Word->[_shawns] : 0.000900901
+1 Word->[_she] : 0.000900901
+1 Word->[_shell] : 0.000900901
+1 Word->[_shes] : 0.000900901
+1 Word->[_shhhhhh] : 0.000900901
+1 Word->[_shhhhhhm] : 0.000900901
+1 Word->[_shift] : 0.000900901
+1 Word->[_shiny] : 0.000900901
+1 Word->[_shoe] : 0.000900901
+1 Word->[_shoes] : 0.000900901
+1 Word->[_short] : 0.000900901
+1 Word->[_should] : 0.000900901
+1 Word->[_show] : 0.000900901
+1 Word->[_shut] : 0.000900901
+1 Word->[_shuts] : 0.000900901
+1 Word->[_shutting] : 0.000900901
+1 Word->[_shy] : 0.000900901
+1 Word->[_side] : 0.000900901
+1 Word->[_silly] : 0.000900901
+1 Word->[_singing] : 0.000900901
+1 Word->[_sink] : 0.000900901
+1 Word->[_sister] : 0.000900901
+1 Word->[_sit] : 0.000900901
+1 Word->[_sits] : 0.000900901
+1 Word->[_sitting] : 0.000900901
+1 Word->[_size] : 0.000900901
+1 Word->[_sleeping] : 0.000900901
+1 Word->[_small] : 0.000900901
+1 Word->[_smart] : 0.000900901
+1 Word->[_smile] : 0.000900901
+1 Word->[_smiling] : 0.000900901
+1 Word->[_smooch] : 0.000900901
+1 Word->[_snap] : 0.000900901
+1 Word->[_sneeze] : 0.000900901
+1 Word->[_snoopy] : 0.000900901
+1 Word->[_snout] : 0.000900901
+1 Word->[_so] : 0.000900901
+1 Word->[_socks] : 0.000900901
+1 Word->[_soft] : 0.000900901
+1 Word->[_some] : 0.000900901
+1 Word->[_someone] : 0.000900901
+1 Word->[_someones] : 0.000900901
+1 Word->[_something] : 0.000900901
+1 Word->[_song] : 0.000900901
+1 Word->[_sorry] : 0.000900901
+1 Word->[_sort] : 0.000900901
+1 Word->[_sound] : 0.000900901
+1 Word->[_spaceship] : 0.000900901
+1 Word->[_span] : 0.000900901
+1 Word->[_spencer] : 0.000900901
+1 Word->[_spencers] : 0.000900901
+1 Word->[_spend] : 0.000900901
+1 Word->[_spin] : 0.000900901
+1 Word->[_spit] : 0.000900901
+1 Word->[_sports] : 0.000900901
+1 Word->[_squeak] : 0.000900901
+1 Word->[_squeaker] : 0.000900901
+1 Word->[_squeaks] : 0.000900901
+1 Word->[_squeeze] : 0.000900901
+1 Word->[_stab] : 0.000900901
+1 Word->[_stage] : 0.000900901
+1 Word->[_stand] : 0.000900901
+1 Word->[_stanford] : 0.000900901
+1 Word->[_stay] : 0.000900901
+1 Word->[_steering] : 0.000900901
+1 Word->[_step] : 0.000900901
+1 Word->[_sterling] : 0.000900901
+1 Word->[_stick] : 0.000900901
+1 Word->[_stiff] : 0.000900901
+1 Word->[_still] : 0.000900901
+1 Word->[_stop] : 0.000900901
+1 Word->[_straighten] : 0.000900901
+1 Word->[_strong] : 0.000900901
+1 Word->[_stuck] : 0.000900901
+1 Word->[_studio] : 0.000900901
+1 Word->[_study] : 0.000900901
+1 Word->[_stuff] : 0.000900901
+1 Word->[_stuffed] : 0.000900901
+1 Word->[_stupid] : 0.000900901
+1 Word->[_such] : 0.000900901
+1 Word->[_sun] : 0.000900901
+1 Word->[_suns] : 0.000900901
+1 Word->[_suppose] : 0.000900901
+1 Word->[_supposed] : 0.000900901
+1 Word->[_sure] : 0.000900901
+1 Word->[_sweater] : 0.000900901
+1 Word->[_sweet] : 0.000900901
+1 Word->[_sweetie] : 0.000900901
+1 Word->[_switch] : 0.000900901
+1 Word->[_sword] : 0.000900901
+1 Word->[_tail] : 0.000900901
+1 Word->[_tails] : 0.000900901
+1 Word->[_take] : 0.000900901
+1 Word->[_taking] : 0.000900901
+1 Word->[_talk] : 0.000900901
+1 Word->[_talking] : 0.000900901
+1 Word->[_talks] : 0.000900901
+1 Word->[_tape] : 0.000900901
+1 Word->[_taste] : 0.000900901
+1 Word->[_tastes] : 0.000900901
+1 Word->[_teach] : 0.000900901
+1 Word->[_teddy] : 0.000900901
+1 Word->[_teeth] : 0.000900901
+1 Word->[_tele] : 0.000900901
+1 Word->[_telephone] : 0.000900901
+1 Word->[_telephones] : 0.000900901
+1 Word->[_tell] : 0.000900901
+1 Word->[_telling] : 0.000900901
+1 Word->[_ten] : 0.000900901
+1 Word->[_terrific] : 0.000900901
+1 Word->[_than] : 0.000900901
+1 Word->[_thank] : 0.000900901
+1 Word->[_thanks] : 0.000900901
+1 Word->[_that] : 0.000900901
+1 Word->[_thats] : 0.000900901
+1 Word->[_the] : 0.000900901
+1 Word->[_theater] : 0.000900901
+1 Word->[_them] : 0.000900901
+1 Word->[_then] : 0.000900901
+1 Word->[_there] : 0.000900901
+1 Word->[_theres] : 0.000900901
+1 Word->[_these] : 0.000900901
+1 Word->[_they] : 0.000900901
+1 Word->[_theyre] : 0.000900901
+1 Word->[_thing] : 0.000900901
+1 Word->[_things] : 0.000900901
+1 Word->[_think] : 0.000900901
+1 Word->[_this] : 0.000900901
+1 Word->[_those] : 0.000900901
+1 Word->[_though] : 0.000900901
+1 Word->[_thought] : 0.000900901
+1 Word->[_three] : 0.000900901
+1 Word->[_threw] : 0.000900901
+1 Word->[_throw] : 0.000900901
+1 Word->[_throwing] : 0.000900901
+1 Word->[_tickle] : 0.000900901
+1 Word->[_tickler] : 0.000900901
+1 Word->[_tickling] : 0.000900901
+1 Word->[_time] : 0.000900901
+1 Word->[_tire] : 0.000900901
+1 Word->[_tired] : 0.000900901
+1 Word->[_tissue] : 0.000900901
+1 Word->[_tnt] : 0.000900901
+1 Word->[_to] : 0.000900901
+1 Word->[_toast] : 0.000900901
+1 Word->[_today] : 0.000900901
+1 Word->[_toes] : 0.000900901
+1 Word->[_together] : 0.000900901
+1 Word->[_tomato] : 0.000900901
+1 Word->[_tongue] : 0.000900901
+1 Word->[_too] : 0.000900901
+1 Word->[_tootles] : 0.000900901
+1 Word->[_top] : 0.000900901
+1 Word->[_tops] : 0.000900901
+1 Word->[_touch] : 0.000900901
+1 Word->[_tough] : 0.000900901
+1 Word->[_tower] : 0.000900901
+1 Word->[_toy] : 0.000900901
+1 Word->[_toys] : 0.000900901
+1 Word->[_tr] : 0.000900901
+1 Word->[_train] : 0.000900901
+1 Word->[_trouble] : 0.000900901
+1 Word->[_tru] : 0.000900901
+1 Word->[_truck] : 0.000900901
+1 Word->[_trucks] : 0.000900901
+1 Word->[_trunk] : 0.000900901
+1 Word->[_try] : 0.000900901
+1 Word->[_trying] : 0.000900901
+1 Word->[_tsh] : 0.000900901
+1 Word->[_tshhhhhhh] : 0.000900901
+1 Word->[_tshk] : 0.000900901
+1 Word->[_tst] : 0.000900901
+1 Word->[_tummies] : 0.000900901
+1 Word->[_tummy] : 0.000900901
+1 Word->[_tuning] : 0.000900901
+1 Word->[_tunnel] : 0.000900901
+1 Word->[_turn] : 0.000900901
+1 Word->[_turning] : 0.000900901
+1 Word->[_turns] : 0.000900901
+1 Word->[_tv] : 0.000900901
+1 Word->[_twenty] : 0.000900901
+1 Word->[_two] : 0.000900901
+1 Word->[_ugly] : 0.000900901
+1 Word->[_uh] : 0.000900901
+1 Word->[_uhhuh] : 0.000900901
+1 Word->[_uhoh] : 0.000900901
+1 Word->[_uhuh] : 0.000900901
+1 Word->[_um] : 0.000900901
+1 Word->[_umhum] : 0.000900901
+1 Word->[_ummmmmm] : 0.000900901
+1 Word->[_under] : 0.000900901
+1 Word->[_unuh] : 0.000900901
+1 Word->[_up] : 0.000900901
+1 Word->[_upset] : 0.000900901
+1 Word->[_upside] : 0.000900901
+1 Word->[_use] : 0.000900901
+1 Word->[_usually] : 0.000900901
+1 Word->[_van] : 0.000900901
+1 Word->[_vegetables] : 0.000900901
+1 Word->[_vermont] : 0.000900901
+1 Word->[_very] : 0.000900901
+1 Word->[_vice] : 0.000900901
+1 Word->[_vraaa] : 0.000900901
+1 Word->[_vroom] : 0.000900901
+1 Word->[_vrooom] : 0.000900901
+1 Word->[_vroooom] : 0.000900901
+1 Word->[_vrooooom] : 0.000900901
+1 Word->[_vroooooooom] : 0.000900901
+1 Word->[_vrrooom] : 0.000900901
+1 Word->[_wa] : 0.000900901
+1 Word->[_waa] : 0.000900901
+1 Word->[_waffles] : 0.000900901
+1 Word->[_wagging] : 0.000900901
+1 Word->[_wags] : 0.000900901
+1 Word->[_wail] : 0.000900901
+1 Word->[_wait] : 0.000900901
+1 Word->[_walk] : 0.000900901
+1 Word->[_walker] : 0.000900901
+1 Word->[_walking] : 0.000900901
+1 Word->[_wampus] : 0.000900901
+1 Word->[_wanna] : 0.000900901
+1 Word->[_want] : 0.000900901
+1 Word->[_wanted] : 0.000900901
+1 Word->[_wants] : 0.000900901
+1 Word->[_warm] : 0.000900901
+1 Word->[_was] : 0.000900901
+1 Word->[_wash] : 0.000900901
+1 Word->[_washing] : 0.000900901
+1 Word->[_watch] : 0.000900901
+1 Word->[_water] : 0.000900901
+1 Word->[_way] : 0.000900901
+1 Word->[_we] : 0.000900901
+1 Word->[_wear] : 0.000900901
+1 Word->[_weeee] : 0.000900901
+1 Word->[_weeeee] : 0.000900901
+1 Word->[_well] : 0.000900901
+1 Word->[_went] : 0.000900901
+1 Word->[_were] : 0.000900901
+1 Word->[_wha] : 0.000900901
+1 Word->[_what] : 0.000900901
+1 Word->[_whatd] : 0.000900901
+1 Word->[_whatevers] : 0.000900901
+1 Word->[_whats] : 0.000900901
+1 Word->[_whaty] : 0.000900901
+1 Word->[_wheel] : 0.000900901
+1 Word->[_wheels] : 0.000900901
+1 Word->[_when] : 0.000900901
+1 Word->[_where] : 0.000900901
+1 Word->[_whered] : 0.000900901
+1 Word->[_wheres] : 0.000900901
+1 Word->[_which] : 0.000900901
+1 Word->[_whistles] : 0.000900901
+1 Word->[_white] : 0.000900901
+1 Word->[_who] : 0.000900901
+1 Word->[_whoa] : 0.000900901
+1 Word->[_whole] : 0.000900901
+1 Word->[_whoom] : 0.000900901
+1 Word->[_whooo] : 0.000900901
+1 Word->[_whoooo] : 0.000900901
+1 Word->[_whoops] : 0.000900901
+1 Word->[_whos] : 0.000900901
+1 Word->[_whose] : 0.000900901
+1 Word->[_why] : 0.000900901
+1 Word->[_wiggling] : 0.000900901
+1 Word->[_wiggly] : 0.000900901
+1 Word->[_wigglys] : 0.000900901
+1 Word->[_will] : 0.000900901
+1 Word->[_wind] : 0.000900901
+1 Word->[_window] : 0.000900901
+1 Word->[_windows] : 0.000900901
+1 Word->[_windshield] : 0.000900901
+1 Word->[_windy] : 0.000900901
+1 Word->[_wins] : 0.000900901
+1 Word->[_wipe] : 0.000900901
+1 Word->[_wipers] : 0.000900901
+1 Word->[_wire] : 0.000900901
+1 Word->[_wires] : 0.000900901
+1 Word->[_wisdom] : 0.000900901
+1 Word->[_with] : 0.000900901
+1 Word->[_woah] : 0.000900901
+1 Word->[_wonder] : 0.000900901
+1 Word->[_wonderful] : 0.000900901
+1 Word->[_wont] : 0.000900901
+1 Word->[_woo] : 0.000900901
+1 Word->[_wood] : 0.000900901
+1 Word->[_wooden] : 0.000900901
+1 Word->[_woof] : 0.000900901
+1 Word->[_woooooo] : 0.000900901
+1 Word->[_woop] : 0.000900901
+1 Word->[_word] : 0.000900901
+1 Word->[_words] : 0.000900901
+1 Word->[_work] : 0.000900901
+1 Word->[_working] : 0.000900901
+1 Word->[_works] : 0.000900901
+1 Word->[_would] : 0.000900901
+1 Word->[_wouldnt] : 0.000900901
+1 Word->[_wow] : 0.000900901
+1 Word->[_wrong] : 0.000900901
+1 Word->[_xjs] : 0.000900901
+1 Word->[_ya] : 0.000900901
+1 Word->[_yay] : 0.000900901
+1 Word->[_yea] : 0.000900901
+1 Word->[_yeah] : 0.000900901
+1 Word->[_year] : 0.000900901
+1 Word->[_yeeaa] : 0.000900901
+1 Word->[_yellow] : 0.000900901
+1 Word->[_yeow] : 0.000900901
+1 Word->[_yes] : 0.000900901
+1 Word->[_yesterday] : 0.000900901
+1 Word->[_yet] : 0.000900901
+1 Word->[_yick] : 0.000900901
+1 Word->[_yicky] : 0.000900901
+1 Word->[_yoohoo] : 0.000900901
+1 Word->[_you] : 0.000900901
+1 Word->[_youd] : 0.000900901
+1 Word->[_youll] : 0.000900901
+1 Word->[_younger] : 0.000900901
+1 Word->[_your] : 0.000900901
+1 Word->[_youre] : 0.000900901
+1 Word->[_yours] : 0.000900901
+1 Word->[_yourself] : 0.000900901
+1 Word->[_youve] : 0.000900901
+1 Word->[_yuck] : 0.000900901
+1 Word->[_yucky] : 0.000900901
+1 Word->[_yum] : 0.000900901
+1 Word->[_zeeky] : 0.000900901
+1 Word->[_zeke] : 0.000900901
+1 Word->[_zekes] : 0.000900901
+1 Word->[_zoom] : 0.000900901
+1e+10 Topic.None->[_##] : 0.5
+1e+10 Topic.None->[T.None Topic.None] : 0.5
+1 PSEUDO.ALPHABET->[_.alphabet] : 1
+1 T.None->[PSEUDO.ALPHABET Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.BABY->[_.baby] : 1
+1 T.None->[PSEUDO.BABY Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.BALL->[_.ball] : 1
+1 T.None->[PSEUDO.BALL Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.BEAR->[_.bear] : 1
+1 T.None->[PSEUDO.BEAR Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.BLOCK->[_.block] : 1
+1 T.None->[PSEUDO.BLOCK Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.BLOCKS->[_.blocks] : 1
+1 T.None->[PSEUDO.BLOCKS Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.BOOK->[_.book] : 1
+1 T.None->[PSEUDO.BOOK Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.BOX->[_.box] : 1
+1 T.None->[PSEUDO.BOX Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.BRUSH->[_.brush] : 1
+1 T.None->[PSEUDO.BRUSH Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.BUS->[_.bus] : 1
+1 T.None->[PSEUDO.BUS Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.CAR->[_.car] : 1
+1 T.None->[PSEUDO.CAR Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.CHEESE->[_.cheese] : 1
+1 T.None->[PSEUDO.CHEESE Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.DOG->[_.dog] : 1
+1 T.None->[PSEUDO.DOG Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.DOLL->[_.doll] : 1
+1 T.None->[PSEUDO.DOLL Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.DOUGH->[_.dough] : 1
+1 T.None->[PSEUDO.DOUGH Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.ERNIE->[_.ernie] : 1
+1 T.None->[PSEUDO.ERNIE Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.FIRETRUCK->[_.firetruck] : 1
+1 T.None->[PSEUDO.FIRETRUCK Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.FLASHLIGHT->[_.flashlight] : 1
+1 T.None->[PSEUDO.FLASHLIGHT Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.HOTDOG->[_.hotdog] : 1
+1 T.None->[PSEUDO.HOTDOG Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.MICKEY->[_.mickey] : 1
+1 T.None->[PSEUDO.MICKEY Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.OSCAR->[_.oscar] : 1
+1 T.None->[PSEUDO.OSCAR Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.PEPPERONI->[_.pepperoni] : 1
+1 T.None->[PSEUDO.PEPPERONI Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.PHONE->[_.phone] : 1
+1 T.None->[PSEUDO.PHONE Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.PIG->[_.pig] : 1
+1 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.POPNPALS->[_.popnpals] : 1
+1 T.None->[PSEUDO.POPNPALS Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.RABBIT->[_.rabbit] : 1
+1 T.None->[PSEUDO.RABBIT Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.RINGS->[_.rings] : 1
+1 T.None->[PSEUDO.RINGS Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.TRAIN->[_.train] : 1
+1 T.None->[PSEUDO.TRAIN Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.TRUCK->[_.truck] : 1
+1 T.None->[PSEUDO.TRUCK Socials.NotTopical.kid.eyes] : 0.0333333
+1 PSEUDO.WAFFLES->[_.waffles] : 1
+1 T.None->[PSEUDO.WAFFLES Socials.NotTopical.kid.eyes] : 0.0333333
+1e+10 Topic.alphabet->[T.alphabet Topic.None] : 0.5
+1e+10 Topic.alphabet->[T.None Topic.alphabet] : 0.5
+1 T.alphabet->[PSEUDO.ALPHABET Socials.Topical.kid.eyes] : 1
+1e+10 Topic.baby->[T.baby Topic.None] : 0.5
+1e+10 Topic.baby->[T.None Topic.baby] : 0.5
+1 T.baby->[PSEUDO.BABY Socials.Topical.kid.eyes] : 1
+1e+10 Topic.ball->[T.ball Topic.None] : 0.5
+1e+10 Topic.ball->[T.None Topic.ball] : 0.5
+1 T.ball->[PSEUDO.BALL Socials.Topical.kid.eyes] : 1
+1e+10 Topic.bear->[T.bear Topic.None] : 0.5
+1e+10 Topic.bear->[T.None Topic.bear] : 0.5
+1 T.bear->[PSEUDO.BEAR Socials.Topical.kid.eyes] : 1
+1e+10 Topic.block->[T.block Topic.None] : 0.5
+1e+10 Topic.block->[T.None Topic.block] : 0.5
+1 T.block->[PSEUDO.BLOCK Socials.Topical.kid.eyes] : 1
+1e+10 Topic.blocks->[T.blocks Topic.None] : 0.5
+1e+10 Topic.blocks->[T.None Topic.blocks] : 0.5
+1 T.blocks->[PSEUDO.BLOCKS Socials.Topical.kid.eyes] : 1
+1e+10 Topic.book->[T.book Topic.None] : 0.5
+1e+10 Topic.book->[T.None Topic.book] : 0.5
+1 T.book->[PSEUDO.BOOK Socials.Topical.kid.eyes] : 1
+1e+10 Topic.box->[T.box Topic.None] : 0.5
+1e+10 Topic.box->[T.None Topic.box] : 0.5
+1 T.box->[PSEUDO.BOX Socials.Topical.kid.eyes] : 1
+1e+10 Topic.brush->[T.brush Topic.None] : 0.5
+1e+10 Topic.brush->[T.None Topic.brush] : 0.5
+1 T.brush->[PSEUDO.BRUSH Socials.Topical.kid.eyes] : 1
+1e+10 Topic.bus->[T.bus Topic.None] : 0.5
+1e+10 Topic.bus->[T.None Topic.bus] : 0.5
+1 T.bus->[PSEUDO.BUS Socials.Topical.kid.eyes] : 1
+1e+10 Topic.car->[T.car Topic.None] : 0.5
+1e+10 Topic.car->[T.None Topic.car] : 0.5
+1 T.car->[PSEUDO.CAR Socials.Topical.kid.eyes] : 1
+1e+10 Topic.cheese->[T.cheese Topic.None] : 0.5
+1e+10 Topic.cheese->[T.None Topic.cheese] : 0.5
+1 T.cheese->[PSEUDO.CHEESE Socials.Topical.kid.eyes] : 1
+1e+10 Topic.dog->[T.dog Topic.None] : 0.5
+1e+10 Topic.dog->[T.None Topic.dog] : 0.5
+1 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes] : 1
+1e+10 Topic.doll->[T.doll Topic.None] : 0.5
+1e+10 Topic.doll->[T.None Topic.doll] : 0.5
+1 T.doll->[PSEUDO.DOLL Socials.Topical.kid.eyes] : 1
+1e+10 Topic.dough->[T.dough Topic.None] : 0.5
+1e+10 Topic.dough->[T.None Topic.dough] : 0.5
+1 T.dough->[PSEUDO.DOUGH Socials.Topical.kid.eyes] : 1
+1e+10 Topic.ernie->[T.ernie Topic.None] : 0.5
+1e+10 Topic.ernie->[T.None Topic.ernie] : 0.5
+1 T.ernie->[PSEUDO.ERNIE Socials.Topical.kid.eyes] : 1
+1e+10 Topic.firetruck->[T.firetruck Topic.None] : 0.5
+1e+10 Topic.firetruck->[T.None Topic.firetruck] : 0.5
+1 T.firetruck->[PSEUDO.FIRETRUCK Socials.Topical.kid.eyes] : 1
+1e+10 Topic.flashlight->[T.flashlight Topic.None] : 0.5
+1e+10 Topic.flashlight->[T.None Topic.flashlight] : 0.5
+1 T.flashlight->[PSEUDO.FLASHLIGHT Socials.Topical.kid.eyes] : 1
+1e+10 Topic.hotdog->[T.hotdog Topic.None] : 0.5
+1e+10 Topic.hotdog->[T.None Topic.hotdog] : 0.5
+1 T.hotdog->[PSEUDO.HOTDOG Socials.Topical.kid.eyes] : 1
+1e+10 Topic.mickey->[T.mickey Topic.None] : 0.5
+1e+10 Topic.mickey->[T.None Topic.mickey] : 0.5
+1 T.mickey->[PSEUDO.MICKEY Socials.Topical.kid.eyes] : 1
+1e+10 Topic.oscar->[T.oscar Topic.None] : 0.5
+1e+10 Topic.oscar->[T.None Topic.oscar] : 0.5
+1 T.oscar->[PSEUDO.OSCAR Socials.Topical.kid.eyes] : 1
+1e+10 Topic.pepperoni->[T.pepperoni Topic.None] : 0.5
+1e+10 Topic.pepperoni->[T.None Topic.pepperoni] : 0.5
+1 T.pepperoni->[PSEUDO.PEPPERONI Socials.Topical.kid.eyes] : 1
+1e+10 Topic.phone->[T.phone Topic.None] : 0.5
+1e+10 Topic.phone->[T.None Topic.phone] : 0.5
+1 T.phone->[PSEUDO.PHONE Socials.Topical.kid.eyes] : 1
+1e+10 Topic.pig->[T.pig Topic.None] : 0.5
+1e+10 Topic.pig->[T.None Topic.pig] : 0.5
+1 T.pig->[PSEUDO.PIG Socials.Topical.kid.eyes] : 1
+1e+10 Topic.popnpals->[T.popnpals Topic.None] : 0.5
+1e+10 Topic.popnpals->[T.None Topic.popnpals] : 0.5
+1 T.popnpals->[PSEUDO.POPNPALS Socials.Topical.kid.eyes] : 1
+1e+10 Topic.rabbit->[T.rabbit Topic.None] : 0.5
+1e+10 Topic.rabbit->[T.None Topic.rabbit] : 0.5
+1 T.rabbit->[PSEUDO.RABBIT Socials.Topical.kid.eyes] : 1
+1e+10 Topic.rings->[T.rings Topic.None] : 0.5
+1e+10 Topic.rings->[T.None Topic.rings] : 0.5
+1 T.rings->[PSEUDO.RINGS Socials.Topical.kid.eyes] : 1
+1e+10 Topic.train->[T.train Topic.None] : 0.5
+1e+10 Topic.train->[T.None Topic.train] : 0.5
+1 T.train->[PSEUDO.TRAIN Socials.Topical.kid.eyes] : 1
+1e+10 Topic.truck->[T.truck Topic.None] : 0.5
+1e+10 Topic.truck->[T.None Topic.truck] : 0.5
+1 T.truck->[PSEUDO.TRUCK Socials.Topical.kid.eyes] : 1
+1e+10 Topic.waffles->[T.waffles Topic.None] : 0.5
+1e+10 Topic.waffles->[T.None Topic.waffles] : 0.5
+1 T.waffles->[PSEUDO.WAFFLES Socials.Topical.kid.eyes] : 1
+1 PSEUDOKID.EYES->[_kid.eyes] : 1
+1 Socials.NotTopical.kid.eyes->[PSEUDOKID.EYES Socials.NotTopical.kid.hands] : 0.5
+1 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands] : 0.5
+1 PSEUDOKID.HANDS->[_kid.hands] : 1
+1 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes] : 0.5
+1 Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes] : 0.5
+1 PSEUDOMOM.EYES->[_mom.eyes] : 1
+1 Socials.NotTopical.mom.eyes->[PSEUDOMOM.EYES Socials.NotTopical.mom.hands] : 0.5
+1 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands] : 0.5
+1 PSEUDOMOM.HANDS->[_mom.hands] : 1
+1 Socials.NotTopical.mom.hands->[PSEUDOMOM.HANDS Socials.NotTopical.mom.point] : 0.5
+1 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point] : 0.5
+1 PSEUDOMOM.POINT->[_mom.point] : 1
+1 PSEUDO#->[_#] : 1
+1 Socials.NotTopical.mom.point->[PSEUDOMOM.POINT PSEUDO#] : 0.5
+1 Socials.NotTopical.mom.point->[_#] : 0.5
+1 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands] : 0.5
+1 Socials.Topical.kid.eyes->[Socials.Topical.kid.hands] : 0.5
+1 Socials.Topical.kid.hands->[PSEUDOKID.HANDS Socials.Topical.mom.eyes] : 0.5
+1 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes] : 0.5
+1 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands] : 0.5
+1 Socials.Topical.mom.eyes->[Socials.Topical.mom.hands] : 0.5
+1 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point] : 0.5
+1 Socials.Topical.mom.hands->[Socials.Topical.mom.point] : 0.5
+1 Socials.Topical.mom.point->[PSEUDOMOM.POINT PSEUDO#] : 0.5
+1 Socials.Topical.mom.point->[_#] : 0.5

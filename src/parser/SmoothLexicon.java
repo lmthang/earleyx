@@ -26,11 +26,12 @@ public class SmoothLexicon extends BaseLexicon {
     if(word2tagsMap.containsKey(iW)){ // known word
       return word2tagsMap.get(iW);
     } else { // unknown, use all tags
-      Set<IntTaggedWord> itws = new HashSet<IntTaggedWord>();
-      for(int iT : tag2wordsMap.keySet()){
-        itws.add(new IntTaggedWord(iW, iT));
-      }
-      return itws;
+//      Set<IntTaggedWord> itws = new HashSet<IntTaggedWord>();
+//      for(int iT : tag2wordsMap.keySet()){
+//        itws.add(new IntTaggedWord(iW, iT));
+//      }
+//      return itws;
+      return new HashSet<IntTaggedWord>();
     }
   }
 
@@ -53,6 +54,7 @@ public class SmoothLexicon extends BaseLexicon {
       }
     }
      
+//    System.err.println(Util.sprint(counter, wordIndex));
 //    System.err.println("SmoothLexicon: " + word + "\t" + itw + "\t" + itw.wordString(wordIndex) +
 //        "\t" + counter.getCount(iW));
 

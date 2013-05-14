@@ -29,6 +29,8 @@ public class RuleSet {
   protected List<ProbRule> tagRules; // X -> Y Z, contains unary rules
   protected Collection<ProbRule> terminalRules; // X -> _a
   protected Collection<ProbRule> multiTerminalRules; // X -> _a _b _c
+//  protected Collection<ProbRule> fragmentRules; // X -> _a B _c
+  protected int numFragmentRules;
   
   // unary rules
   protected List<ProbRule> unaryRules;
@@ -43,7 +45,7 @@ public class RuleSet {
   // unaryChainEndMap.get(Y).get(Z): returns the index in unaryChains of the chain Z->Y
   protected Map<Integer, Map<Integer, Integer>> unaryChainEndMap;
   
-  private Map<Rule, Integer> ruleMap; // map Rule to indices in allRules
+  private Map<Rule, Integer> ruleMap; // map FragmentRule to indices in allRules
   private Map<Integer, List<Integer>> tag2ruleIndices; // map tag to a set of rule indices
   
   public RuleSet(Index<String> tagIndex, Index<String> wordIndex){
@@ -58,11 +60,12 @@ public class RuleSet {
     tagRules = new ArrayList<ProbRule>();
     terminalRules = new ArrayList<ProbRule>();
     multiTerminalRules = new ArrayList<ProbRule>();
+//    fragmentRules = new ArrayList<ProbRule>();
+    numFragmentRules = 0;
     
     // unary rules
     unaryRules = new ArrayList<ProbRule>();
-//    unaryMap = new HashMap<Integer, Set<Integer>>();
-    
+
     // for Viterbi decoding
     unaryChains = new ArrayList<Pair<List<Integer>,Double>>();
     unaryChainStartMap = new HashMap<Integer, Map<Integer,Integer>>();
@@ -100,23 +103,17 @@ public class RuleSet {
     tag2ruleIndices.get(tag).add(ruleId);
     
     // sublist of all rules
-    if(rule instanceof TerminalRule){
+    if(rule.isTerminalRule()){
       if (rule.numChildren()==1){ // terminal
         terminalRules.add(probRule);
       } else { // multiple terminals
         multiTerminalRules.add(probRule);
       }
     } else { // tag
-      assert(rule instanceof TagRule);
       tagRules.add(probRule);
       
       if(rule.numChildren()==1){ // unary
         unaryRules.add(probRule);
-        
-//        if(!unaryMap.containsKey(tag)){
-//          unaryMap.put(tag, new HashSet<Integer>());
-//        }
-//        unaryMap.get(tag).add(probRule.getChild(0));
         
         // update unary chain
         List<Integer> chain = new ArrayList<Integer>();
@@ -124,6 +121,8 @@ public class RuleSet {
         chain.add(probRule.getChild(0));
         addChain(probRule.getMother(), probRule.getChild(0), chain, probRule.getProb());
         updateUnaryChain(probRule.getMother(), probRule.getChild(0), chain, probRule.getProb());
+      } else if(rule.numTags()<rule.numChildren()){ // fragment rule
+        numFragmentRules++;
       }
     }
     
@@ -294,6 +293,10 @@ public class RuleSet {
     return multiTerminalRules;
   }
 
+  public int numFragmentRules(){
+    return numFragmentRules;
+  }
+  
   public List<ProbRule> getUnaryRules() {
     return unaryRules;
   }

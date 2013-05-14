@@ -32,10 +32,10 @@ import util.Util;
 public class EarleyParserTest extends TestCase {
   private EarleyParser parser;
   private String rootSymbol = "ROOT";
-  private int parserOpt = 1; // 0: dense, 1: sparse, 2: sparse IO
+  private int parserOpt = 0; //1; // 0: dense, 1: sparse, 2: sparse IO
   private boolean isScaling = false; // 
   private boolean isLogProb = true; 
-  private int insideOutsideOpt = 2; // 1: EM, 2: VB  
+  private int insideOutsideOpt = 2; //2; // 1: EM, 2: VB  
   private double minRuleProb = 1e-20;
   private String objString = "surprisal,stringprob,viterbi";
   
@@ -49,7 +49,7 @@ public class EarleyParserTest extends TestCase {
     Prediction.verbose = 0;
     Completion.verbose = 0;
     RuleFile.verbose = 0;
-    EarleyParser.verbose = -1;
+    EarleyParser.verbose = 1;
   }
   
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 
@@ -85,7 +85,32 @@ public class EarleyParserTest extends TestCase {
   "D->[_d] : 0.8\n" +
   "D->[_UNK] : 0.1\n" +
   "D->[_UNK-1] : 0.1\n";
+  
+  String basicRecursiveFragmentGrammarString = "ROOT->[A] : 1.0\n" + 
+  "A->[B C] : 0.25\n" +
+  "A->[B _c] : 0.125\n" +
+  "A->[_b C] : 0.125\n" +
+  "A->[B D] : 0.5\n" +
+  "B->[A] : 0.1\n" +
+  "B->[_d C] : 0.4\n" +
+  "B->[_b] : 0.5\n" +
+  "C->[_c] : 1.0\n" + 
+  "D->[_d] : 1.0\n";
 
+  String basicRecursiveFragmentGrammarPseudoString = "ROOT->[A] : 1.0\n" + 
+  "A->[B C] : 0.25\n" +
+  "A->[B C1] : 0.125\n" +
+  "A->[B1 C] : 0.125\n" +
+  "A->[B D] : 0.5\n" +
+  "B->[A] : 0.1\n" +
+  "B->[D1 C] : 0.4\n" +
+  "B->[_b] : 0.5\n" +
+  "B1->[_b] : 1.0\n" +
+  "C1->[_c] : 1.0\n" +
+  "C->[_c] : 1.0\n" + 
+  "D->[_d] : 1.0\n" + 
+  "D1->[_d] : 1.0\n";
+  
   String extendedGrammarString = "ROOT->[A] : 1.0\n" + 
   "A->[_b _e] : 0.1\n" +
   "A->[_b _c] : 0.1\n" +
@@ -106,7 +131,9 @@ public class EarleyParserTest extends TestCase {
   String social = "grammars/social.iogrammar";
   String socialDiscourse = "grammars/socialDiscourse.grammar";
   String socialDiscourseColloc = "grammars/colloc.grammar";
-  String socialDiscourseUnigram = "grammars/unigram.grammar";
+  String socialUnigram = "grammars/unigram.grammar";
+  String socialUnigramPseudo = "grammars/unigram_pseudo.grammar";
+  String socialUnigramNonPseudo = "grammars/unigram_non_pseudo.grammar";
   String markGrammarFile = "grammars/testengger.grammar";
   String markGrammarVBFile = "grammars/testengger-bayes.grammar";
   
@@ -164,6 +191,140 @@ public class EarleyParserTest extends TestCase {
     }
   }
   
+  @Test
+  public void testBasicRecursiveFragment(){
+    initParserFromString(basicRecursiveFragmentGrammarString);
+    
+    String inputSentence = "b c";
+    parser.parseSentence(inputSentence);
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
+    
+    assertEquals(surprisalList.size(), 2);
+    assertEquals(0.4837969513780713, surprisalList.get(0), 1e-5);
+    assertEquals(0.587786664902119, surprisalList.get(1), 1e-5);
+    
+    
+    assertEquals(stringProbList.size(), 2);
+    assertEquals(0.0, stringProbList.get(0), 1e-5);
+    assertEquals(0.31250000000000006, stringProbList.get(1), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      assertEquals(tree.toString(), "( (ROOT (A b (C c))))");
+    }
+    
+    inputSentence = "b c c";
+    parser.parseSentence(inputSentence);
+    surprisalList = parser.getSurprisalList();
+    stringProbList = parser.getStringProbList();
+    
+    assertEquals(surprisalList.size(), 3);
+    assertEquals(0.4837969513780713, surprisalList.get(0), 1e-5);
+    assertEquals(0.587786664902119, surprisalList.get(1), 1e-5);
+    assertEquals(3.2834143460057716, surprisalList.get(2), 1e-5);
+    
+    assertEquals(stringProbList.size(), 3);
+    assertEquals(0.0, stringProbList.get(0), 1e-5);
+    assertEquals(0.31250000000000006, stringProbList.get(1), 1e-5);
+    assertEquals(0.011718750000000005, stringProbList.get(2), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      assertEquals(tree.toString(), "( (ROOT (A (B (A b (C c))) (C c))))");
+    }
+    
+    inputSentence = "d c c";
+    parser.parseSentence(inputSentence);
+    surprisalList = parser.getSurprisalList();
+    stringProbList = parser.getStringProbList();
+    System.err.println(surprisalList);
+    System.err.println(stringProbList);
+    
+    assertEquals(surprisalList.size(), 3);
+    assertEquals(0.9582549309731871, surprisalList.get(0), 1e-5);
+    assertEquals(0.0, surprisalList.get(1), 1e-5);
+    assertEquals(0.8472978603872034, surprisalList.get(2), 1e-5);
+    
+    assertEquals(stringProbList.size(), 3);
+    assertEquals(0.0, stringProbList.get(0), 1e-5);
+    assertEquals(0.0, stringProbList.get(1), 1e-5);
+    assertEquals(0.15000000000000002, stringProbList.get(2), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (ROOT (A (B d (C c)) (C c))))");
+    }
+  }
+  
+  @Test
+  public void testBasicRecursiveFragmentPseudo(){
+    initParserFromString(basicRecursiveFragmentGrammarPseudoString);
+    
+    String inputSentence = "b c";
+    parser.parseSentence(inputSentence);
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
+    
+    assertEquals(surprisalList.size(), 2);
+    assertEquals(0.4837969513780713, surprisalList.get(0), 1e-5);
+    assertEquals(0.587786664902119, surprisalList.get(1), 1e-5);
+    
+    
+    assertEquals(stringProbList.size(), 2);
+    assertEquals(0.0, stringProbList.get(0), 1e-5);
+    assertEquals(0.31250000000000006, stringProbList.get(1), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      assertEquals(tree.toString(), "( (ROOT (A (B1 b) (C c))))");
+    }
+    
+    inputSentence = "b c c";
+    parser.parseSentence(inputSentence);
+    surprisalList = parser.getSurprisalList();
+    stringProbList = parser.getStringProbList();
+    
+    assertEquals(surprisalList.size(), 3);
+    assertEquals(0.4837969513780713, surprisalList.get(0), 1e-5);
+    assertEquals(0.587786664902119, surprisalList.get(1), 1e-5);
+    assertEquals(3.2834143460057716, surprisalList.get(2), 1e-5);
+    
+    assertEquals(stringProbList.size(), 3);
+    assertEquals(0.0, stringProbList.get(0), 1e-5);
+    assertEquals(0.31250000000000006, stringProbList.get(1), 1e-5);
+    assertEquals(0.011718750000000005, stringProbList.get(2), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      assertEquals(tree.toString(), "( (ROOT (A (B (A (B1 b) (C c))) (C c))))");
+    }
+    
+    inputSentence = "d c c";
+    parser.parseSentence(inputSentence);
+    surprisalList = parser.getSurprisalList();
+    stringProbList = parser.getStringProbList();
+    System.err.println(surprisalList);
+    System.err.println(stringProbList);
+    
+    assertEquals(surprisalList.size(), 3);
+    assertEquals(0.9582549309731871, surprisalList.get(0), 1e-5);
+    assertEquals(0.0, surprisalList.get(1), 1e-5);
+    assertEquals(0.8472978603872034, surprisalList.get(2), 1e-5);
+    
+    assertEquals(stringProbList.size(), 3);
+    assertEquals(0.0, stringProbList.get(0), 1e-5);
+    assertEquals(0.0, stringProbList.get(1), 1e-5);
+    assertEquals(0.15000000000000002, stringProbList.get(2), 1e-5);
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (ROOT (A (B (D1 d) (C c)) (C c))))");
+    }
+  }
+  
   public void testExtendedGrammarIO(){
     initParserFromString(extendedGrammarString);
     
@@ -189,7 +350,7 @@ public class EarleyParserTest extends TestCase {
         assertEquals(1.3862943611198908, objectiveList.get(2), 1e-5);  
       } else {
         if(isLogProb){
-          assertEquals(objectiveList.toString(), "[2.5331135801054865, 2.1004848339141557, 2.093419828413868, 2.0918719376018737, 2.0915327440195837, 2.091458161493505, 2.0914416378017533, 2.0914379190448398, 2.0914370554127926, 2.091436842736306, 2.0914367850415774]");
+          assertEquals(objectiveList.toString(), "[2.5341702140023417, 2.1016008502172006, 2.0945469475248073, 2.0930014040440694, 2.0926627204076063, 2.0925882495532324, 2.092571750466667, 2.0925680371884927, 2.092567174802319, 2.092566962421006, 2.092566904801532]");
         } else {
           assertEquals(objectiveList.toString(), "[2.5331135801054874, 2.1004848339141557, 2.0934198284138676, 2.091871937601874, 2.0915327440195832, 2.091458161493505, 2.091441637801752, 2.0914379190448398, 2.0914370554127926, 2.0914368427363064, 2.0914367850415756]");
         }
@@ -285,37 +446,153 @@ public class EarleyParserTest extends TestCase {
       
       if(insideOutsideOpt==1){
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n6.000000 S->[NP VP]\n6.500000 NP->[Det N]\n6.500000 NP->[N Det]\n1.000000 VP->[V]\n3.000000 VP->[V NP]\n2.000000 VP->[V NP NP]\n3.000000 Det->[_the]\n3.000000 N->[_the]\n3.500000 Det->[_a]\n3.500000 N->[_a]\n3.000000 Det->[_dog]\n3.000000 N->[_dog]\n2.000000 Det->[_cat]\n2.000000 N->[_cat]\n1.500000 Det->[_bone]\n1.500000 N->[_bone]\n4.000000 V->[_bites]\n2.000000 V->[_gives]\n");
-        
-        assertEquals(objectiveList.size()==10, true);
-        assertEquals(68.46002594157635, objectiveList.get(0), 1e-5);
-        assertEquals(58.5105558430655, objectiveList.get(1), 1e-5);
-        assertEquals(55.22092447712423, objectiveList.get(2), 1e-5);
-        assertEquals(53.7010153144059, objectiveList.get(3), 1e-5);
-        assertEquals(52.26369575985821, objectiveList.get(4), 1e-5);
-        assertEquals(50.759354005056494, objectiveList.get(5), 1e-5);
-        assertEquals(50.634558651715075, objectiveList.get(6), 1e-5);
-        assertEquals(50.63452160196377, objectiveList.get(7), 1e-5);
-        assertEquals(50.63452160196377, objectiveList.get(8), 1e-5);
-        assertEquals(50.63452160196377, objectiveList.get(9), 1e-5);
+        System.err.println(objectiveList);
+        assertEquals(objectiveList.toString(), "[68.46002594157635, 58.51055584306548, 55.220924477124214, 53.7010153144059, 52.26369575985821, 50.759354005056494, 50.63455865171508, 50.63452160196377, 50.63452160196377]");
       } else {
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n6.000000 S->[NP VP]\n12.999637 NP->[Det N]\n0.000363 NP->[N Det]\n1.000000 VP->[V]\n2.999692 VP->[V NP]\n0.000308 VP->[NP V]\n1.999972 VP->[V NP NP]\n0.000028 VP->[NP NP V]\n6.000000 Det->[_the]\n7.000000 Det->[_a]\n5.999928 N->[_dog]\n0.000072 V->[_dog]\n3.999897 N->[_cat]\n0.000103 V->[_cat]\n2.999840 N->[_bone]\n0.000160 V->[_bone]\n0.000308 N->[_bites]\n3.999692 V->[_bites]\n0.000028 N->[_gives]\n1.999972 V->[_gives]\n");  
         System.err.println(objectiveList);
-        assertEquals(objectiveList.size()==9, true);
-        assertEquals(86.457393702819735, objectiveList.get(0), 1e-5);
-        assertEquals(83.2387392550706, objectiveList.get(1), 1e-5);
-        assertEquals(77.48781649713335, objectiveList.get(2), 1e-5);
-        assertEquals(71.55760553155544, objectiveList.get(3), 1e-5);
-        assertEquals(59.477048964576554, objectiveList.get(4), 1e-5);
-        assertEquals(54.403534198056924, objectiveList.get(5), 1e-5);
-        assertEquals(53.00899954752689, objectiveList.get(6), 1e-5);
-        assertEquals(51.5927527427549, objectiveList.get(7), 1e-5);
-        assertEquals(51.59275257827031, objectiveList.get(8), 1e-5);
+        assertEquals(objectiveList.toString(), "[92.93296417270264, 89.5698459964732, 81.96438670486147, 75.03608617145743, 61.47488814240121, 55.81162717434088, 54.262891466377695, 52.8466446613439, 52.8466444968588]");
       }
       
       
     }
   }
 
+  public void testSocialUnigramIO(){
+    rootSymbol = "Sentence";
+    initParserFromFile(socialUnigram);
+    
+    
+    List<String> inputSentences = new ArrayList<String>();
+    inputSentences.add(".dog kid.eyes mom.eyes # .pig kid.hands # ## and whats that is this a puppy dog");
+    inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
+//    inputSentences.add("a cat gives the dog a bone");
+//    inputSentences.add("the dog gives a cat the bone");
+//    inputSentences.add("a dog bites a bone");
+//    inputSentences.add("the dog bites");
+
+    if(insideOutsideOpt>0){
+      InsideOutside io = new InsideOutside(parser);
+      List<Double> objectiveList = new ArrayList<Double>();
+      try {
+        objectiveList = io.insideOutside(inputSentences, minRuleProb);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      
+      if(insideOutsideOpt==1){
+        assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n2.000000 Sentence->[Topic.dog Words.dog]\n2.000000 Words.dog->[Word.dog]\n0.000002 Words.dog->[Word.dog Words.dog]\n8.999998 Words.dog->[Word.None Words.dog]\n1.000000 Word.dog->[_dog]\n1.000002 Word.dog->[_woof]\n1.000000 Word.None->[_a]\n1.000000 Word.None->[_and]\n1.000000 Word.None->[_is]\n1.000000 Word.None->[_puppy]\n1.000000 Word.None->[_that]\n1.000000 Word.None->[_this]\n1.000000 Word.None->[_whats]\n1.999998 Word.None->[_woof]\n2.000000 Topic.None->[_##]\n2.000000 Topic.None->[T.None Topic.None]\n2.000000 PSEUDO.DOG->[_.dog]\n2.000000 PSEUDO.PIG->[_.pig]\n2.000000 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n2.000000 Topic.dog->[T.dog Topic.None]\n2.000000 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n2.000000 PSEUDOKID.EYES->[_kid.eyes]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 PSEUDOKID.HANDS->[_kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n2.000000 PSEUDOMOM.EYES->[_mom.eyes]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n1.000000 PSEUDOMOM.HANDS->[_mom.hands]\n2.000000 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000000 Socials.NotTopical.mom.point->[_#]\n2.000000 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n2.000000 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n2.000000 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n1.000000 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point]\n1.000000 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n2.000000 Socials.Topical.mom.point->[_#]\n");
+        System.err.println(objectiveList);
+        assertEquals(objectiveList.toString(), "[68.89924129025083, 31.379577185005644, 31.248893171567378, 31.11188779468337, 30.972214846004697, 30.833932517304554, 30.699466892816524, 30.56898030067005, 30.442294304827485, 30.322629805835795, 30.217956618356805, 30.136571449648173, 30.08087585732075, 30.046516518451632, 30.02646923724751, 30.014639600488437, 30.00691974331064, 30.000818993275782, 29.9948298082751, 29.987943286437623, 29.979345388168056, 29.968234220712343, 29.953705286129605, 29.934674154599946, 29.909826080009367, 29.87760047132343, 29.836239994255205, 29.783964252613245, 29.719365299199822, 29.64214183522126, 29.554202958466842, 29.460801131741103, 29.370621375676233, 29.293421777166532, 29.235650584658224, 29.197651204178033, 29.175142032215838, 29.162743649742623, 29.15621192510693, 29.15285588264817, 29.15115434016045, 29.15029755985971, 29.14986765090584, 29.149652314631798, 29.149544550781656, 29.1494906448952, 29.14946368595748, 29.149450204989478, 29.149443464130627, 29.149440093607488, 29.14943840832248]");
+      } else {
+        assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n0.000017 Sentence->[Topic.None Words.None]\n1.999983 Sentence->[Topic.dog Words.dog]\n0.000000 Sentence->[Topic.pig Words.pig]\n0.000017 Words.None->[Word.None]\n0.000079 Words.None->[Word.None Words.None]\n1.658687 Words.dog->[Word.dog]\n0.341296 Words.dog->[Word.None]\n4.943222 Words.dog->[Word.dog Words.dog]\n4.056699 Words.dog->[Word.None Words.dog]\n0.000000 Words.pig->[Word.pig]\n0.000000 Words.pig->[Word.None]\n0.000000 Words.pig->[Word.pig Words.pig]\n0.000000 Words.pig->[Word.None Words.pig]\n0.487384 Word.dog->[_a]\n0.482820 Word.dog->[_and]\n0.811267 Word.dog->[_dog]\n0.496692 Word.dog->[_is]\n0.527178 Word.dog->[_puppy]\n0.506732 Word.dog->[_that]\n0.512004 Word.dog->[_this]\n0.502391 Word.dog->[_whats]\n2.275441 Word.dog->[_woof]\n0.000000 Word.pig->[_a]\n0.000000 Word.pig->[_and]\n0.000000 Word.pig->[_dog]\n0.000000 Word.pig->[_is]\n0.000000 Word.pig->[_puppy]\n0.000000 Word.pig->[_that]\n0.000000 Word.pig->[_this]\n0.000000 Word.pig->[_whats]\n0.000000 Word.pig->[_woof]\n0.512616 Word.None->[_a]\n0.517180 Word.None->[_and]\n0.188733 Word.None->[_dog]\n0.503308 Word.None->[_is]\n0.472822 Word.None->[_puppy]\n0.493268 Word.None->[_that]\n0.487996 Word.None->[_this]\n0.497609 Word.None->[_whats]\n0.724559 Word.None->[_woof]\n2.000000 Topic.None->[_##]\n2.000017 Topic.None->[T.None Topic.None]\n2.000000 PSEUDO.DOG->[_.dog]\n0.000017 T.None->[PSEUDO.DOG Socials.NotTopical.kid.eyes]\n2.000000 PSEUDO.PIG->[_.pig]\n2.000000 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n1.999983 Topic.dog->[T.dog Topic.None]\n1.999983 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n0.000000 Topic.pig->[T.pig Topic.None]\n0.000000 Topic.pig->[T.None Topic.pig]\n0.000000 T.pig->[PSEUDO.PIG Socials.Topical.kid.eyes]\n2.000000 PSEUDOKID.EYES->[_kid.eyes]\n0.000017 Socials.NotTopical.kid.eyes->[PSEUDOKID.EYES Socials.NotTopical.kid.hands]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 PSEUDOKID.HANDS->[_kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n0.000017 Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes]\n2.000000 PSEUDOMOM.EYES->[_mom.eyes]\n0.000017 Socials.NotTopical.mom.eyes->[PSEUDOMOM.EYES Socials.NotTopical.mom.hands]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n1.000000 PSEUDOMOM.HANDS->[_mom.hands]\n0.000008 Socials.NotTopical.mom.hands->[PSEUDOMOM.HANDS Socials.NotTopical.mom.point]\n2.000009 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000017 Socials.NotTopical.mom.point->[_#]\n1.999983 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.eyes->[Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.hands->[PSEUDOKID.HANDS Socials.Topical.mom.eyes]\n1.999983 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n1.999983 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n0.000000 Socials.Topical.mom.eyes->[Socials.Topical.mom.hands]\n0.999992 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point]\n0.999991 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n1.999983 Socials.Topical.mom.point->[_#]\n");  
+        System.err.println(objectiveList);
+        assertEquals(objectiveList.toString(), "[76.92231224909392, 50.90073342745992, 50.87643752798012, 50.87351774507557]");
+      }
+      
+      
+    }
+  }
+  
+  public void testSocialUnigramPseudoIO(){
+    rootSymbol = "Sentence";
+    initParserFromFile(socialUnigramPseudo);
+    
+    
+    List<String> inputSentences = new ArrayList<String>();
+    inputSentences.add(".dog kid.eyes mom.eyes # .pig kid.hands # ## and whats that is this a puppy dog");
+    inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
+
+    if(insideOutsideOpt>0){
+      InsideOutside io = new InsideOutside(parser);
+      List<Double> objectiveList = new ArrayList<Double>();
+      try {
+        objectiveList = io.insideOutside(inputSentences, minRuleProb);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      
+      if(insideOutsideOpt==1){
+        assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n2.000000 Sentence->[Topic.dog Words.dog]\n1.000000 Words.dog->[Word.dog]\n1.000000 Words.dog->[Word.None]\n4.500000 Words.dog->[Word.dog Words.dog]\n4.500000 Words.dog->[Word.None Words.dog]\n5.500000 Word.None->[Word]\n5.500000 Word.dog->[Word]\n1.000000 Word->[_a]\n1.000000 Word->[_and]\n1.000000 Word->[_dog]\n1.000000 Word->[_is]\n1.000000 Word->[_puppy]\n1.000000 Word->[_that]\n1.000000 Word->[_this]\n1.000000 Word->[_whats]\n3.000000 Word->[_woof]\n2.000000 Topic.None->[_##]\n2.000000 Topic.None->[T.None Topic.None]\n2.000000 PSEUDO.DOG->[_.dog]\n2.000000 PSEUDO.PIG->[_.pig]\n2.000000 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n2.000000 Topic.dog->[T.dog Topic.None]\n2.000000 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n2.000000 PSEUDOKID.EYES->[_kid.eyes]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 PSEUDOKID.HANDS->[_kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n2.000000 PSEUDOMOM.EYES->[_mom.eyes]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n1.000000 PSEUDOMOM.HANDS->[_mom.hands]\n2.000000 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000000 Socials.NotTopical.mom.point->[_#]\n2.000000 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n2.000000 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n2.000000 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n1.000000 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point]\n1.000000 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n2.000000 Socials.Topical.mom.point->[_#]\n");
+        System.err.println(objectiveList);
+        assertEquals(objectiveList.toString(), "[115.0307287481496, 43.547579210549046, 41.931926877684795, 33.181419514081675, 32.4554266675181, 32.45542666177363]");
+      } else {
+        assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n0.000043 Sentence->[Topic.None Words.None]\n1.999957 Sentence->[Topic.dog Words.dog]\n0.000000 Sentence->[Topic.pig Words.pig]\n0.000043 Words.None->[Word.None]\n0.000121 Words.None->[Word.None Words.None]\n0.999978 Words.dog->[Word.dog]\n0.999978 Words.dog->[Word.None]\n4.499939 Words.dog->[Word.dog Words.dog]\n4.499939 Words.dog->[Word.None Words.dog]\n0.000000 Words.pig->[Word.pig]\n0.000000 Words.pig->[Word.None]\n0.000000 Words.pig->[Word.pig Words.pig]\n0.000000 Words.pig->[Word.None Words.pig]\n5.500082 Word.None->[Word]\n5.499918 Word.dog->[Word]\n0.000000 Word.pig->[Word]\n1.000000 Word->[_a]\n1.000000 Word->[_and]\n1.000000 Word->[_dog]\n1.000000 Word->[_is]\n1.000000 Word->[_puppy]\n1.000000 Word->[_that]\n1.000000 Word->[_this]\n1.000000 Word->[_whats]\n3.000000 Word->[_woof]\n2.000000 Topic.None->[_##]\n2.000043 Topic.None->[T.None Topic.None]\n2.000000 PSEUDO.DOG->[_.dog]\n0.000043 T.None->[PSEUDO.DOG Socials.NotTopical.kid.eyes]\n2.000000 PSEUDO.PIG->[_.pig]\n2.000000 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n1.999957 Topic.dog->[T.dog Topic.None]\n1.999957 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n0.000000 Topic.pig->[T.pig Topic.None]\n0.000000 Topic.pig->[T.None Topic.pig]\n0.000000 T.pig->[PSEUDO.PIG Socials.Topical.kid.eyes]\n2.000000 PSEUDOKID.EYES->[_kid.eyes]\n0.000043 Socials.NotTopical.kid.eyes->[PSEUDOKID.EYES Socials.NotTopical.kid.hands]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 PSEUDOKID.HANDS->[_kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n0.000043 Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes]\n2.000000 PSEUDOMOM.EYES->[_mom.eyes]\n0.000043 Socials.NotTopical.mom.eyes->[PSEUDOMOM.EYES Socials.NotTopical.mom.hands]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n1.000000 PSEUDOMOM.HANDS->[_mom.hands]\n0.000036 Socials.NotTopical.mom.hands->[PSEUDOMOM.HANDS Socials.NotTopical.mom.point]\n2.000007 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000043 Socials.NotTopical.mom.point->[_#]\n1.999957 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.eyes->[Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.hands->[PSEUDOKID.HANDS Socials.Topical.mom.eyes]\n1.999957 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n1.999957 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n0.000000 Socials.Topical.mom.eyes->[Socials.Topical.mom.hands]\n0.999964 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point]\n0.999993 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n1.999957 Socials.Topical.mom.point->[_#]\n");  
+        System.err.println(objectiveList);
+        assertEquals(objectiveList.toString(), "[119.57753371025353, 56.25527212925164, 55.55705760873093, 50.09255118022884, 49.94778060138511, 49.94772549410475, 49.947725459941026]");
+      }
+    }
+  }
+  
+  public void testSocialUnigramNonPseudoIO(){
+    rootSymbol = "Sentence";
+    initParserFromFile(socialUnigramNonPseudo);
+    
+    
+    List<String> inputSentences = new ArrayList<String>();
+    inputSentences.add(".dog kid.eyes mom.eyes # .pig kid.hands # ## and whats that is this a puppy dog");
+    inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
+
+    if(insideOutsideOpt>0){
+      InsideOutside io = new InsideOutside(parser);
+      List<Double> objectiveList = new ArrayList<Double>();
+      try {
+        objectiveList = io.insideOutside(inputSentences, minRuleProb);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      
+      if(insideOutsideOpt==1){
+        assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n2.000000 Sentence->[Topic.dog Words.dog]\n1.000000 Words.dog->[Word.dog]\n1.000000 Words.dog->[Word.None]\n4.500000 Words.dog->[Word.dog Words.dog]\n4.500000 Words.dog->[Word.None Words.dog]\n5.500000 Word.None->[Word]\n5.500000 Word.dog->[Word]\n1.000000 Word->[_a]\n1.000000 Word->[_and]\n1.000000 Word->[_dog]\n1.000000 Word->[_is]\n1.000000 Word->[_puppy]\n1.000000 Word->[_that]\n1.000000 Word->[_this]\n1.000000 Word->[_whats]\n3.000000 Word->[_woof]\n2.000000 Topic.None->[_##]\n2.000000 Topic.None->[T.None Topic.None]\n2.000000 PSEUDO.DOG->[_.dog]\n2.000000 PSEUDO.PIG->[_.pig]\n2.000000 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n2.000000 Topic.dog->[T.dog Topic.None]\n2.000000 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n2.000000 PSEUDOKID.EYES->[_kid.eyes]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 PSEUDOKID.HANDS->[_kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n2.000000 PSEUDOMOM.EYES->[_mom.eyes]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n1.000000 PSEUDOMOM.HANDS->[_mom.hands]\n2.000000 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000000 Socials.NotTopical.mom.point->[_#]\n2.000000 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n2.000000 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n2.000000 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n1.000000 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point]\n1.000000 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n2.000000 Socials.Topical.mom.point->[_#]\n");
+        System.err.println(objectiveList);
+        assertEquals(objectiveList.toString(), "[115.0307287481496, 43.547579210549046, 41.931926877684795, 33.181419514081675, 32.4554266675181, 32.45542666177363]");
+      } else {
+        assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n0.000043 Sentence->[Topic.None Words.None]\n1.999957 Sentence->[Topic.dog Words.dog]\n0.000000 Sentence->[Topic.pig Words.pig]\n0.000043 Words.None->[Word.None]\n0.000121 Words.None->[Word.None Words.None]\n0.999978 Words.dog->[Word.dog]\n0.999978 Words.dog->[Word.None]\n4.499939 Words.dog->[Word.dog Words.dog]\n4.499939 Words.dog->[Word.None Words.dog]\n0.000000 Words.pig->[Word.pig]\n0.000000 Words.pig->[Word.None]\n0.000000 Words.pig->[Word.pig Words.pig]\n0.000000 Words.pig->[Word.None Words.pig]\n5.500082 Word.None->[Word]\n5.499918 Word.dog->[Word]\n0.000000 Word.pig->[Word]\n1.000000 Word->[_a]\n1.000000 Word->[_and]\n1.000000 Word->[_dog]\n1.000000 Word->[_is]\n1.000000 Word->[_puppy]\n1.000000 Word->[_that]\n1.000000 Word->[_this]\n1.000000 Word->[_whats]\n3.000000 Word->[_woof]\n2.000000 Topic.None->[_##]\n2.000043 Topic.None->[T.None Topic.None]\n0.000043 T.None->[_.dog Socials.NotTopical.kid.eyes]\n2.000000 T.None->[_.pig Socials.NotTopical.kid.eyes]\n1.999957 Topic.dog->[T.dog Topic.None]\n1.999957 T.dog->[_.dog Socials.Topical.kid.eyes]\n0.000000 Topic.pig->[T.pig Topic.None]\n0.000000 Topic.pig->[T.None Topic.pig]\n0.000000 T.pig->[_.pig Socials.Topical.kid.eyes]\n0.000043 Socials.NotTopical.kid.eyes->[_kid.eyes Socials.NotTopical.kid.hands]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[_kid.hands Socials.NotTopical.mom.eyes]\n0.000043 Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes]\n0.000043 Socials.NotTopical.mom.eyes->[_mom.eyes Socials.NotTopical.mom.hands]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n0.000036 Socials.NotTopical.mom.hands->[_mom.hands Socials.NotTopical.mom.point]\n2.000007 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000043 Socials.NotTopical.mom.point->[_#]\n1.999957 Socials.Topical.kid.eyes->[_kid.eyes Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.eyes->[Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.hands->[_kid.hands Socials.Topical.mom.eyes]\n1.999957 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n1.999957 Socials.Topical.mom.eyes->[_mom.eyes Socials.Topical.mom.hands]\n0.000000 Socials.Topical.mom.eyes->[Socials.Topical.mom.hands]\n0.999964 Socials.Topical.mom.hands->[_mom.hands Socials.Topical.mom.point]\n0.999993 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n1.999957 Socials.Topical.mom.point->[_#]\n");  
+        System.err.println(objectiveList);
+        assertEquals(objectiveList.toString(), "[119.57753371025353, 56.25527212925161, 55.5570576087309, 50.09255118022887, 49.947780601385126, 49.94772549410472, 49.947725459941]");
+      }
+    }
+  }
+  
+  public void testSocialUnigramNonPseudo(){
+    rootSymbol = "Sentence";
+    initParserFromFile(socialUnigramNonPseudo);
+    
+    String inputSentence = ".dog kid.eyes mom.eyes # .pig kid.hands # ## and whats that is this a puppy dog";
+    //inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
+
+    parser.parseSentence(inputSentence);
+    assertEquals(parser.getSurprisalList().toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
+    assertEquals(parser.getStringProbList().toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (Sentence (Topic.pig (T.None .dog (Socials.NotTopical.kid.eyes kid.eyes (Socials.NotTopical.kid.hands (Socials.NotTopical.mom.eyes mom.eyes (Socials.NotTopical.mom.hands (Socials.NotTopical.mom.point #)))))) (Topic.pig (T.pig .pig (Socials.Topical.kid.eyes (Socials.Topical.kid.hands kid.hands (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None ##))) (Words.pig (Word.pig (Word and)) (Words.pig (Word.pig (Word whats)) (Words.pig (Word.pig (Word that)) (Words.pig (Word.pig (Word is)) (Words.pig (Word.pig (Word this)) (Words.pig (Word.pig (Word a)) (Words.pig (Word.pig (Word puppy)) (Words.pig (Word.None (Word dog))))))))))))");
+    }
+  }
+  
+  public void testSocialUnigramPseudo(){
+    rootSymbol = "Sentence";
+    initParserFromFile(socialUnigramPseudo);
+    
+    String inputSentence = ".dog kid.eyes mom.eyes # .pig kid.hands # ## and whats that is this a puppy dog";
+    //inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
+
+    parser.parseSentence(inputSentence);
+    assertEquals(parser.getSurprisalList().toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
+    assertEquals(parser.getStringProbList().toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (Sentence (Topic.pig (T.None (PSEUDO.DOG .dog) (Socials.NotTopical.kid.eyes (PSEUDOKID.EYES kid.eyes) (Socials.NotTopical.kid.hands (Socials.NotTopical.mom.eyes (PSEUDOMOM.EYES mom.eyes) (Socials.NotTopical.mom.hands (Socials.NotTopical.mom.point #)))))) (Topic.pig (T.pig (PSEUDO.PIG .pig) (Socials.Topical.kid.eyes (Socials.Topical.kid.hands (PSEUDOKID.HANDS kid.hands) (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None ##))) (Words.pig (Word.pig (Word and)) (Words.pig (Word.pig (Word whats)) (Words.pig (Word.pig (Word that)) (Words.pig (Word.pig (Word is)) (Words.pig (Word.pig (Word this)) (Words.pig (Word.pig (Word a)) (Words.pig (Word.pig (Word puppy)) (Words.pig (Word.None (Word dog))))))))))))");
+    }
+  }
+  
   public void testBasicUnary(){
     initParserFromString(basicUnaryGrammarString);
     
@@ -929,7 +1206,7 @@ public class EarleyParserTest extends TestCase {
   @Test
   public void testSocialMarginalDecodingUnigram(){
     rootSymbol = "Sentence";
-    initParserFromFile(socialDiscourseUnigram);
+    initParserFromFile(socialUnigram);
     
     String inputSent = ".dog kid.eyes mom.eyes # .pig kid.hands # ## and whats that is this a puppy dog"; 
 

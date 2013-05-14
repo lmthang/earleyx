@@ -1,13 +1,14 @@
 package parser;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import base.Edge;
+import base.Rule;
 import base.ProbRule;
-import base.TagRule;
 
 import util.Util;
 
@@ -33,13 +34,16 @@ public abstract class EdgeSpace {
 
   protected Index<String> tagIndex; // map tag strings to tag integers
   protected Index<String> wordIndex; // map tag strings to tag integers
+  protected Map<Integer, Set<Integer>> terminal2fragmentEdges; // map word index of _y to a list of edges X -> . _y Z T, where the first token after the dot is _y
+  
+
   public EdgeSpace(Index<String> tagIndex, Index<String> wordIndex){
     this.tagIndex = tagIndex;
     this.wordIndex = wordIndex;
     
     edgeIndex = new HashIndex<Edge>();
     activeEdges = new HashSet<Integer>();
-    
+    terminal2fragmentEdges = new HashMap<Integer, Set<Integer>>();
     to = new int[1000];
   }
   
@@ -48,7 +52,7 @@ public abstract class EdgeSpace {
       System.err.println("\n## Setting up edge space ...");
     }
     if(verbose >= 3){
-      System.err.println("Rules: " + Util.sprint(rules, wordIndex, tagIndex));
+      System.err.println("Rules: " + Util.sprint(rules, tagIndex, wordIndex));
     }
     
     int numRules = 0;
@@ -68,7 +72,7 @@ public abstract class EdgeSpace {
         if(verbose>=3){
           System.err.println("Add preterminal " + tagIndex.get(tag) + " to edge space");
         }
-        addEdge(new Edge(new TagRule(tag, new ArrayList<Integer>()), 0));
+        addEdge(new Edge(Rule.buildLhsOnlyRule(tag), 0));
       }
     }
     if (verbose >= 1) {
@@ -85,6 +89,9 @@ public abstract class EdgeSpace {
     if(edgeIndex.contains(e)){
       return indexOf(e);
     }
+    if (verbose >= 3){
+      System.err.println("Adding " + e.toString(tagIndex, wordIndex));
+    }
     
     // store current edge
     int state = storeEdgeInIndex(e);
@@ -92,11 +99,23 @@ public abstract class EdgeSpace {
     // check children
     if (e.numRemainingChildren() == 0) { // passive edge, no children
       to[state] = -1;
-    } else if(e.getRule() instanceof TagRule){ // tag rule, active edge
+    } else  { //if(e.getRule().isTagRule()){ // tag rule, active edge
       activeEdges.add(state);
       
+      // fragment rules
+      if (!e.isTagAfterDot(0)){ // X -> _y Z T
+        int childIndex = e.getChildAfterDot(0);
+        if(!terminal2fragmentEdges.containsKey(childIndex)){
+          terminal2fragmentEdges.put(childIndex, new HashSet<Integer>());
+        }
+        terminal2fragmentEdges.get(childIndex).add(state); // map _y to X -> _y Z T
+      }
+      
       // via edge: first child -> []
-      addEdge(e.getViaEdge());
+      Edge viaEdge = e.getViaEdge(); 
+      if(viaEdge != null){
+        addEdge(viaEdge);
+      }
  
       
       // to edge: mother -> [second child onwards]
@@ -107,8 +126,9 @@ public abstract class EdgeSpace {
       to[state] = toState; // NOTE: it would be wrong to combine this line with the above line
       
       if (verbose >= 3){
-        System.err.println("Add edge " + state + "=" + e.toString(tagIndex, wordIndex) +  
-            ", to " + to[state] + "=" + get(to[state]).toString(tagIndex, wordIndex));
+        System.err.println("# Edge added: " + state + "=" + e.toString(tagIndex, wordIndex) +
+            //", via edge " + via[state] + "=" + get(via[state]).toString(tagIndex, wordIndex) + 
+            ", to edge " + to[state] + "=" + get(to[state]).toString(tagIndex, wordIndex));
       }
     }
    
@@ -124,7 +144,7 @@ public abstract class EdgeSpace {
   * @param tag
   * @return
   */
-  private Edge dummyEdge = new Edge(new TagRule(0, new ArrayList<Integer>()), 0);
+  private Edge dummyEdge = new Edge(Rule.buildLhsOnlyRule(0), 0);
   public int indexOfTag(int tag) {
     dummyEdge.setMother(tag);
     return edgeIndex.indexOf(dummyEdge);
@@ -163,6 +183,14 @@ public abstract class EdgeSpace {
       incrementSize();
     }
     return i;                               
+  }
+ 
+  public Set<Integer> getFragmentEdges(int iW){
+    return terminal2fragmentEdges.get(iW);
+  }
+  
+  public Map<Integer, Set<Integer>> getTerminal2fragmentEdges() {
+    return terminal2fragmentEdges;
   }
   
   public String toString() {
