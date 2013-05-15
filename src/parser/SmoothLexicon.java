@@ -45,6 +45,7 @@ public class SmoothLexicon extends BaseLexicon {
     String word = wordIndex.get(iW);
     
     if(!counter.containsKey(iW)){ // unknown word
+      System.err.print("SmoothLexicon: " + word + " --> ");
       word = getSignature(word);
       iW = wordIndex.indexOf(word, true);
       
@@ -52,6 +53,7 @@ public class SmoothLexicon extends BaseLexicon {
         word = UNKNOWN_WORD;
         iW = unkIndex;
       }
+      System.err.println(word);
     }
      
 //    System.err.println(Util.sprint(counter, wordIndex));

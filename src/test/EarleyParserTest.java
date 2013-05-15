@@ -136,6 +136,7 @@ public class EarleyParserTest extends TestCase {
   String socialUnigramNonPseudo = "grammars/unigram_non_pseudo.grammar";
   String markGrammarFile = "grammars/testengger.grammar";
   String markGrammarVBFile = "grammars/testengger-bayes.grammar";
+  String fragmentGrammar = "grammars/WSJ.FG.grammar";
   
   private void initParserFromFile(String ruleFile){
     int inGrammarType = 1; // read from grammar
@@ -592,6 +593,23 @@ public class EarleyParserTest extends TestCase {
       assertEquals(tree.toString(), "( (Sentence (Topic.pig (T.None (PSEUDO.DOG .dog) (Socials.NotTopical.kid.eyes (PSEUDOKID.EYES kid.eyes) (Socials.NotTopical.kid.hands (Socials.NotTopical.mom.eyes (PSEUDOMOM.EYES mom.eyes) (Socials.NotTopical.mom.hands (Socials.NotTopical.mom.point #)))))) (Topic.pig (T.pig (PSEUDO.PIG .pig) (Socials.Topical.kid.eyes (Socials.Topical.kid.hands (PSEUDOKID.HANDS kid.hands) (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None ##))) (Words.pig (Word.pig (Word and)) (Words.pig (Word.pig (Word whats)) (Words.pig (Word.pig (Word that)) (Words.pig (Word.pig (Word is)) (Words.pig (Word.pig (Word this)) (Words.pig (Word.pig (Word a)) (Words.pig (Word.pig (Word puppy)) (Words.pig (Word.None (Word dog))))))))))))");
     }
   }
+  
+//  public void testFragmentGrammar(){
+//    rootSymbol = "S";
+//    initParserFromFile(fragmentGrammar);
+//    
+//    String inputSentence = "Joe was a big bear of a man six feet six inches tall and barrel-chested";
+//
+//    parser.parseSentence(inputSentence);
+//    assertEquals(parser.getSurprisalList().toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
+//    assertEquals(parser.getStringProbList().toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+//    
+//    if(parser.getDecodeOpt()==1){
+//      Tree tree = parser.viterbiParse();
+//      System.err.println(tree.toString());
+//      assertEquals(tree.toString(), "( (Sentence (Topic.pig (T.None .dog (Socials.NotTopical.kid.eyes kid.eyes (Socials.NotTopical.kid.hands (Socials.NotTopical.mom.eyes mom.eyes (Socials.NotTopical.mom.hands (Socials.NotTopical.mom.point #)))))) (Topic.pig (T.pig .pig (Socials.Topical.kid.eyes (Socials.Topical.kid.hands kid.hands (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None ##))) (Words.pig (Word.pig (Word and)) (Words.pig (Word.pig (Word whats)) (Words.pig (Word.pig (Word that)) (Words.pig (Word.pig (Word is)) (Words.pig (Word.pig (Word this)) (Words.pig (Word.pig (Word a)) (Words.pig (Word.pig (Word puppy)) (Words.pig (Word.None (Word dog))))))))))))");
+//    }
+//  }
   
   public void testBasicUnary(){
     initParserFromString(basicUnaryGrammarString);

@@ -15,8 +15,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import parser.SmoothLexicon;
-
 import base.BiasProbRule;
 import base.Rule;
 import base.ProbRule;

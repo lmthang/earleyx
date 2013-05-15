@@ -34,6 +34,20 @@ import edu.stanford.nlp.util.StringUtils;
 public class TreeBankFile {
   public static String transformerClassName = null;
   public static String treebankPackClassName = "edu.stanford.nlp.parser.lexparser.EnglishTreebankParserParams";
+
+  public static void printHelp(String[] args, String message){
+    System.err.println("! " + message);
+    System.err.println("TreeBankFile -in inFile -out outFile"); // -opt option]");
+    
+    // compulsory
+    System.err.println("\tCompulsory:");
+    System.err.println("\t\t in \t\t input grammar");
+    System.err.println("\t\t out \t\t output file");
+    System.err.println("\t\t opt \t\t 1 -- extract rules, smooth, and output to a file, " + 
+        "2 -- pretty print, 3 -- for social program, remove pseudo nodes, and extract individual sentence trees (if each parse is for a whole discourse)");
+    System.err.println();
+    System.exit(1);
+  }
   
   /**
    * transform trees into a form that could be processed by the system
@@ -158,20 +172,6 @@ public class TreeBankFile {
     }
     
     return sentTrees;
-  }
-  
-  public static void printHelp(String[] args, String message){
-    System.err.println("! " + message);
-    System.err.println("TreeBankFile -in inFile -out outFile"); // -opt option]");
-    
-    // compulsory
-    System.err.println("\tCompulsory:");
-    System.err.println("\t\t in \t\t input grammar");
-    System.err.println("\t\t out \t\t output file");
-    System.err.println("\t\t opt \t\t 1 -- extract rules, smooth, and output to a file, " + 
-        "2 -- pretty print, 3 -- for social program, remove pseudo nodes, and extract individual sentence trees (if each parse is for a whole discourse)");
-    System.err.println();
-    System.exit(1);
   }
   
   public static void main(String[] args) throws IOException{

@@ -22,6 +22,7 @@ public class RuleSet {
   private Index<String> tagIndex;
   private Index<String> wordIndex;
   
+  boolean hasSmoothRules; // if it has a rule X->[_UNK...]
   private int numRules = 0;
   private List<ProbRule> allRules;
   
@@ -70,6 +71,8 @@ public class RuleSet {
     unaryChains = new ArrayList<Pair<List<Integer>,Double>>();
     unaryChainStartMap = new HashMap<Integer, Map<Integer,Integer>>();
     unaryChainEndMap = new HashMap<Integer, Map<Integer,Integer>>();
+    
+    hasSmoothRules = false;
   }
   
   public int add(ProbRule probRule){
@@ -106,6 +109,11 @@ public class RuleSet {
     if(rule.isTerminalRule()){
       if (rule.numChildren()==1){ // terminal
         terminalRules.add(probRule);
+        
+        if(rule.getChildStr(tagIndex, wordIndex, 0).startsWith("_UNK")){
+          hasSmoothRules = true;
+//          System.err.println("Has a smooth rule: " + rule.toString(tagIndex, wordIndex));
+        }
       } else { // multiple terminals
         multiTerminalRules.add(probRule);
       }
@@ -127,6 +135,10 @@ public class RuleSet {
     }
     
     return ruleId;
+  }
+  
+  public boolean hasSmoothRule(){
+    return hasSmoothRules;
   }
   
   private void updateUnaryChain(int Z, int Y, List<Integer> chain, double prob){

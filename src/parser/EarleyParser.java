@@ -731,7 +731,8 @@ public abstract class EarleyParser implements Parser {
     
     /** Handle normal rules **/
     Set<IntTaggedWord> iTWs = lex.tagsForWord(word);
-    if(iTWs.size()==0){
+    String status = "";
+    if(iTWs.size()==0 && ruleSet.hasSmoothRule()){
       int iW = parserWordIndex.indexOf(word, true);
       if(!hasFragmentRule || !edgeSpace.terminal2fragmentEdges.containsKey(iW)){ 
         // if there's not a fragment rule X -> . _w, then use all tags
@@ -740,9 +741,12 @@ public abstract class EarleyParser implements Parser {
           iTWs.add(new IntTaggedWord(iW, iT));
         }
       }
+      
+      status = "unknown";
     }
+    
     if (verbose>=1){
-      System.err.println("# " + right + "\t" + word + ", numTags=" + iTWs.size());
+      System.err.println("# " + right + "\t" + word + ", " + status + " numTags=" + iTWs.size());
     }
     
     for (IntTaggedWord itw : iTWs) { // go through each POS tag the current word could have
@@ -1202,7 +1206,7 @@ public abstract class EarleyParser implements Parser {
       addBacktrack(left, middle, right, nextEdge, newEdge, newInnerProb);
     }
     
-    if (verbose >= 1) {
+    if (verbose >= 3) {
       System.err.println("  fragment start " + edgeScoreInfo(left, middle, prevEdge) 
           + " -> new " + edgeScoreInfo(left, right, newEdge, newForwardProb, newInnerProb));
 
