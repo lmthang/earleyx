@@ -37,7 +37,7 @@ public class TreeBankFile {
 
   public static void printHelp(String[] args, String message){
     System.err.println("! " + message);
-    System.err.println("TreeBankFile -in inFile -out outFile"); // -opt option]");
+    System.err.println("TreeBankFile -in treebankFile -out outFile"); // -opt option]");
     
     // compulsory
     System.err.println("\tCompulsory:");
