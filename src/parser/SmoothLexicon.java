@@ -45,7 +45,7 @@ public class SmoothLexicon extends BaseLexicon {
     String word = wordIndex.get(iW);
     
     if(!counter.containsKey(iW)){ // unknown word
-      System.err.print("SmoothLexicon: " + word + " --> ");
+//      System.err.print("SmoothLexicon: " + itw.toString(wordIndex, tagIndex) + " --> ");
       word = getSignature(word);
       iW = wordIndex.indexOf(word, true);
       
@@ -53,15 +53,10 @@ public class SmoothLexicon extends BaseLexicon {
         word = UNKNOWN_WORD;
         iW = unkIndex;
       }
-      System.err.println(word);
+//      System.err.println(word + ": " + counter.getCount(iW));
     }
-     
-//    System.err.println(Util.sprint(counter, wordIndex));
-//    System.err.println("SmoothLexicon: " + word + "\t" + itw + "\t" + itw.wordString(wordIndex) +
-//        "\t" + counter.getCount(iW));
 
     return counter.getCount(iW);
-//    return (float) counter.getCount(iW);
   }
 
   // convert to logprob

@@ -125,7 +125,7 @@ public class EarleyParserTest extends TestCase {
   "D->[_d] : 0.9\n" +
   "D->[_UNK] : 0.1\n";
   
-  String wsj500AG = "grammars/WSJ.500/WSJ.500.AG-PCFG.extendedRules";
+  String wsj500AG = "grammars/WSJ.500.ag-map.rules";
   String wsj500 = "grammars/wsj500unk.grammar";
   String wsj5 = "grammars/wsj5unk.grammar";
   String social = "grammars/social.iogrammar";
@@ -963,7 +963,6 @@ public class EarleyParserTest extends TestCase {
     }
   }
   
-  
   public void testWSJ500AG(){
     initParserFromFile(wsj500AG);
     
@@ -1011,6 +1010,25 @@ public class EarleyParserTest extends TestCase {
       Tree tree = parser.viterbiParse();
       System.err.println(tree.pennString());
       assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) (CD two)) (ADJP (JJ young) (PP sea-lions)) (VP (VBD took) (PRT (RB not)) (NP (DT the) (NNP slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NNS arrival)))) (. .))))");
+    }
+  }
+  
+  public void testWSJ500AG1(){
+    initParserFromFile(wsj500AG);
+    
+    String inputSentence = "What did you do to my horse she asked breathless and gasping";
+
+    parser.parseSentence(inputSentence);
+    
+    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> stringProbList = parser.getStringProbList();
+    assertEquals(surprisalList.toString(), "[5.803755623499257, 8.118111822817458, 11.08428019811525, 7.8351117202548615, 4.482807205773518, 8.142143483744839, 1.6305761741262685, 8.735695059612887, 9.990608202027353, 1.0275953424644089, 4.9008874240837486, 0.5451802063066253]");
+    assertEquals(stringProbList.toString(), "[0.0, 1.3079867249162168E-10, 4.867244486928411E-13, 1.0063754485484522E-16, 0.0, 0.0, 1.27408610509633E-22, 9.854091524354584E-27, 6.250980669146438E-32, 1.4087342474069947E-31, 0.0, 4.415190632996464E-34]");
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = parser.viterbiParse();
+      System.err.println(tree.pennString());
+      assertEquals(tree.toString(), "( (ROOT (SBARQ (WHNP (WP What)) (SQ (VP (VBD did) (S (NP you) (VP do)) (PP (TO to) (NP (PRP$ my) (NNS horse))) (SBAR (S (NP she) (VP (VBD asked) (ADJP (ADJP breathless) (CC and) (ADJP gasping))))))))))");
     }
   }
   

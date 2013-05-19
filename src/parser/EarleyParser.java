@@ -752,7 +752,11 @@ public abstract class EarleyParser implements Parser {
     for (IntTaggedWord itw : iTWs) { // go through each POS tag the current word could have
       // score
       double score = lex.score(itw); // log
-      assert(score<=0);
+      
+      if(score>0){
+        System.err.println("! Lex score should be in log-form, but is " + score);
+        System.exit(1);
+      }
       if(!isLogProb){
         score = Math.exp(score);
       }
@@ -1003,7 +1007,7 @@ public abstract class EarleyParser implements Parser {
           wordIndices.subList(middle, right));
       
       if(valueMap != null){
-        if(verbose >= 1){
+        if(verbose >= 2){
           System.err.println("# AG prefix " + "[" + middle + ", " + right + "]: " + 
               Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
               ": " + Util.sprint(valueMap, parserTagIndex));
@@ -1169,8 +1173,8 @@ public abstract class EarleyParser implements Parser {
         Set<Integer> intersectEdges = Util.intersection(predictedEdges, fragmentEdges);
         
         if(intersectEdges.size()>0){
-          System.err.println("# " + word + "\t[" + left + ", " + (right-1) + 
-              "] " + ": " + Util.sprint(intersectEdges, edgeSpace, parserTagIndex, parserWordIndex));
+//          System.err.println("# " + word + "\t[" + left + ", " + (right-1) + 
+//              "] " + ": " + Util.sprint(intersectEdges, edgeSpace, parserTagIndex, parserWordIndex));
           for (Integer edge : intersectEdges) {
             fragmentComplete(left, right, edge);
           }
