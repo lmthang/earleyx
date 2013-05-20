@@ -66,9 +66,9 @@ public class Prediction {
     int totalPredictions = 0;
     
     
+//    System.err.println(stateSpace.toString());
+    
     /** Construct predictions via states**/
-    //Set<Integer> activeIndices = stateSpace.getActiveIndices(); // those that has at least 1 non-terminal left-corner child 
-    //for (int viaCategoryIndex : activeIndices) { // Z
     for (int viaCategoryIndex : nonterminals) { // Z
       if(verbose >= 2){
         System.err.println("# via: " + tagIndex.get(viaCategoryIndex));
@@ -81,7 +81,9 @@ public class Prediction {
           continue;
         }
         
-        assert(r.getProb()>=0 && r.getProb()<=1);
+        if(r.getProb()<0 || r.getProb()>1){
+          System.err.println("! Invalid rule prob: " + r.toString(tagIndex, wordIndex));
+        }
         double rewriteScore = operator.getScore(r.getProb());
         
         int predictedCategoryMotherIndex = r.getMother();
@@ -115,7 +117,7 @@ public class Prediction {
     Prediction[][] predictions = new Prediction[stateSpace.size()][];
     for (int predictorState = 0; predictorState < stateSpace.size(); predictorState++) {
       Edge edgeObj = stateSpace.get(predictorState);
-      if (edgeObj.numRemainingChildren()==0){ // tag -> []
+      if (edgeObj.numRemainingChildren()==0 || !edgeObj.isTagAfterDot(0)){ // tag -> []
         predictions[predictorState] = NO_PREDICTION;
       } else {
         int viaCategoryIndex = edgeObj.getChildAfterDot(0);
@@ -123,7 +125,7 @@ public class Prediction {
         if (nonterminals.contains(viaCategoryIndex)){
           predictions[predictorState] = predictionsVia[viaCategoryIndex];
           
-          if(verbose>=4){
+          if(verbose>=2){
             System.err.println("Edge " + predictorState + ", " 
                 + stateSpace.get(predictorState).toString(tagIndex, wordIndex)
                 + ": predictions " + Util.sprint(predictions[predictorState], 

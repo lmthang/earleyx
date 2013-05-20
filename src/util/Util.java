@@ -464,11 +464,11 @@ public class Util {
     return sb.toString();
   }
 
-  public static String sprint(Set<Integer> edges, Index<String> index){
+  public static String sprint(Set<Integer> indices, Index<String> index){
     StringBuffer sb = new StringBuffer("[");
     
-    if(edges.size() > 0){
-      for (Integer edge : edges) {
+    if(indices.size() > 0){
+      for (Integer edge : indices) {
         sb.append(index.get(edge) + ", ");
       }
     }
@@ -496,10 +496,12 @@ public class Util {
   public static String sprint(Set<IntTaggedWord> itws, 
       Index<String> wordIndex, Index<String> tagIndex){
     StringBuffer sb = new StringBuffer("[");
-    for(IntTaggedWord itw : itws){
-      sb.append(itw.toString(wordIndex, tagIndex) + ", ");
+    if(itws.size()>0){
+      for(IntTaggedWord itw : itws){
+        sb.append(itw.toString(wordIndex, tagIndex) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
     }
-    sb.delete(sb.length()-2, sb.length());
     sb.append("]");
     return sb.toString();
   }

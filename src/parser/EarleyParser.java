@@ -88,7 +88,8 @@ public abstract class EarleyParser implements Parser {
   public RuleSet getRuleSet() {
     return ruleSet;
   }
-  protected boolean hasMultiTerminalRule = false;
+  
+//  protected boolean hasMultiTerminalRule = false;
   protected boolean hasFragmentRule = false;
   
   // root
@@ -109,7 +110,7 @@ public abstract class EarleyParser implements Parser {
   // keys are nonterminal indices (indexed by parserTagIndex)
   // values are used to retrieve nonterminals (when necessary) in the order that
   //   we processed them when loading treebank or grammar files (more for debug purpose)
-  protected Map<Integer, Integer> parserNonterminalMap; // nonterminal + preterminal = parser tag indices
+  protected Map<Integer, Integer> parserNonterminalMap; // doesn't include preterminals. nonterminal + preterminal = parser tag indices
   
   
   /** prefix & syntactic prefix probabilities **/
@@ -364,7 +365,7 @@ public abstract class EarleyParser implements Parser {
     edgeSpaceSize = edgeSpace.size();
     numCategories = parserTagIndex.size();
     
-    hasMultiTerminalRule = (ruleSet.getMultiTerminalRules().size()>0);
+//    hasMultiTerminalRule = (ruleSet.getMultiTerminalRules().size()>0);
     hasFragmentRule = (ruleSet.numFragmentRules()>0);
     if(verbose>=1){
       System.err.println("# postInit Earley Parser -- num nonterminals " + parserNonterminalMap.size());
@@ -382,7 +383,7 @@ public abstract class EarleyParser implements Parser {
       System.err.print("\n### Building edgespace ... ");
     }
     
-    edgeSpace.build(ruleSet.getTagRules());    
+    edgeSpace.build(ruleSet.getOtherRules());    
   }
   
   public void buildGrammar(){
@@ -767,25 +768,25 @@ public abstract class EarleyParser implements Parser {
 
     
     /** Handle multi terminal rules **/
-    if(hasMultiTerminalRule){
-      for (int i = right-2; i >= 0; --i) {
-        // find all rules that rewrite into word_i ... word_(right-1)
-        Map<Integer, Double> valueMap = g.getRuleTrie().findAllMap(wordIndices.subList(i, right));
-        if(valueMap != null){
-          if (verbose>=3){
-            System.err.println("AG full: " + words.subList(i, right) + ": " + Util.sprint(valueMap, parserTagIndex));
-          }
-          for (int iT : valueMap.keySet()) {
-            // score
-            double score = valueMap.get(iT);
-            
-            // scanning
-            scanning(i, right, iT, score);                      
-          }
-          
-        }
-      }
-    }
+//    if(hasMultiTerminalRule){
+//      for (int i = right-2; i >= 0; --i) {
+//        // find all rules that rewrite into word_i ... word_(right-1)
+//        Map<Integer, Double> valueMap = g.getRuleTrie().findAllMap(wordIndices.subList(i, right));
+//        if(valueMap != null){
+//          if (verbose>=3){
+//            System.err.println("AG full: " + words.subList(i, right) + ": " + Util.sprint(valueMap, parserTagIndex));
+//          }
+//          for (int iT : valueMap.keySet()) {
+//            // score
+//            double score = valueMap.get(iT);
+//            
+//            // scanning
+//            scanning(i, right, iT, score);                      
+//          }
+//          
+//        }
+//      }
+//    }
     
     //2. completion
     if(verbose>=1){
@@ -1002,20 +1003,20 @@ public abstract class EarleyParser implements Parser {
     }
     
     /** Handle multi-terminal rules **/
-    if(hasMultiTerminalRule && !isForwardCellEmpty(left, middle)){
-      Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(
-          wordIndices.subList(middle, right));
-      
-      if(valueMap != null){
-        if(verbose >= 2){
-          System.err.println("# AG prefix " + "[" + middle + ", " + right + "]: " + 
-              Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
-              ": " + Util.sprint(valueMap, parserTagIndex));
-        }
-        
-        handleMultiTerminalRules(left, middle, right, valueMap);
-      }
-    }
+//    if(hasMultiTerminalRule && !isForwardCellEmpty(left, middle)){
+//      Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(
+//          wordIndices.subList(middle, right));
+//      
+//      if(valueMap != null){
+//        if(verbose >= 2){
+//          System.err.println("# AG prefix " + "[" + middle + ", " + right + "]: " + 
+//              Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
+//              ": " + Util.sprint(valueMap, parserTagIndex));
+//        }
+//        
+//        handleMultiTerminalRules(left, middle, right, valueMap);
+//      }
+//    }
     
     /** Handle fragment rules **/
     if(hasFragmentRule && middle==(right-1)){
@@ -1045,9 +1046,9 @@ public abstract class EarleyParser implements Parser {
       
       // could be made faster
       /** Handle multi-terminal rules **/
-      if(hasMultiTerminalRule){
-        handleMultiTerminalRules(middle, right);
-      }
+//      if(hasMultiTerminalRule){
+//        handleMultiTerminalRules(middle, right);
+//      }
     }
     
     storePrefixProb(right);
@@ -1132,33 +1133,33 @@ public abstract class EarleyParser implements Parser {
     } // end if completions.length
   }
   
-  protected void handleMultiTerminalRules(int middle, int right){
-    Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(
-        wordIndices.subList(middle, right));
-    
-    if(valueMap != null){
-      if(verbose >= 1){
-        System.err.println("# AG prefix " + "[" + middle + ", " + right + "]: " + 
-            Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
-            ": " + Util.sprint(valueMap, parserTagIndex));
-      }
-      for(int left=middle; left>=0; left--){
-        if(isForwardCellEmpty(left, middle)){
-          continue;
-        }
-        handleMultiTerminalRules(left, middle, right, valueMap);
-      }
-    }
-  }
+//  protected void handleMultiTerminalRules(int middle, int right){
+//    Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(
+//        wordIndices.subList(middle, right));
+//    
+//    if(valueMap != null){
+//      if(verbose >= 1){
+//        System.err.println("# AG prefix " + "[" + middle + ", " + right + "]: " + 
+//            Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
+//            ": " + Util.sprint(valueMap, parserTagIndex));
+//      }
+//      for(int left=middle; left>=0; left--){
+//        if(isForwardCellEmpty(left, middle)){
+//          continue;
+//        }
+//        handleMultiTerminalRules(left, middle, right, valueMap);
+//      }
+//    }
+//  }
   
-  protected void handleMultiTerminalRules(int left, int middle, int right, Map<Integer, Double> valueMap){
-    for(Entry<Integer, Double> entry : valueMap.entrySet()){
-      int tag = entry.getKey();
-      int edge = edgeSpace.indexOfTag(tag);
-      double score = entry.getValue();
-      addPrefixProbExtendedRule(left, middle, right, edge, score);
-    }
-  }
+//  protected void handleMultiTerminalRules(int left, int middle, int right, Map<Integer, Double> valueMap){
+//    for(Entry<Integer, Double> entry : valueMap.entrySet()){
+//      int tag = entry.getKey();
+//      int edge = edgeSpace.indexOfTag(tag);
+//      double score = entry.getValue();
+//      addPrefixProbExtendedRule(left, middle, right, edge, score);
+//    }
+//  }
   
   protected void fragmentComplete(int left, int right){
     String word = words.get(right-1).word();

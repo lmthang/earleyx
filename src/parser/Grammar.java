@@ -2,21 +2,13 @@ package parser;
 
 import base.ClosureMatrix;
 import base.RelationMatrix;
-import base.ProbRule;
 import base.RuleSet;
 import cern.colt.matrix.DoubleMatrix2D;
 import edu.stanford.nlp.util.Index;
-import edu.stanford.nlp.util.Pair;
-import edu.stanford.nlp.util.Timing;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
-
-import util.LogProbOperator;
 import util.Operator;
-import util.TrieSurprisal;
 import util.Util;
 
 /**
@@ -34,7 +26,8 @@ public class Grammar {
 
   // keep track of rules of type X -> a b c, where "a b c" is a key, sequence of string,
   // while a pair of X, state id, and rule score is a value associated to the key
-  private TrieSurprisal ruleTrie;  
+//  private TrieSurprisal ruleTrie;
+  
   //private Completion[][] completionsArray; // completions[i] is the set of Completion instances for the state i
   private Map<Integer, Completion[]> tag2completionsMap;
   private Prediction[][] predictionsArray; // predictions[i] is the set of Prediction instances for the state i
@@ -52,11 +45,12 @@ public class Grammar {
     this.nonterminalMap = nonterminals;
     this.operator = operator;
     
-    if(operator instanceof LogProbOperator){
-      ruleTrie = new TrieSurprisal(true); // log prob
-    } else {
-      ruleTrie = new TrieSurprisal(false);
-    }
+    System.err.println("Grammar nonterminals: " + Util.sprint(nonterminalMap.keySet(), tagIndex));
+//    if(operator instanceof LogProbOperator){
+//      ruleTrie = new TrieSurprisal(true); // log prob
+//    } else {
+//      ruleTrie = new TrieSurprisal(false);
+//    }
       
   }
     
@@ -68,21 +62,21 @@ public class Grammar {
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     
     /* do left-corner closures matrix */
-    DoubleMatrix2D pl = relationMatrix.getPL(ruleSet.getTagRules(), nonterminalMap);
+    DoubleMatrix2D pl = relationMatrix.getPL(ruleSet.getOtherRules(), nonterminalMap);
     leftCornerClosures = new ClosureMatrix(pl, operator);
     leftCornerClosures.changeIndices(nonterminalMap);
     
     /* do unary closure matrix */
-    DoubleMatrix2D pu = relationMatrix.getPU(ruleSet.getTagRules()); //, nontermPretermIndexer);
+    DoubleMatrix2D pu = relationMatrix.getPU(ruleSet.getOtherRules()); //, nontermPretermIndexer);
     unaryClosures = new ClosureMatrix(pu, operator);
     
     /*** Extended rules ***/
     /* !!! Important: this needs to be added after closure matrix construction
      *  and before predictions and combinations */
-    processMultiTerminalRules(ruleSet.getMultiTerminalRules(), edgeSpace);
+//    processMultiTerminalRules(ruleSet.getMultiTerminalRules(), edgeSpace);
     
     /*** construct predictions ***/
-    predictionsArray = Prediction.constructPredictions(ruleSet.getTagRules(), leftCornerClosures, 
+    predictionsArray = Prediction.constructPredictions(ruleSet.getOtherRules(), leftCornerClosures, 
         edgeSpace, tagIndex, wordIndex, 
         Util.getNonterminals(nonterminalMap), operator); 
     assert Prediction.checkPredictions(predictionsArray, edgeSpace);
@@ -95,42 +89,42 @@ public class Grammar {
         tagIndex, wordIndex, operator);
   }
 
-  private void processMultiTerminalRules(Collection<ProbRule> extendedRules, EdgeSpace edgeSpace){
-    if (verbose >= 1) {
-      System.err.println("\n# Processing extended rules ...");
-      Timing.startTime();
-    }
-    
-    int numExtendedRules = 0;
-    for (ProbRule extendedRule : extendedRules) {
-      List<Integer> children = Util.toList(extendedRule.getChildren());
-      ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), 
-          operator.getScore(extendedRule.getProb()))); 
-      
-      if (verbose >= 4) {
-        System.err.println("Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
-      }
-      if (verbose >= 1) {
-        if(++numExtendedRules % 10000 == 0){
-          System.err.print(" (" + numExtendedRules + ") ");
-        }
-      }
-    }
-    
-    if (verbose >= 4) {
-      System.err.println(Util.sprint(extendedRules, tagIndex, wordIndex));
-      System.err.println(ruleTrie.toString(wordIndex, tagIndex));
-    }
-    if (verbose >= 1) {
-      Timing.endTime("Done! Num extended rules=" + numExtendedRules);
-    }
-  }
+//  private void processMultiTerminalRules(Collection<ProbRule> extendedRules, EdgeSpace edgeSpace){
+//    if (verbose >= 1) {
+//      System.err.println("\n# Processing extended rules ...");
+//      Timing.startTime();
+//    }
+//    
+//    int numExtendedRules = 0;
+//    for (ProbRule extendedRule : extendedRules) {
+//      List<Integer> children = Util.toList(extendedRule.getChildren());
+//      ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), 
+//          operator.getScore(extendedRule.getProb()))); 
+//      
+//      if (verbose >= 4) {
+//        System.err.println("Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
+//      }
+//      if (verbose >= 1) {
+//        if(++numExtendedRules % 10000 == 0){
+//          System.err.print(" (" + numExtendedRules + ") ");
+//        }
+//      }
+//    }
+//    
+//    if (verbose >= 4) {
+//      System.err.println(Util.sprint(extendedRules, tagIndex, wordIndex));
+//      System.err.println(ruleTrie.toString(wordIndex, tagIndex));
+//    }
+//    if (verbose >= 1) {
+//      Timing.endTime("Done! Num extended rules=" + numExtendedRules);
+//    }
+//  }
   
 
   /** Getters **/  
-  public TrieSurprisal getRuleTrie() {
-    return ruleTrie;
-  }
+//  public TrieSurprisal getRuleTrie() {
+//    return ruleTrie;
+//  }
 
   public Completion[] getCompletions(int tag) {
     if(tag2completionsMap.containsKey(tag)){

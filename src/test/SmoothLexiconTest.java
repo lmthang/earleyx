@@ -52,10 +52,8 @@ public class SmoothLexiconTest extends TestCase{
     assertEquals(tagIndex.toString(), "[0=TagA,1=TagB,2=TagC,3=TagF,4=TagD]"); //,5=TagE]");
     
     assertEquals(Util.sprint(sl.tagsForWord("c"), wordIndex, tagIndex), "[c/TagC, c/TagF]");
-    //assertEquals(sl.tagsForWord("c").toString(), "[2/2, 2/3]");
     
-    assertEquals(Util.sprint(sl.tagsForWord("ccc"), wordIndex, tagIndex), "[ccc/TagD, ccc/TagA, ccc/TagB, ccc/TagC, ccc/TagF]");    
-    //assertEquals(sl.tagsForWord("ccc").toString(), "[5/4, 5/1, 5/0, 5/3, 5/2]");
+    assertEquals(Util.sprint(sl.tagsForWord("ccc"), wordIndex, tagIndex), "[]"); //ccc/TagD, ccc/TagA, ccc/TagB, ccc/TagC, ccc/TagF]");    
     
 
     assertEquals(wordIndex.toString(), "[0=a,1=cbb,2=c,3=D,4=c12,5=UNK,6=UNK-LC,7=UNK-LC-DIG,8=UNK-ALLC,9=dd,10=dbb,11=c123,12=ccc]"); //13=e,14=ccc]");

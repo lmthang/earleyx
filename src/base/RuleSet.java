@@ -27,9 +27,10 @@ public class RuleSet {
   private List<ProbRule> allRules;
   
   // sublists of all rules
-  protected List<ProbRule> tagRules; // X -> Y Z, contains unary rules
   protected Collection<ProbRule> terminalRules; // X -> _a
-  protected Collection<ProbRule> multiTerminalRules; // X -> _a _b _c
+  protected List<ProbRule> tagRules; // allRules - terminalRules
+  
+//  protected Collection<ProbRule> multiTerminalRules; // X -> _a _b _c
 //  protected Collection<ProbRule> fragmentRules; // X -> _a B _c
   protected int numFragmentRules;
   
@@ -60,7 +61,7 @@ public class RuleSet {
     // sublists of all rules
     tagRules = new ArrayList<ProbRule>();
     terminalRules = new ArrayList<ProbRule>();
-    multiTerminalRules = new ArrayList<ProbRule>();
+//    multiTerminalRules = new ArrayList<ProbRule>();
 //    fragmentRules = new ArrayList<ProbRule>();
     numFragmentRules = 0;
     
@@ -106,18 +107,18 @@ public class RuleSet {
     tag2ruleIndices.get(tag).add(ruleId);
     
     // sublist of all rules
-    if(rule.isTerminalRule()){
-      if (rule.numChildren()==1){ // terminal
-        terminalRules.add(probRule);
-        
-        if(rule.getChildStr(tagIndex, wordIndex, 0).startsWith("_UNK")){
-          hasSmoothRules = true;
-//          System.err.println("Has a smooth rule: " + rule.toString(tagIndex, wordIndex));
-        }
-      } else { // multiple terminals
-        multiTerminalRules.add(probRule);
+    if(rule.numChildren()==1 && rule.numTags() == 0){ // X -> _a
+      terminalRules.add(probRule);
+      
+      if(rule.getChildStr(tagIndex, wordIndex, 0).startsWith("_UNK")){
+        hasSmoothRules = true;
       }
-    } else { // tag
+      
+//      if (rule.numChildren()==1){ // terminal
+//      } else { // multiple terminals
+//        multiTerminalRules.add(probRule);
+//      }
+    } else { // other rules
       tagRules.add(probRule);
       
       if(rule.numChildren()==1){ // unary
@@ -293,17 +294,21 @@ public class RuleSet {
     return allRules.get(ruleId).getBias();
   }
   
-  public List<ProbRule> getTagRules() {
+  public List<ProbRule> getOtherRules() {
     return tagRules;
   }
+  
+//  public List<ProbRule> getTagRules() {
+//    return tagRules;
+//  }
 
   public Collection<ProbRule> getTerminalRules() {
     return terminalRules;
   }
 
-  public Collection<ProbRule> getMultiTerminalRules() {
-    return multiTerminalRules;
-  }
+//  public Collection<ProbRule> getMultiTerminalRules() {
+//    return multiTerminalRules;
+//  }
 
   public int numFragmentRules(){
     return numFragmentRules;
