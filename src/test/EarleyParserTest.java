@@ -327,6 +327,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testExtendedGrammarIO(){
     initParserFromString(extendedGrammarString);
     
@@ -363,6 +364,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
 
+  @Test
   public void testMarkGrammar(){
     rootSymbol = "S";
     initParserFromFile(markGrammarFile);
@@ -420,6 +422,7 @@ public class EarleyParserTest { // extends TestCase {
     }    
   }
   
+  @Test
   public void testMarkGrammarIO(){
     rootSymbol = "S";
     if(insideOutsideOpt==2){ // VB
@@ -460,6 +463,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
 
+  @Test
   public void testSocialUnigramIO(){
     rootSymbol = "Sentence";
     initParserFromFile(socialUnigram);
@@ -497,6 +501,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testSocialUnigramPseudoIO(){
     rootSymbol = "Sentence";
     initParserFromFile(socialUnigramPseudo);
@@ -528,6 +533,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testSocialUnigramNonPseudoIO(){
     rootSymbol = "Sentence";
     initParserFromFile(socialUnigramNonPseudo);
@@ -559,6 +565,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testSocialUnigramNonPseudo(){
     rootSymbol = "Sentence";
     initParserFromFile(socialUnigramNonPseudo);
@@ -577,6 +584,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testSocialUnigramPseudo(){
     rootSymbol = "Sentence";
     initParserFromFile(socialUnigramPseudo);
@@ -612,6 +620,7 @@ public class EarleyParserTest { // extends TestCase {
 //    }
 //  }
   
+  @Test
   public void testBasicUnary(){
     initParserFromString(basicUnaryGrammarString);
     
@@ -650,6 +659,7 @@ public class EarleyParserTest { // extends TestCase {
     "X->[_x] : 1.0\n";
   }
   
+  @Test
   public void testLeftInfiniteGrammar(){
     double p = 0.1;
     double q = 1-p;
@@ -686,6 +696,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testLeftInfiniteIO(){
     double p=0.1;
     initParserFromString(getLeftInfiniteGrammar(p));
@@ -725,6 +736,7 @@ public class EarleyParserTest { // extends TestCase {
       "X->[_x] : 1.0\n";
   }
   
+  @Test
   public void testCatalanGrammar(){
     double p=0.1;
     double q = 1-p;
@@ -777,6 +789,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testCatalanIO(){
     double p=0.1;
     initParserFromString(getCatalanGrammar(p));
@@ -806,6 +819,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testParsing1(){
     initParserFromString(grammarString);
     
@@ -842,6 +856,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testParsing2(){
     initParserFromString(grammarString);
     
@@ -867,6 +882,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(stringProbList.toString(), "[0.0]");
   }
   
+  @Test
   public void testParsing3(){
     initParserFromString(grammarString);
     
@@ -906,6 +922,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testRecursiveGrammarIO(){
     initParserFromString(recursiveGrammarString);
     
@@ -964,6 +981,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testWSJ500AG(){
     initParserFromFile(wsj500AG);
     
@@ -1014,6 +1032,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testWSJ500AG1(){
     initParserFromFile(wsj500AG);
     
@@ -1033,6 +1052,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testWSJ500IO(){
     initParserFromFile(wsj500);
     
@@ -1086,6 +1106,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testWSJ5IO(){
     initParserFromFile(wsj5);
     
@@ -1282,6 +1303,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
 
+  @Test
   public void testSimpleExtendedRule(){
     double x = 0.7;
     
@@ -1312,6 +1334,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testSimpleExtendedRule1(){
     double x = 0.7;
     double y = 0.6;
@@ -1350,6 +1373,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testComplexAG(){
     double x1 = 0.1;
     double x2 = 0.2;
@@ -1405,6 +1429,7 @@ public class EarleyParserTest { // extends TestCase {
     }
   }
   
+  @Test
   public void testComplexAG1(){
     double x1 = 0.1;
     double x2 = 1-x1;
@@ -1455,6 +1480,7 @@ public class EarleyParserTest { // extends TestCase {
   }
   
   // @TODO: TRY THIS TEST!!!
+  @Test
   public void testComplexAGClosure(){
     double x1 = 0.01;
     double x2 = 1-x1;
