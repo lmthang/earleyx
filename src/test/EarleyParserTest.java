@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+//import junit.framework.TestCase;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ import parser.Prediction;
 import util.RuleFile;
 import util.Util;
 
-public class EarleyParserTest extends TestCase {
+public class EarleyParserTest { // extends TestCase {
   private EarleyParser parser;
   private String rootSymbol = "ROOT";
   private int parserOpt = 0; //1; // 0: dense, 1: sparse, 2: sparse IO
