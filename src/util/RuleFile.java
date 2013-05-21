@@ -16,9 +16,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import base.BiasProbRule;
-import base.Rule;
+import base.FragmentRule;
 import base.ProbRule;
+import base.Rule;
 import base.RuleSet;
+import base.TagRule;
+import base.TerminalRule;
 
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.ClassicCounter;
@@ -126,18 +129,18 @@ public class RuleFile {
       }
       
       String[] children = rhs.split(" ");
-      int numChilds = children.length;
+      int numChildren = children.length;
       
       // create a rule node or a tagged word
-      ProbRule rule = null;
-      if (numChilds == 1 && children[0].startsWith("_")){ // X -> _y, terminal symbol, update distribution
+      ProbRule probRule = null;
+      if (numChildren == 1 && children[0].startsWith("_")){ // X -> _y, terminal symbol, update distribution
         int iW = wordIndex.indexOf(children[0].substring(1), true);
         addWord(iW, iT, prob, tag2wordsMap, word2tagsMap);
         
         if(bias == 0.0){
-          rule = new ProbRule(new Rule(iT, iW, false), prob);
+          probRule = new ProbRule(new TerminalRule(iT, iW), prob);
         } else {
-          rule = new BiasProbRule(new Rule(iT, iW, false), prob, bias);
+          probRule = new BiasProbRule(new TerminalRule(iT, iW), prob, bias);
         }
       } else { // rule
         if(!nonterminalMap.containsKey(iT)){
@@ -145,10 +148,10 @@ public class RuleFile {
         }
         
         // child indices
-        int[] childIndices = new int[numChilds];
-        boolean[] tagFlags = new boolean[numChilds];
+        int[] childIndices = new int[numChildren];
+        boolean[] tagFlags = new boolean[numChildren];
         int numTags = 0;
-        for (int i=0; i<numChilds; ++i){
+        for (int i=0; i<numChildren; ++i){
           String child = children[i];
           if(!child.startsWith("_")){ // tag 
             childIndices[i] = tagIndex.indexOf(child, true); // tag index
@@ -160,14 +163,23 @@ public class RuleFile {
           }
         }
         
+        Rule rule = null;
+        if (numTags>0){
+          rule = new FragmentRule(iT, childIndices, tagFlags, numTags);
+        } else if (numTags == numChildren){
+          rule = new TagRule(iT, childIndices);
+        } else {
+          rule = new TerminalRule(iT, childIndices);
+        }
+        
         if(bias == 0.0){
-          rule = new ProbRule(new Rule(iT, childIndices, tagFlags, numTags), prob);
+          probRule = new ProbRule(rule, prob);
         } else { // bias rule
-          rule = new BiasProbRule(new Rule(iT, childIndices, tagFlags, numTags), prob, bias);
+          probRule = new BiasProbRule(rule, prob, bias);
         }
       }
       
-      ruleSet.add(rule);
+      ruleSet.add(probRule);
       
       if (verbose>=1){
         if(count % 10000 == 0){

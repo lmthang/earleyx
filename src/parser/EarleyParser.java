@@ -34,9 +34,11 @@ import base.BackTrack;
 import base.BaseLexicon;
 import base.BiasProbRule;
 import base.Edge;
+import base.FragmentRule;
 import base.Rule;
 import base.ProbRule;
 import base.RuleSet;
+import base.TerminalRule;
 
 import util.LogProbOperator;
 import util.Operator;
@@ -212,7 +214,7 @@ public abstract class EarleyParser implements Parser {
       for(int iT : tag2wordsMap.keySet()){
         Counter<Integer> counter = tag2wordsMap.get(iT);
         for(int iW : counter.keySet()){
-          ruleSet.add(new ProbRule(new Rule(iT, iW, false), 
+          ruleSet.add(new ProbRule(new TerminalRule(iT, iW), 
               Math.exp(counter.getCount(iW))));
         }
       }
@@ -260,9 +262,9 @@ public abstract class EarleyParser implements Parser {
     assert(parserNonterminalMap.get(origSymbolIndex) == 0);
     
     if(insideOutsideOpt==2){
-      rootRule = new BiasProbRule(new Rule(origSymbolIndex, rootSymbolIndex, true), 1.0, 1.0);
+      rootRule = new BiasProbRule(new FragmentRule(origSymbolIndex, rootSymbolIndex, true), 1.0, 1.0);
     } else {
-      rootRule = new ProbRule(new Rule(origSymbolIndex, rootSymbolIndex, true), 1.0);
+      rootRule = new ProbRule(new FragmentRule(origSymbolIndex, rootSymbolIndex, true), 1.0);
     }
     
     
@@ -844,7 +846,7 @@ public abstract class EarleyParser implements Parser {
     
     // add terminal rule
     if(insideOutsideOpt>0){   
-      Edge terminalEdge = new Edge(new Rule(tag, wordIndices.subList(left, right), false), right-left);
+      Edge terminalEdge = new Edge(new TerminalRule(tag, wordIndices.subList(left, right)), right-left);
       Rule rule = terminalEdge.getRule();
       if(!ruleSet.contains(rule)){
         ProbRule probRule = new ProbRule(rule, operator.getProb(score));
@@ -1622,7 +1624,7 @@ public abstract class EarleyParser implements Parser {
         assert(expectedCount>operator.zero());
         
         if(edgeObj.numChildren()==0){ // tag -> []
-          edgeObj = new Edge(new Rule(edgeObj.getMother(), wordIndices.subList(left, right), false), right-left);
+          edgeObj = new Edge(new TerminalRule(edgeObj.getMother(), wordIndices.subList(left, right)), right-left);
         }
         addScore(expectedCounts, ruleSet.indexOf(edgeObj.getRule()), expectedCount);
 

@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import base.Edge;
-import base.Rule;
+import base.FragmentRule;
 import base.ProbRule;
 
 import cern.colt.matrix.DoubleMatrix2D;
@@ -187,7 +187,7 @@ public class Util {
       Distribution<List<Integer>> normalizedChildren = 
         Distribution.getDistribution(ruleCounts.getCounter(mother));
       for(List<Integer> childList : normalizedChildren.keySet()){
-        rules.add(new ProbRule(new Rule(mother, childList, true), normalizedChildren.getCount(childList)));
+        rules.add(new ProbRule(new FragmentRule(mother, childList, true), normalizedChildren.getCount(childList)));
       }
     }
 

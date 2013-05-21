@@ -2,6 +2,7 @@ package test;
 
 import java.util.Arrays;
 
+import base.FragmentRule;
 import base.Rule;
 import base.Edge;
 
@@ -18,9 +19,9 @@ public class StateSpaceTest extends TestCase{
   public void testBasic(){
     Index<String> tagIndex = new HashIndex<String>();
     Index<String> wordIndex = new HashIndex<String>();
-    Rule r1 = new Rule("X", Arrays.asList("a", "b", "c"), tagIndex, wordIndex, true);
-    Rule r2 = new Rule("X", Arrays.asList("a", "b", "d"), tagIndex, wordIndex, true);
-    Rule r3 = new Rule("Y", Arrays.asList("a", "b", "c"), tagIndex, wordIndex, true);
+    Rule r1 = new FragmentRule("X", Arrays.asList("a", "b", "c"), tagIndex, wordIndex, true);
+    Rule r2 = new FragmentRule("X", Arrays.asList("a", "b", "d"), tagIndex, wordIndex, true);
+    Rule r3 = new FragmentRule("Y", Arrays.asList("a", "b", "c"), tagIndex, wordIndex, true);
     assertEquals(r1.equals(r3), false);
     EdgeSpace ss = new LeftWildcardEdgeSpace(tagIndex, wordIndex);
     assertEquals(ss.toString(), "");

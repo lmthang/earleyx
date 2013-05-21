@@ -3,195 +3,56 @@
  */
 package base;
 
-import java.util.List;
-
 import edu.stanford.nlp.util.Index;
 
 /**
  * Represents fragment rule such as ADJP -> RBR _competitive
- * @author Minh-Thang Luong, 2012
+ * @author Minh-Thang Luong, 2013
  *
  */
-public class Rule {
+public abstract class Rule {
   protected int mother;
   protected int[] children;
-  private boolean[] tagFlags; // mark if a rhs token is a tag or not. For a rule ADJP -> RBR _competitive, the bit set value is 1 0
-  public boolean[] getTagFlags() {
-    return tagFlags;
-  }
-
-  private int numTags;
   
-  /**
-   * @param motherStr
-   * @param childStrs
-   * @param tagIndex
-   * @param wordIndex
-   */
-  public Rule(String motherStr, List<String> childStrs,
-      Index<String> tagIndex, Index<String> wordIndex, boolean[] tagFlags) {
-    mother = tagIndex.indexOf(motherStr, true);
-    children = new int[childStrs.size()];
-    this.tagFlags = tagFlags;
-    
-    numTags = 0;
-    for (int i = 0; i < childStrs.size(); i++) {
-      if(tagFlags[i]){ // tag
-        children[i] = tagIndex.indexOf(childStrs.get(i), true);
-        numTags++;
-      } else { // terminal
-        children[i] = wordIndex.indexOf(childStrs.get(i), true);
-      }
-    }
-  }
-
-  /**
-   * @param motherStr
-   * @param childStrs
-   * @param tagIndex
-   * @param wordIndex
-   */
-  public Rule(String motherStr, List<String> childStrs,
-      Index<String> tagIndex, Index<String> wordIndex, boolean isAllTag) {
-    mother = tagIndex.indexOf(motherStr, true);
-    children = new int[childStrs.size()];
-    tagFlags = new boolean[childStrs.size()]; //BitSet(childStrs.size());
-    
-    for (int i = 0; i < childStrs.size(); i++) {
-      tagFlags[i] = isAllTag;
-      
-      if (isAllTag){ // all tags
-        children[i] = tagIndex.indexOf(childStrs.get(i), true);
-      } else {
-        children[i] = wordIndex.indexOf(childStrs.get(i), true);
-      }
-    }
-    if (isAllTag){ // all tags
-      numTags = childStrs.size();
-    } else { // all terminals
-      numTags = 0;
-    }
+  public Rule(){
+    super();
   }
   
-  /**
-   * 
-   * @param mother
-   * @param children
-   * @param tagFlags
-   */
-  public Rule(int mother, int[] children, boolean[] tagFlags) {
-    this.mother = mother;
-    this.children = children; //new int[children.length];
-    this.tagFlags = tagFlags;
-    
-    numTags = 0;
-    for (int i = 0; i < children.length; i++) {
-      if(tagFlags[i]){
-        numTags++;
-      }
-    }
-  }
-  
-  /**
-   * 
-   * @param mother
-   * @param children
-   * @param tagFlags
-   * @param numTags
-   */
-  public Rule(int mother, int[] children, boolean[] tagFlags, int numTags) {
+  public Rule(int mother, int[] children) {
     this.mother = mother;
     this.children = children;
-    this.tagFlags = tagFlags;
-    this.numTags = numTags;
   }
   
-  /**
-   * For normal rules (either X -> Y Z T or X -> _y _z _t)
-   * 
-   * @param mother
-   * @param children
-   */
-  public Rule(int mother, int[] children, boolean isAllTag) {
-    this.mother = mother;
-    this.children = children;
-    tagFlags = new boolean[children.length];
-    for (int i = 0; i < children.length; i++) {
-      tagFlags[i] = isAllTag;
-    }
-    
-    if(isAllTag){
-      numTags = children.length;
-    } else {
-      numTags = 0;
-    }
+  public boolean isUnary() {
+    return children.length == 1 && isTag(0);
   }
-  
-  public Rule(int mother, List<Integer> children, boolean isAllTag) {
-    this.mother = mother;
-    this.children = new int[children.size()];
-    tagFlags = new boolean[children.size()]; //BitSet(childStrs.size());
-    for (int i = 0; i < children.size(); i++) {
-      this.children[i] = children.get(i);
-      tagFlags[i] = isAllTag;
-    }
-    
-    if(isAllTag){
-      numTags = children.size();
-    } else {
-      numTags = 0;
-    }
+
+  public int numChildren(){
+    return children.length;
   }
-  
-  
-  /**
-   * For unary rules X - Y or X -> _y
-   * 
-   * @param mother
-   * @param children
-   */
-  public Rule(int mother, int child, boolean isTag) {
-    this.mother = mother;
-    children = new int[]{child}; 
-    tagFlags = new boolean[]{isTag}; //BitSet(1);
-    if(isTag){
-      numTags = 1;
-    }
-  }
-  
-  public static Rule buildLhsOnlyRule(int motherId){
-    return new Rule(motherId, new int[0], new boolean[0]);
-  }
-  
-  public static Rule buildToRule(Rule rule, int dot){
-    return new Rule(rule.getMother(), rule.getChildren(dot+1), rule.getTagFlagsAfterDot(dot+1));
-  }
-  
-  /**
-   * @return true if X -> Y Z T
-   */
-//  public boolean isTagRule(){
-//    return numTags == children.length;
-//  }
-  
+
   /**
    * @return true if X -> _y _z _t
    */
   public boolean isTerminalRule(){
-    return numTags == 0;
+    return numTags() == 0;
+  }
+  
+  public Rule buildMotherRule(){
+    return new MotherRule(mother);
+  }
+  
+  public Rule buildViaRule(int dot){
+    return new MotherRule(children[dot]);
   }
   
   
-  public boolean isTag(int childIndex){
-    return tagFlags[childIndex];
-  }
-  
-  public boolean isUnary() {
-    return children.length == 1 && tagFlags[0];
-  }
-  
-  public int numTags(){
-    return numTags;
+  public boolean[] getTagFlagsAfterDot(int dot) {
+    boolean[] newFlags = new boolean[children.length-dot];
+    for (int i = 0; i < newFlags.length; i++) {
+      newFlags[i] = isTag(i+dot);
+    }
+    return newFlags;
   }
   
   /** Setters and getters **/
@@ -210,6 +71,7 @@ public class Rule {
   public int getChild(int pos){
     return children[pos];
   }
+  
   // get children after the dot position
   public int[] getChildren(int dot){
     int[] newChildren = new int[children.length-dot];
@@ -218,19 +80,7 @@ public class Rule {
     }
     return newChildren;
   }
-  
-  public int numChildren(){
-    return children.length;
-  }
 
-  
-  public boolean[] getTagFlagsAfterDot(int dot) {
-    boolean[] newFlags = new boolean[children.length-dot];
-    for (int i = 0; i < newFlags.length; i++) {
-      newFlags[i] = tagFlags[i+dot];
-    }
-    return newFlags;
-  }
   
   /************ Equal & Hashcode **************/
   public boolean equals(Object o) {
@@ -257,12 +107,11 @@ public class Rule {
       return false;
     } 
     
-    boolean[] otherFlags = otherRule.getTagFlags();
     for (int i = 0; i < thisChildren.length; i++) { // compare individual child
       if (thisChildren[i] != otherChildren[i]){
         return false;
       }
-      if(otherFlags[i] != tagFlags[i]){ // compare tag flags
+      if(otherRule.isTag(i) != isTag(i)){ // compare tag flags
         return false;
       }
     } 
@@ -275,9 +124,14 @@ public class Rule {
     for(int child : children){
       result = result<<4 + child;
     }
-    return result<<4 + numTags;
+    return result<<4 + numTags();
   }
 
+  
+  /***************** Abstract methods *********************/
+  public abstract boolean isTag(int i);
+  public abstract int numTags();
+  public abstract Rule buildToRule(int dot);
   
   /***************** IO *********************/
   // (X (_ Y) (_ Z)) for TagRule or (X (_ _a) (_ _b) (_ _c)) for TerminalRule 
@@ -317,7 +171,7 @@ public class Rule {
     sb.append(mother + "->[");
     
     for (int i = 0; i < children.length; i++) {
-      if(tagFlags[i]){
+      if(isTag(i)){
         sb.append(children[i] + " ");
       } else {
         sb.append("_" + children[i] + " ");
@@ -351,7 +205,7 @@ public class Rule {
   }
   
   public String getChildStr(Index<String> tagIndex, Index<String> wordIndex, int pos){
-    if(tagFlags[pos]){ // tag
+    if(isTag(pos)){ // tag
       return tagIndex.get(children[pos]);
     } else { // terminal
       return "_" + wordIndex.get(children[pos]);

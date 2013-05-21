@@ -72,7 +72,7 @@ public class Edge {
   * @return
   */
   public Edge getMotherEdge(){
-    return new Edge(Rule.buildLhsOnlyRule(rule.getMother()), 0);
+    return new Edge(rule.buildMotherRule(), 0);
   }
 
   /** 
@@ -81,7 +81,7 @@ public class Edge {
   */
   public Edge getViaEdge(){ // first child after the dot
     if(rule.isTag(dot)){  // next child is a tag
-      return new Edge(Rule.buildLhsOnlyRule(rule.getChild(dot)), 0);
+      return new Edge(rule.buildViaRule(dot), 0);
     } else {
       return null;
     }
@@ -92,7 +92,7 @@ public class Edge {
    * @return
    */
    public Edge getToEdge(){
-     return new Edge(Rule.buildToRule(rule, dot), 0);
+     return new Edge(rule.buildToRule(dot), 0);
    }
    
   public boolean equals(Object o) {

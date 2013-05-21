@@ -3,6 +3,7 @@ package test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import base.FragmentRule;
 import base.Rule;
 import base.Edge;
 
@@ -17,12 +18,12 @@ public class EdgeTest extends TestCase{
   public void testBasic(){
     Index<String> tagIndex = new HashIndex<String>();
     Index<String> wordIndex = new HashIndex<String>();
-    Rule r1 = new Rule("X", Arrays.asList("A", "B", "C"), tagIndex, wordIndex, true);
-    Rule r2 = new Rule("X", Arrays.asList("A", "B", "C"), tagIndex, wordIndex, true);
-    Rule r3 = new Rule("X", Arrays.asList("A", "B", "D"), tagIndex, wordIndex, true);
-    Rule r4 = new Rule("X", Arrays.asList("A", "D", "C"), tagIndex, wordIndex, true);
-    Rule r5 = new Rule("Y", Arrays.asList("A", "B", "C"), tagIndex, wordIndex, true);
-    Rule r6 = new Rule("X", new ArrayList<String>(), tagIndex, wordIndex, true);
+    Rule r1 = new FragmentRule("X", Arrays.asList("A", "B", "C"), tagIndex, wordIndex, true);
+    Rule r2 = new FragmentRule("X", Arrays.asList("A", "B", "C"), tagIndex, wordIndex, true);
+    Rule r3 = new FragmentRule("X", Arrays.asList("A", "B", "D"), tagIndex, wordIndex, true);
+    Rule r4 = new FragmentRule("X", Arrays.asList("A", "D", "C"), tagIndex, wordIndex, true);
+    Rule r5 = new FragmentRule("Y", Arrays.asList("A", "B", "C"), tagIndex, wordIndex, true);
+    Rule r6 = new FragmentRule("X", new ArrayList<String>(), tagIndex, wordIndex, true);
     
     Edge e1 = new Edge(r1, 0); // X -> . A B C
     Edge e2 = new Edge(r2, 0); // X -> . A B C

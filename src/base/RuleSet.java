@@ -25,6 +25,7 @@ public class RuleSet {
   boolean hasSmoothRules; // if it has a rule X->[_UNK...]
   private int numRules = 0;
   private List<ProbRule> allRules;
+  private Map<Rule, Integer> ruleMap; // map Rule to indices in allRules
   
   // sublists of all rules
   protected Collection<ProbRule> terminalRules; // X -> _a
@@ -48,7 +49,6 @@ public class RuleSet {
   // unaryChainEndMap.get(Y).get(Z): returns the index in unaryChains of the chain Z->Y
   protected Map<Integer, Map<Integer, Integer>> unaryChainEndMap;
   
-  private Map<Rule, Integer> ruleMap; // map FragmentRule to indices in allRules
 //  private Map<Integer, List<Integer>> tag2ruleIndices; // map tag to a set of rule indices
   
   public RuleSet(Index<String> tagIndex, Index<String> wordIndex){

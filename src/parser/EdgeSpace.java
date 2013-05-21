@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import base.Edge;
-import base.Rule;
+import base.MotherRule;
 import base.ProbRule;
 
 import util.Util;
@@ -72,7 +72,7 @@ public abstract class EdgeSpace {
         if(verbose>=3){
           System.err.println("Add preterminal " + tagIndex.get(tag) + " to edge space");
         }
-        addEdge(new Edge(Rule.buildLhsOnlyRule(tag), 0));
+        addEdge(new Edge(new MotherRule(tag), 0));
       }
     }
     if (verbose >= 1) {
@@ -144,7 +144,7 @@ public abstract class EdgeSpace {
   * @param tag
   * @return
   */
-  private Edge dummyEdge = new Edge(Rule.buildLhsOnlyRule(0), 0);
+  private Edge dummyEdge = new Edge(new MotherRule(0), 0);
   public int indexOfTag(int tag) {
     dummyEdge.setMother(tag);
     return edgeIndex.indexOf(dummyEdge);
