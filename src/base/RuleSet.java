@@ -32,7 +32,8 @@ public class RuleSet {
   
 //  protected Collection<ProbRule> multiTerminalRules; // X -> _a _b _c
 //  protected Collection<ProbRule> fragmentRules; // X -> _a B _c
-  protected int numFragmentRules;
+  protected int numMultipleTerminalRules;
+  protected int numFragmentRules; // includes numMultipleTerminalRules
   
   // unary rules
   protected List<ProbRule> unaryRules;
@@ -48,7 +49,7 @@ public class RuleSet {
   protected Map<Integer, Map<Integer, Integer>> unaryChainEndMap;
   
   private Map<Rule, Integer> ruleMap; // map FragmentRule to indices in allRules
-  private Map<Integer, List<Integer>> tag2ruleIndices; // map tag to a set of rule indices
+//  private Map<Integer, List<Integer>> tag2ruleIndices; // map tag to a set of rule indices
   
   public RuleSet(Index<String> tagIndex, Index<String> wordIndex){
     this.tagIndex = tagIndex;
@@ -56,7 +57,7 @@ public class RuleSet {
     
     allRules = new ArrayList<ProbRule>();
     ruleMap = new HashMap<Rule, Integer>();
-    tag2ruleIndices = new HashMap<Integer, List<Integer>>();
+//    tag2ruleIndices = new HashMap<Integer, List<Integer>>();
     
     // sublists of all rules
     tagRules = new ArrayList<ProbRule>();
@@ -64,6 +65,7 @@ public class RuleSet {
 //    multiTerminalRules = new ArrayList<ProbRule>();
 //    fragmentRules = new ArrayList<ProbRule>();
     numFragmentRules = 0;
+    numMultipleTerminalRules = 0;
     
     // unary rules
     unaryRules = new ArrayList<ProbRule>();
@@ -80,7 +82,10 @@ public class RuleSet {
     allRules.add(probRule);
     
     Rule rule = probRule.getRule();
+    
+    // ruleMap
     if(ruleMap.containsKey(rule)){
+      System.err.println("! Duplicate rule " + rule.toString(tagIndex, wordIndex));
       int ruleId = ruleMap.get(rule);
       if(Math.abs(allRules.get(ruleId).getProb() - probRule.getProb())<1e-10){
         return ruleId;
@@ -92,19 +97,14 @@ public class RuleSet {
     }
     
     int ruleId = numRules++;
-    
-    // ruleMap
-    if(ruleMap.containsKey(rule)){
-      System.err.println("! Duplicate rule " + rule.toString(tagIndex, wordIndex));
-    }
     ruleMap.put(rule, ruleId);
     
     // tag2ruleIndices
-    int tag = rule.getMother();
-    if(!tag2ruleIndices.containsKey(tag)){
-      tag2ruleIndices.put(tag, new ArrayList<Integer>());
-    }
-    tag2ruleIndices.get(tag).add(ruleId);
+//    int tag = rule.getMother();
+//    if(!tag2ruleIndices.containsKey(tag)){
+//      tag2ruleIndices.put(tag, new ArrayList<Integer>());
+//    }
+//    tag2ruleIndices.get(tag).add(ruleId);
     
     // sublist of all rules
     if(rule.numChildren()==1 && rule.numTags() == 0){ // X -> _a
@@ -113,11 +113,6 @@ public class RuleSet {
       if(rule.getChildStr(tagIndex, wordIndex, 0).startsWith("_UNK")){
         hasSmoothRules = true;
       }
-      
-//      if (rule.numChildren()==1){ // terminal
-//      } else { // multiple terminals
-//        multiTerminalRules.add(probRule);
-//      }
     } else { // other rules
       tagRules.add(probRule);
       
@@ -132,6 +127,10 @@ public class RuleSet {
         updateUnaryChain(probRule.getMother(), probRule.getChild(0), chain, probRule.getProb());
       } else if(rule.numTags()<rule.numChildren()){ // fragment rule
         numFragmentRules++;
+        
+        if(rule.numTags()==0){ // multiple terminal rules
+          numMultipleTerminalRules++;
+        }
       }
     }
     
@@ -282,9 +281,9 @@ public class RuleSet {
     return allRules;
   }
   
-  public Map<Integer, List<Integer>> getTag2ruleIndices(){
-    return tag2ruleIndices;
-  }
+//  public Map<Integer, List<Integer>> getTag2ruleIndices(){
+//    return tag2ruleIndices;
+//  }
 
   public int getMother(int ruleId){
     return allRules.get(ruleId).getMother();
@@ -312,6 +311,10 @@ public class RuleSet {
 
   public int numFragmentRules(){
     return numFragmentRules;
+  }
+  
+  public int numMultipleTerminalRules(){
+    return numMultipleTerminalRules;
   }
   
   public List<ProbRule> getUnaryRules() {

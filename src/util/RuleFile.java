@@ -168,7 +168,8 @@ public class RuleFile {
     }
     
     if (verbose>=1){
-      System.err.println(" Done! Total lines = " + count);
+      System.err.println(" Done! Num rules = " + count + ", num fragment rules = " 
+          + ruleSet.numFragmentRules() + " (num multiple terminal rules = " + ruleSet.numMultipleTerminalRules());
     }
     if (verbose>=4){
       System.err.println("# ruleSet " + ruleSet.size() + "\n" + Util.sprint(ruleSet.getAllRules(), tagIndex, wordIndex));

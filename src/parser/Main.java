@@ -112,6 +112,7 @@ public class Main {
       Prediction.verbose = verbose;
       Completion.verbose = verbose;
       EarleyParser.verbose = verbose;
+      RuleFile.verbose = verbose;
     }
     
     /* sparse opt */
