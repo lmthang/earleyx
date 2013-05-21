@@ -15,9 +15,11 @@ import edu.stanford.nlp.util.Index;
 public class Rule {
   protected int mother;
   protected int[] children;
-  //protected List<Integer> children; // if a child is a tag, its tag is retrieved through tagIndex; otherwise through wordIndex
-  //private BitSet rhsTagFlags; // mark if a rhs token is a tag or not. For a rule ADJP -> RBR _competitive, the bit set value is 1 0
   private boolean[] tagFlags; // mark if a rhs token is a tag or not. For a rule ADJP -> RBR _competitive, the bit set value is 1 0
+  public boolean[] getTagFlags() {
+    return tagFlags;
+  }
+
   private int numTags;
   
   /**
@@ -27,14 +29,14 @@ public class Rule {
    * @param wordIndex
    */
   public Rule(String motherStr, List<String> childStrs,
-      Index<String> tagIndex, Index<String> wordIndex, boolean[] rhsTagFlags) {
+      Index<String> tagIndex, Index<String> wordIndex, boolean[] tagFlags) {
     mother = tagIndex.indexOf(motherStr, true);
     children = new int[childStrs.size()];
-    this.tagFlags = rhsTagFlags;
+    this.tagFlags = tagFlags;
     
     numTags = 0;
     for (int i = 0; i < childStrs.size(); i++) {
-      if(rhsTagFlags[i]){ // tag
+      if(tagFlags[i]){ // tag
         children[i] = tagIndex.indexOf(childStrs.get(i), true);
         numTags++;
       } else { // terminal
@@ -72,23 +74,36 @@ public class Rule {
   }
   
   /**
+   * 
    * @param mother
    * @param children
+   * @param tagFlags
    */
-  public Rule(int mother, int[] children, boolean[] rhsTagFlags) {
+  public Rule(int mother, int[] children, boolean[] tagFlags) {
     this.mother = mother;
-    this.children = new int[children.length];
-    this.tagFlags = rhsTagFlags;
+    this.children = children; //new int[children.length];
+    this.tagFlags = tagFlags;
     
     numTags = 0;
     for (int i = 0; i < children.length; i++) {
-      this.children[i] = children[i];
-      
-      if(rhsTagFlags[i]){
+      if(tagFlags[i]){
         numTags++;
       }
     }
-    
+  }
+  
+  /**
+   * 
+   * @param mother
+   * @param children
+   * @param tagFlags
+   * @param numTags
+   */
+  public Rule(int mother, int[] children, boolean[] tagFlags, int numTags) {
+    this.mother = mother;
+    this.children = children;
+    this.tagFlags = tagFlags;
+    this.numTags = numTags;
   }
   
   /**
@@ -99,10 +114,9 @@ public class Rule {
    */
   public Rule(int mother, int[] children, boolean isAllTag) {
     this.mother = mother;
-    this.children = new int[children.length];
-    tagFlags = new boolean[children.length]; //BitSet(childStrs.size());
+    this.children = children;
+    tagFlags = new boolean[children.length];
     for (int i = 0; i < children.length; i++) {
-      this.children[i] = children[i];
       tagFlags[i] = isAllTag;
     }
     
@@ -150,7 +164,7 @@ public class Rule {
   }
   
   public static Rule buildToRule(Rule rule, int dot){
-    return new Rule(rule.getMother(), rule.getChildren(dot+1), rule.getRhsTagFlags(dot+1));
+    return new Rule(rule.getMother(), rule.getChildren(dot+1), rule.getTagFlagsAfterDot(dot+1));
   }
   
   /**
@@ -208,12 +222,9 @@ public class Rule {
   public int numChildren(){
     return children.length;
   }
+
   
-//  public BitSet getRhsTagFlags() {
-//    return rhsTagFlags;
-//  }
-  
-  public boolean[] getRhsTagFlags(int dot) {
+  public boolean[] getTagFlagsAfterDot(int dot) {
     boolean[] newFlags = new boolean[children.length-dot];
     for (int i = 0; i < newFlags.length; i++) {
       newFlags[i] = tagFlags[i+dot];
@@ -245,11 +256,13 @@ public class Rule {
         thisChildren.length != otherChildren.length) {
       return false;
     } 
+    
+    boolean[] otherFlags = otherRule.getTagFlags();
     for (int i = 0; i < thisChildren.length; i++) { // compare individual child
-      if ((int) thisChildren[i] != (int) otherChildren[i]){
+      if (thisChildren[i] != otherChildren[i]){
         return false;
       }
-      if(otherRule.isTag(i) != tagFlags[i]){ // compare tag flags
+      if(otherFlags[i] != tagFlags[i]){ // compare tag flags
         return false;
       }
     } 
@@ -262,11 +275,7 @@ public class Rule {
     for(int child : children){
       result = result<<4 + child;
     }
-//    for (int i = 0; i < rhsTagFlags.length; i++) {
-//      result = result<<1 + (rhsTagFlags[i]==true?1:0);
-//    }
-    
-    return result + numTags;
+    return result<<4 + numTags;
   }
 
   

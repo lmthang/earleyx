@@ -65,17 +65,17 @@ public class RuleTest extends TestCase{
     assertEquals(true, r14.hashCode() == r15.hashCode());
     assertEquals(false, r14.equals(r16));
     
-    boolean[] flags = r16.getRhsTagFlags(0);
+    boolean[] flags = r16.getTagFlagsAfterDot(0);
     assertEquals(true, flags[0]);
     assertEquals(true, flags[1]);
     assertEquals(false, flags[2]);
     
     
-    flags = r16.getRhsTagFlags(1);
+    flags = r16.getTagFlagsAfterDot(1);
     assertEquals(true, flags[0]);
     assertEquals(false, flags[1]);
     
-    flags = r16.getRhsTagFlags(2);
+    flags = r16.getTagFlagsAfterDot(2);
     assertEquals(false, flags[0]);
     
     Rule r17 = Rule.buildLhsOnlyRule(0);

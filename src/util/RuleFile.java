@@ -64,101 +64,110 @@ public class RuleFile {
     }
     
     int count = 0;
+    Matcher m = null;
+    Matcher biasM = null;
+    boolean isMatched = false;
+    boolean isBiasMatched = false;
     while ((inputLine = br.readLine()) != null){
       count++;
 
       inputLine = inputLine.replaceAll("(^\\s+|\\s+$)", ""); // remove leading and trailing spaces
-      Matcher m = p.matcher(inputLine);
-      Matcher biasM = biasP.matcher(inputLine);
+      m = p.matcher(inputLine);
+      isMatched = m.matches();
       
-      if(m.matches() || biasM.matches()){
-        double bias = 0.0;
-        String tag = null;
-        String rhs = null;
-        double prob = 0.0;
-        
-        if(biasM.matches()){ // has bias counts for grammar rule induction
-          // sanity check
-          if(biasM.groupCount() != 4){
-            System.err.println("! Num of matched groups != 4 for line \"" + inputLine + "\"");
-            System.exit(1);
-          }
-          
-          // retrieve info
-          bias = Double.parseDouble(biasM.group(1));
-          tag = biasM.group(2);
-          rhs = biasM.group(3);
-          prob = Double.parseDouble(biasM.group(4));
-        } else if(m.matches()){
-          if(isBias){ // no explicit bias, set to 1.0
-            bias = 1.0;
-//            System.err.println("! No bias value, set to 1.0: " + inputLine);
-          }
-          
-          // sanity check
-          if(m.groupCount() != 3){
-            System.err.println("! Num of matched groups != 3 for line \"" + inputLine + "\"");
-            System.exit(1);
-          }
-          
-          // retrieve info
-          tag = m.group(1);
-          rhs = m.group(2);
-          prob = Double.parseDouble(m.group(3));
-        } 
-
-        int iT = tagIndex.indexOf(tag, true);
-        
-        if(prob < 0){
-          System.err.println("value < 0: " + inputLine);
-          System.exit(1);
-        }
-        
-        String[] children = rhs.split(" ");
-        int numChilds = children.length;
-        
-        // create a rule node or a tagged word
-        ProbRule rule = null;
-        if (numChilds == 1 && children[0].startsWith("_")){ // X -> _y, terminal symbol, update distribution
-          int iW = wordIndex.indexOf(children[0].substring(1), true);
-          addWord(iW, iT, prob, tag2wordsMap, word2tagsMap);
-          
-          if(bias == 0.0){
-            rule = new ProbRule(new Rule(iT, iW, false), prob);
-          } else {
-            rule = new BiasProbRule(new Rule(iT, iW, false), prob, bias);
-          }
-        } else { // rule
-          if(!nonterminalMap.containsKey(iT)){
-            nonterminalMap.put(iT, nonterminalMap.size());
-          }
-          
-          // child indices
-          int[] childIndices = new int[numChilds];
-          boolean[] tagFlags = new boolean[numChilds];
-          for (int i=0; i<numChilds; ++i){
-            String child = children[i];
-            if(!child.startsWith("_")){ // tag 
-              childIndices[i] = tagIndex.indexOf(child, true); // tag index
-              tagFlags[i] = true;
-            } else { // terminal
-              childIndices[i] = wordIndex.indexOf(child.substring(1), true); // word index
-              tagFlags[i] = false;
-            }
-          }
-          
-          if(bias == 0.0){
-            rule = new ProbRule(new Rule(iT, childIndices, tagFlags), prob);
-          } else { // bias rule
-            rule = new BiasProbRule(new Rule(iT, childIndices, tagFlags), prob, bias);
-          }
-        }
-        
-        ruleSet.add(rule);
-      } else {
+      if(isBias){
+        biasM = biasP.matcher(inputLine);
+        isBiasMatched = biasM.matches();
+      }
+      if(!isMatched && (!isBias || !isBiasMatched)){
         System.err.println("! Fail to match line \"" + inputLine + "\"");
         System.exit(1);
       }
+      
+      double bias = 0.0;
+      String tag = null;
+      String rhs = null;
+      double prob = 0.0;
+      
+      if(isBiasMatched){ // has bias counts for grammar rule induction
+        // sanity check
+        if(biasM.groupCount() != 4){
+          System.err.println("! Num of matched groups != 4 for line \"" + inputLine + "\"");
+          System.exit(1);
+        }
+        
+        // retrieve info
+        bias = Double.parseDouble(biasM.group(1));
+        tag = biasM.group(2);
+        rhs = biasM.group(3);
+        prob = Double.parseDouble(biasM.group(4));
+      } else if(isMatched){
+        if(isBias){ // no explicit bias, set to 1.0
+          bias = 1.0;
+        }
+        
+        // sanity check
+        if(m.groupCount() != 3){
+          System.err.println("! Num of matched groups != 3 for line \"" + inputLine + "\"");
+          System.exit(1);
+        }
+        
+        // retrieve info
+        tag = m.group(1);
+        rhs = m.group(2);
+        prob = Double.parseDouble(m.group(3));
+      } 
+
+      int iT = tagIndex.indexOf(tag, true);
+      
+      if(prob < 0){
+        System.err.println("value < 0: " + inputLine);
+        System.exit(1);
+      }
+      
+      String[] children = rhs.split(" ");
+      int numChilds = children.length;
+      
+      // create a rule node or a tagged word
+      ProbRule rule = null;
+      if (numChilds == 1 && children[0].startsWith("_")){ // X -> _y, terminal symbol, update distribution
+        int iW = wordIndex.indexOf(children[0].substring(1), true);
+        addWord(iW, iT, prob, tag2wordsMap, word2tagsMap);
+        
+        if(bias == 0.0){
+          rule = new ProbRule(new Rule(iT, iW, false), prob);
+        } else {
+          rule = new BiasProbRule(new Rule(iT, iW, false), prob, bias);
+        }
+      } else { // rule
+        if(!nonterminalMap.containsKey(iT)){
+          nonterminalMap.put(iT, nonterminalMap.size());
+        }
+        
+        // child indices
+        int[] childIndices = new int[numChilds];
+        boolean[] tagFlags = new boolean[numChilds];
+        int numTags = 0;
+        for (int i=0; i<numChilds; ++i){
+          String child = children[i];
+          if(!child.startsWith("_")){ // tag 
+            childIndices[i] = tagIndex.indexOf(child, true); // tag index
+            tagFlags[i] = true;
+            numTags++;
+          } else { // terminal
+            childIndices[i] = wordIndex.indexOf(child.substring(1), true); // word index
+            tagFlags[i] = false;
+          }
+        }
+        
+        if(bias == 0.0){
+          rule = new ProbRule(new Rule(iT, childIndices, tagFlags, numTags), prob);
+        } else { // bias rule
+          rule = new BiasProbRule(new Rule(iT, childIndices, tagFlags, numTags), prob, bias);
+        }
+      }
+      
+      ruleSet.add(rule);
       
       if (verbose>=1){
         if(count % 10000 == 0){
@@ -307,12 +316,6 @@ public class RuleFile {
       printHelp(args, "No output file, -out option");
     }
     
-//    /* smooth */
-//    int smooth = 0;
-//    if (argsMap.keySet().contains("-smooth")) {
-//      smooth = 1;
-//    }
-    
     /* option */
     int option = 0;
     if (argsMap.keySet().contains("-opt")) {
@@ -324,7 +327,6 @@ public class RuleFile {
     
     System.err.println("# Input file = " + ruleFile);
     System.err.println("# Output file = " + outRuleFile);
-//    System.err.println("# Smooth = " + smooth);
     System.err.println("# Option = " + option);
     
     // extract rules and taggedWords from grammar file

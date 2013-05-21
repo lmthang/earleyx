@@ -330,6 +330,7 @@ public abstract class EarleyParser implements Parser {
       System.err.println("! Problem initializing Earley parser");
       e.printStackTrace();
     }
+//    System.err.println(ruleSet.toString(parserTagIndex, parserWordIndex));
     
     // convert to log prob
     for(int iT : tag2wordsMap.keySet()){

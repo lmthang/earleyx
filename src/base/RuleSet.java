@@ -82,6 +82,8 @@ public class RuleSet {
     allRules.add(probRule);
     
     Rule rule = probRule.getRule();
+    int numTags = rule.numTags();
+    int numChildren = rule.numChildren();
     
     // ruleMap
     if(ruleMap.containsKey(rule)){
@@ -107,7 +109,7 @@ public class RuleSet {
 //    tag2ruleIndices.get(tag).add(ruleId);
     
     // sublist of all rules
-    if(rule.numChildren()==1 && rule.numTags() == 0){ // X -> _a
+    if(numChildren==1 && numTags == 0){ // X -> _a
       terminalRules.add(probRule);
       
       if(rule.getChildStr(tagIndex, wordIndex, 0).startsWith("_UNK")){
@@ -116,7 +118,7 @@ public class RuleSet {
     } else { // other rules
       tagRules.add(probRule);
       
-      if(rule.numChildren()==1){ // unary
+      if(numChildren==1){ // unary
         unaryRules.add(probRule);
         
         // update unary chain
@@ -125,10 +127,10 @@ public class RuleSet {
         chain.add(probRule.getChild(0));
         addChain(probRule.getMother(), probRule.getChild(0), chain, probRule.getProb());
         updateUnaryChain(probRule.getMother(), probRule.getChild(0), chain, probRule.getProb());
-      } else if(rule.numTags()<rule.numChildren()){ // fragment rule
+      } else if(numTags<numChildren){ // fragment rule
         numFragmentRules++;
         
-        if(rule.numTags()==0){ // multiple terminal rules
+        if(numTags==0){ // multiple terminal rules
           numMultipleTerminalRules++;
         }
       }
