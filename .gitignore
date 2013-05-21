@@ -1,3 +1,4 @@
+.obj
 tmp*
 *stderr
 *stdout
