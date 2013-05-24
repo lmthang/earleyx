@@ -126,7 +126,7 @@ public class RuleSet {
         if(rule.getChildStr(tagIndex, wordIndex, 0).startsWith("_UNK")){ // smooth rules
           hasSmoothRules = true;
           unkPreterminals.add(rule.getMother());
-          System.err.println(rule.toString(tagIndex, wordIndex) + "\t" + rule);
+//          System.err.println(rule.toString(tagIndex, wordIndex) + "\t" + rule);
         }
       }
     } else { // other rules

@@ -197,8 +197,8 @@ public class RuleFile {
       System.err.println(Util.sprint(tag2wordsMap, tagIndex, wordIndex));
     }
     
-    System.err.println(ruleSet.getUnkPreterminals());
-    System.err.println(Util.sprint(ruleSet.getUnkPreterminals(), tagIndex));
+//    System.err.println(ruleSet.getUnkPreterminals());
+//    System.err.println(Util.sprint(ruleSet.getUnkPreterminals(), tagIndex));
     br.close();
   }
   

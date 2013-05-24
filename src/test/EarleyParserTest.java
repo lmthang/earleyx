@@ -126,7 +126,7 @@ public class EarleyParserTest { // extends TestCase {
   "D->[_d] : 0.9\n" +
   "D->[_UNK] : 0.1\n";
   
-  String wsj500AG = "grammars/WSJ.500.ag-map.rules";
+  String wsj500AG = "grammars/WSJ.500.ag-map-new.rules";
   String wsjAG22 = "grammars/WSJ.ag-map.22.rules";
   String wsj500 = "grammars/wsj500unk.grammar";
   String wsj5 = "grammars/wsj5unk.grammar";
@@ -992,44 +992,13 @@ public class EarleyParserTest { // extends TestCase {
     
     List<Double> surprisalList = parser.getSurprisalList();
     List<Double> stringProbList = parser.getStringProbList();
-    
-    // Note: scores here are slightly different from those of previous version
-    // that is because RoarkBaseLexicon.score returns float instead of double
-    assertEquals(surprisalList.size(), 13);
-    assertEquals(2.5902917249093926, surprisalList.get(0), 1e-5);
-    assertEquals(11.17802383709047, surprisalList.get(1), 1e-5);
-    assertEquals(6.679507135955136, surprisalList.get(2), 1e-5);
-    assertEquals(4.948450710073175, surprisalList.get(3), 1e-5);
-    assertEquals(9.385103677293866, surprisalList.get(4), 1e-5);
-    assertEquals(6.44860564335427, surprisalList.get(5), 1e-5);
-    assertEquals(4.250959913607808, surprisalList.get(6), 1e-5);
-    assertEquals(2.033052140740189, surprisalList.get(7), 1e-5);
-    assertEquals(7.950249255267927, surprisalList.get(8), 1e-5);
-    assertEquals(3.9584749706452556, surprisalList.get(9), 1e-5);
-    assertEquals(7.72672337348633, surprisalList.get(10), 1e-5);
-    assertEquals(1.2492400898444487, surprisalList.get(11), 1e-5);
-    assertEquals(2.072968468479857, surprisalList.get(12), 1e-5);
-
-
-    assertEquals(stringProbList.size(), 13);
-    assertEquals(2.7631257999498153E-6, stringProbList.get(0), 1e-5);
-    assertEquals(3.7643574066525755E-8, stringProbList.get(1), 1e-5);
-    assertEquals(1.7159626394143225E-12, stringProbList.get(2), 1e-5);
-    assertEquals(1.8778083802959357E-12, stringProbList.get(3), 1e-5);
-    assertEquals(5.8136325173038904E-18, stringProbList.get(4), 1e-5);
-    assertEquals(1.1484971623511003E-20, stringProbList.get(5), 1e-5);
-    assertEquals(9.315915216122732E-23, stringProbList.get(6), 1e-5);
-    assertEquals(1.718918071281025E-22, stringProbList.get(7), 1e-5);
-    assertEquals(8.212552526820724E-26, stringProbList.get(8), 1e-5);
-    assertEquals(1.0082110788122197E-29, stringProbList.get(9), 1e-5);
-    assertEquals(0.0, stringProbList.get(10), 1e-5);
-    assertEquals(2.4430738209264177E-31, stringProbList.get(11), 1e-5);
-    assertEquals(2.267542490039142E-31, stringProbList.get(12), 1e-5);
-    
+    assertEquals(surprisalList.toString(), "[2.590291723574891, 11.178023682698447, 6.6795072400054885, 7.077894219418539, 7.981383181381769, 6.4457144132470106, 4.4242793170162855, 7.537896375757207, 7.137751990581364, 3.4130815326030017, 7.72449127699835, 7.288287721989363, 3.214652417386745]");
+    assertEquals(stringProbList.toString(), "[2.7631257999498153E-6, 3.7643574066525755E-8, 1.7159626394143225E-12, 1.2303147793619837E-13, 3.4004932181022644E-18, 8.153852294676595E-21, 6.618147596846703E-23, 3.885627220191218E-25, 5.712895859046822E-28, 1.1975791017401232E-31, 0.0, 2.2149632893898053E-36, 1.0890595505357798E-36]");
+        
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
       System.err.println(tree.pennString());
-      assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) (CD two)) (ADJP (JJ young) (PP sea-lions)) (VP (VBD took) (PRT (RB not)) (NP (DT the) (NNP slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NNS arrival)))) (. .))))");
+      assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) (CD two) (JJ young) (NNS sea-lions)) (VP (VBD took) (NP (RB not) (DT the) (JJ slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NN arrival)))) (. .))))");
     }
   }
   
