@@ -45,15 +45,18 @@ public class SmoothLexicon extends BaseLexicon {
     String word = wordIndex.get(iW);
     
     if(!counter.containsKey(iW)){ // unknown word
-//      System.err.print("SmoothLexicon: " + itw.toString(wordIndex, tagIndex) + " --> ");
       word = getSignature(word);
       iW = wordIndex.indexOf(word, true);
       
       if(!counter.containsKey(iW)){ // unknown signature
         word = UNKNOWN_WORD;
         iW = unkIndex;
+        
+        if(!counter.containsKey(iW)){ // still unknown, something is wrong
+          System.err.println("SmoothLexicon: no " + UNKNOWN_WORD + " for tag " + itw.tagString(tagIndex));
+          System.exit(1);
+        }
       }
-//      System.err.println(word + ": " + counter.getCount(iW));
     }
 
     return counter.getCount(iW);

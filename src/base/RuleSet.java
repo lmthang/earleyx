@@ -6,8 +6,10 @@ package base;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
@@ -32,8 +34,9 @@ public class RuleSet {
   protected Collection<ProbRule> multiTerminalRules; // X -> _a _b _c
   protected List<ProbRule> tagRules; // allRules - terminalRules - multiTerminalRules
   
-  
-//  protected Collection<ProbRule> fragmentRules; // X -> _a B _c
+  protected Set<Integer> unkPreterminals; // indices of preterminals rewriting to _UNK ...
+
+  //  protected Collection<ProbRule> fragmentRules; // X -> _a B _c
   protected int numMultiTerminalRules;
   protected int numFragmentRules; // includes numMultipleTerminalRules
   
@@ -65,6 +68,9 @@ public class RuleSet {
     terminalRules = new ArrayList<ProbRule>();
     multiTerminalRules = new ArrayList<ProbRule>();
 //    fragmentRules = new ArrayList<ProbRule>();
+    
+    unkPreterminals = new HashSet<Integer>();
+    
     numFragmentRules = 0;
     numMultiTerminalRules = 0;
     
@@ -111,16 +117,17 @@ public class RuleSet {
     
     // sublist of all rules
     if(numTags == 0){ // X -> _a or X -> _a _b _c
-      
-      
-      if(numChildren==1 && rule.getChildStr(tagIndex, wordIndex, 0).startsWith("_UNK")){
-        hasSmoothRules = true;
-      }
       if(numChildren>1){ // multiple terminal rules
         numMultiTerminalRules++;
         multiTerminalRules.add(probRule);
-      } else {
+      } else { // X -> _a
         terminalRules.add(probRule);
+        
+        if(rule.getChildStr(tagIndex, wordIndex, 0).startsWith("_UNK")){ // smooth rules
+          hasSmoothRules = true;
+          unkPreterminals.add(rule.getMother());
+          System.err.println(rule.toString(tagIndex, wordIndex) + "\t" + rule);
+        }
       }
     } else { // other rules
       tagRules.add(probRule);
@@ -320,6 +327,10 @@ public class RuleSet {
   
   public List<ProbRule> getUnaryRules() {
     return unaryRules;
+  }
+
+  public Set<Integer> getUnkPreterminals() {
+    return unkPreterminals;
   }
   
   public List<Integer> getUnaryChain(int startTag, int endTag){

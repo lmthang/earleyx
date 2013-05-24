@@ -741,7 +741,7 @@ public abstract class EarleyParser implements Parser {
       if(!hasFragmentRule || !edgeSpace.terminal2fragmentEdges.containsKey(iW)){ 
         // if there's not a fragment rule X -> . _w, then use all tags
         iTWs = new HashSet<IntTaggedWord>();
-        for(int iT : lex.getAllTags()){
+        for(int iT : ruleSet.getUnkPreterminals()){
           iTWs.add(new IntTaggedWord(iW, iT));
         }
       }

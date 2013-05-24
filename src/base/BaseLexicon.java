@@ -63,7 +63,7 @@ public abstract class BaseLexicon {
     this.word2tagsMap = word2tagsMap;
   }
   
-  public Set<Integer> getAllTags(){
-    return tag2wordsMap.keySet();
-  }
+//  public Set<Integer> getAllTags(){
+//    return tag2wordsMap.keySet();
+//  }
 }
