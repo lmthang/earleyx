@@ -83,7 +83,7 @@ public class PredictionTest extends TestCase {
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
     }
-    Collection<ProbRule> tagRules = ruleSet.getOtherRules();
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
     
     // statespace
     EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex, wordIndex);
@@ -103,7 +103,7 @@ public class PredictionTest extends TestCase {
       sb.append(edgeSpace.get(i).toString(tagIndex, wordIndex) + ", " + 
           Util.sprint(predictions[i], edgeSpace, tagIndex, wordIndex, operator) + "\n");
     }
-    assertEquals(sb.toString(), "ROOT -> . A, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (A -> . _d _e,f=0.4444,i=0.4000), (B -> . D E,f=0.1891,i=0.8000))\nA -> ., ()\nROOT -> ., ()\nA -> . A B, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (A -> . _d _e,f=0.4444,i=0.4000), (B -> . D E,f=0.1891,i=0.8000))\nA -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nB -> ., ()\nA -> . B C, ((B -> . D E,f=0.8511,i=0.8000))\nA -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nC -> ., ()\nA -> . A1, ()\nA1 -> ., ()\nA -> . _d _e, ()\nA -> . _e, ()\nA1 -> . A2, ()\nA2 -> ., ()\nB -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nB -> . D E, ()\nD -> ., ()\nB -> . E, ()\nE -> ., ()\nC -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nC -> . D, ()\n");    
+    assertEquals(sb.toString(), "ROOT -> . A, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nA -> ., ()\nROOT -> ., ()\nA -> . A B, ((A -> . A B,f=0.1111,i=0.1000), (A -> . B C,f=0.2222,i=0.2000), (B -> . D E,f=0.1891,i=0.8000))\nA -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nB -> ., ()\nA -> . B C, ((B -> . D E,f=0.8511,i=0.8000))\nA -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nC -> ., ()\nA -> . A1, ()\nA1 -> ., ()\nA1 -> . A2, ()\nA2 -> ., ()\nB -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nB -> . D E, ()\nD -> ., ()\nB -> . E, ()\nE -> ., ()\nC -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nC -> . D, ()\n");    
   }
   
   public void testFragmentBasic(){
@@ -126,7 +126,7 @@ public class PredictionTest extends TestCase {
       System.err.println("Error reading rules: " + fragmentRuleString);
       e.printStackTrace();
     }
-    Collection<ProbRule> tagRules = ruleSet.getOtherRules();
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
     
     // statespace
     EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex, wordIndex);
@@ -146,6 +146,6 @@ public class PredictionTest extends TestCase {
       sb.append(edgeSpace.get(i).toString(tagIndex, wordIndex) + ", " + 
           Util.sprint(predictions[i], edgeSpace, tagIndex, wordIndex, operator) + "\n");
     }
-    assertEquals(sb.toString(), "ROOT -> . A, ((A -> . A B,f=0.0541,i=0.0500), (A -> . A _b,f=0.0270,i=0.0250), (A -> . _a B,f=0.0270,i=0.0250), (A -> . B C,f=0.2162,i=0.2000), (A -> . _d _e,f=0.4324,i=0.4000), (B -> . D E,f=0.1840,i=0.8000))\nA -> ., ()\nROOT -> ., ()\nA -> . A B, ((A -> . A B,f=0.0541,i=0.0500), (A -> . A _b,f=0.0270,i=0.0250), (A -> . _a B,f=0.0270,i=0.0250), (A -> . B C,f=0.2162,i=0.2000), (A -> . _d _e,f=0.4324,i=0.4000), (B -> . D E,f=0.1840,i=0.8000))\nA -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nB -> ., ()\nA -> . A _b, ((A -> . A B,f=0.0541,i=0.0500), (A -> . A _b,f=0.0270,i=0.0250), (A -> . _a B,f=0.0270,i=0.0250), (A -> . B C,f=0.2162,i=0.2000), (A -> . _d _e,f=0.4324,i=0.4000), (B -> . D E,f=0.1840,i=0.8000))\nA -> . _b, ()\nA -> . _a B, ()\nA -> . B C, ((B -> . D E,f=0.8511,i=0.8000))\nA -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nC -> ., ()\nA -> . A1, ()\nA1 -> ., ()\nA -> . _d _e, ()\nA -> . _e, ()\nA1 -> . A2, ()\nA2 -> ., ()\nB -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nB -> . D E, ()\nD -> ., ()\nB -> . E, ()\nE -> ., ()\nC -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nC -> . D, ()\n");    
+    assertEquals(sb.toString(), "ROOT -> . A, ((A -> . A B,f=0.0541,i=0.0500), (A -> . A _b,f=0.0270,i=0.0250), (A -> . _a B,f=0.0270,i=0.0250), (A -> . B C,f=0.2162,i=0.2000), (B -> . D E,f=0.1840,i=0.8000))\nA -> ., ()\nROOT -> ., ()\nA -> . A B, ((A -> . A B,f=0.0541,i=0.0500), (A -> . A _b,f=0.0270,i=0.0250), (A -> . _a B,f=0.0270,i=0.0250), (A -> . B C,f=0.2162,i=0.2000), (B -> . D E,f=0.1840,i=0.8000))\nA -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nB -> ., ()\nA -> . A _b, ((A -> . A B,f=0.0541,i=0.0500), (A -> . A _b,f=0.0270,i=0.0250), (A -> . _a B,f=0.0270,i=0.0250), (A -> . B C,f=0.2162,i=0.2000), (B -> . D E,f=0.1840,i=0.8000))\nA -> . _b, ()\nA -> . _a B, ()\nA -> . B C, ((B -> . D E,f=0.8511,i=0.8000))\nA -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nC -> ., ()\nA -> . A1, ()\nA1 -> ., ()\nA1 -> . A2, ()\nA2 -> ., ()\nB -> . C, ((B -> . D E,f=0.2553,i=0.8000))\nB -> . D E, ()\nD -> ., ()\nB -> . E, ()\nE -> ., ()\nC -> . B, ((B -> . D E,f=0.8511,i=0.8000))\nC -> . D, ()\n");    
   }
 }

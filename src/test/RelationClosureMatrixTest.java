@@ -77,7 +77,7 @@ public class RelationClosureMatrixTest extends TestCase{
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
     }
-    Collection<ProbRule> tagRules = ruleSet.getOtherRules();
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
     
     // create relation matrix
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
@@ -134,7 +134,7 @@ public class RelationClosureMatrixTest extends TestCase{
       System.err.println("Error reading rules: " + fragmentRuleString);
       e.printStackTrace();
     }
-    Collection<ProbRule> tagRules = ruleSet.getOtherRules();
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
     System.err.println(ruleSet.toString(tagIndex, wordIndex));
     
     System.err.println("# tag rules");

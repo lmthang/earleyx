@@ -87,14 +87,14 @@ public class RuleFileTest extends TestCase{
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
     }
-    Collection<ProbRule> tagRules = ruleSet.getOtherRules();
-//    Collection<ProbRule> multiTerminalRules = ruleSet.getMultiTerminalRules();
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
+    Collection<ProbRule> multiTerminalRules = ruleSet.getMultiTerminalRules();
     
     assertEquals(tagIndex.toString(), "[0=ROOT,1=A,2=B,3=C,4=D]");
     assertEquals(wordIndex.toString(), "[0=b,1=c,2=d,3=UNK,4=UNK-1]");
     
-    assertEquals(Util.sprint(tagRules, tagIndex, wordIndex), "ROOT->[A] : 1.00000\nA->[_b _c] : 0.100000\nA->[_d _b] : 0.100000\nA->[B C] : 0.400000\nA->[D B] : 0.400000\n");
-//    assertEquals(Util.sprint(multiTerminalRules, wordIndex, tagIndex), "A->[_b _c] : 0.100000\nA->[_d _b] : 0.100000\n");
+    assertEquals(Util.sprint(tagRules, tagIndex, wordIndex), "ROOT->[A] : 1.00000\nA->[B C] : 0.400000\nA->[D B] : 0.400000\n");
+    assertEquals(Util.sprint(multiTerminalRules, tagIndex, wordIndex), "A->[_b _c] : 0.100000\nA->[_d _b] : 0.100000\n");
     
     assertEquals(Util.sprint(tagIndex, nonterminalMap.keySet()), "[ROOT, A]");
     assertEquals(Util.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=0.9, UNK=0.1}, C={c=0.9, UNK=0.1}, D={d=0.8, UNK=0.1, UNK-1=0.1}");
@@ -123,7 +123,7 @@ public class RuleFileTest extends TestCase{
     }
     assertEquals(ruleSet.toString(tagIndex, wordIndex), "\n# Ruleset\nROOT->[A] : 1.00000\nA->[_b _c] : 0.100000\nA->[B _c] : 0.100000\nA->[_d _b] : 0.100000\nA->[_d B] : 0.100000\nA->[B C] : 0.300000\nA->[D B] : 0.300000\nB->[A] : 0.100000\nB->[_b] : 0.800000\nB->[_UNK] : 0.100000\nC->[_c] : 0.900000\nC->[_UNK] : 0.100000\nD->[_d] : 0.800000\nD->[_UNK] : 0.100000\nD->[_UNK-1] : 0.100000\n");
     
-    assertEquals(4, ruleSet.numFragmentRules());
+    assertEquals(2, ruleSet.numFragmentRules());
   }
   
   public void testBiasInput(){  
@@ -168,10 +168,8 @@ public class RuleFileTest extends TestCase{
       System.err.println("Can't read rule string: " + ruleString);
       e.printStackTrace();
     }
-    Collection<ProbRule> tagRules = ruleSet.getOtherRules();
-//    Collection<ProbRule> multiTerminalRules = ruleSet.getMultiTerminalRules();
-    
-    assertEquals(Util.sprint(tagRules, tagIndex, wordIndex), "ROOT->[A] : 5.00000\nA->[_b _c] : 1.00000\nA->[_d _b] : 1.00000\nA->[B C] : 4.00000\nA->[D B] : 4.00000\n");
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
+    assertEquals(Util.sprint(tagRules, tagIndex, wordIndex), "ROOT->[A] : 5.00000\nA->[B C] : 4.00000\nA->[D B] : 4.00000\n");
     
     /* Smooth */
     assertEquals(Util.sprint(tag2wordsMap, tagIndex, wordIndex), "{B={b=9.0, b1=1.0, b2=1.0, b3=2.0}, C={C=1.0}, D={d=1.0}");
@@ -181,7 +179,8 @@ public class RuleFileTest extends TestCase{
     assertEquals(Util.sprintWord2Tags(word2tagsMap, wordIndex, tagIndex), "{b=[b/B}, d=[d/D}, b1=[b1/B}, b2=[b2/B}, b3=[b3/B}, C=[C/C}, UNK=[UNK/D, UNK/C, UNK/B}, UNK-LC-DIG=[UNK-LC-DIG/B}, UNK-ALLC=[UNK-ALLC/C}, UNK-LC=[UNK-LC/D}");
     
     // test scheme print
-//    tagRules.addAll(multiTerminalRules);
-    assertEquals(Util.schemeSprint(tagRules, wordIndex, tagIndex), "[(ROOT (_ A)), (A (_ _b) (_ _c)), (A (_ _d) (_ _b)), (A (_ B) (_ C)), (A (_ D) (_ B))]");
+    Collection<ProbRule> multiTerminalRules = ruleSet.getMultiTerminalRules();
+    tagRules.addAll(multiTerminalRules);
+    assertEquals(Util.schemeSprint(tagRules, tagIndex, wordIndex), "[(ROOT (_ A)), (A (_ B) (_ C)), (A (_ D) (_ B)), (A (_ _b) (_ _c)), (A (_ _d) (_ _b))]");
   }
 }

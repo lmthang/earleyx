@@ -67,7 +67,7 @@ public class GrammarTest extends TestCase{
       System.err.println("Error reading rules: " + ruleString);
       e.printStackTrace();
     }
-    Collection<ProbRule> tagRules = ruleSet.getOtherRules();
+    Collection<ProbRule> tagRules = ruleSet.getTagRules();
     
     EdgeSpace edgeSpace = new LeftWildcardEdgeSpace(tagIndex, wordIndex);
     edgeSpace.build(tagRules);

@@ -438,7 +438,7 @@ public class Util {
     return sb.toString();
   }
   
-  public static String schemeSprint(Collection<ProbRule> rules, Index<String> wordIndex, Index<String> tagIndex){
+  public static String schemeSprint(Collection<ProbRule> rules, Index<String> tagIndex, Index<String> wordIndex){
     StringBuffer sb = new StringBuffer("[");
     for(ProbRule rule : rules){
       sb.append(rule.schemeString(tagIndex, wordIndex) + ", ");

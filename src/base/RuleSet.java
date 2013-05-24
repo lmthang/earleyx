@@ -29,11 +29,12 @@ public class RuleSet {
   
   // sublists of all rules
   protected Collection<ProbRule> terminalRules; // X -> _a
-  protected List<ProbRule> tagRules; // allRules - terminalRules
+  protected Collection<ProbRule> multiTerminalRules; // X -> _a _b _c
+  protected List<ProbRule> tagRules; // allRules - terminalRules - multiTerminalRules
   
-//  protected Collection<ProbRule> multiTerminalRules; // X -> _a _b _c
+  
 //  protected Collection<ProbRule> fragmentRules; // X -> _a B _c
-  protected int numMultipleTerminalRules;
+  protected int numMultiTerminalRules;
   protected int numFragmentRules; // includes numMultipleTerminalRules
   
   // unary rules
@@ -62,10 +63,10 @@ public class RuleSet {
     // sublists of all rules
     tagRules = new ArrayList<ProbRule>();
     terminalRules = new ArrayList<ProbRule>();
-//    multiTerminalRules = new ArrayList<ProbRule>();
+    multiTerminalRules = new ArrayList<ProbRule>();
 //    fragmentRules = new ArrayList<ProbRule>();
     numFragmentRules = 0;
-    numMultipleTerminalRules = 0;
+    numMultiTerminalRules = 0;
     
     // unary rules
     unaryRules = new ArrayList<ProbRule>();
@@ -109,11 +110,17 @@ public class RuleSet {
 //    tag2ruleIndices.get(tag).add(ruleId);
     
     // sublist of all rules
-    if(numChildren==1 && numTags == 0){ // X -> _a
-      terminalRules.add(probRule);
+    if(numTags == 0){ // X -> _a or X -> _a _b _c
       
-      if(rule.getChildStr(tagIndex, wordIndex, 0).startsWith("_UNK")){
+      
+      if(numChildren==1 && rule.getChildStr(tagIndex, wordIndex, 0).startsWith("_UNK")){
         hasSmoothRules = true;
+      }
+      if(numChildren>1){ // multiple terminal rules
+        numMultiTerminalRules++;
+        multiTerminalRules.add(probRule);
+      } else {
+        terminalRules.add(probRule);
       }
     } else { // other rules
       tagRules.add(probRule);
@@ -129,10 +136,6 @@ public class RuleSet {
         updateUnaryChain(probRule.getMother(), probRule.getChild(0), chain, probRule.getProb());
       } else if(numTags<numChildren){ // fragment rule
         numFragmentRules++;
-        
-        if(numTags==0){ // multiple terminal rules
-          numMultipleTerminalRules++;
-        }
       }
     }
     
@@ -235,9 +238,9 @@ public class RuleSet {
     }
   }
 
-//  public boolean hasMultiTerminalRule(){
-//    return (multiTerminalRules.size()>0);
-//  }
+  public boolean hasMultiTerminalRule(){
+    return (numMultiTerminalRules>0);
+  }
   
   public double getProb(int ruleId){
     return allRules.get(ruleId).getProb();
@@ -295,28 +298,24 @@ public class RuleSet {
     return allRules.get(ruleId).getBias();
   }
   
-  public List<ProbRule> getOtherRules() {
+  public List<ProbRule> getTagRules() {
     return tagRules;
   }
-  
-//  public List<ProbRule> getTagRules() {
-//    return tagRules;
-//  }
 
   public Collection<ProbRule> getTerminalRules() {
     return terminalRules;
   }
 
-//  public Collection<ProbRule> getMultiTerminalRules() {
-//    return multiTerminalRules;
-//  }
+  public Collection<ProbRule> getMultiTerminalRules() {
+    return multiTerminalRules;
+  }
 
   public int numFragmentRules(){
     return numFragmentRules;
   }
   
   public int numMultipleTerminalRules(){
-    return numMultipleTerminalRules;
+    return numMultiTerminalRules;
   }
   
   public List<ProbRule> getUnaryRules() {
