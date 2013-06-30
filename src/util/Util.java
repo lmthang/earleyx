@@ -21,6 +21,7 @@ import java.util.Set;
 import base.Edge;
 import base.FragmentRule;
 import base.ProbRule;
+import base.RuleSet;
 
 import cern.colt.matrix.DoubleMatrix2D;
 
@@ -260,6 +261,20 @@ public class Util {
   }
   
   /** Print to string methods **/
+  // print double array
+  public static String sprint(double[] values){
+    StringBuffer sb = new StringBuffer("[");
+    
+    if(values.length > 0){
+      for(double value : values){
+        sb.append(value + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+
   // print boolean array
   public static String sprint(boolean[] values){
     StringBuffer sb = new StringBuffer("[");
@@ -349,6 +364,39 @@ public class Util {
           score = Math.exp(score);
         }
         sb.append(tagIndex.get(iT) + "=" + df1.format(score) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+    }
+    sb.append(")");
+    return sb.toString();
+  }
+  
+  public static String sprint(Map<String, Double> valueMap){
+    StringBuffer sb = new StringBuffer("(");
+    
+    if(valueMap.size() > 0){
+      for (String key : valueMap.keySet()) {
+        double score = valueMap.get(key);
+        
+        sb.append(key + "=" + df1.format(score) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+    }
+    sb.append(")");
+    return sb.toString();
+  }
+  
+  public static String sprint(Map<Integer, Double> valueMap, RuleSet ruleSet
+      , Index<String> tagIndex, Index<String> wordIndex){
+    StringBuffer sb = new StringBuffer("(");
+    
+    if(valueMap.size() > 0){
+      for (int ruleId : valueMap.keySet()) {
+        double score = valueMap.get(ruleId);
+        if (score<=0){
+          score = Math.exp(score);
+        }
+        sb.append(ruleSet.get(ruleId).toString(tagIndex, wordIndex) + "=" + df1.format(score) + ", ");
       }
       sb.delete(sb.length()-2, sb.length());
     }

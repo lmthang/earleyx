@@ -33,6 +33,11 @@ public class ProbRule {
   public boolean isTag(int pos){
     return rule.isTag(pos);
   }
+  
+  public int numChildren(){
+    return rule.numChildren();
+  }
+  
   // Return dot rule: X -> . a b c
   public Edge getEdge(){
     return new Edge(rule, 0);

@@ -73,10 +73,14 @@ public class GrammarTest extends TestCase{
     edgeSpace.build(tagRules);
     
     Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
-    g.learnGrammar(ruleSet, edgeSpace);
-    
-//    assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\nd:prefix={A=-0.9}\n e:prefix={A=-0.9}, end={A=-0.9}");
+    boolean isSeparateRuleInTrie = false;
+    g.learnGrammar(ruleSet, edgeSpace, isSeparateRuleInTrie);
+    assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\nd:prefix={A=-0.9}\n e:prefix={A=-0.9}, end={A=-0.9}");
  
+    g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
+    isSeparateRuleInTrie = true;
+    g.learnGrammar(ruleSet, edgeSpace, isSeparateRuleInTrie);
+    assertEquals(g.getRuleTrie().toString(ruleSet, wordIndex, tagIndex), "\nd:prefix={A->[_d _e] : 0.400000=-0.9}\n e:prefix={A->[_d _e] : 0.400000=-0.9}, end={A->[_d _e] : 0.400000=-0.9}");
   }
   
   public void testBasic1(){
@@ -128,13 +132,18 @@ public class GrammarTest extends TestCase{
     Grammar g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
     RuleSet ruleSet = new RuleSet(tagIndex, wordIndex);
     ruleSet.addAll(rules);
-//    ruleSet.addAll(extendedRules);
-    g.learnGrammar(ruleSet, edgeSpace);
-    
-//    assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\na:prefix={NP=-1.6}\n chef:prefix={NP=-1.9}, end={NP=-1.9}\n soup:prefix={NP=-3.0}, end={NP=-3.0}\nthe:prefix={NP=-2.3}\n chef:prefix={NP=-2.3}, end={NP=-2.3}\ncook:prefix={VP=-2.3}\n soup:prefix={VP=-2.3}, end={VP=-2.3}");
- 
+    boolean isSeparateRuleInTrie = false;
+    g.learnGrammar(ruleSet, edgeSpace, isSeparateRuleInTrie);
+    assertEquals(g.getRuleTrie().toString(wordIndex, tagIndex), "\na:prefix={NP=-1.6}\n chef:prefix={NP=-1.9}, end={NP=-1.9}\n soup:prefix={NP=-3.0}, end={NP=-3.0}\nthe:prefix={NP=-2.3}\n chef:prefix={NP=-2.3}, end={NP=-2.3}\ncook:prefix={VP=-2.3}\n soup:prefix={VP=-2.3}, end={VP=-2.3}");
     assertEquals(Util.sprint(g.getCompletions(tagIndex.indexOf("PP")), edgeSpace, 
-        tagIndex, wordIndex, operator), "[(NP -> . PP, NP -> ., 1.0416666666666667), (VP -> . NP, VP -> ., 0.1041666666666667), (NP -> . NP PP, NP -> . PP, 0.1041666666666667), (PP -> . NP, PP -> ., 0.1041666666666667), (S -> . NP VP, S -> . VP, 0.1041666666666667)]");
+        tagIndex, wordIndex, operator), "[(NP -> . PP, 1.0416666666666667), (VP -> . NP, 0.1041666666666667), (NP -> . NP PP, 0.1041666666666667), (PP -> . NP, 0.1041666666666667), (S -> . NP VP, 0.1041666666666667)]");
+
+    g = new Grammar(wordIndex, tagIndex, nonterminalMap, operator);
+    isSeparateRuleInTrie = true;
+    g.learnGrammar(ruleSet, edgeSpace, isSeparateRuleInTrie);
+    assertEquals(g.getRuleTrie().toString(ruleSet, wordIndex, tagIndex), "\na:prefix={NP->[_a _chef] : 0.150000=-1.9, NP->[_a _soup] : 0.0500000=-3.0}\n chef:prefix={NP->[_a _chef] : 0.150000=-1.9}, end={NP->[_a _chef] : 0.150000=-1.9}\n soup:prefix={NP->[_a _soup] : 0.0500000=-3.0}, end={NP->[_a _soup] : 0.0500000=-3.0}\nthe:prefix={NP->[_the _chef] : 0.100000=-2.3}\n chef:prefix={NP->[_the _chef] : 0.100000=-2.3}, end={NP->[_the _chef] : 0.100000=-2.3}\ncook:prefix={VP->[_cook _soup] : 0.100000=-2.3}\n soup:prefix={VP->[_cook _soup] : 0.100000=-2.3}, end={VP->[_cook _soup] : 0.100000=-2.3}");
+    assertEquals(Util.sprint(g.getCompletions(tagIndex.indexOf("PP")), edgeSpace, 
+        tagIndex, wordIndex, operator), "[(NP -> . PP, 1.0416666666666667), (VP -> . NP, 0.1041666666666667), (NP -> . NP PP, 0.1041666666666667), (PP -> . NP, 0.1041666666666667), (S -> . NP VP, 0.1041666666666667)]");
 
   }
 }

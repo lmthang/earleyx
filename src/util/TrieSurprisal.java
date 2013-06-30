@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import base.RuleSet;
+
 
 import edu.stanford.nlp.math.SloppyMath;
 import edu.stanford.nlp.util.Index;
@@ -152,6 +154,36 @@ public class TrieSurprisal extends Trie<Integer, Pair<Integer, Double>> {
       }
     }
     return null;
+  }
+  
+  public String toString(RuleSet ruleSet, Index<String> wordIndex, Index<String> tagIndex){
+    StringBuffer sb = new StringBuffer();
+    
+    if(prefixValueMap.size() > 0){
+      sb.append("prefix={");
+      for (int ruleId : prefixValueMap.keySet()) {
+        sb.append(ruleSet.get(ruleId).toString(tagIndex, wordIndex) + "=" + df.format(prefixValueMap.get(ruleId)) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+      sb.append("}");
+    }
+    if(completeValueMap.size() > 0){
+      sb.append(", end={");
+      for (int ruleId : completeValueMap.keySet()) {
+        sb.append(ruleSet.get(ruleId).toString(tagIndex, wordIndex) + "=" + df.format(completeValueMap.get(ruleId)) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+      sb.append("}");
+    }
+    
+    int i=0;
+    for(Integer element : keyList){
+      trieList.get(i).setIndent(indent + " ");
+      sb.append("\n" + indent + wordIndex.get(element) 
+          + ":" + trieList.get(i).toString(ruleSet, wordIndex, tagIndex));
+      ++i;
+    }
+    return sb.toString();
   }
   
   public String toString(Index<String> wordIndex, Index<String> tagIndex){

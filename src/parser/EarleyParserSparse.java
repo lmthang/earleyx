@@ -24,18 +24,18 @@ public class EarleyParserSparse extends EarleyParser {
   protected Map<Integer, Map<Integer, Double>> outerProb;     // innerProb.get(linear(left, right)).get(edge)
 
   public EarleyParserSparse(BufferedReader br, String rootSymbol,
-      boolean isScaling, boolean isLogProb, int insideOutsideOpt,
+      boolean isScaling, boolean isLogProb, String ioOptStr, String decodeOptStr,
       String objString) {
-    super(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
+    super(br, rootSymbol, isScaling, isLogProb, ioOptStr, decodeOptStr, objString);
     isFastComplete = true;
     // TODO Auto-generated constructor stub
   }
 
   public EarleyParserSparse(String grammarFile, int inGrammarType,
       String rootSymbol, boolean isScaling, boolean isLogProb,
-      int insideOutsideOpt, String objString) {
+      String ioOpt, String decodeOpt, String objString) {
     super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
-        insideOutsideOpt, objString);
+        ioOpt, decodeOpt, objString);
     isFastComplete = true;
     System.err.println("# EarleyParserSparse");
   }
@@ -93,50 +93,7 @@ public class EarleyParserSparse extends EarleyParser {
     storeProbs(theseForwardProb, forwardProb.get(lrIndex));
     storeProbs(theseInnerProb, innerProb.get(lrIndex));
   }
-  
-  protected void addPrefixProbExtendedRule(int left, int middle, int right, int edge, double inner) {    
-    int tag = edgeSpace.get(edge).getMother();
-    assert(edgeSpace.get(edge).numRemainingChildren()==0);
     
-    int lmIndex = linear(left, middle); // left middle index    
-    Completion[] completions = g.getCompletions(tag);
-    
-    if (verbose>=3 && completions.length>0){
-      System.err.println(completionInfo(middle, right, edge, inner, completions));
-    }
-   
-
-    if (isScaling){
-      inner = operator.multiply(inner, getScaling(middle, right));
-    }
-    
-    Map<Integer, Double> forwardMap = forwardProb.get(lmIndex);
-    
-    // the current AG rule: Y -> w_middle ... w_(right-1) .
-    for (int x = 0, n = completions.length; x < n; x++) {
-      Completion completion = completions[x];
-     
-      if (forwardMap.containsKey(completion.activeEdge)){
-        // we are using trie, and there's an extended rule that could be used to update prefix prob
-        double prefixScore = operator.multiply(forwardMap.get(completion.activeEdge), 
-                               operator.multiply(completion.score, inner));
-        
-        thisPrefixProb.add(prefixScore);
-        thisSynPrefixProb.add(prefixScore); // TODO: compute syntactic scores for AG
-        
-        if (verbose >= 3) {
-          System.err.println("  start " + edgeScoreInfo(left, middle, completion.activeEdge));
-        }
-        
-        if (verbose >= 2) {
-          System.err.println("  # prefix prob AG += " + operator.getProb(prefixScore) + "(" +  
-              operator.getProb(forwardProb.get(lmIndex).get(completion.activeEdge)) + "*" +
-              operator.getProb(completion.score) + "*" + operator.getProb(inner)  + ")");
-        }
-      }
-    }
-  }    
-  
   protected void storeProbs(Map<Integer, DoubleList> dl, Map<Integer, Double> probs) {
     
     for (int edge : dl.keySet()) {

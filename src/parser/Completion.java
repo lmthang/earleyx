@@ -31,12 +31,12 @@ public class Completion {
   public static final Completion[] NO_COMPLETION = new Completion[0];
   
   int activeEdge; // the state just before completion, stateSpace.to(activeState) gives the completed state
-  int completedEdge; // this variable could be removed if memory is an issue
+  //int completedEdge; // this variable could be removed if memory is an issue
   double score; // always greater than or equal to zero; derives from unary closure
 
-  public Completion(int activeEdge, int completedEdge, double score) {
+  public Completion(int activeEdge, double score) { // , int completedEdge
     this.activeEdge = activeEdge;
-    this.completedEdge = completedEdge;
+    //this.completedEdge = completedEdge;
     this.score = score;
   }
 
@@ -79,7 +79,7 @@ public class Completion {
           double unaryClosureScore = unaryClosures.get(viaTag, tag); // R(Z -> Y)
           
           if (unaryClosureScore != operator.zero()) {
-            Completion completion = new Completion(activeEdge, edgeSpace.to(activeEdge), unaryClosureScore);
+            Completion completion = new Completion(activeEdge, unaryClosureScore); // , edgeSpace.to(activeEdge)
 
             tag2completionsMap.get(tag).add(completion);
      
@@ -90,7 +90,7 @@ public class Completion {
           }
         }
       } else { // for zero row, there is only passive state, which is the via state Z -> []
-        Completion completion = new Completion(activeEdge, edgeSpace.to(activeEdge), operator.one());
+        Completion completion = new Completion(activeEdge, operator.one()); // , edgeSpace.to(activeEdge)
         tag2completionsMap.get(viaTag).add(completion);
         
         if(verbose >= 3){
@@ -167,8 +167,8 @@ public class Completion {
   }
 
   public String toString(EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex, Operator operator) {
-    return "(" + edgeSpace.get(activeEdge).toString(tagIndex, wordIndex) 
-    + ", " + edgeSpace.get(completedEdge).toString(tagIndex, wordIndex) + ", " 
+    return "(" + edgeSpace.get(activeEdge).toString(tagIndex, wordIndex) + ", " 
+    //+ edgeSpace.get(completedEdge).toString(tagIndex, wordIndex) + ", " 
     + operator.getProb(score) + ")"; //df.format()
   }
 

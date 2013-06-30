@@ -6,12 +6,12 @@ import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.ling.Tag;
 import edu.stanford.nlp.ling.Word;
+import edu.stanford.nlp.math.ArrayMath;
 import edu.stanford.nlp.parser.Parser;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.trees.LabeledScoredTreeNode;
 import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.util.DoubleList;
 import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Timing;
@@ -57,39 +57,22 @@ import util.Util;
  */
 
 public abstract class EarleyParser implements Parser { 
-  public static final String SURPRISAL_OBJ = "surprisal";
-  public static final String STRINGPROB_OBJ = "stringprob";
-  public static final String VITERBI_OBJ = "viterbi";
-  public static final String MARGINAL_OBJ = "marginal";
-  public static final String SOCIALMARGINAL_OBJ = "socialmarginal"; // for social cue data, we only decode spans that cover utterances, since we know utterance boundaries
+  public static final String VITERBI_OPT = "viterbi";
+  public static final String MARGINAL_OPT = "marginal";
+  public static final String SOCIALMARGINAL_OPT = "socialmarginal";
   
   protected boolean isScaling = true;
   protected boolean isLogProb = false;
   protected int insideOutsideOpt = 0; // 1: EM, 2: VB
-  public int getInsideOutsideOpt() {
-    return insideOutsideOpt;
-  }
-  protected int decodeOpt = 0; // 1: Viterbi (Label Tree), 2: Label Recall
+  protected String decodeOptStr = "";
+  protected int decodeOpt = 0; // 1: Viterbi (Label Tree), 2: Marginal Decoding (Label Recall), 3: Social Marginal Decoding
   protected boolean isFastComplete = false; 
   protected Operator operator; // either ProbOperator or LogProbOperator
   
-  public Operator getOperator() {
-    return operator;
-  }
   protected Grammar g;
   protected EdgeSpace edgeSpace;
-  public EdgeSpace getEdgeSpace() {
-    return edgeSpace;
-  }
   protected BaseLexicon lex;
-  
-  public BaseLexicon getLex() {
-    return lex;
-  }
   protected RuleSet ruleSet;
-  public RuleSet getRuleSet() {
-    return ruleSet;
-  }
   
   protected boolean hasMultiTerminalRule = false;
   protected boolean hasFragmentRule = false;
@@ -114,17 +97,24 @@ public abstract class EarleyParser implements Parser {
   //   we processed them when loading treebank or grammar files (more for debug purpose)
   protected Map<Integer, Integer> parserNonterminalMap; // doesn't include preterminals. nonterminal + preterminal = parser tag indices
   
+  private Set<String> outputMeasures; // output measures (surprisal, stringprob, etc.)
+  private Set<String> internalMeasures; // internal measures (prefix, entropy, etc.)
+  protected Measures measures; // store values for all measures, initialized for every sentence
+  
+  public boolean isSeparateRuleInTrie = true; //false; //true; //false;  
   
   /** prefix & syntactic prefix probabilities **/
   // prefixProb[i]: prefix prob of word_0...word_(i-1) sum/log-sum of thisPrefixProb
-  protected double[] prefixProb; // numWords+1 
+  // protected double[] prefixProb; // numWords+1 
   // synPrefixProb[i]: syntatic prefix prob of word_0...word_(i-1) sum/log-sum of thisSynPrefixProb
-  protected double[] synPrefixProb;
+  //  protected double[] synPrefixProb;
 
   /** per word info **/
   // to accumulate probabilities of all paths leading to a particular words
-  protected DoubleList thisPrefixProb;
-  protected DoubleList thisSynPrefixProb;
+  protected Measures wordMeasures; // for each word, for each measure, store a list of values and sum up at the end
+  
+//  protected DoubleList prefixProbs;
+//  protected DoubleList thisSynPrefixProb;
   
   /** scaling info **/
   // * Invariant:
@@ -182,11 +172,10 @@ public abstract class EarleyParser implements Parser {
   protected int numWords = 0;
 
   /** results **/
-  private Set<String> objectives;
-  protected List<Double> surprisalList;
-  protected List<Double> synSurprisalList;
-  protected List<Double> lexSurprisalList;
-  protected List<Double> stringLogProbList;
+//  protected List<Double> surprisalList;
+//  protected List<Double> synSurprisalList;
+//  protected List<Double> lexSurprisalList;
+//  protected List<Double> stringLogProbList;
   
   public static int verbose = -1;
   protected static DecimalFormat df = new DecimalFormat("0.000000");
@@ -194,14 +183,13 @@ public abstract class EarleyParser implements Parser {
   protected static DecimalFormat df2 = new DecimalFormat("0.00000000");
   
   public EarleyParser(String grammarFile, int inGrammarType, String rootSymbol, 
-      boolean isScaling, 
-      boolean isLogProb, int insideOutsideOpt, String objString){
+      boolean isScaling, boolean isLogProb, String ioOptStr, String decodeOptStr, String measureString){
+    preInit(rootSymbol, isScaling, isLogProb, ioOptStr, decodeOptStr, measureString);
+    
     if(inGrammarType==1){ // grammar file
-      construct(Util.getBufferedReaderFromFile(grammarFile), rootSymbol, isScaling, 
-          isLogProb, insideOutsideOpt, objString);
+      init(Util.getBufferedReaderFromFile(grammarFile), rootSymbol);
+      postInit(rootSymbol);
     } else if(inGrammarType==2){ // treebank file
-      preInit(rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
-      
       Collection<IntTaggedWord> intTaggedWords = new ArrayList<IntTaggedWord>();
       TreeBankFile.processTreebank(grammarFile, ruleSet, intTaggedWords, parserTagIndex, 
           parserWordIndex, parserNonterminalMap);
@@ -226,23 +214,72 @@ public abstract class EarleyParser implements Parser {
       System.exit(1);
     }
   }
-  public EarleyParser(BufferedReader br, String rootSymbol, boolean isScaling, 
-      boolean isLogProb, int insideOutsideOpt, String objString){
-    construct(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
-  }
-  
-  private void construct(BufferedReader br, String rootSymbol, boolean isScaling, 
-      boolean isLogProb, int insideOutsideOpt, String objString){
-    preInit(rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
+  public EarleyParser(BufferedReader br, String rootSymbol, 
+      boolean isScaling, boolean isLogProb,
+      String ioOptStr, String decodeOptStr, String measureString){
+    preInit(rootSymbol, isScaling, isLogProb, ioOptStr, decodeOptStr, measureString);
     init(br, rootSymbol);
     postInit(rootSymbol);
   }
+  
   // preInit
-  private void preInit(String rootSymbol, boolean isScaling, boolean isLogProb, 
-      int insideOutsideOpt, String objString){
+  private void preInit(String rootSymbol, boolean isScaling, boolean isLogProb,
+      String ioOptStr, String decodeOptStr, String measureString){
+    
+    // induction option
+    if(ioOptStr.equalsIgnoreCase("em")){
+      insideOutsideOpt = 1;
+    } else if(ioOptStr.equalsIgnoreCase("vb")){
+      insideOutsideOpt = 2;
+    }
+   
+    // decode option
+    this.decodeOptStr = decodeOptStr;
+    if(decodeOptStr.equalsIgnoreCase(VITERBI_OPT)){
+      decodeOpt = 1;
+    } else if(decodeOptStr.equalsIgnoreCase(MARGINAL_OPT) 
+        || decodeOptStr.equalsIgnoreCase(SOCIALMARGINAL_OPT)){
+      decodeOpt = 2;
+    }
+    
+    // output measures
+    outputMeasures = new HashSet<String>();
+    for(String measure : measureString.split("\\s*,\\s*")){
+      outputMeasures.add(measure);
+    }
+
+    // internal measures
+    internalMeasures = new HashSet<String>();
+    internalMeasures.add(Measures.PREFIX); // always need to compute prefix
+    if(outputMeasures.contains(Measures.ENTROPY) || outputMeasures.contains(Measures.ENTROPY_REDUCTION)){
+      internalMeasures.add(Measures.ENTROPY);
+    }
+    if(outputMeasures.contains(Measures.MULTI_RULE_COUNT)){
+      internalMeasures.add(Measures.MULTI_RULE_COUNT);
+    }
+    if(outputMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT)){
+      internalMeasures.add(Measures.MULTI_RHS_LENGTH_COUNT);
+    }
+    if(outputMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT)){
+      internalMeasures.add(Measures.MULTI_FUTURE_LENGTH_COUNT);
+    }
+    if(outputMeasures.contains(Measures.MULTI_RHS_LENGTH)){
+      internalMeasures.add(Measures.MULTI_RHS_LENGTH);
+    }
+    if(outputMeasures.contains(Measures.MULTI_FUTURE_LENGTH)){
+      internalMeasures.add(Measures.MULTI_FUTURE_LENGTH);
+    }
+    if(internalMeasures.contains(Measures.ENTROPY) && isScaling){
+      System.err.println("Can't use -scale option when \"entropy\" is part of the output measures");
+      System.exit(1);
+    }
+    if(internalMeasures.size()>0){
+      isSeparateRuleInTrie = true;
+      System.err.println("# internal measures: " + internalMeasures);
+      System.err.println("# set isSeparateRuleInTrie to true");
+    }
     this.isScaling = isScaling;
     this.isLogProb = isLogProb;
-    this.insideOutsideOpt = insideOutsideOpt;
     
     if(isLogProb){
       operator = new LogProbOperator();
@@ -279,26 +316,8 @@ public abstract class EarleyParser implements Parser {
       expectedCounts = new HashMap<Integer, Double>();
     }
     
-    // objectives
-    objectives = new HashSet<String>();
-    for(String objective : objString.split(",")){
-      objectives.add(objective);
-    }
-    
-    if(objectives.contains(VITERBI_OBJ) && 
-        (objectives.contains(SOCIALMARGINAL_OBJ) || objectives.contains(MARGINAL_OBJ))){
-      System.err.println("! For -obj: viterbi is mutually exclusive with socialmarginal|marginal");
-      System.exit(1);
-    }
-   
-    if(objectives.contains(VITERBI_OBJ)){
-      decodeOpt = 1;
-    } else if(objectives.contains(SOCIALMARGINAL_OBJ) || objectives.contains(MARGINAL_OBJ)){
-      decodeOpt = 2;
-    }
-    
     // edgespace
-    if(insideOutsideOpt > 0 || decodeOpt > 0){
+    if(insideOutsideOpt > 0 || decodeOpt > 0 || outputMeasures.contains(Measures.ENTROPY)){
       edgeSpace = new StandardEdgeSpace(parserTagIndex, parserWordIndex);
     } else {
       // edgespace
@@ -395,7 +414,7 @@ public abstract class EarleyParser implements Parser {
       System.err.println("\n### Learning grammar ... ");
     }
     g = new Grammar(parserWordIndex, parserTagIndex, parserNonterminalMap, operator);
-    g.learnGrammar(ruleSet, edgeSpace);
+    g.learnGrammar(ruleSet, edgeSpace, isSeparateRuleInTrie);
   }
   
   /**
@@ -452,19 +471,17 @@ public abstract class EarleyParser implements Parser {
   public List<Double> parseSentences(List<String> sentences, List<String> indices, 
       String outPrefix) throws IOException {
     assert(sentences.size() == indices.size());
-    BufferedWriter surprisalWriter = null;
-    BufferedWriter stringprobWriter = null;
-    BufferedWriter viterbiWriter = null;
-    BufferedWriter marginalWriter = null;
+    Map<String, BufferedWriter> measureWriterMap = new HashMap<String, BufferedWriter>();
+    BufferedWriter decodeWriter = null;
+    
     if(!outPrefix.equals("")) {
-    	if (objectives.contains(SURPRISAL_OBJ))
-    		surprisalWriter = new BufferedWriter(new FileWriter(outPrefix + "." + SURPRISAL_OBJ));
-    	if (objectives.contains(STRINGPROB_OBJ)) 
-        	stringprobWriter = new BufferedWriter(new FileWriter(outPrefix + "." + STRINGPROB_OBJ));
-    	if (objectives.contains(VITERBI_OBJ)) 
-    		viterbiWriter = new BufferedWriter(new FileWriter(outPrefix + "." + VITERBI_OBJ));
-    	if (objectives.contains(SOCIALMARGINAL_OBJ) || objectives.contains(MARGINAL_OBJ)) 
-        marginalWriter = new BufferedWriter(new FileWriter(outPrefix + "." + SOCIALMARGINAL_OBJ));
+      for (String measure : outputMeasures) {
+        measureWriterMap.put(measure, new BufferedWriter(new 
+            FileWriter(outPrefix + "." + measure)));
+      }
+      
+    	if (!decodeOptStr.equals(""))
+    	  decodeWriter = new BufferedWriter(new FileWriter(outPrefix + "." + decodeOptStr));
     }
     
     List<Double> sentLogProbs = new ArrayList<Double>();
@@ -481,50 +498,39 @@ public abstract class EarleyParser implements Parser {
       sentLogProbs.add(stringLogProbability(numWords));
 
       // output
-      if(surprisalWriter != null){ // surprisal
-        surprisalWriter.write("# " + id + "\n");
-        Util.outputSentenceResult(sentenceString, surprisalWriter, surprisalList);
-      }
-      if(stringprobWriter != null){ // string prob
-        stringprobWriter.write("# " + id + "\n");
-        Util.outputSentenceResult(sentenceString, stringprobWriter, getStringProbList());
+      for (String measure : measureWriterMap.keySet()) {
+        BufferedWriter measureWriter = measureWriterMap.get(measure);
+        measureWriter.write("# " + id + "\n");
+        Util.outputSentenceResult(sentenceString, measureWriter, measures.getSentList(measure));
       }
       
-      if(viterbiWriter != null){ // viterbi
-        Tree viterbiParse = viterbiParse();
-        viterbiWriter.write(viterbiParse.toString() + "\n");
-      }
-      
-      if(marginalWriter != null){ // social marginal, need to compute expected counts
-        expectedCounts = new HashMap<Integer, Double>();
-        computeOutsideProbs();
-         
-        if (objectives.contains(SOCIALMARGINAL_OBJ)){
-          List<String> treeStrs = marginalDecoder.socialMarginalDecoding();
-          for(String treeStr : treeStrs){
-            marginalWriter.write(treeStr + "\n");
-          }
-        } else {
-          Tree marginalParse = marginalDecoder.getBestParse();
-          marginalWriter.write(marginalParse.toString() + "\n");
+      if(decodeWriter != null){
+        if(decodeOptStr.equalsIgnoreCase(VITERBI_OPT)){ // viterbi
+          System.err.println("Decode writer " + decodeWriter);
+          decodeWriter.write(viterbiParse().toString() + "\n");
+        }
+        else if(!decodeOptStr.equals("")) {// marginal or socialmarginal
+          expectedCounts = new HashMap<Integer, Double>();
+          computeOutsideProbs();
+           
+          if (decodeOptStr.equalsIgnoreCase(SOCIALMARGINAL_OPT)){
+            List<String> treeStrs = marginalDecoder.socialMarginalDecoding();
+            for(String treeStr : treeStrs){
+              decodeWriter.write(treeStr + "\n");
+            }
+          } else
+            decodeWriter.write(marginalDecoder.getBestParse().toString() + "\n");
         }
       }
-      
-      
     }
     
     // close
-    if(surprisalWriter != null){ // surprisal
-      surprisalWriter.close();
+    for (String measure : measureWriterMap.keySet()) {
+      BufferedWriter measureWriter = measureWriterMap.get(measure);
+      measureWriter.close();
     }
-    if(stringprobWriter != null){ // stringprob
-      stringprobWriter.close();
-    }
-    if(viterbiWriter != null){ // viterbi
-      viterbiWriter.close();
-    }
-    if(marginalWriter != null){ // social marginal
-      marginalWriter.close();
+    if(decodeWriter != null){
+      decodeWriter.close();
     }
     
     return sentLogProbs;
@@ -576,62 +582,73 @@ public abstract class EarleyParser implements Parser {
     
     /* parse word by word */
     double lastProbability = 1.0;
+    double lastEntropy = 0.0;
     for(int right=1; right<=numWords; right++){ // span [0, rightEdge] covers words 0, ..., rightEdge-1
-      int wordId = right-1;
       parseWord(right);
-            
-      double prefixProbability = getPrefixProb(right);
-
-      // string probs
-      double stringLogProbability = stringLogProbability(right);
-      stringLogProbList.add(stringLogProbability);
       
-      StringBuffer sb = new StringBuffer(); 
-      if(verbose>=1){
-        sb.append(Util.sprint(parserWordIndex, wordIndices.subList(0, right)) + "\n"
-            + "String logprob: " + stringLogProbability + "\n");
+      // string probs
+      if(outputMeasures.contains(Measures.STRINGPROB)){
+        double stringLogProbability = stringLogProbability(right);
+        measures.setValue(Measures.STRINGPROB, right, Math.exp(stringLogProbability));
+      }
+      
+      // entropy reduction
+      if(outputMeasures.contains(Measures.ENTROPY_REDUCTION)){
+        double entropy = measures.getEntropy(right);
+        measures.setValue(Measures.ENTROPY_REDUCTION, right, Math.max(0.0, lastEntropy - entropy));
+        lastEntropy = entropy;
+      }
+      
+      double count = 0;
+      if(outputMeasures.contains(Measures.MULTI_RULE_COUNT)){
+        count = measures.getValue(Measures.MULTI_RULE_COUNT, right); 
+      }
+      
+      if(outputMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT) && count>0){
+        measures.setValue(Measures.MULTI_RHS_LENGTH_COUNT, right, measures.getValue(Measures.MULTI_RHS_LENGTH_COUNT, right)/count);
+      }
+      if(outputMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT) && count>0){
+        measures.setValue(Measures.MULTI_FUTURE_LENGTH_COUNT, right, measures.getValue(Measures.MULTI_FUTURE_LENGTH_COUNT, right)/count);
       }
       
       // surprisals
-      if(objectives.contains(SURPRISAL_OBJ)){
+      if(outputMeasures.contains(Measures.SURPRISAL)){
+        double prefixProbability = operator.getProb(measures.getPrefix(right));
+
         if(!isScaling){
           double prefixProbabilityRatio = prefixProbability / lastProbability;
           if (prefixProbabilityRatio > 1.0 + 1e-10){
             System.err.println("! Error: prefix probability ratio > 1.0: " + prefixProbabilityRatio);
             System.exit(1);
           }
-          surprisalList.add(-Math.log(prefixProbabilityRatio));
+          measures.setValue(Measures.SURPRISAL, right, -Math.log(prefixProbabilityRatio));
           
           // syntatic/lexical surprisals
-          double synPrefixProbability = getSynPrefixProb(right);
-          synSurprisalList.add(-Math.log(synPrefixProbability/lastProbability));
-          lexSurprisalList.add(-Math.log(prefixProbability/synPrefixProbability));
-  
-          if(verbose>=0){
-            sb.append("Prefix probability: " + prefixProbability + "\n" +
-            "Surprisal: " + surprisalList.get(wordId) + " = -log(" + 
-            prefixProbability + "/" + lastProbability + ")\n");
-          }
+//          double synPrefixProbability = getSynPrefixProb(right);
+//          synSurprisalList.add(-Math.log(synPrefixProbability/lastProbability));
+//          lexSurprisalList.add(-Math.log(prefixProbability/synPrefixProbability));
           lastProbability = prefixProbability;
         } else {
           // note: prefix prob is scaled, and equal to P(w0..w_(right-1))/P(w0..w_(right-2))
-          surprisalList.add(-Math.log(prefixProbability));
-          
-          if(verbose>=0){
-            sb.append("Scaled prefix probability: " + prefixProbability + "\n" +
-            "Scaling: " + getScaling(right-1, right) + "\n" + 
-            "Surprisal: " + surprisalList.get(wordId) + " = -log(" + prefixProbability + ")\n");
-          }
+          measures.setValue(Measures.SURPRISAL, right, -Math.log(prefixProbability));
         }
       }
       
       if(verbose>=1){
-        System.err.println(sb.toString());
+        System.err.println(Util.sprint(parserWordIndex, wordIndices.subList(0, right)));
+        
+        for(String measure : outputMeasures){
+          System.err.println(measure + ": " + measures.getValue(measure, right));
+        }
       }
+      
+//      if(right==2){
+//        System.exit(1);
+//      }
       
       if(verbose>=0 && right%100==0){
         System.err.print(" (" + right + ") ");
-      }
+      } 
     }
 
     if(verbose>=4){
@@ -730,7 +747,7 @@ public abstract class EarleyParser implements Parser {
     
     /** Scaling factors **/
     if(isScaling){ // scaling
-      scalingMap.put(linear(right-1, right), operator.inverse(prefixProb[right-1]));
+      scalingMap.put(linear(right-1, right), operator.inverse(measures.getPrefix(right-1)));
     }
     
     /** Handle normal rules **/
@@ -779,9 +796,16 @@ public abstract class EarleyParser implements Parser {
           if (verbose>=3){
             System.err.println("AG full: " + words.subList(i, right) + ": " + Util.sprint(valueMap, parserTagIndex));
           }
-          for (int iT : valueMap.keySet()) {
+          for (int key : valueMap.keySet()) {
+            int iT = -1;
+            if(isSeparateRuleInTrie){ // key is ruleId
+              iT = ruleSet.get(key).getMother();
+            } else { // key is tagId
+              iT = key;
+            }
+            
             // score
-            double score = valueMap.get(iT);
+            double score = valueMap.get(key);
             
             // scanning
             scanning(i, right, iT, score);                      
@@ -978,7 +1002,7 @@ public abstract class EarleyParser implements Parser {
       } // end middle
     } // end left
     
-    storePrefixProb(right);
+    storeMeasures(right);
     if(verbose>=3){
       dumpChart();
     }
@@ -1007,18 +1031,20 @@ public abstract class EarleyParser implements Parser {
     
     /** Handle multi-terminal rules **/
     if(hasMultiTerminalRule && !isForwardCellEmpty(left, middle)){
-      Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(
-          wordIndices.subList(middle, right));
+      if(verbose>=2){
+        System.err.println("# handle multiterminal rules " + left + ", " + middle + ", " + right);
+      }
+      Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(wordIndices.subList(middle, right));
       
       if(valueMap != null){
         if(verbose >= 2){
-          System.err.println("# AG prefix " + "[" + middle + ", " + right + "]: " + 
-              Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
-              ": " + Util.sprint(valueMap, parserTagIndex));
+          agPrefixInfo(middle, right, valueMap);
         }
         
         handleMultiTerminalRules(left, middle, right, valueMap);
       }
+      
+      
     }
     
     /** Handle fragment rules **/
@@ -1028,6 +1054,33 @@ public abstract class EarleyParser implements Parser {
     
     // completions yield edges: right: left X -> \alpha Y . \beta
     storeCompleteTmpScores(left, right);
+  }
+  
+  private void agPrefixInfo(int middle, int right, Map<Integer, Double> valueMap){
+    System.err.print("# AG prefix " + "[" + middle + ", " + right + "]: " + 
+        Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + ": ");
+    
+    if(isSeparateRuleInTrie){
+      System.err.println(Util.sprint(valueMap, ruleSet, parserTagIndex, parserWordIndex));
+    } else {
+      System.err.println(Util.sprint(valueMap, parserTagIndex));
+    }
+  }
+  
+  protected Map<Integer, Double> getPrefixMap(List<Integer> indices){
+    Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(indices);
+    
+    if(valueMap != null){
+      if(isSeparateRuleInTrie){
+        Map<Integer, Double> newValueMap = new HashMap<Integer, Double>();
+        for (Entry<Integer, Double> entry : valueMap.entrySet()) { // pair of rule id and score
+          newValueMap.put(ruleSet.getMother(entry.getKey()), entry.getValue());
+        }
+        valueMap = newValueMap;
+      }
+    }
+    
+    return valueMap;
   }
   
   protected void fastChartComplete(int right){
@@ -1050,11 +1103,23 @@ public abstract class EarleyParser implements Parser {
       // could be made faster
       /** Handle multi-terminal rules **/
       if(hasMultiTerminalRule){
-        handleMultiTerminalRules(middle, right);
+        Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(wordIndices.subList(middle, right));
+        
+        if(valueMap != null){
+          if(verbose >= 2){
+            agPrefixInfo(middle, right, valueMap);
+          }
+          for(int left=middle; left>=0; left--){
+            if(isForwardCellEmpty(left, middle)){
+              continue;
+            }
+            handleMultiTerminalRules(left, middle, right, valueMap);
+          }
+        }
       }
     }
     
-    storePrefixProb(right);
+    storeMeasures(right);
     if(verbose>=3){
       dumpChart();
     }
@@ -1087,14 +1152,14 @@ public abstract class EarleyParser implements Parser {
             assert(edgeSpace.get(prevEdge).numRemainingChildren()>0);
             /* add/update newEdge right: left X -> \alpha Z . \beta */
             double updateScore = operator.multiply(completion.score, inner);
-            double newForwardProb = operator.multiply(
+            double newForwardScore = operator.multiply(
                 getForwardScore(left, middle, prevEdge), updateScore);
-            double newInnerProb = operator.multiply(
+            double newInnerScore = operator.multiply(
                 getInnerScore(left, middle, prevEdge), updateScore);
-            int newEdge = completion.completedEdge;
+            int newEdge = edgeSpace.to(completion.activeEdge);
 
-            addInnerScore(left, right, newEdge, newInnerProb);
-            addForwardScore(left, right, newEdge, newForwardProb);
+            addInnerScore(left, right, newEdge, newInnerScore);
+            addForwardScore(left, right, newEdge, newForwardScore);
             if(this instanceof EarleyParserDense && !containsInsideEdge(left, right, newEdge)){
               ((EarleyParserDense) this).chartCount[left][right]++;
               ((EarleyParserDense) this).chartEntries[left][right][newEdge] = true;
@@ -1111,22 +1176,22 @@ public abstract class EarleyParser implements Parser {
             
             // Viterbi: store backtrack info
             if(decodeOpt==1){
-              addBacktrack(left, middle, right, nextEdge, newEdge, newInnerProb);
+              addBacktrack(left, middle, right, nextEdge, newEdge, newInnerScore);
             }
 
 
             if (verbose >= 3) {
               System.err.println("  start " + edgeScoreInfo(left, middle, completion.activeEdge) 
-                  + " -> new " + edgeScoreInfo(left, right, newEdge, newForwardProb, newInnerProb));
+                  + " -> new " + edgeScoreInfo(left, right, newEdge, newForwardScore, newInnerScore));
 
               if (isGoalEdge(newEdge)) {
-                System.err.println("# String prob +=" + Math.exp(newInnerProb));
+                System.err.println("# String prob +=" + Math.exp(newInnerScore));
               }
             }
             
             // also a careful addition to the prefix probabilities -- is this right?
             if (middle == right - 1) {
-              addPrefixProb(left, middle, right, newForwardProb, inner, completion);  
+              addPrefixProb(newForwardScore, left, middle, right, inner, completion.score, completion.activeEdge, "normal", null);  
             }
           } // end for left
           
@@ -1136,31 +1201,25 @@ public abstract class EarleyParser implements Parser {
     } // end if completions.length
   }
   
-  protected void handleMultiTerminalRules(int middle, int right){
-    Map<Integer, Double> valueMap = g.getRuleTrie().findAllPrefixMap(
-        wordIndices.subList(middle, right));
-    
-    if(valueMap != null){
-      if(verbose >= 1){
-        System.err.println("# AG prefix " + "[" + middle + ", " + right + "]: " + 
-            Util.sprint(parserWordIndex, wordIndices.subList(middle, right)) + 
-            ": " + Util.sprint(valueMap, parserTagIndex));
-      }
-      for(int left=middle; left>=0; left--){
-        if(isForwardCellEmpty(left, middle)){
-          continue;
-        }
-        handleMultiTerminalRules(left, middle, right, valueMap);
-      }
-    }
-  }
-  
   protected void handleMultiTerminalRules(int left, int middle, int right, Map<Integer, Double> valueMap){
     for(Entry<Integer, Double> entry : valueMap.entrySet()){
-      int tag = entry.getKey();
+      int tag = -1; 
+      int ruleId = -1;
+      if(isSeparateRuleInTrie){
+        ruleId = entry.getKey();
+        tag = ruleSet.getMother(ruleId);
+        if(verbose>=2){
+          System.err.println("handleMulti " + ruleSet.get(entry.getKey()).toString(parserTagIndex, parserWordIndex) + ", " + entry.getValue());
+        }
+      } else {
+        tag = entry.getKey();
+        if(verbose>=2){
+          System.err.println("handleMulti " + parserTagIndex.get(tag) + ", " + entry.getValue());
+        }
+      }
       int edge = edgeSpace.indexOfTag(tag);
       double score = entry.getValue();
-      addPrefixProbExtendedRule(left, middle, right, edge, score);
+      addPrefixExtendedRule(left, middle, right, edge, ruleId, score);
     }
   }
   
@@ -1192,6 +1251,15 @@ public abstract class EarleyParser implements Parser {
     int middle = right-1;
     double newForwardProb = getForwardScore(left, middle, prevEdge);
     double newInnerProb = getInnerScore(left, middle, prevEdge);
+    if (isScaling){
+//      if(verbose>=2){
+//        System.err.println("fragment complete scailing " + operator.multiply(newForwardProb, getScaling(middle, right)) 
+//            + " = " + newForwardProb 
+//            + ", scaled = " + getScaling(middle, right));
+//      }
+      newForwardProb = operator.multiply(newForwardProb, getScaling(middle, right));
+      newInnerProb = operator.multiply(newInnerProb, getScaling(middle, right));
+    }
     int newEdge = edgeSpace.to(prevEdge);
     
     // add edge, right: left X -> _ Z . _, to tmp storage
@@ -1223,8 +1291,7 @@ public abstract class EarleyParser implements Parser {
       }
     }
 
-    //also a careful addition to the prefix probabilities -- is this right?
-    addFragmentPrefixProb(left, right, newForwardProb, prevEdge);
+    addPrefixProb(newForwardProb, left, right-1, right, operator.one(), operator.one(), prevEdge, "fragment", null);
   }
   
   protected void complete(int left, int middle, int right, int nextEdge, double inner) {
@@ -1246,7 +1313,7 @@ public abstract class EarleyParser implements Parser {
             getForwardScore(left, middle, completion.activeEdge), updateScore);
         double newInnerProb = operator.multiply(
             getInnerScore(left, middle, completion.activeEdge), updateScore);
-        int newEdge = completion.completedEdge;
+        int newEdge = edgeSpace.to(completion.activeEdge);
         
         // add edge, right: left X -> _ Z . _, to tmp storage
         initCompleteTmpScores(newEdge);
@@ -1278,7 +1345,7 @@ public abstract class EarleyParser implements Parser {
 
         //also a careful addition to the prefix probabilities -- is this right?
         if (middle == right - 1) {
-          addPrefixProb(left, middle, right, newForwardProb, inner, completion);
+          addPrefixProb(newForwardProb, left, middle, right, inner, completion.score, completion.activeEdge, "normal", null);
         }
       }
     }
@@ -1301,34 +1368,106 @@ public abstract class EarleyParser implements Parser {
     }
   }
   
-  public void addFragmentPrefixProb(int left, int right, double newForwardProb, int prevEdge){
-    int middle = right-1;
-    thisPrefixProb.add(newForwardProb);
-    double synProb = newForwardProb;
-    thisSynPrefixProb.add(synProb); // minus the lexical score
-    if (verbose >= 2) {
-      System.err.println("# Prefix prob += " + operator.getProb(newForwardProb) + "=" + 
-          operator.getProb(getForwardScore(left, middle, prevEdge)) + "\t" + 
-          left + "\t" + middle + "\t" + prevEdge);
-//      System.err.println("# Syn prefix prob += " + operator.getProb(synProb) + "=" + 
-//          operator.getProb(newForwardProb));
+  private void addPrefixProb(double prefixScore, int left, int middle, int right,  
+      double inner, double completionScore, int prevEdge, String type, Map<String, Double> additionalMeasureMap){
+    wordMeasures.addPrefix(prefixScore);
+    if(verbose>=2){
+      System.err.println("# add measures: " + edgeInfo(left, middle, prevEdge));
+      System.err.println("  prefix " + type + " " + operator.getProb(prefixScore) + " = " 
+          + operator.getProb(getForwardScore(left, middle, prevEdge)) 
+          + " * completion " + operator.getProb(completionScore) 
+          + " * inner " + operator.getProb(inner));
     }
+    
+    double prefixProb = operator.getProb(prefixScore);
+    if(internalMeasures.contains(Measures.ENTROPY)){ // expected value of log prob
+      wordMeasures.addEntropy(-prefixProb*operator.getLogProb(prefixScore));
+      
+      if(verbose>=2){
+        System.err.println("  entropy " + type + " " + -prefixProb*operator.getLogProb(prefixScore));
+      }
+    }
+    if(additionalMeasureMap != null){
+      for (String measure : additionalMeasureMap.keySet()) {
+        wordMeasures.addValue(measure, prefixProb*additionalMeasureMap.get(measure));
+        
+        if(verbose>=2){
+          System.err.println("  " + measure + " " + type + " " + df.format(prefixProb*additionalMeasureMap.get(measure))
+              + " = prob " + df.format(prefixProb) + " * measure " + df.format(additionalMeasureMap.get(measure)));
+        }
+      }
+    }
+      
+    
+    
+//  double synProb = newForwardProb;
+//  thisSynPrefixProb.add(synProb); // minus the lexical score
+    
+    
+//    double synProb = operator.divide(newForwardProb, inner);
+//    thisSynPrefixProb.add(synProb); // minus the lexical score
   }
   
-  public void addPrefixProb(int left, int middle, int right, double newForwardProb, double inner, Completion completion){
-    thisPrefixProb.add(newForwardProb);
-    double synProb = operator.divide(newForwardProb, inner);
-    thisSynPrefixProb.add(synProb); // minus the lexical score
-    if (verbose >= 2) {
-      System.err.println("# Fragment prefix prob += " + operator.getProb(newForwardProb) + "=" + 
-          operator.getProb(getForwardScore(left, middle, completion.activeEdge)) + "*" + 
-          operator.getProb(completion.score) + "*" + operator.getProb(inner) + "\t" + 
-          left + "\t" + middle + "\t" + completion.activeEdge);
-//      System.err.println("# Syn prefix prob += " + operator.getProb(synProb) + "=" + 
-//          operator.getProb(newForwardProb) + "/" + 
-//          operator.getProb(inner));
+  protected void addPrefixExtendedRule(int left, int middle, int right, int edge, int ruleId, double inner) {    
+    int tag = edgeSpace.get(edge).getMother();
+    assert(edgeSpace.get(edge).numRemainingChildren()==0);
+    
+    Completion[] completions = g.getCompletions(tag);
+    
+    if (verbose>=3 && completions.length>0){
+      System.err.println(completionInfo(middle, right, edge, inner, completions));
     }
-  }
+   
+    if (isScaling){
+      inner = operator.multiply(inner, getScaling(middle, right));
+    }
+    
+    // expected measures
+    Map<String, Double> additionalMeasureMap = new HashMap<String, Double>();
+    if(isSeparateRuleInTrie){
+      ProbRule rule = ruleSet.get(ruleId);
+      if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH)){
+        additionalMeasureMap.put(Measures.MULTI_RHS_LENGTH, (double) rule.numChildren());
+      }
+      if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH)){
+        additionalMeasureMap.put(Measures.MULTI_FUTURE_LENGTH, (double) (rule.numChildren()-right + middle));
+      }
+      if(verbose>=2){
+        System.err.println("# Multi rule " + rule.toString(parserTagIndex, parserWordIndex)
+            + ", values " + Util.sprint(additionalMeasureMap));
+      }      
+    }
+    
+    // the current AG rule: Y -> w_middle ... w_(right-1) .
+    for (int x = 0, n = completions.length; x < n; x++) {
+      Completion completion = completions[x];
+     
+      int count = 0;
+      if (containsInsideEdge(left, middle, completion.activeEdge)){
+        // we are using trie, and there's an extended rule that could be used to update prefix prob
+        double prefixScore = operator.multiply(getForwardScore(left, middle, completion.activeEdge), 
+                               operator.multiply(completion.score, inner));
+        
+        addPrefixProb(prefixScore, left, middle, right, inner, 
+            completion.score, completion.activeEdge, "multi", additionalMeasureMap);
+        count++;
+      }
+      
+      // add multi rule count
+      if(isSeparateRuleInTrie && count>0){
+        ProbRule rule = ruleSet.get(ruleId);
+        if(internalMeasures.contains(Measures.MULTI_RULE_COUNT)){
+          wordMeasures.addValue(Measures.MULTI_RULE_COUNT, count);
+        }
+        if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT)){
+          wordMeasures.addValue(Measures.MULTI_RHS_LENGTH_COUNT, count*rule.numChildren());
+        }
+        if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT)){
+          wordMeasures.addValue(Measures.MULTI_FUTURE_LENGTH_COUNT, count*(rule.numChildren()-right + middle));
+        }
+      }
+    }
+  } 
   
   private void computeOutsideProbs(double rootInnerScore){
     if(verbose>=4){
@@ -1550,6 +1689,9 @@ public abstract class EarleyParser implements Parser {
       
       // outside to the left: X -> \alpha . _y \beta
       double rightInside = operator.one();
+      if(isScaling){
+        rightInside = getScaling(middle, right);
+      }
       double unaryClosureScore = operator.one();
       double leftOutsideScore = operator.multiply(operator.multiply(parentOutside, rightInside), unaryClosureScore);
       if(leftOutsideScore>operator.zero()){
@@ -1677,8 +1819,8 @@ public abstract class EarleyParser implements Parser {
   /**********************/
   protected abstract void addToChart(int left, int right, int edge, 
       double forward, double inner);
-  protected abstract void addPrefixProbExtendedRule(int left, int middle, int right, int edge, double inner);
-
+//  protected abstract void addPrefixExtendedRule(int left, int middle, int right, int edge, double inner);
+  
   /**
    * if there exists an edge spanning [left, right]
    * 
@@ -1776,15 +1918,15 @@ public abstract class EarleyParser implements Parser {
     }
     assert(linear(0, numWords+1)==((numWords+4)*(numWords+1)/2));
     
-    prefixProb = new double[numWords + 1];
-    synPrefixProb = new double[numWords + 1];
+    measures = new Measures(outputMeasures, numWords); // store various objective values for each word in a sentence
+    measures.addMeasures(internalMeasures, numWords);
     
     if (isScaling){
       scalingMap = new HashMap<Integer, Double>();
     }
     
     // init prefix prob
-    prefixProb[0] = operator.one();
+    measures.setPrefix(0, operator.one());
     
     // completion info
     completedEdges = new HashMap<Integer, Set<Integer>>();
@@ -1795,10 +1937,10 @@ public abstract class EarleyParser implements Parser {
     }
     
     // result lists
-    surprisalList = new ArrayList<Double>();
-    synSurprisalList = new ArrayList<Double>();
-    lexSurprisalList = new ArrayList<Double>();
-    stringLogProbList = new ArrayList<Double>();
+//    surprisalList = new ArrayList<Double>();
+//    synSurprisalList = new ArrayList<Double>();
+//    lexSurprisalList = new ArrayList<Double>();
+//    stringLogProbList = new ArrayList<Double>();
     
     
     // Decode
@@ -1811,45 +1953,35 @@ public abstract class EarleyParser implements Parser {
    * Initialization for every word
    */
   protected void wordInitialize(){
-    thisPrefixProb = new DoubleList();
-    thisSynPrefixProb = new DoubleList();
+    wordMeasures = new Measures(internalMeasures);
   }
   
-  protected void storePrefixProb(int right) {
-    if(verbose>=2){
-      System.err.print("Store prefix prob: ");
-      for(double value : thisPrefixProb.toArray()){
-        System.err.print(operator.getProb(value) + " ");
+  protected void storeMeasures(int right) {
+    for (String measure : internalMeasures) {
+      if (wordMeasures.numValues(measure) == 0) { // no path
+        if(Measures.measureLogFlagMap.get(measure))
+          measures.setValue(measure, right, operator.zero());
+        else
+          measures.setValue(measure, right, 0.0);
+      } else {
+        if(Measures.measureLogFlagMap.get(measure))
+          measures.setValue(measure, right, operator.arraySum(wordMeasures.getValueArray(measure)));
+        else
+          measures.setValue(measure, right, ArrayMath.sum(wordMeasures.getValueArray(measure)));
       }
-      System.err.println();
       
-      System.err.print("Store syn prefix prob: ");
-      for(double value : thisSynPrefixProb.toArray()){
-        System.err.print(operator.getProb(value) + " ");
+      if(verbose>=1){
+        System.err.print("# store " + measure + " [0," + right + "] = " 
+            + measures.getValue(measure,right));
       }
-      System.err.println();
+      if(verbose>=2){
+        System.err.println(", list = " + Util.sprint(wordMeasures.getValueArray(measure)));
+      } else if(verbose>=1){
+        System.err.println();
+      }
     }
     
-    if (thisPrefixProb.size() == 0) { // no path
-      prefixProb[right] = operator.zero();
-      synPrefixProb[right] = operator.zero();
-    } else {
-      prefixProb[right] = operator.arraySum(thisPrefixProb.toArray());
-      
-      synPrefixProb[right] = operator.arraySum(thisSynPrefixProb.toArray());
-    }
-    if(verbose>=1){
-      System.err.println("# Prefix prob [0," + right + "] = " 
-          + operator.getProb(prefixProb[right]));
-    }
-  }
-  
-  protected double getPrefixProb(int right){
-    return operator.getProb(prefixProb[right]);
-  }
-  
-  protected double getSynPrefixProb(int right){
-    return operator.getProb(synPrefixProb[right]);
+    
   }
 
   /**
@@ -2106,6 +2238,21 @@ public abstract class EarleyParser implements Parser {
   /**
    * Getters & Setters
    */  
+  public int getInsideOutsideOpt() {
+    return insideOutsideOpt;
+  }
+  public Operator getOperator() {
+    return operator;
+  }
+  public EdgeSpace getEdgeSpace() {
+    return edgeSpace;
+  }
+  public BaseLexicon getLex() {
+    return lex;
+  }
+  public RuleSet getRuleSet() {
+    return ruleSet;
+  }
   public BaseLexicon getLexicon(){
     return lex;
   }
@@ -2129,26 +2276,11 @@ public abstract class EarleyParser implements Parser {
       return allRules;
     }
   }
-  public List<Double> getSurprisalList() {
-    return surprisalList;
+  
+  public List<Double> getMeasureList(String measure) {
+    return measures.getSentList(measure);
   }
-  public List<Double> getSynSurprisalList() {
-    return synSurprisalList;
-  }
-  public List<Double> getLexSurprisalList() {
-    return lexSurprisalList;
-  }
-  public List<Double> getStringLogProbList() {
-    return stringLogProbList;
-  }
-  public List<Double> getStringProbList() {
-    List<Double> stringProbList = new ArrayList<Double>();
-    for(double logProb : stringLogProbList){
-      stringProbList.add(Math.exp(logProb));
-    }
-    
-    return stringProbList;
-  }
+  
   public int getDecodeOpt() {
     return decodeOpt;
   }

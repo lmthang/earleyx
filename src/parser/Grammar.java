@@ -64,7 +64,7 @@ public class Grammar {
   /**
    * learns all the grammar stuff.  Note that rootRule must be a unary contained in rules.
    */
-  public void learnGrammar(RuleSet ruleSet, EdgeSpace edgeSpace) {    
+  public void learnGrammar(RuleSet ruleSet, EdgeSpace edgeSpace, boolean isSeparateRuleInTrie) {    
     /*** Compute reflective and transitive left-corner and unit-production matrices ***/
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     
@@ -80,7 +80,7 @@ public class Grammar {
     /*** Extended rules ***/
     /* !!! Important: this needs to be added after closure matrix construction
      *  and before predictions and combinations */
-    processMultiTerminalRules(ruleSet.getMultiTerminalRules(), edgeSpace);
+    processMultiTerminalRules(ruleSet.getMultiTerminalRules(), ruleSet, edgeSpace, isSeparateRuleInTrie);
     
     /*** construct predictions ***/
     predictionsArray = Prediction.constructPredictions(ruleSet.getTagRules(), leftCornerClosures, 
@@ -96,7 +96,8 @@ public class Grammar {
         tagIndex, wordIndex, operator);
   }
 
-  private void processMultiTerminalRules(Collection<ProbRule> extendedRules, EdgeSpace edgeSpace){
+  private void processMultiTerminalRules(Collection<ProbRule> extendedRules, RuleSet ruleSet, 
+      EdgeSpace edgeSpace, boolean isSeparateRuleInTrie){
     if (verbose >= 1) {
       System.err.println("\n# Processing extended rules ...");
       Timing.startTime();
@@ -105,8 +106,13 @@ public class Grammar {
     int numExtendedRules = 0;
     for (ProbRule extendedRule : extendedRules) {
       List<Integer> children = Util.toList(extendedRule.getChildren());
-      ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), 
-          operator.getScore(extendedRule.getProb()))); 
+      if (isSeparateRuleInTrie){ // use rule id instead of mother tag id
+        ruleTrie.append(children, new Pair<Integer, Double>(ruleSet.indexOf(extendedRule.getRule()), 
+            operator.getScore(extendedRule.getProb())));
+      } else {
+        ruleTrie.append(children, new Pair<Integer, Double>(extendedRule.getMother(), 
+            operator.getScore(extendedRule.getProb())));
+      }
       
       if (verbose >= 4) {
         System.err.println("Add to trie: " + extendedRule.toString(tagIndex, wordIndex));

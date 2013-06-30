@@ -32,7 +32,8 @@ public class Main {
     System.err.println("! " + message);
     System.err.println("Main -in inFile  -out outPrefix (-grammar grammarFile | -treebank treebankFile) " +
         "-obj objectives\n" + 
-        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-verbose opt]" + 
+        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-verbose opt]" +
+        "\t[-decode opt]" + 
         "\t[-io opt -maxiteration n -intermediate n -minprob f]\n");
     
     // compulsory
@@ -54,6 +55,9 @@ public class Main {
     System.err.println("\t\t verbose \t\t -1 -- no debug info (default), " + 
         "0: surprisal per word, 1-4 -- increasing more details");
     
+    System.err.println("\n\t\t decode \t\t perform decoding, " + 
+        "output parse trees to outPrefix.opt " +
+        "opt should be either \"viterbi\", \"marginal\" or \"socialmarginal\"");
     System.err.println("\n\t\t io \t\t run inside-outside algorithm, " + 
         "output final grammar to outPrefix.io.grammar. opt should be \"em\" or \"vb\"");
     System.err.println("\t\t maxiteration \t\t number of iterations to run Inside-Outside. If not specified, will run until convergence.");
@@ -88,6 +92,7 @@ public class Main {
     flags.put("-scale", new Integer(0)); // scaling 
     flags.put("-verbose", new Integer(1)); 
     
+    flags.put("-decode", new Integer(1)); // decode option
     flags.put("-io", new Integer(1)); // inside-outside computation
     flags.put("-maxiteration", new Integer(1)); // number of iterations to run IO
     flags.put("-minprob", new Integer(1)); // pruning threshold
@@ -133,22 +138,26 @@ public class Main {
       isScaling = true;
     }
     
-    /* io opt */
-    int insideOutsideOpt = 0;
-    if (argsMap.keySet().contains("-io")) {
-      String opt = argsMap.get("-io")[0];
-      if(opt.equalsIgnoreCase("em")){
-        insideOutsideOpt = 1;
-      } else if(opt.equalsIgnoreCase("vb")){
-        insideOutsideOpt = 2;
+    /* decode opt */
+    String decodeOpt = "";
+    if (argsMap.keySet().contains("-decode")) {
+      decodeOpt = argsMap.get("-decode")[0];
+      if(!decodeOpt.equalsIgnoreCase("viterbi") && !decodeOpt.equalsIgnoreCase("marginal") && !decodeOpt.equalsIgnoreCase("socialmarginal")){
+        printHelp(args, "! Invalid -decode option " + decodeOpt);
       }
-      if(insideOutsideOpt!=1 && insideOutsideOpt!=2){
+    }
+    
+    /* io opt */
+    String ioOpt = "";
+    if (argsMap.keySet().contains("-io")) {
+      ioOpt = argsMap.get("-io")[0];
+      if(!ioOpt.equalsIgnoreCase("em") & !ioOpt.equalsIgnoreCase("vb")){
         printHelp(args, "-io, opt should be either em or vb");
       }
     }
     int maxiteration = 0;
     if (argsMap.keySet().contains("-maxiteration")) {
-      if(insideOutsideOpt==0){
+      if(ioOpt.equals("")){
         printHelp(args, "-maxiteration only used with -io");
       }
       maxiteration = Integer.parseInt(argsMap.get("-maxiteration")[0]);
@@ -158,7 +167,7 @@ public class Main {
     }
     double minRuleProb = 0;
     if (argsMap.keySet().contains("-minprob")) {
-      if(insideOutsideOpt==0){
+      if(ioOpt.equals("")){
         printHelp(args, "-minprob only used with -io");
       }
       minRuleProb = Integer.parseInt(argsMap.get("-minprob")[0]);
@@ -168,7 +177,7 @@ public class Main {
     }
     int intermediate = 0;
     if (argsMap.keySet().contains("-intermediate")) {
-      if(insideOutsideOpt==0){
+      if(ioOpt.equals("")){
         printHelp(args, "-intermediate only used with -io");
       }
       
@@ -185,7 +194,7 @@ public class Main {
     }
     if(objString.equals("")){
       // default values
-      objString = EarleyParser.SURPRISAL_OBJ + "," + EarleyParser.STRINGPROB_OBJ + "," + EarleyParser.VITERBI_OBJ;
+      objString = Measures.SURPRISAL + "," + Measures.STRINGPROB;
     }
     
     System.err.println("# Root symbol = " + rootSymbol);
@@ -193,7 +202,8 @@ public class Main {
     System.err.println("# isSparse = " + (parserOpt==1));
     System.err.println("# isLogProb = " + isLogProb);
     System.err.println("# isScaling = " + isScaling);
-    System.err.println("# insideOutsideOpt = " + insideOutsideOpt);
+    System.err.println("# decodeOpt = " + decodeOpt);
+    System.err.println("# ioOpt = " + ioOpt);
     System.err.println("# maxIteration = " + maxiteration);
     System.err.println("# Verbose opt = " + verbose);
 
@@ -269,10 +279,10 @@ public class Main {
     
     if(parserOpt==0){ // dense
       parser = new EarleyParserDense(inGrammarFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, insideOutsideOpt, objString);
+          isLogProb, ioOpt, decodeOpt, objString);
     } else if(parserOpt==1){ // sparse
       parser = new EarleyParserSparse(inGrammarFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, insideOutsideOpt, objString);
+          isLogProb, ioOpt, decodeOpt, objString);
     } else {
       assert(false);
     }
@@ -294,9 +304,9 @@ public class Main {
     /* Parsing */
     /***********/
     try {
-      if(insideOutsideOpt==0){
+      if(ioOpt.equals("")){
         parser.parseSentences(sentences, indices, outPrefix);
-      } else if(insideOutsideOpt>0){
+      } else {
         InsideOutside io = new InsideOutside(parser);
         List<Double> objectiveList = io.insideOutside(sentences, outPrefix, maxiteration, intermediate, minRuleProb);
         

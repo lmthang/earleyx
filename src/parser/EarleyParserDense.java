@@ -22,9 +22,9 @@ public class EarleyParserDense extends EarleyParser{
   protected double[][][] outerProb;
 
   public EarleyParserDense(BufferedReader br, String rootSymbol,
-      boolean isScaling, boolean isLogProb, int insideOutsideOpt,
+      boolean isScaling, boolean isLogProb, String ioOptStr, String decodeOptStr,
       String objString) {
-    super(br, rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
+    super(br, rootSymbol, isScaling, isLogProb, ioOptStr, decodeOptStr, objString);
     isFastComplete = false;
     
     if(verbose>0){
@@ -34,9 +34,9 @@ public class EarleyParserDense extends EarleyParser{
 
   public EarleyParserDense(String grammarFile, int inGrammarType,
       String rootSymbol, boolean isScaling, boolean isLogProb,
-      int insideOutsideOpt, String objString) {
+      String ioOptStr, String decodeOptStr, String objString) {
     super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
-        insideOutsideOpt, objString);
+        ioOptStr, decodeOptStr, objString);
     isFastComplete = false;
     
     if(verbose>0){
@@ -77,49 +77,6 @@ public class EarleyParserDense extends EarleyParser{
   // to avoid concurrently modify insideChart while performing completions
   protected boolean[] tempIOEntries;
   protected DoubleList[] tempInsideProbs = new DoubleList[numCategories];
-  
-  
-      
-  protected void addPrefixProbExtendedRule(int left, int middle, int right, int edge, double inner) {    
-    int tag = edgeSpace.get(edge).getMother();
-    assert(edgeSpace.get(edge).numRemainingChildren()==0);
-    
-    Completion[] completions = g.getCompletions(tag);
-    
-    if (verbose>=3 && completions.length>0){
-      System.err.println(completionInfo(middle, right, edge, inner, completions));
-    }
-   
-    if (isScaling){
-      inner = operator.multiply(inner, getScaling(middle, right));
-    }
-    
-    //int lmIndex = linear(left, middle); // left middle index
-    
-    // the current AG rule: Y -> w_middle ... w_(right-1) .
-    for (int x = 0, n = completions.length; x < n; x++) {
-      Completion completion = completions[x];
-     
-      if (chartEntries[left][middle][completion.activeEdge]){
-        // we are using trie, and there's an extended rule that could be used to update prefix prob
-        double prefixScore = operator.multiply(forwardProb[left][middle][completion.activeEdge], 
-                               operator.multiply(completion.score, inner));
-        
-        thisPrefixProb.add(prefixScore);
-        thisSynPrefixProb.add(prefixScore); // TODO: compute syntactic scores for AG
-        
-        if (verbose >= 3) {
-          System.err.println("  start " + edgeScoreInfo(left, middle, completion.activeEdge));
-        }
-        
-        if (verbose >= 2) {
-          System.err.println("  # prefix prob AG += " + operator.getProb(prefixScore) + "(" +  
-              operator.getProb(forwardProb[left][middle][completion.activeEdge]) + "*" +
-              operator.getProb(completion.score) + "*" + operator.getProb(inner)  + ")");
-        }
-      }
-    }
-  } 
   
   private void storeProbs(DoubleList[] dl, double[][][] probs, int left, int right) {
     for (int edge = 0; edge < dl.length; edge++) {

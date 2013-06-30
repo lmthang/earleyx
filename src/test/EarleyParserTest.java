@@ -26,6 +26,7 @@ import parser.EarleyParserDense;
 import parser.EarleyParserSparse;
 import parser.EdgeSpace;
 import parser.Grammar;
+import parser.Measures;
 import parser.Prediction;
 import util.RuleFile;
 import util.Util;
@@ -34,11 +35,13 @@ public class EarleyParserTest { // extends TestCase {
   private EarleyParser parser;
   private String rootSymbol = "ROOT";
   private int parserOpt = 0; //1; // 0: dense, 1: sparse, 2: sparse IO
-  private boolean isScaling = false; // 
-  private boolean isLogProb = true; 
-  private int insideOutsideOpt = 2; //2; // 1: EM, 2: VB  
+  private boolean isScaling = false; //true; //false; // 
+  private boolean isLogProb = true; // false; //true; 
+  private String ioOptStr = "vb";
+  private int insideOutsideOpt;  
+  private String decodeOpt = "viterbi";
   private double minRuleProb = 1e-20;
-  private String objString = "surprisal,stringprob,viterbi";
+  private String objString = "prefix,surprisal,stringprob,entropy,entropyreduction,multirulecount,multirhslengthcount,multifuturelengthcount,multirhslength,multifuturelength";
   
   @Before
   public void setUp(){    
@@ -51,6 +54,12 @@ public class EarleyParserTest { // extends TestCase {
     Completion.verbose = 0;
     RuleFile.verbose = 0;
     EarleyParser.verbose = 1;
+    
+    if(ioOptStr.equalsIgnoreCase("em")){
+      insideOutsideOpt = 1;
+    } else if(ioOptStr.equalsIgnoreCase("vb")){
+      insideOutsideOpt = 2;
+    }
   }
   
   String basicGrammarString = "ROOT->[A B] : 0.9\n" + 
@@ -144,10 +153,10 @@ public class EarleyParserTest { // extends TestCase {
     int inGrammarType = 1; // read from grammar
     if(parserOpt==0){
       parser = new EarleyParserDense(ruleFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, insideOutsideOpt, objString);
+          isLogProb, ioOptStr, decodeOpt, objString);
     } else if(parserOpt==1){
       parser = new EarleyParserSparse(ruleFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, insideOutsideOpt, objString);
+          isLogProb, ioOptStr, decodeOpt, objString);
     } else {
       assert(false);
     }
@@ -157,10 +166,10 @@ public class EarleyParserTest { // extends TestCase {
     try {
       if(parserOpt==0){
         parser= new EarleyParserDense(Util.getBufferedReaderFromString(grammarString), 
-            rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
+            rootSymbol, isScaling, isLogProb, ioOptStr, decodeOpt, objString);
       } else if(parserOpt==1){    
         parser= new EarleyParserSparse(Util.getBufferedReaderFromString(grammarString), 
-            rootSymbol, isScaling, isLogProb, insideOutsideOpt, objString);
+            rootSymbol, isScaling, isLogProb, ioOptStr, decodeOpt, objString);
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -170,22 +179,16 @@ public class EarleyParserTest { // extends TestCase {
   @Test
   public void testBasic(){
     initParserFromString(basicGrammarString);
-    
     String inputSentence = "a b";
-
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
-    
-    assertEquals(surprisalList.size(), 2);
-    assertEquals(0.0, surprisalList.get(0), 1e-5);
-    assertEquals(0.0, surprisalList.get(1), 1e-5);
-    
-    
-    assertEquals(stringProbList.size(), 2);
-    assertEquals(0.0, stringProbList.get(0), 1e-5);
-    assertEquals(1.0, stringProbList.get(1), 1e-5);
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.32508297339144826, 0.32508297339144826}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.32508297339144826, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{1.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.20000000000000004, 0.20000000000000004}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.10000000000000002, 0.0}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -196,41 +199,35 @@ public class EarleyParserTest { // extends TestCase {
   
   @Test
   public void testBasicRecursiveFragment(){
+    if(parserOpt == 1){
+      System.err.println("try the test testBasicRecursiveFragment only after " +
+      		"fastChartComplete has been implemented for fragment rules");
+      return;
+    }
+    
     initParserFromString(basicRecursiveFragmentGrammarString);
     
     String inputSentence = "b c";
     parser.parseSentence(inputSentence);
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
     
-    assertEquals(surprisalList.size(), 2);
-    assertEquals(0.4837969513780713, surprisalList.get(0), 1e-5);
-    assertEquals(0.587786664902119, surprisalList.get(1), 1e-5);
-    
-    
-    assertEquals(stringProbList.size(), 2);
-    assertEquals(0.0, stringProbList.get(0), 1e-5);
-    assertEquals(0.31250000000000006, stringProbList.get(1), 1e-5);
-    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.0829744925828269, 0.7282547206391556}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{1.0829744925828269, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.0, 0.0}));    
+ 
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
       assertEquals(tree.toString(), "( (ROOT (A b (C c))))");
     }
     
     inputSentence = "b c c";
-    parser.parseSentence(inputSentence);
-    surprisalList = parser.getSurprisalList();
-    stringProbList = parser.getStringProbList();
-    
-    assertEquals(surprisalList.size(), 3);
-    assertEquals(0.4837969513780713, surprisalList.get(0), 1e-5);
-    assertEquals(0.587786664902119, surprisalList.get(1), 1e-5);
-    assertEquals(3.2834143460057716, surprisalList.get(2), 1e-5);
-    
-    assertEquals(stringProbList.size(), 3);
-    assertEquals(0.0, stringProbList.get(0), 1e-5);
-    assertEquals(0.31250000000000006, stringProbList.get(1), 1e-5);
-    assertEquals(0.011718750000000005, stringProbList.get(2), 1e-5);
+    parser.parseSentence(inputSentence);    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119, 3.2834143460057716}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006, 0.011718750000000005}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.0829744925828269, 0.7282547206391556, 0.06410332359478736}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{1.0829744925828269, 0.0, 0.0}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -239,20 +236,11 @@ public class EarleyParserTest { // extends TestCase {
     
     inputSentence = "d c c";
     parser.parseSentence(inputSentence);
-    surprisalList = parser.getSurprisalList();
-    stringProbList = parser.getStringProbList();
-    System.err.println(surprisalList);
-    System.err.println(stringProbList);
-    
-    assertEquals(surprisalList.size(), 3);
-    assertEquals(0.9582549309731871, surprisalList.get(0), 1e-5);
-    assertEquals(0.0, surprisalList.get(1), 1e-5);
-    assertEquals(0.8472978603872034, surprisalList.get(2), 1e-5);
-    
-    assertEquals(stringProbList.size(), 3);
-    assertEquals(0.0, stringProbList.get(0), 1e-5);
-    assertEquals(0.0, stringProbList.get(1), 1e-5);
-    assertEquals(0.15000000000000002, stringProbList.get(2), 1e-5);
+
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.9582549309731871, 0.0, 0.8472978603872034}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.15000000000000002}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.3675498365376609, 0.3675498365376609, 0.40143566460085545}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.3675498365376609, 0.0, 0.03388582806}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -267,17 +255,10 @@ public class EarleyParserTest { // extends TestCase {
     
     String inputSentence = "b c";
     parser.parseSentence(inputSentence);
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
-    
-    assertEquals(surprisalList.size(), 2);
-    assertEquals(0.4837969513780713, surprisalList.get(0), 1e-5);
-    assertEquals(0.587786664902119, surprisalList.get(1), 1e-5);
-    
-    
-    assertEquals(stringProbList.size(), 2);
-    assertEquals(0.0, stringProbList.get(0), 1e-5);
-    assertEquals(0.31250000000000006, stringProbList.get(1), 1e-5);
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.0829744925828269, 0.7282547206391556}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{1.0829744925828269, 0.0}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -286,18 +267,10 @@ public class EarleyParserTest { // extends TestCase {
     
     inputSentence = "b c c";
     parser.parseSentence(inputSentence);
-    surprisalList = parser.getSurprisalList();
-    stringProbList = parser.getStringProbList();
-    
-    assertEquals(surprisalList.size(), 3);
-    assertEquals(0.4837969513780713, surprisalList.get(0), 1e-5);
-    assertEquals(0.587786664902119, surprisalList.get(1), 1e-5);
-    assertEquals(3.2834143460057716, surprisalList.get(2), 1e-5);
-    
-    assertEquals(stringProbList.size(), 3);
-    assertEquals(0.0, stringProbList.get(0), 1e-5);
-    assertEquals(0.31250000000000006, stringProbList.get(1), 1e-5);
-    assertEquals(0.011718750000000005, stringProbList.get(2), 1e-5);
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119, 3.2834143460057716}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006, 0.011718750000000005}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.0829744925828269, 0.7282547206391556, 0.06410332359478736}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{1.0829744925828269, 0.0, 0.0}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -306,20 +279,10 @@ public class EarleyParserTest { // extends TestCase {
     
     inputSentence = "d c c";
     parser.parseSentence(inputSentence);
-    surprisalList = parser.getSurprisalList();
-    stringProbList = parser.getStringProbList();
-    System.err.println(surprisalList);
-    System.err.println(stringProbList);
-    
-    assertEquals(surprisalList.size(), 3);
-    assertEquals(0.9582549309731871, surprisalList.get(0), 1e-5);
-    assertEquals(0.0, surprisalList.get(1), 1e-5);
-    assertEquals(0.8472978603872034, surprisalList.get(2), 1e-5);
-    
-    assertEquals(stringProbList.size(), 3);
-    assertEquals(0.0, stringProbList.get(0), 1e-5);
-    assertEquals(0.0, stringProbList.get(1), 1e-5);
-    assertEquals(0.15000000000000002, stringProbList.get(2), 1e-5);
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.9582549309731871, 0.0, 0.8472978603872034}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.15000000000000002}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.3675498365376609, 0.3675498365376609, 0.40143566460085545}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.3675498365376609, 0.0, 0.03388582806}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -353,14 +316,8 @@ public class EarleyParserTest { // extends TestCase {
         assertEquals(1.3862943611198908, objectiveList.get(1), 1e-5);
         assertEquals(1.3862943611198908, objectiveList.get(2), 1e-5);  
       } else {
-        if(isLogProb){
-          assertEquals(objectiveList.toString(), "[2.5341702140023417, 2.1016008502172006, 2.0945469475248073, 2.0930014040440694, 2.0926627204076063, 2.0925882495532324, 2.092571750466667, 2.0925680371884927, 2.092567174802319, 2.092566962421006, 2.092566904801532]");
-        } else {
-          assertEquals(objectiveList.toString(), "[2.5331135801054874, 2.1004848339141557, 2.0934198284138676, 2.091871937601874, 2.0915327440195832, 2.091458161493505, 2.091441637801752, 2.0914379190448398, 2.0914370554127926, 2.0914368427363064, 2.0914367850415756]");
-        }
-//        assertEquals(2.340370037356804, objectiveList.get(0), 1e-5);
-//        assertEquals(1.413647688917206, objectiveList.get(1), 1e-5);
-//        assertEquals(1.4799787183333548, objectiveList.get(2), 1e-5);
+        double[] results = new double[]{2.5341702140023408, 2.1016008502172006, 2.094546947524808, 2.0930014040440703, 2.0926627204076063, 2.0925882495532324, 2.092571750466667, 2.0925680371884927, 2.092567174802319, 2.092566962421006, 2.092566904801532};
+        assertEquals(true, compare(objectiveList, results));
       }
     }
   }
@@ -374,8 +331,8 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     
     assertEquals(surprisalList.size(), 5);
     assertEquals(1.9459104490553583, surprisalList.get(0), 1e-5);
@@ -394,7 +351,11 @@ public class EarleyParserTest { // extends TestCase {
     if (isLogProb){
       assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 1-2\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 2-3\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 3-4\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 4-5\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 0-2\n NP: 0.020408151020410003\ncell 2-4\n NP: 0.020408151020410003\ncell 3-5\n NP: 0.020408151020410003\ncell 0-3\n : 5.83089854227563E-4\n S: 5.83089854227563E-4\ncell 2-5\n VP: 0.001166179708455125\ncell 0-5\n : 2.3799571607089895E-5\n S: 2.3799571607089895E-5\n");
     } else {
-      assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 1-2\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 2-3\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 3-4\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 4-5\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 0-2\n NP: 0.02040815102040999\ncell 2-4\n NP: 0.02040815102040999\ncell 3-5\n NP: 0.02040815102040999\ncell 0-3\n : 5.830898542275622E-4\n S: 5.830898542275622E-4\ncell 2-5\n VP: 0.0011661797084551245\ncell 0-5\n : 2.379957160708987E-5\n S: 2.379957160708987E-5\n");
+      if(isScaling){
+        assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 1-2\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 2-3\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 3-4\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 4-5\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 0-2\n NP: 0.02040815102040999\ncell 2-4\n NP: 0.020408151020409986\ncell 3-5\n NP: 0.020408151020409986\ncell 0-3\n : 5.830898542275621E-4\n S: 5.830898542275621E-4\ncell 2-5\n VP: 0.0011661797084551243\ncell 0-5\n : 2.3799571607089864E-5\n S: 2.3799571607089864E-5\n");
+      } else {
+        assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 1-2\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 2-3\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 3-4\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 4-5\n Det: 0.14285709999999996\n N: 0.14285709999999996\n V: 0.14285709999999996\ncell 0-2\n NP: 0.02040815102040999\ncell 2-4\n NP: 0.02040815102040999\ncell 3-5\n NP: 0.02040815102040999\ncell 0-3\n : 5.830898542275622E-4\n S: 5.830898542275622E-4\ncell 2-5\n VP: 0.0011661797084551245\ncell 0-5\n : 2.379957160708987E-5\n S: 2.379957160708987E-5\n");
+      }
     }
     
     if(parser.getDecodeOpt()==1){
@@ -409,7 +370,8 @@ public class EarleyParserTest { // extends TestCase {
       if(isLogProb){
         assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n Det: 8.329852561437227E-5\n N: 8.329852561437227E-5\ncell 1-2\n Det: 8.329852561437227E-5\n N: 8.329852561437227E-5\ncell 2-3\n Det: 4.1649262807186136E-5\n N: 4.1649262807186136E-5\n V: 8.329852561437242E-5\ncell 3-4\n Det: 8.329852561437227E-5\n N: 8.329852561437227E-5\ncell 4-5\n Det: 4.1649262807186204E-5\n N: 4.1649262807186204E-5\n V: 8.329852561437227E-5\ncell 0-2\n NP: 0.001166179708455125\ncell 2-4\n NP: 5.830898542275625E-4\ncell 3-5\n NP: 5.83089854227563E-4\ncell 2-5\n VP: 0.020408151020410003\ncell 0-5\n : 1.0\n S: 1.0\n");
       } else {
-        assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n Det: 8.329852561437226E-5\n N: 8.329852561437226E-5\ncell 1-2\n Det: 8.329852561437226E-5\n N: 8.329852561437226E-5\ncell 2-3\n Det: 4.164926280718613E-5\n N: 4.164926280718613E-5\n V: 8.329852561437226E-5\ncell 3-4\n Det: 8.329852561437226E-5\n N: 8.329852561437226E-5\ncell 4-5\n Det: 4.164926280718613E-5\n N: 4.164926280718613E-5\n V: 8.329852561437226E-5\ncell 0-2\n NP: 0.0011661797084551245\ncell 2-4\n NP: 5.830898542275622E-4\ncell 3-5\n NP: 5.830898542275622E-4\ncell 2-5\n VP: 0.02040815102040999\ncell 0-5\n : 1.0\n S: 1.0\n");
+        assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n Det: 8.329852561437225E-5\n N: 8.329852561437225E-5\ncell 1-2\n Det: 8.329852561437223E-5\n N: 8.329852561437223E-5\ncell 2-3\n Det: 4.1649262807186116E-5\n N: 4.1649262807186116E-5\n V: 8.329852561437223E-5\ncell 3-4\n Det: 8.329852561437223E-5\n N: 8.329852561437223E-5\ncell 4-5\n Det: 4.164926280718612E-5\n N: 4.164926280718612E-5\n V: 8.329852561437225E-5\ncell 0-2\n NP: 0.0011661797084551243\ncell 2-4\n NP: 5.830898542275621E-4\ncell 3-5\n NP: 5.830898542275621E-4\ncell 2-5\n VP: 0.02040815102040999\ncell 0-5\n : 1.0\n S: 1.0\n");
+        //assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n Det: 8.329852561437226E-5\n N: 8.329852561437226E-5\ncell 1-2\n Det: 8.329852561437226E-5\n N: 8.329852561437226E-5\ncell 2-3\n Det: 4.164926280718613E-5\n N: 4.164926280718613E-5\n V: 8.329852561437226E-5\ncell 3-4\n Det: 8.329852561437226E-5\n N: 8.329852561437226E-5\ncell 4-5\n Det: 4.164926280718613E-5\n N: 4.164926280718613E-5\n V: 8.329852561437226E-5\ncell 0-2\n NP: 0.0011661797084551245\ncell 2-4\n NP: 5.830898542275622E-4\ncell 3-5\n NP: 5.830898542275622E-4\ncell 2-5\n VP: 0.02040815102040999\ncell 0-5\n : 1.0\n S: 1.0\n");
       }
       
       List<String> inputSentences = new ArrayList<String>();
@@ -452,12 +414,10 @@ public class EarleyParserTest { // extends TestCase {
       
       if(insideOutsideOpt==1){
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n6.000000 S->[NP VP]\n6.500000 NP->[Det N]\n6.500000 NP->[N Det]\n1.000000 VP->[V]\n3.000000 VP->[V NP]\n2.000000 VP->[V NP NP]\n3.000000 Det->[_the]\n3.000000 N->[_the]\n3.500000 Det->[_a]\n3.500000 N->[_a]\n3.000000 Det->[_dog]\n3.000000 N->[_dog]\n2.000000 Det->[_cat]\n2.000000 N->[_cat]\n1.500000 Det->[_bone]\n1.500000 N->[_bone]\n4.000000 V->[_bites]\n2.000000 V->[_gives]\n");
-        System.err.println(objectiveList);
-        assertEquals(objectiveList.toString(), "[68.46002594157635, 58.51055584306548, 55.220924477124214, 53.7010153144059, 52.26369575985821, 50.759354005056494, 50.63455865171508, 50.63452160196377, 50.63452160196377]");
+        assertEquals(true, compare(objectiveList, new double[]{68.46002594157635, 58.51055584306548, 55.220924477124214, 53.7010153144059, 52.26369575985821, 50.759354005056494, 50.63455865171508, 50.63452160196377, 50.63452160196377}));
       } else {
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n6.000000 S->[NP VP]\n12.999637 NP->[Det N]\n0.000363 NP->[N Det]\n1.000000 VP->[V]\n2.999692 VP->[V NP]\n0.000308 VP->[NP V]\n1.999972 VP->[V NP NP]\n0.000028 VP->[NP NP V]\n6.000000 Det->[_the]\n7.000000 Det->[_a]\n5.999928 N->[_dog]\n0.000072 V->[_dog]\n3.999897 N->[_cat]\n0.000103 V->[_cat]\n2.999840 N->[_bone]\n0.000160 V->[_bone]\n0.000308 N->[_bites]\n3.999692 V->[_bites]\n0.000028 N->[_gives]\n1.999972 V->[_gives]\n");  
-        System.err.println(objectiveList);
-        assertEquals(objectiveList.toString(), "[92.93296417270264, 89.5698459964732, 81.96438670486147, 75.03608617145743, 61.47488814240121, 55.81162717434088, 54.262891466377695, 52.8466446613439, 52.8466444968588]");
+        assertEquals(true, compare(objectiveList, new double[]{92.93296417270271, 89.56984599647329, 81.96438670486145, 75.03608617145741, 61.474888142401255, 55.81162717434086, 54.262891466377724, 52.846644661343916, 52.84664449685883}));
       }
       
       
@@ -490,18 +450,29 @@ public class EarleyParserTest { // extends TestCase {
       
       if(insideOutsideOpt==1){
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n2.000000 Sentence->[Topic.dog Words.dog]\n2.000000 Words.dog->[Word.dog]\n0.000002 Words.dog->[Word.dog Words.dog]\n8.999998 Words.dog->[Word.None Words.dog]\n1.000000 Word.dog->[_dog]\n1.000002 Word.dog->[_woof]\n1.000000 Word.None->[_a]\n1.000000 Word.None->[_and]\n1.000000 Word.None->[_is]\n1.000000 Word.None->[_puppy]\n1.000000 Word.None->[_that]\n1.000000 Word.None->[_this]\n1.000000 Word.None->[_whats]\n1.999998 Word.None->[_woof]\n2.000000 Topic.None->[_##]\n2.000000 Topic.None->[T.None Topic.None]\n2.000000 PSEUDO.DOG->[_.dog]\n2.000000 PSEUDO.PIG->[_.pig]\n2.000000 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n2.000000 Topic.dog->[T.dog Topic.None]\n2.000000 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n2.000000 PSEUDOKID.EYES->[_kid.eyes]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 PSEUDOKID.HANDS->[_kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n2.000000 PSEUDOMOM.EYES->[_mom.eyes]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n1.000000 PSEUDOMOM.HANDS->[_mom.hands]\n2.000000 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000000 Socials.NotTopical.mom.point->[_#]\n2.000000 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n2.000000 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n2.000000 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n1.000000 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point]\n1.000000 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n2.000000 Socials.Topical.mom.point->[_#]\n");
-        System.err.println(objectiveList);
         assertEquals(objectiveList.toString(), "[68.89924129025083, 31.379577185005644, 31.248893171567378, 31.11188779468337, 30.972214846004697, 30.833932517304554, 30.699466892816524, 30.56898030067005, 30.442294304827485, 30.322629805835795, 30.217956618356805, 30.136571449648173, 30.08087585732075, 30.046516518451632, 30.02646923724751, 30.014639600488437, 30.00691974331064, 30.000818993275782, 29.9948298082751, 29.987943286437623, 29.979345388168056, 29.968234220712343, 29.953705286129605, 29.934674154599946, 29.909826080009367, 29.87760047132343, 29.836239994255205, 29.783964252613245, 29.719365299199822, 29.64214183522126, 29.554202958466842, 29.460801131741103, 29.370621375676233, 29.293421777166532, 29.235650584658224, 29.197651204178033, 29.175142032215838, 29.162743649742623, 29.15621192510693, 29.15285588264817, 29.15115434016045, 29.15029755985971, 29.14986765090584, 29.149652314631798, 29.149544550781656, 29.1494906448952, 29.14946368595748, 29.149450204989478, 29.149443464130627, 29.149440093607488, 29.14943840832248]");
       } else {
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n0.000017 Sentence->[Topic.None Words.None]\n1.999983 Sentence->[Topic.dog Words.dog]\n0.000000 Sentence->[Topic.pig Words.pig]\n0.000017 Words.None->[Word.None]\n0.000079 Words.None->[Word.None Words.None]\n1.658687 Words.dog->[Word.dog]\n0.341296 Words.dog->[Word.None]\n4.943222 Words.dog->[Word.dog Words.dog]\n4.056699 Words.dog->[Word.None Words.dog]\n0.000000 Words.pig->[Word.pig]\n0.000000 Words.pig->[Word.None]\n0.000000 Words.pig->[Word.pig Words.pig]\n0.000000 Words.pig->[Word.None Words.pig]\n0.487384 Word.dog->[_a]\n0.482820 Word.dog->[_and]\n0.811267 Word.dog->[_dog]\n0.496692 Word.dog->[_is]\n0.527178 Word.dog->[_puppy]\n0.506732 Word.dog->[_that]\n0.512004 Word.dog->[_this]\n0.502391 Word.dog->[_whats]\n2.275441 Word.dog->[_woof]\n0.000000 Word.pig->[_a]\n0.000000 Word.pig->[_and]\n0.000000 Word.pig->[_dog]\n0.000000 Word.pig->[_is]\n0.000000 Word.pig->[_puppy]\n0.000000 Word.pig->[_that]\n0.000000 Word.pig->[_this]\n0.000000 Word.pig->[_whats]\n0.000000 Word.pig->[_woof]\n0.512616 Word.None->[_a]\n0.517180 Word.None->[_and]\n0.188733 Word.None->[_dog]\n0.503308 Word.None->[_is]\n0.472822 Word.None->[_puppy]\n0.493268 Word.None->[_that]\n0.487996 Word.None->[_this]\n0.497609 Word.None->[_whats]\n0.724559 Word.None->[_woof]\n2.000000 Topic.None->[_##]\n2.000017 Topic.None->[T.None Topic.None]\n2.000000 PSEUDO.DOG->[_.dog]\n0.000017 T.None->[PSEUDO.DOG Socials.NotTopical.kid.eyes]\n2.000000 PSEUDO.PIG->[_.pig]\n2.000000 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n1.999983 Topic.dog->[T.dog Topic.None]\n1.999983 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n0.000000 Topic.pig->[T.pig Topic.None]\n0.000000 Topic.pig->[T.None Topic.pig]\n0.000000 T.pig->[PSEUDO.PIG Socials.Topical.kid.eyes]\n2.000000 PSEUDOKID.EYES->[_kid.eyes]\n0.000017 Socials.NotTopical.kid.eyes->[PSEUDOKID.EYES Socials.NotTopical.kid.hands]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 PSEUDOKID.HANDS->[_kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n0.000017 Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes]\n2.000000 PSEUDOMOM.EYES->[_mom.eyes]\n0.000017 Socials.NotTopical.mom.eyes->[PSEUDOMOM.EYES Socials.NotTopical.mom.hands]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n1.000000 PSEUDOMOM.HANDS->[_mom.hands]\n0.000008 Socials.NotTopical.mom.hands->[PSEUDOMOM.HANDS Socials.NotTopical.mom.point]\n2.000009 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000017 Socials.NotTopical.mom.point->[_#]\n1.999983 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.eyes->[Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.hands->[PSEUDOKID.HANDS Socials.Topical.mom.eyes]\n1.999983 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n1.999983 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n0.000000 Socials.Topical.mom.eyes->[Socials.Topical.mom.hands]\n0.999992 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point]\n0.999991 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n1.999983 Socials.Topical.mom.point->[_#]\n");  
-        System.err.println(objectiveList);
-        assertEquals(objectiveList.toString(), "[76.92231224909392, 50.90073342745992, 50.87643752798012, 50.87351774507557]");
+        
+        double[] results = new double[]{76.92231224909389, 50.900733427459954, 50.87643752798019, 50.87351774507556};
+        assertEquals(true, compare(objectiveList, results));
       }
-      
-      
     }
   }
   
+  private boolean compare(List<Double> values, double[] results){
+    if(values.size() == results.length){
+      for (int i = 0; i < results.length; i++) {
+        if(Math.abs(values.get(i)-results[i])>1e-5){
+          return false;
+        }
+      }
+      
+      return true;
+    } else {
+      return false;
+    }
+  }
   @Test
   public void testSocialUnigramPseudoIO(){
     rootSymbol = "Sentence";
@@ -524,18 +495,22 @@ public class EarleyParserTest { // extends TestCase {
       
       if(insideOutsideOpt==1){
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n2.000000 Sentence->[Topic.dog Words.dog]\n1.000000 Words.dog->[Word.dog]\n1.000000 Words.dog->[Word.None]\n4.500000 Words.dog->[Word.dog Words.dog]\n4.500000 Words.dog->[Word.None Words.dog]\n5.500000 Word.None->[Word]\n5.500000 Word.dog->[Word]\n1.000000 Word->[_a]\n1.000000 Word->[_and]\n1.000000 Word->[_dog]\n1.000000 Word->[_is]\n1.000000 Word->[_puppy]\n1.000000 Word->[_that]\n1.000000 Word->[_this]\n1.000000 Word->[_whats]\n3.000000 Word->[_woof]\n2.000000 Topic.None->[_##]\n2.000000 Topic.None->[T.None Topic.None]\n2.000000 PSEUDO.DOG->[_.dog]\n2.000000 PSEUDO.PIG->[_.pig]\n2.000000 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n2.000000 Topic.dog->[T.dog Topic.None]\n2.000000 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n2.000000 PSEUDOKID.EYES->[_kid.eyes]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 PSEUDOKID.HANDS->[_kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n2.000000 PSEUDOMOM.EYES->[_mom.eyes]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n1.000000 PSEUDOMOM.HANDS->[_mom.hands]\n2.000000 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000000 Socials.NotTopical.mom.point->[_#]\n2.000000 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n2.000000 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n2.000000 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n1.000000 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point]\n1.000000 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n2.000000 Socials.Topical.mom.point->[_#]\n");
-        System.err.println(objectiveList);
-        assertEquals(objectiveList.toString(), "[115.0307287481496, 43.547579210549046, 41.931926877684795, 33.181419514081675, 32.4554266675181, 32.45542666177363]");
+        assertEquals(true, compare(objectiveList, new double[]{115.0307287481496, 43.547579210549046, 41.931926877684795, 33.181419514081675, 32.4554266675181, 32.45542666177363}));
       } else {
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n0.000043 Sentence->[Topic.None Words.None]\n1.999957 Sentence->[Topic.dog Words.dog]\n0.000000 Sentence->[Topic.pig Words.pig]\n0.000043 Words.None->[Word.None]\n0.000121 Words.None->[Word.None Words.None]\n0.999978 Words.dog->[Word.dog]\n0.999978 Words.dog->[Word.None]\n4.499939 Words.dog->[Word.dog Words.dog]\n4.499939 Words.dog->[Word.None Words.dog]\n0.000000 Words.pig->[Word.pig]\n0.000000 Words.pig->[Word.None]\n0.000000 Words.pig->[Word.pig Words.pig]\n0.000000 Words.pig->[Word.None Words.pig]\n5.500082 Word.None->[Word]\n5.499918 Word.dog->[Word]\n0.000000 Word.pig->[Word]\n1.000000 Word->[_a]\n1.000000 Word->[_and]\n1.000000 Word->[_dog]\n1.000000 Word->[_is]\n1.000000 Word->[_puppy]\n1.000000 Word->[_that]\n1.000000 Word->[_this]\n1.000000 Word->[_whats]\n3.000000 Word->[_woof]\n2.000000 Topic.None->[_##]\n2.000043 Topic.None->[T.None Topic.None]\n2.000000 PSEUDO.DOG->[_.dog]\n0.000043 T.None->[PSEUDO.DOG Socials.NotTopical.kid.eyes]\n2.000000 PSEUDO.PIG->[_.pig]\n2.000000 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n1.999957 Topic.dog->[T.dog Topic.None]\n1.999957 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n0.000000 Topic.pig->[T.pig Topic.None]\n0.000000 Topic.pig->[T.None Topic.pig]\n0.000000 T.pig->[PSEUDO.PIG Socials.Topical.kid.eyes]\n2.000000 PSEUDOKID.EYES->[_kid.eyes]\n0.000043 Socials.NotTopical.kid.eyes->[PSEUDOKID.EYES Socials.NotTopical.kid.hands]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 PSEUDOKID.HANDS->[_kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n0.000043 Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes]\n2.000000 PSEUDOMOM.EYES->[_mom.eyes]\n0.000043 Socials.NotTopical.mom.eyes->[PSEUDOMOM.EYES Socials.NotTopical.mom.hands]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n1.000000 PSEUDOMOM.HANDS->[_mom.hands]\n0.000036 Socials.NotTopical.mom.hands->[PSEUDOMOM.HANDS Socials.NotTopical.mom.point]\n2.000007 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000043 Socials.NotTopical.mom.point->[_#]\n1.999957 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.eyes->[Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.hands->[PSEUDOKID.HANDS Socials.Topical.mom.eyes]\n1.999957 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n1.999957 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n0.000000 Socials.Topical.mom.eyes->[Socials.Topical.mom.hands]\n0.999964 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point]\n0.999993 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n1.999957 Socials.Topical.mom.point->[_#]\n");  
-        System.err.println(objectiveList);
-        assertEquals(objectiveList.toString(), "[119.57753371025353, 56.25527212925164, 55.55705760873093, 50.09255118022884, 49.94778060138511, 49.94772549410475, 49.947725459941026]");
+        assertEquals(true, compare(objectiveList, new double[]{119.57753371025368, 56.25527212925164, 55.55705760873088, 50.092551180228824, 49.94778060138518, 49.94772549410474, 49.94772545994104}));
       }
     }
   }
   
   @Test
   public void testSocialUnigramNonPseudoIO(){
+    if(parserOpt == 1){
+      System.err.println("try the test testSocialUnigramNonPseudoIO only after " +
+          "fastChartComplete has been implemented for fragment rules");
+      return;
+    }
+    
     rootSymbol = "Sentence";
     initParserFromFile(socialUnigramNonPseudo);
     
@@ -557,17 +532,25 @@ public class EarleyParserTest { // extends TestCase {
       if(insideOutsideOpt==1){
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n2.000000 Sentence->[Topic.dog Words.dog]\n1.000000 Words.dog->[Word.dog]\n1.000000 Words.dog->[Word.None]\n4.500000 Words.dog->[Word.dog Words.dog]\n4.500000 Words.dog->[Word.None Words.dog]\n5.500000 Word.None->[Word]\n5.500000 Word.dog->[Word]\n1.000000 Word->[_a]\n1.000000 Word->[_and]\n1.000000 Word->[_dog]\n1.000000 Word->[_is]\n1.000000 Word->[_puppy]\n1.000000 Word->[_that]\n1.000000 Word->[_this]\n1.000000 Word->[_whats]\n3.000000 Word->[_woof]\n2.000000 Topic.None->[_##]\n2.000000 Topic.None->[T.None Topic.None]\n2.000000 PSEUDO.DOG->[_.dog]\n2.000000 PSEUDO.PIG->[_.pig]\n2.000000 T.None->[PSEUDO.PIG Socials.NotTopical.kid.eyes]\n2.000000 Topic.dog->[T.dog Topic.None]\n2.000000 T.dog->[PSEUDO.DOG Socials.Topical.kid.eyes]\n2.000000 PSEUDOKID.EYES->[_kid.eyes]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 PSEUDOKID.HANDS->[_kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[PSEUDOKID.HANDS Socials.NotTopical.mom.eyes]\n2.000000 PSEUDOMOM.EYES->[_mom.eyes]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n1.000000 PSEUDOMOM.HANDS->[_mom.hands]\n2.000000 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000000 Socials.NotTopical.mom.point->[_#]\n2.000000 Socials.Topical.kid.eyes->[PSEUDOKID.EYES Socials.Topical.kid.hands]\n2.000000 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n2.000000 Socials.Topical.mom.eyes->[PSEUDOMOM.EYES Socials.Topical.mom.hands]\n1.000000 Socials.Topical.mom.hands->[PSEUDOMOM.HANDS Socials.Topical.mom.point]\n1.000000 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n2.000000 Socials.Topical.mom.point->[_#]\n");
         System.err.println(objectiveList);
-        assertEquals(objectiveList.toString(), "[115.0307287481496, 43.547579210549046, 41.931926877684795, 33.181419514081675, 32.4554266675181, 32.45542666177363]");
+        
+        double[] results = new double[]{115.0307287481496, 43.547579210549046, 41.931926877684795, 33.181419514081675, 32.4554266675181, 32.45542666177363};
+        assertEquals(true, compare(objectiveList, results));
       } else {
         assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n0.000043 Sentence->[Topic.None Words.None]\n1.999957 Sentence->[Topic.dog Words.dog]\n0.000000 Sentence->[Topic.pig Words.pig]\n0.000043 Words.None->[Word.None]\n0.000121 Words.None->[Word.None Words.None]\n0.999978 Words.dog->[Word.dog]\n0.999978 Words.dog->[Word.None]\n4.499939 Words.dog->[Word.dog Words.dog]\n4.499939 Words.dog->[Word.None Words.dog]\n0.000000 Words.pig->[Word.pig]\n0.000000 Words.pig->[Word.None]\n0.000000 Words.pig->[Word.pig Words.pig]\n0.000000 Words.pig->[Word.None Words.pig]\n5.500082 Word.None->[Word]\n5.499918 Word.dog->[Word]\n0.000000 Word.pig->[Word]\n1.000000 Word->[_a]\n1.000000 Word->[_and]\n1.000000 Word->[_dog]\n1.000000 Word->[_is]\n1.000000 Word->[_puppy]\n1.000000 Word->[_that]\n1.000000 Word->[_this]\n1.000000 Word->[_whats]\n3.000000 Word->[_woof]\n2.000000 Topic.None->[_##]\n2.000043 Topic.None->[T.None Topic.None]\n0.000043 T.None->[_.dog Socials.NotTopical.kid.eyes]\n2.000000 T.None->[_.pig Socials.NotTopical.kid.eyes]\n1.999957 Topic.dog->[T.dog Topic.None]\n1.999957 T.dog->[_.dog Socials.Topical.kid.eyes]\n0.000000 Topic.pig->[T.pig Topic.None]\n0.000000 Topic.pig->[T.None Topic.pig]\n0.000000 T.pig->[_.pig Socials.Topical.kid.eyes]\n0.000043 Socials.NotTopical.kid.eyes->[_kid.eyes Socials.NotTopical.kid.hands]\n2.000000 Socials.NotTopical.kid.eyes->[Socials.NotTopical.kid.hands]\n2.000000 Socials.NotTopical.kid.hands->[_kid.hands Socials.NotTopical.mom.eyes]\n0.000043 Socials.NotTopical.kid.hands->[Socials.NotTopical.mom.eyes]\n0.000043 Socials.NotTopical.mom.eyes->[_mom.eyes Socials.NotTopical.mom.hands]\n2.000000 Socials.NotTopical.mom.eyes->[Socials.NotTopical.mom.hands]\n0.000036 Socials.NotTopical.mom.hands->[_mom.hands Socials.NotTopical.mom.point]\n2.000007 Socials.NotTopical.mom.hands->[Socials.NotTopical.mom.point]\n2.000043 Socials.NotTopical.mom.point->[_#]\n1.999957 Socials.Topical.kid.eyes->[_kid.eyes Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.eyes->[Socials.Topical.kid.hands]\n0.000000 Socials.Topical.kid.hands->[_kid.hands Socials.Topical.mom.eyes]\n1.999957 Socials.Topical.kid.hands->[Socials.Topical.mom.eyes]\n1.999957 Socials.Topical.mom.eyes->[_mom.eyes Socials.Topical.mom.hands]\n0.000000 Socials.Topical.mom.eyes->[Socials.Topical.mom.hands]\n0.999964 Socials.Topical.mom.hands->[_mom.hands Socials.Topical.mom.point]\n0.999993 Socials.Topical.mom.hands->[Socials.Topical.mom.point]\n1.999957 Socials.Topical.mom.point->[_#]\n");  
-        System.err.println(objectiveList);
-        assertEquals(objectiveList.toString(), "[119.57753371025353, 56.25527212925161, 55.5570576087309, 50.09255118022887, 49.947780601385126, 49.94772549410472, 49.947725459941]");
+        double[] results = new double[]{119.57753371025353, 56.25527212925161, 55.5570576087309, 50.09255118022887, 49.947780601385126, 49.94772549410472, 49.947725459941};
+        assertEquals(true, compare(objectiveList, results));
       }
     }
   }
   
   @Test
   public void testSocialUnigramNonPseudo(){
+    if(parserOpt == 1){
+      System.err.println("try the test testSocialUnigramNonPseudo only after " +
+          "fastChartComplete has been implemented for fragment rules");
+      return;
+    }
+    
     rootSymbol = "Sentence";
     initParserFromFile(socialUnigramNonPseudo);
     
@@ -575,8 +558,10 @@ public class EarleyParserTest { // extends TestCase {
     //inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
 
     parser.parseSentence(inputSentence);
-    assertEquals(parser.getSurprisalList().toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
-    assertEquals(parser.getStringProbList().toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+    assertEquals(parser.getMeasureList(Measures.SURPRISAL).toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
+    assertEquals(parser.getMeasureList(Measures.STRINGPROB).toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.1348058203053854, 0.07876904000128039, 0.025375324924613942, 0.007764597462226946, 2.856871834517225E-4, 8.025305401858703E-5, 1.1687492656508952E-5, 4.224750981273601E-6, 5.758139951136894E-9, 3.4652185701189458E-12, 1.9368285192192216E-15, 1.0417783132078003E-18, 5.45545668802379E-22, 2.8009992969889343E-25, 1.4164800662313532E-28, 7.077697168791668E-32}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.1348058203053854, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -594,8 +579,8 @@ public class EarleyParserTest { // extends TestCase {
     //inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
 
     parser.parseSentence(inputSentence);
-    assertEquals(parser.getSurprisalList().toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
-    assertEquals(parser.getStringProbList().toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+    assertEquals(parser.getMeasureList(Measures.SURPRISAL).toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
+    assertEquals(parser.getMeasureList(Measures.STRINGPROB).toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -611,8 +596,8 @@ public class EarleyParserTest { // extends TestCase {
 //    String inputSentence = "Joe was a big bear of a man six feet six inches tall and barrel-chested";
 //
 //    parser.parseSentence(inputSentence);
-//    assertEquals(parser.getSurprisalList().toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
-//    assertEquals(parser.getStringProbList().toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+//    assertEquals(parser.getMeasureList(Measures.SURPRISAL).toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
+//    assertEquals(parser.getMeasureList(Measures.STRINGPROB).toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
 //    
 //    if(parser.getDecodeOpt()==1){
 //      Tree tree = parser.viterbiParse();
@@ -629,8 +614,8 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -676,8 +661,8 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     
     assert(surprisalList.size() == numSymbols);
     
@@ -715,13 +700,21 @@ public class EarleyParserTest { // extends TestCase {
     if(isLogProb){
       assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n : 0.10000000000000002\n X: 1.0\ncell 1-2\n X: 1.0\ncell 2-3\n X: 1.0\ncell 3-4\n X: 1.0\ncell 4-5\n X: 1.0\ncell 5-6\n X: 1.0\ncell 6-7\n X: 1.0\ncell 7-8\n X: 1.0\ncell 8-9\n X: 1.0\ncell 9-10\n X: 1.0\ncell 0-2\n : 0.09000000000000002\n ROOT: 0.09000000000000002\ncell 0-3\n : 0.08100000000000002\n ROOT: 0.08100000000000002\ncell 0-4\n : 0.0729\n ROOT: 0.0729\ncell 0-5\n : 0.06561\n ROOT: 0.06561\ncell 0-6\n : 0.059049000000000004\n ROOT: 0.059049000000000004\ncell 0-7\n : 0.0531441\n ROOT: 0.0531441\ncell 0-8\n : 0.047829689999999994\n ROOT: 0.047829689999999994\ncell 0-9\n : 0.043046720999999996\n ROOT: 0.043046720999999996\ncell 0-10\n : 0.03874204889999999\n ROOT: 0.03874204889999999\n");
     } else {
-      assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n : 0.1\n X: 1.0\ncell 1-2\n X: 1.0\ncell 2-3\n X: 1.0\ncell 3-4\n X: 1.0\ncell 4-5\n X: 1.0\ncell 5-6\n X: 1.0\ncell 6-7\n X: 1.0\ncell 7-8\n X: 1.0\ncell 8-9\n X: 1.0\ncell 9-10\n X: 1.0\ncell 0-2\n : 0.09000000000000001\n ROOT: 0.09000000000000001\ncell 0-3\n : 0.08100000000000002\n ROOT: 0.08100000000000002\ncell 0-4\n : 0.07290000000000002\n ROOT: 0.07290000000000002\ncell 0-5\n : 0.06561000000000002\n ROOT: 0.06561000000000002\ncell 0-6\n : 0.05904900000000002\n ROOT: 0.05904900000000002\ncell 0-7\n : 0.05314410000000002\n ROOT: 0.05314410000000002\ncell 0-8\n : 0.04782969000000002\n ROOT: 0.04782969000000002\ncell 0-9\n : 0.043046721000000024\n ROOT: 0.043046721000000024\ncell 0-10\n : 0.03874204890000002\n ROOT: 0.03874204890000002\n");
+      if(isScaling){
+        assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n : 0.1\n X: 1.0\ncell 1-2\n X: 1.0\ncell 2-3\n X: 1.0\ncell 3-4\n X: 1.0\ncell 4-5\n X: 1.0\ncell 5-6\n X: 1.0\ncell 6-7\n X: 1.0\ncell 7-8\n X: 1.0\ncell 8-9\n X: 1.0\ncell 9-10\n X: 1.0\ncell 0-2\n : 0.09000000000000001\n ROOT: 0.09000000000000001\ncell 0-3\n : 0.08100000000000002\n ROOT: 0.08100000000000002\ncell 0-4\n : 0.07290000000000003\n ROOT: 0.07290000000000003\ncell 0-5\n : 0.06561000000000004\n ROOT: 0.06561000000000004\ncell 0-6\n : 0.05904900000000003\n ROOT: 0.05904900000000003\ncell 0-7\n : 0.05314410000000004\n ROOT: 0.05314410000000004\ncell 0-8\n : 0.047829690000000036\n ROOT: 0.047829690000000036\ncell 0-9\n : 0.04304672100000004\n ROOT: 0.04304672100000004\ncell 0-10\n : 0.038742048900000034\n ROOT: 0.038742048900000034\n"); 
+      } else {
+        assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n : 0.1\n X: 1.0\ncell 1-2\n X: 1.0\ncell 2-3\n X: 1.0\ncell 3-4\n X: 1.0\ncell 4-5\n X: 1.0\ncell 5-6\n X: 1.0\ncell 6-7\n X: 1.0\ncell 7-8\n X: 1.0\ncell 8-9\n X: 1.0\ncell 9-10\n X: 1.0\ncell 0-2\n : 0.09000000000000001\n ROOT: 0.09000000000000001\ncell 0-3\n : 0.08100000000000002\n ROOT: 0.08100000000000002\ncell 0-4\n : 0.07290000000000002\n ROOT: 0.07290000000000002\ncell 0-5\n : 0.06561000000000002\n ROOT: 0.06561000000000002\ncell 0-6\n : 0.05904900000000002\n ROOT: 0.05904900000000002\ncell 0-7\n : 0.05314410000000002\n ROOT: 0.05314410000000002\ncell 0-8\n : 0.04782969000000002\n ROOT: 0.04782969000000002\ncell 0-9\n : 0.043046721000000024\n ROOT: 0.043046721000000024\ncell 0-10\n : 0.03874204890000002\n ROOT: 0.03874204890000002\n");
+      }
     }
     if(insideOutsideOpt>0){
       if(isLogProb){
         assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n X: 0.03874204889999999\ncell 1-2\n X: 0.03874204889999999\ncell 2-3\n X: 0.03874204889999999\ncell 3-4\n X: 0.03874204889999999\ncell 4-5\n X: 0.03874204889999999\ncell 5-6\n X: 0.03874204889999999\ncell 6-7\n X: 0.03874204889999999\ncell 7-8\n X: 0.03874204889999999\ncell 8-9\n X: 0.03874204889999999\ncell 9-10\n X: 0.03874204889999999\ncell 0-2\n ROOT: 0.43046721\ncell 0-3\n ROOT: 0.47829689999999997\ncell 0-4\n ROOT: 0.531441\ncell 0-5\n ROOT: 0.5904900000000001\ncell 0-6\n ROOT: 0.6561\ncell 0-7\n ROOT: 0.7290000000000001\ncell 0-8\n ROOT: 0.81\ncell 0-9\n ROOT: 0.9\ncell 0-10\n : 1.0\n ROOT: 1.0\n");
       } else {
-        assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n X: 0.03874204890000002\ncell 1-2\n X: 0.03874204890000002\ncell 2-3\n X: 0.03874204890000002\ncell 3-4\n X: 0.03874204890000002\ncell 4-5\n X: 0.03874204890000002\ncell 5-6\n X: 0.03874204890000002\ncell 6-7\n X: 0.03874204890000002\ncell 7-8\n X: 0.03874204890000002\ncell 8-9\n X: 0.03874204890000002\ncell 9-10\n X: 0.03874204890000002\ncell 0-2\n ROOT: 0.43046721000000016\ncell 0-3\n ROOT: 0.47829690000000014\ncell 0-4\n ROOT: 0.5314410000000002\ncell 0-5\n ROOT: 0.5904900000000002\ncell 0-6\n ROOT: 0.6561000000000001\ncell 0-7\n ROOT: 0.7290000000000001\ncell 0-8\n ROOT: 0.81\ncell 0-9\n ROOT: 0.9\ncell 0-10\n : 1.0\n ROOT: 1.0\n");
+        if(isScaling){
+          assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n X: 0.038742048900000006\ncell 1-2\n X: 0.03874204889999999\ncell 2-3\n X: 0.038742048900000006\ncell 3-4\n X: 0.038742048900000006\ncell 4-5\n X: 0.03874204890000001\ncell 5-6\n X: 0.03874204890000001\ncell 6-7\n X: 0.03874204890000003\ncell 7-8\n X: 0.03874204890000003\ncell 8-9\n X: 0.038742048900000034\ncell 9-10\n X: 0.038742048900000034\ncell 0-2\n ROOT: 0.4304672099999999\ncell 0-3\n ROOT: 0.4782968999999999\ncell 0-4\n ROOT: 0.5314409999999998\ncell 0-5\n ROOT: 0.5904899999999998\ncell 0-6\n ROOT: 0.6560999999999999\ncell 0-7\n ROOT: 0.729\ncell 0-8\n ROOT: 0.8099999999999999\ncell 0-9\n ROOT: 0.9\ncell 0-10\n : 1.0\n ROOT: 1.0\n");
+        } else {
+          assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n X: 0.03874204890000002\ncell 1-2\n X: 0.03874204890000002\ncell 2-3\n X: 0.03874204890000002\ncell 3-4\n X: 0.03874204890000002\ncell 4-5\n X: 0.03874204890000002\ncell 5-6\n X: 0.03874204890000002\ncell 6-7\n X: 0.03874204890000002\ncell 7-8\n X: 0.03874204890000002\ncell 8-9\n X: 0.03874204890000002\ncell 9-10\n X: 0.03874204890000002\ncell 0-2\n ROOT: 0.43046721000000016\ncell 0-3\n ROOT: 0.47829690000000014\ncell 0-4\n ROOT: 0.5314410000000002\ncell 0-5\n ROOT: 0.5904900000000002\ncell 0-6\n ROOT: 0.6561000000000001\ncell 0-7\n ROOT: 0.7290000000000001\ncell 0-8\n ROOT: 0.81\ncell 0-9\n ROOT: 0.9\ncell 0-10\n : 1.0\n ROOT: 1.0\n");
+        }
       }
     
       parser.parseSentences(inputSentences.subList(1, inputSentences.size()));
@@ -753,8 +746,8 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     assert(surprisalList.size() == numSymbols);
     
     // string x: string prob[1] = p, prefix prob[1] = 1.0, surprisal = -log(1)=0
@@ -828,25 +821,23 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> synSurprisalList = parser.getSynSurprisalList();
-    List<Double> lexSurprisalList = parser.getLexSurprisalList();
-    
-    List<Double> stringProbList = parser.getStringProbList();
-  
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     assertEquals(surprisalList.size(), 2);
     assertEquals(0.7985076959756138, surprisalList.get(0), 1e-5);
     assertEquals(0.10536051541566838, surprisalList.get(1), 1e-5);
     
-    if(!isScaling){
-      assertEquals(synSurprisalList.size(), 2);
-      assertEquals(0.6931471805599453, synSurprisalList.get(0), 1e-5);
-      assertEquals(0.0, synSurprisalList.get(1), 1e-5);
-    
-      assertEquals(lexSurprisalList.size(), 2);
-      assertEquals(0.10536051565782628, lexSurprisalList.get(0), 1e-5);
-      assertEquals(0.10536051565782628, lexSurprisalList.get(1), 1e-5);
-    }
+//    List<Double> synSurprisalList = parser.getSynSurprisalList();
+//    List<Double> lexSurprisalList = parser.getLexSurprisalList();
+//    if(!isScaling){
+//      assertEquals(synSurprisalList.size(), 2);
+//      assertEquals(0.6931471805599453, synSurprisalList.get(0), 1e-5);
+//      assertEquals(0.0, synSurprisalList.get(1), 1e-5);
+//    
+//      assertEquals(lexSurprisalList.size(), 2);
+//      assertEquals(0.10536051565782628, lexSurprisalList.get(0), 1e-5);
+//      assertEquals(0.10536051565782628, lexSurprisalList.get(1), 1e-5);
+//    }
     
     assertEquals(stringProbList.toString(), "[0.0, 0.405]");
     
@@ -865,21 +856,20 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
     
     assertEquals(surprisalList.size(), 1);
     assertEquals(2.3025851249694824, surprisalList.get(0), 1e-5);
     
-    List<Double> synSurprisalList = parser.getSynSurprisalList();
-    List<Double> lexSurprisalList = parser.getLexSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+//    List<Double> synSurprisalList = parser.getSynSurprisalList();
+//    List<Double> lexSurprisalList = parser.getLexSurprisalList();
+//    if(!isScaling){
+//      assertEquals(synSurprisalList.size(), 1);
+//      assertEquals(1.1102230246251565E-16, synSurprisalList.get(0), 1e-5);
+//      assertEquals(lexSurprisalList.toString(), "[2.3025850929940455]");
+//    }
     
-    if(!isScaling){
-      assertEquals(synSurprisalList.size(), 1);
-      assertEquals(1.1102230246251565E-16, synSurprisalList.get(0), 1e-5);
-      assertEquals(lexSurprisalList.toString(), "[2.3025850929940455]");
-    }
-    
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     assertEquals(stringProbList.toString(), "[0.0]");
   }
   
@@ -891,7 +881,7 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -902,17 +892,16 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(2.3025851249694824, surprisalList.get(1), 1e-5);
     
     
-    List<Double> synSurprisalList = parser.getSynSurprisalList();
-    List<Double> lexSurprisalList = parser.getLexSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
-
-    if(!isScaling){
-      assertEquals(synSurprisalList.size(), 2);
-      assertEquals(0.6931471805599453, synSurprisalList.get(0), 1e-5);
-      assertEquals(1.1102230246251565E-16, synSurprisalList.get(1), 1e-5);
-      assertEquals(lexSurprisalList.toString(), "[0.2231435513142097, 2.3025850929940455]");
-    }
+//    List<Double> synSurprisalList = parser.getSynSurprisalList();
+//    List<Double> lexSurprisalList = parser.getLexSurprisalList();
+//    if(!isScaling){
+//      assertEquals(synSurprisalList.size(), 2);
+//      assertEquals(0.6931471805599453, synSurprisalList.get(0), 1e-5);
+//      assertEquals(1.1102230246251565E-16, synSurprisalList.get(1), 1e-5);
+//      assertEquals(lexSurprisalList.toString(), "[0.2231435513142097, 2.3025850929940455]");
+//    }
     
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     assertEquals(stringProbList.toString(), "[0.0, 0.04000000000000001]");
     
 
@@ -931,7 +920,7 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
   
     assertEquals(surprisalList.size(), 4);
     assertEquals(0.8649974339457559, surprisalList.get(0), 1e-5);
@@ -939,19 +928,18 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(0.17185025338581103, surprisalList.get(2), 1e-5);
     assertEquals(2.052896986215565, surprisalList.get(3), 1e-5);
     
-    List<Double> synSurprisalList = parser.getSynSurprisalList();
-    List<Double> lexSurprisalList = parser.getLexSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
-
-    if(!isScaling){
-      assertEquals(synSurprisalList.toString(), "[0.6418538861723948, 2.9444389791664407, -0.05129329438755048, 1.9475364707998972]");
-      assertEquals(lexSurprisalList.size(), 4);
-      assertEquals(0.2231435513142097, lexSurprisalList.get(0), 1e-5);
-      assertEquals(0.2231435513142097, lexSurprisalList.get(1), 1e-5);
-      assertEquals(0.2231435513142097, lexSurprisalList.get(2), 1e-5);
-      assertEquals(0.10536051565782628, lexSurprisalList.get(3), 1e-5);
-    }
+//    List<Double> synSurprisalList = parser.getSynSurprisalList();
+//    List<Double> lexSurprisalList = parser.getLexSurprisalList();
+//    if(!isScaling){
+//      assertEquals(synSurprisalList.toString(), "[0.6418538861723948, 2.9444389791664407, -0.05129329438755048, 1.9475364707998972]");
+//      assertEquals(lexSurprisalList.size(), 4);
+//      assertEquals(0.2231435513142097, lexSurprisalList.get(0), 1e-5);
+//      assertEquals(0.2231435513142097, lexSurprisalList.get(1), 1e-5);
+//      assertEquals(0.2231435513142097, lexSurprisalList.get(2), 1e-5);
+//      assertEquals(0.10536051565782628, lexSurprisalList.get(3), 1e-5);
+//    }
     
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     assertEquals(stringProbList.size(), 4);
     assertEquals(0.0, stringProbList.get(0), 1e-5);
     assertEquals(0.0, stringProbList.get(1), 1e-5);
@@ -990,11 +978,25 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
-    assertEquals(surprisalList.toString(), "[2.590291723574891, 11.178023682698447, 6.6795072400054885, 7.077894219418539, 7.981383181381769, 6.4457144132470106, 4.4242793170162855, 7.537896375757207, 7.137751990581364, 3.4130815326030017, 7.72449127699835, 7.288287721989363, 3.214652417386745]");
-    assertEquals(stringProbList.toString(), "[2.7631257999498153E-6, 3.7643574066525755E-8, 1.7159626394143225E-12, 1.2303147793619837E-13, 3.4004932181022644E-18, 8.153852294676595E-21, 6.618147596846703E-23, 3.885627220191218E-25, 5.712895859046822E-28, 1.1975791017401232E-31, 0.0, 2.2149632893898053E-36, 1.0890595505357798E-36]");
-        
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{2.5902917235749436, 11.178023682698397, 6.679507240005484, 7.0778942193977326, 7.981383181397934, 6.4457144132441915, 4.424279317017321, 7.537896375750337, 7.137751990587169, 3.4130815326032233, 7.72449127699848, 7.288287721990028, 3.214652417392341}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{2.7631257999498153E-6, 3.7643574066525755E-8, 1.7159626394143225E-12, 1.2303147793619837E-13, 3.400493218102506E-18, 8.153852294677697E-21, 6.618147596847173E-23, 3.8856272201925433E-25, 5.7128958590478365E-28, 1.1975791017402934E-31, 0.0, 2.2149632893902142E-36, 1.0890595505362442E-36}));
+    
+//    System.err.println(parser.getMeasureList(Measures.ENTROPY));
+//    System.err.println(parser.getMeasureList(Measures.ENTROPY_REDUCTION));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_RULE_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH));    
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.5771709867594069, 1.6822000464879995E-5, 2.8570954800528585E-8, 3.132053981567067E-11, 1.4630842365634877E-14, 2.69247243553012E-17, 3.845743699122437E-19, 2.1885463022451593E-22, 1.920884694812405E-25, 6.999748745690779E-27, 3.337087229625861E-30, 2.477487922284069E-33, 1.0141328280711572E-34}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.577154164758942, 1.6793429510079467E-5, 2.8539634260712915E-8, 3.130590897330503E-11, 1.4603917641279577E-14, 2.6540149985388955E-17, 3.843555152820192E-19, 2.186625417550347E-22, 1.850887207355497E-25, 6.996411658461153E-27, 3.334609741703577E-30, 2.3760746394769532E-33}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{28803.0, 1292.0, 935.0, 0.0, 753.0, 567.0, 260742.0, 0.0, 0.0, 69922.0, 1268.0, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{12.536124709231677, 5.493808049535604, 6.2, 0.0, 22.0, 2.0, 6.039073106749201, 0.0, 0.0, 5.762420983381483, 2.5, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{11.536124709231677, 4.493808049535604, 5.2, 0.0, 21.0, 1.0, 5.039073106749201, 0.0, 0.0, 4.762420983381483, 1.5, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{1.6784330598601132, 3.909322514381958E-8, 1.7261229873852788E-11, 0.0, 3.585004628054706E-15, 2.5438895293222622E-20, 1.932194281346022E-20, 0.0, 0.0, 2.787107655515816E-28, 1.8768643781139276E-32, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{1.6049945409894621, 3.081251821958178E-8, 1.4477160539360403E-11, 0.0, 3.42204987223404E-15, 1.2719447646611311E-20, 1.5529506777835743E-20, 0.0, 0.0, 2.265127605708859E-28, 1.0614912263849012E-32, 0.0, 0.0}));
+    
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
       System.err.println(tree.pennString());
@@ -1011,8 +1013,8 @@ public class EarleyParserTest { // extends TestCase {
 //
 //    parser.parseSentence(inputSentence);
 //    
-//    List<Double> surprisalList = parser.getSurprisalList();
-//    List<Double> stringProbList = parser.getStringProbList();
+//    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+//    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
 //    assertEquals(surprisalList.toString(), "[5.803755623499257, 8.118111822817458, 11.08428019811525, 7.8351117202548615, 4.482807205773518, 8.142143483744839, 1.6305761741262685, 8.735695059612887, 9.990608202027353, 1.0275953424644089, 4.9008874240837486, 0.5451802063066253]");
 //    assertEquals(stringProbList.toString(), "[0.0, 1.3079867249162168E-10, 4.867244486928411E-13, 1.0063754485484522E-16, 0.0, 0.0, 1.27408610509633E-22, 9.854091524354584E-27, 6.250980669146438E-32, 1.4087342474069947E-31, 0.0, 4.415190632996464E-34]");
 //    
@@ -1031,8 +1033,8 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     
     // Note: scores here are slightly different from those of previous version
     // that is because RoarkBaseLexicon.score returns float instead of double
@@ -1085,8 +1087,8 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     
     assertEquals(surprisalList.size(), 5);
     assertEquals(3.3767245251434295, surprisalList.get(0), 1e-5);
@@ -1111,13 +1113,13 @@ public class EarleyParserTest { // extends TestCase {
     if(isLogProb){
       assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n DT: 0.12500000000000003\ncell 1-2\n ,: 0.07692307692307693\n .: 0.16666666666666669\n CC: 0.11111111111111109\n VBD: 0.07142857142857141\n VBZ: 0.2\n ``: 0.6666666666666666\n TO: 0.3333333333333333\n VB: 0.3333333333333333\n NN: 0.030303030303030304\n DT: 0.0625\n JJ: 0.0909090909090909\n NNPS: 0.16666666666666669\n NNP: 0.02777777777777778\n NNS: 0.11111111111111109\n PRP: 0.4\n CD: 0.0909090909090909\n POS: 0.3333333333333333\n VBG: 0.3333333333333333\n IN: 0.11764705882352941\n $: 0.3333333333333333\n RB: 0.3333333333333333\n '': 0.6666666666666666\ncell 2-3\n ,: 0.07692307692307693\n .: 0.16666666666666669\n CC: 0.11111111111111109\n VBD: 0.07142857142857141\n VBZ: 0.2\n ``: 0.6666666666666666\n TO: 0.3333333333333333\n VB: 0.3333333333333333\n NN: 0.030303030303030304\n DT: 0.0625\n JJ: 0.0909090909090909\n NNPS: 0.16666666666666669\n NNP: 0.02777777777777778\n NNS: 0.11111111111111109\n PRP: 0.2\n CD: 0.0909090909090909\n POS: 0.3333333333333333\n VBG: 0.3333333333333333\n IN: 0.0588235294117647\n $: 0.3333333333333333\n RB: 0.3333333333333333\n '': 0.6666666666666666\ncell 3-4\n ,: 0.07692307692307693\n .: 0.16666666666666669\n CC: 0.11111111111111109\n VBD: 0.07142857142857141\n VBZ: 0.2\n ``: 0.6666666666666666\n TO: 0.3333333333333333\n VB: 0.3333333333333333\n NN: 0.030303030303030304\n DT: 0.0625\n JJ: 0.0909090909090909\n NNPS: 0.16666666666666669\n NNP: 0.02777777777777778\n NNS: 0.11111111111111109\n PRP: 0.2\n CD: 0.0909090909090909\n POS: 0.3333333333333333\n VBG: 0.3333333333333333\n IN: 0.0588235294117647\n $: 0.3333333333333333\n RB: 0.3333333333333333\n '': 0.6666666666666666\ncell 4-5\n .: 0.8333333333333333\ncell 0-2\n NP: 5.316321105794787E-4\ncell 2-4\n VP: 0.0011986500844061413\n PP: 9.965496033607483E-4\ncell 0-3\n : 2.5315814789499013E-6\n S: 3.164476848687374E-6\n NP: 2.531245011448713E-5\ncell 1-4\n QP: 0.002754820936639117\ncell 0-4\n : 5.442039250199556E-7\n S: 6.802549062749439E-7\n NP: 6.269843578954069E-6\ncell 0-5\n : 1.2514394214109883E-7\n S: 1.564299276763734E-7\n");
     } else {
-      assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n DT: 0.12500000000000003\ncell 1-2\n ,: 0.07692307692307693\n .: 0.16666666666666669\n CC: 0.11111111111111109\n VBD: 0.07142857142857141\n VBZ: 0.2\n ``: 0.6666666666666666\n TO: 0.3333333333333333\n VB: 0.3333333333333333\n NN: 0.030303030303030304\n DT: 0.0625\n JJ: 0.0909090909090909\n NNPS: 0.16666666666666669\n NNP: 0.02777777777777778\n NNS: 0.11111111111111109\n PRP: 0.4\n CD: 0.0909090909090909\n POS: 0.3333333333333333\n VBG: 0.3333333333333333\n IN: 0.11764705882352941\n $: 0.3333333333333333\n RB: 0.3333333333333333\n '': 0.6666666666666666\ncell 2-3\n ,: 0.07692307692307693\n .: 0.16666666666666669\n CC: 0.11111111111111109\n VBD: 0.07142857142857141\n VBZ: 0.2\n ``: 0.6666666666666666\n TO: 0.3333333333333333\n VB: 0.3333333333333333\n NN: 0.030303030303030304\n DT: 0.0625\n JJ: 0.0909090909090909\n NNPS: 0.16666666666666669\n NNP: 0.02777777777777778\n NNS: 0.11111111111111109\n PRP: 0.2\n CD: 0.0909090909090909\n POS: 0.3333333333333333\n VBG: 0.3333333333333333\n IN: 0.0588235294117647\n $: 0.3333333333333333\n RB: 0.3333333333333333\n '': 0.6666666666666666\ncell 3-4\n ,: 0.07692307692307693\n .: 0.16666666666666669\n CC: 0.11111111111111109\n VBD: 0.07142857142857141\n VBZ: 0.2\n ``: 0.6666666666666666\n TO: 0.3333333333333333\n VB: 0.3333333333333333\n NN: 0.030303030303030304\n DT: 0.0625\n JJ: 0.0909090909090909\n NNPS: 0.16666666666666669\n NNP: 0.02777777777777778\n NNS: 0.11111111111111109\n PRP: 0.2\n CD: 0.0909090909090909\n POS: 0.3333333333333333\n VBG: 0.3333333333333333\n IN: 0.0588235294117647\n $: 0.3333333333333333\n RB: 0.3333333333333333\n '': 0.6666666666666666\ncell 4-5\n .: 0.8333333333333333\ncell 0-2\n NP: 5.31632110579479E-4\ncell 2-4\n VP: 0.0011986500844061413\n PP: 9.965496033607487E-4\ncell 0-3\n : 2.5315814789498996E-6\n S: 3.1644768486873742E-6\n NP: 2.5312450114487106E-5\ncell 1-4\n QP: 0.0027548209366391177\ncell 0-4\n : 5.442039250199558E-7\n S: 6.802549062749448E-7\n NP: 6.269843578954064E-6\ncell 0-5\n : 1.251439421410986E-7\n S: 1.5642992767637323E-7\n");
+      assertEquals(parser.dumpInsideChart(), "# Inside chart snapshot\ncell 0-1\n DT: 0.12500000000000003\ncell 1-2\n ,: 0.07692307692307693\n .: 0.16666666666666669\n CC: 0.11111111111111109\n VBD: 0.07142857142857141\n VBZ: 0.2\n ``: 0.6666666666666666\n TO: 0.3333333333333333\n VB: 0.3333333333333333\n NN: 0.030303030303030304\n DT: 0.0625\n JJ: 0.0909090909090909\n NNPS: 0.16666666666666669\n NNP: 0.02777777777777778\n NNS: 0.11111111111111109\n PRP: 0.4\n CD: 0.0909090909090909\n POS: 0.3333333333333333\n VBG: 0.3333333333333333\n IN: 0.11764705882352941\n $: 0.3333333333333333\n RB: 0.3333333333333333\n '': 0.6666666666666666\ncell 2-3\n ,: 0.07692307692307693\n .: 0.16666666666666669\n CC: 0.11111111111111109\n VBD: 0.07142857142857141\n VBZ: 0.2\n ``: 0.6666666666666666\n TO: 0.3333333333333333\n VB: 0.3333333333333333\n NN: 0.030303030303030304\n DT: 0.0625\n JJ: 0.0909090909090909\n NNPS: 0.16666666666666669\n NNP: 0.02777777777777778\n NNS: 0.11111111111111109\n PRP: 0.2\n CD: 0.0909090909090909\n POS: 0.3333333333333333\n VBG: 0.3333333333333333\n IN: 0.0588235294117647\n $: 0.3333333333333333\n RB: 0.3333333333333333\n '': 0.6666666666666666\ncell 3-4\n ,: 0.07692307692307693\n .: 0.16666666666666669\n CC: 0.11111111111111109\n VBD: 0.07142857142857141\n VBZ: 0.2\n ``: 0.6666666666666666\n TO: 0.3333333333333333\n VB: 0.3333333333333333\n NN: 0.030303030303030304\n DT: 0.0625\n JJ: 0.09090909090909088\n NNPS: 0.16666666666666669\n NNP: 0.02777777777777778\n NNS: 0.11111111111111109\n PRP: 0.2\n CD: 0.09090909090909088\n POS: 0.3333333333333333\n VBG: 0.3333333333333333\n IN: 0.0588235294117647\n $: 0.3333333333333333\n RB: 0.3333333333333333\n '': 0.6666666666666666\ncell 4-5\n .: 0.8333333333333334\ncell 0-2\n NP: 5.316321105794791E-4\ncell 2-4\n VP: 0.0011986500844061413\n PP: 9.965496033607487E-4\ncell 0-3\n : 2.5315814789498996E-6\n S: 3.1644768486873747E-6\n NP: 2.5312450114487106E-5\ncell 1-4\n QP: 0.0027548209366391172\ncell 0-4\n : 5.442039250199558E-7\n S: 6.802549062749448E-7\n NP: 6.269843578954063E-6\ncell 0-5\n : 1.2514394214109867E-7\n S: 1.564299276763733E-7\n");
     }
     if(insideOutsideOpt>0){
       if(isLogProb){
         assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n DT: 1.0011515371287891E-6\ncell 1-2\n NN: 2.9694419128042183E-6\n VBG: 1.054825616229126E-7\ncell 2-3\n VBD: 1.1660468180112154E-7\n VBZ: 1.0007291190934357E-7\n TO: 7.032170774860844E-8\n VB: 1.0007291190934357E-7\n NN: 1.2657907394749483E-6\n NNS: 1.4804570052338546E-8\ncell 3-4\n VBD: 9.047312024762741E-7\n NN: 6.267267988823337E-8\n NNPS: 6.267267988823337E-8\n NNP: 3.760360793294006E-7\n NNS: 6.267267988823337E-8\n PRP: 1.2534535977646652E-7\n CD: 6.267267988823337E-8\ncell 4-5\n .: 1.5017273056931864E-7\ncell 0-2\n NP: 1.6324568301733438E-4\ncell 2-4\n VP: 7.088428141059727E-5\ncell 0-3\n NP: 0.0015873015873015858\ncell 0-5\n : 1.0\n S: 0.8\n");
       } else {
-        assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n DT: 1.0011515371287887E-6\ncell 1-2\n NN: 2.9694419128042174E-6\n VBG: 1.0548256162291248E-7\ncell 2-3\n VBD: 1.1660468180112139E-7\n VBZ: 1.000729119093433E-7\n TO: 7.032170774860831E-8\n VB: 1.000729119093433E-7\n NN: 1.2657907394749496E-6\n NNS: 1.4804570052338592E-8\ncell 3-4\n VBD: 9.04731202476274E-7\n NN: 6.267267988823339E-8\n NNPS: 6.267267988823339E-8\n NNP: 3.760360793294003E-7\n NNS: 6.267267988823339E-8\n PRP: 1.2534535977646678E-7\n CD: 6.267267988823339E-8\ncell 4-5\n .: 1.5017273056931832E-7\ncell 0-2\n NP: 1.6324568301733435E-4\ncell 2-4\n VP: 7.08842814105972E-5\ncell 0-3\n NP: 0.0015873015873015866\ncell 0-5\n : 1.0\n S: 0.8\n");
+        assertEquals(parser.dumpOutsideChart(), "# Outside chart snapshot\ncell 0-1\n DT: 1.0011515371287891E-6\ncell 1-2\n NN: 2.9694419128042183E-6\n VBG: 1.0548256162291248E-7\ncell 2-3\n VBD: 1.1660468180112143E-7\n VBZ: 1.0007291190934333E-7\n TO: 7.032170774860832E-8\n VB: 1.0007291190934333E-7\n NN: 1.2657907394749498E-6\n NNS: 1.4804570052338595E-8\ncell 3-4\n VBD: 9.04731202476274E-7\n NN: 6.267267988823339E-8\n NNPS: 6.267267988823339E-8\n NNP: 3.7603607932940046E-7\n NNS: 6.267267988823339E-8\n PRP: 1.2534535977646678E-7\n CD: 6.267267988823339E-8\ncell 4-5\n .: 1.5017273056931838E-7\ncell 0-2\n NP: 1.632456830173344E-4\ncell 2-4\n VP: 7.088428141059721E-5\ncell 0-3\n NP: 0.0015873015873015866\ncell 0-5\n : 1.0\n S: 0.8\n");
       }
     
       assertEquals(parser.sprintExpectedCounts(), "# Expected counts\n1.000000 ROOT->[S]\n0.008028 S->[VP]\n1.000000 S->[NP VP .]\n0.004014 VP->[VBD SBAR]\n0.159932 VP->[VBZ NP]\n0.517803 VP->[VBD]\n0.057119 VP->[VBD NP]\n0.187309 VP->[TO VP]\n0.266554 VP->[VB NP]\n0.004014 VP->[VBD S]\n0.013144 NP->[NP NNS]\n0.025542 NP->[DT NN NN]\n0.083467 NP->[NNP]\n0.200322 NP->[PRP]\n0.001408 NP->[NP VP]\n0.083467 NP->[NNPS]\n0.015176 NP->[NN]\n0.045528 NP->[CD]\n0.693495 NP->[DT NN]\n0.055645 NP->[NNS]\n0.280963 NP->[DT VBG NN]\n0.004014 SBAR->[S]\n1.000000 DT->[_The]\n1.000000 .->[_.]\n0.280963 VBG->[_two]\n0.719037 NN->[_two]\n0.013144 NNS->[_young]\n0.266554 VB->[_young]\n0.159932 VBZ->[_young]\n0.066555 VBD->[_young]\n0.187309 TO->[_young]\n0.306505 NN->[_young]\n0.045528 CD->[_sea-lions]\n0.055645 NNS->[_sea-lions]\n0.083467 NNPS->[_sea-lions]\n0.200322 PRP->[_sea-lions]\n0.516395 VBD->[_sea-lions]\n0.083467 NNP->[_sea-lions]\n0.015176 NN->[_sea-lions]\n");
@@ -1257,7 +1259,7 @@ public class EarleyParserTest { // extends TestCase {
     
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -1288,7 +1290,7 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -1322,8 +1324,8 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -1376,8 +1378,8 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
 
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -1426,8 +1428,8 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     
     for (int i = 0; i < surprisalList.size(); i++) {
       System.err.println(i + "\t" + surprisalList.get(i));
@@ -1483,8 +1485,8 @@ public class EarleyParserTest { // extends TestCase {
     String inputSentence = "a b c";
     parser.parseSentence(inputSentence);
     
-    List<Double> surprisalList = parser.getSurprisalList();
-    List<Double> stringProbList = parser.getStringProbList();
+    List<Double> surprisalList = parser.getMeasureList(Measures.SURPRISAL);
+    List<Double> stringProbList = parser.getMeasureList(Measures.STRINGPROB);
     
     // test left-corner closure
     // a = zeros(6,6); a(1,2)=1.0; a(2,3)=0.01; a(3,3)=0.89;a(3,4)=0.11;a(4,3)=0.21;a(4,5)=0.22;
