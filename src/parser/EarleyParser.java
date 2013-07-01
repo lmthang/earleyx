@@ -7,6 +7,7 @@ import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.ling.Tag;
 import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.math.ArrayMath;
+import edu.stanford.nlp.math.SloppyMath;
 import edu.stanford.nlp.parser.Parser;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.Counter;
@@ -582,7 +583,7 @@ public abstract class EarleyParser implements Parser {
     
     /* parse word by word */
     double lastProbability = 1.0;
-    double lastEntropy = 0.0;
+    double lastEntropy = 0.0; //1.0;
     for(int right=1; right<=numWords; right++){ // span [0, rightEdge] covers words 0, ..., rightEdge-1
       parseWord(right);
       
@@ -1219,7 +1220,7 @@ public abstract class EarleyParser implements Parser {
       }
       int edge = edgeSpace.indexOfTag(tag);
       double score = entry.getValue();
-      addPrefixExtendedRule(left, middle, right, edge, ruleId, score);
+      addPrefixMultiRule(left, middle, right, edge, ruleId, score);
     }
   }
   
@@ -1234,7 +1235,10 @@ public abstract class EarleyParser implements Parser {
 //        System.err.println("# [" + left + ", " + (right-1) + "]: " + Util.sprint(predictedEdges, edgeSpace, parserTagIndex, parserWordIndex));
 //        System.err.println("Fragment: " + Util.sprint(fragmentEdges, edgeSpace, parserTagIndex, parserWordIndex));   
         Set<Integer> intersectEdges = Util.intersection(predictedEdges, fragmentEdges);
-        
+       
+        // Thang July 2013: potential BUG (maybe very minor). 
+        // For fragment edges in which the dot position is 0, we might need to consider 
+        // unary recursive rewriting rules similar to how we handle multi-terminal rules in addPrefixMultiRule()
         if(intersectEdges.size()>0){
 //          System.err.println("# " + word + "\t[" + left + ", " + (right-1) + 
 //              "] " + ": " + Util.sprint(intersectEdges, edgeSpace, parserTagIndex, parserWordIndex));
@@ -1251,9 +1255,10 @@ public abstract class EarleyParser implements Parser {
     int middle = right-1;
     double newForwardProb = getForwardScore(left, middle, prevEdge);
     double newInnerProb = getInnerScore(left, middle, prevEdge);
+    
     if (isScaling){
 //      if(verbose>=2){
-//        System.err.println("fragment complete scailing " + operator.multiply(newForwardProb, getScaling(middle, right)) 
+//        System.err.println("fragment complete scaling " + operator.multiply(newForwardProb, getScaling(middle, right)) 
 //            + " = " + newForwardProb 
 //            + ", scaled = " + getScaling(middle, right));
 //      }
@@ -1290,8 +1295,8 @@ public abstract class EarleyParser implements Parser {
         System.err.println("# fragment string prob +=" + Math.exp(newInnerProb));
       }
     }
-
-    addPrefixProb(newForwardProb, left, right-1, right, operator.one(), operator.one(), prevEdge, "fragment", null);
+    
+    addPrefixFragmentRule(newForwardProb, left, right, prevEdge);
   }
   
   protected void complete(int left, int middle, int right, int nextEdge, double inner) {
@@ -1381,7 +1386,7 @@ public abstract class EarleyParser implements Parser {
     
     double prefixProb = operator.getProb(prefixScore);
     if(internalMeasures.contains(Measures.ENTROPY)){ // expected value of log prob
-      wordMeasures.addEntropy(-prefixProb*operator.getLogProb(prefixScore));
+      wordMeasures.addEntropy(-prefixProb*SloppyMath.log(prefixProb, 2));
       
       if(verbose>=2){
         System.err.println("  entropy " + type + " " + -prefixProb*operator.getLogProb(prefixScore));
@@ -1407,8 +1412,42 @@ public abstract class EarleyParser implements Parser {
 //    double synProb = operator.divide(newForwardProb, inner);
 //    thisSynPrefixProb.add(synProb); // minus the lexical score
   }
-  
-  protected void addPrefixExtendedRule(int left, int middle, int right, int edge, int ruleId, double inner) {    
+
+  protected void addPrefixFragmentRule(double newForwardProb, int left, int right, int prevEdge) {
+    // expected measures
+    Map<String, Double> additionalMeasureMap = new HashMap<String, Double>();
+    if(isSeparateRuleInTrie){
+      int newEdge = edgeSpace.to(prevEdge);
+      Edge edgeObj = edgeSpace.get(newEdge);
+
+      if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH)){
+        additionalMeasureMap.put(Measures.MULTI_RHS_LENGTH, (double) edgeObj.numChildren());
+      }
+      if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH)){
+        additionalMeasureMap.put(Measures.MULTI_FUTURE_LENGTH, (double) edgeObj.numRemainingChildren());
+      }
+      
+      if(verbose>=1){
+        System.err.println("# Fragment multi rule " + edgeObj.toString(parserTagIndex, parserWordIndex)
+            + ", values " + Util.sprint(additionalMeasureMap));
+      }
+      
+      // measures not weighted by prefix probs
+      if(internalMeasures.contains(Measures.MULTI_RULE_COUNT)){
+        wordMeasures.addValue(Measures.MULTI_RULE_COUNT, 1);
+      }
+      if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT)){
+        wordMeasures.addValue(Measures.MULTI_RHS_LENGTH_COUNT, edgeObj.numChildren());
+      }
+      if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT)){
+        wordMeasures.addValue(Measures.MULTI_FUTURE_LENGTH_COUNT, edgeObj.numRemainingChildren());
+      }
+    }
+    
+    addPrefixProb(newForwardProb, left, right-1, right, operator.one(), operator.one(), prevEdge, "fragment", additionalMeasureMap);  
+  }
+
+  protected void addPrefixMultiRule(int left, int middle, int right, int edge, int ruleId, double inner) {    
     int tag = edgeSpace.get(edge).getMother();
     assert(edgeSpace.get(edge).numRemainingChildren()==0);
     

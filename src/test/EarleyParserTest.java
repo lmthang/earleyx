@@ -184,9 +184,11 @@ public class EarleyParserTest { // extends TestCase {
     
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 1.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.32508297339144826, 0.32508297339144826}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.32508297339144826, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.4689955935892813, 0.4689955935892813}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{1.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{2.0, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.20000000000000004, 0.20000000000000004}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.10000000000000002, 0.0}));
     
@@ -212,10 +214,13 @@ public class EarleyParserTest { // extends TestCase {
     
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.0829744925828269, 0.7282547206391556}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{1.0829744925828269, 0.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.0, 0.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.0, 0.0}));    
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.562401929858486, 1.0506494739700873}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.5117524558883986}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{1.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{2.0, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.27397260273972607, 0.13698630136986306}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.13698630136986303, 0.0}));    
  
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -224,10 +229,16 @@ public class EarleyParserTest { // extends TestCase {
     
     inputSentence = "b c c";
     parser.parseSentence(inputSentence);    
+
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119, 3.2834143460057716}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006, 0.011718750000000005}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.0829744925828269, 0.7282547206391556, 0.06410332359478736}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{1.0829744925828269, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.562401929858486, 1.0506494739700873, 0.09248154705470021}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.5117524558883986, 0.9581679269153871}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{1.0, 1.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{2.0, 2.0, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.27397260273972607, 0.13698630136986306, 0.008561643835616445}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.13698630136986303, 0.0, 0.0}));    
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -239,8 +250,13 @@ public class EarleyParserTest { // extends TestCase {
 
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.9582549309731871, 0.0, 0.8472978603872034}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.15000000000000002}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.3675498365376609, 0.3675498365376609, 0.40143566460085545}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.3675498365376609, 0.0, 0.03388582806}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.5302623264524325, 0.5302623264524325, 0.5791492425556193}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{1.0, 0.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{2.0, 0.0, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.767123287671233, 0.0, 0.10958904109589045}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.3835616438356165, 0.0, 0.0}));    
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -989,8 +1005,8 @@ public class EarleyParserTest { // extends TestCase {
 //    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH));
 //    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH));    
     
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.5771709867594069, 1.6822000464879995E-5, 2.8570954800528585E-8, 3.132053981567067E-11, 1.4630842365634877E-14, 2.69247243553012E-17, 3.845743699122437E-19, 2.1885463022451593E-22, 1.920884694812405E-25, 6.999748745690779E-27, 3.337087229625861E-30, 2.477487922284069E-33, 1.0141328280711572E-34}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.577154164758942, 1.6793429510079467E-5, 2.8539634260712915E-8, 3.130590897330503E-11, 1.4603917641279577E-14, 2.6540149985388955E-17, 3.843555152820192E-19, 2.186625417550347E-22, 1.850887207355497E-25, 6.996411658461153E-27, 3.334609741703577E-30, 2.3760746394769532E-33}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.8326817203428356, 2.4269016648514243E-5, 4.121917480418523E-8, 4.518598747003335E-11, 2.110784372492943E-14, 3.884416630469533E-17, 5.548235363248169E-19, 3.1574048970049775E-22, 2.771250823325358E-25, 1.0098502802870195E-26, 4.8143991971951525E-30, 3.574259539341525E-33, 1.4630844018609583E-34}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.8326574513261871, 2.4227797473710058E-5, 4.11739888167152E-8, 4.5164879626308416E-11, 2.1068999558624734E-14, 3.828934276837051E-17, 5.545077958351164E-19, 3.154633646181652E-22, 2.670265795296656E-25, 1.0093688403673E-26, 4.810824937655811E-30, 3.427951099155429E-33}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{28803.0, 1292.0, 935.0, 0.0, 753.0, 567.0, 260742.0, 0.0, 0.0, 69922.0, 1268.0, 0.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{12.536124709231677, 5.493808049535604, 6.2, 0.0, 22.0, 2.0, 6.039073106749201, 0.0, 0.0, 5.762420983381483, 2.5, 0.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{11.536124709231677, 4.493808049535604, 5.2, 0.0, 21.0, 1.0, 5.039073106749201, 0.0, 0.0, 4.762420983381483, 1.5, 0.0, 0.0}));
