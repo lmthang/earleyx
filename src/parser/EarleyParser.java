@@ -1242,8 +1242,30 @@ public abstract class EarleyParser implements Parser {
         if(intersectEdges.size()>0){
 //          System.err.println("# " + word + "\t[" + left + ", " + (right-1) + 
 //              "] " + ": " + Util.sprint(intersectEdges, edgeSpace, parserTagIndex, parserWordIndex));
+
+          int count = intersectEdges.size();
+          int rhsLengthCount = 0;
+          int futureLengthCount = 0;
           for (Integer edge : intersectEdges) {
             fragmentComplete(left, right, edge);
+            
+            int newEdge = edgeSpace.to(edge);
+            Edge edgeObj = edgeSpace.get(newEdge);
+            rhsLengthCount += edgeObj.numChildren();
+            futureLengthCount += edgeObj.numRemainingChildren();
+          }
+          
+          if(isSeparateRuleInTrie){
+            // measures not weighted by prefix probs
+            if(internalMeasures.contains(Measures.MULTI_RULE_COUNT)){
+              wordMeasures.addValue(Measures.MULTI_RULE_COUNT, count);
+            }
+            if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT)){
+              wordMeasures.addValue(Measures.MULTI_RHS_LENGTH_COUNT, rhsLengthCount);
+            }
+            if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT)){
+              wordMeasures.addValue(Measures.MULTI_FUTURE_LENGTH_COUNT, futureLengthCount);
+            }
           }
         }
       }
@@ -1427,23 +1449,12 @@ public abstract class EarleyParser implements Parser {
         additionalMeasureMap.put(Measures.MULTI_FUTURE_LENGTH, (double) edgeObj.numRemainingChildren());
       }
       
-      if(verbose>=1){
+      if(verbose>=2){
         System.err.println("# Fragment multi rule " + edgeObj.toString(parserTagIndex, parserWordIndex)
             + ", values " + Util.sprint(additionalMeasureMap));
       }
-      
-      // measures not weighted by prefix probs
-      if(internalMeasures.contains(Measures.MULTI_RULE_COUNT)){
-        wordMeasures.addValue(Measures.MULTI_RULE_COUNT, 1);
-      }
-      if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT)){
-        wordMeasures.addValue(Measures.MULTI_RHS_LENGTH_COUNT, edgeObj.numChildren());
-      }
-      if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT)){
-        wordMeasures.addValue(Measures.MULTI_FUTURE_LENGTH_COUNT, edgeObj.numRemainingChildren());
-      }
     }
-    
+        
     addPrefixProb(newForwardProb, left, right-1, right, operator.one(), operator.one(), prevEdge, "fragment", additionalMeasureMap);  
   }
 
@@ -1478,10 +1489,10 @@ public abstract class EarleyParser implements Parser {
     }
     
     // the current AG rule: Y -> w_middle ... w_(right-1) .
+    int count = 0;
     for (int x = 0, n = completions.length; x < n; x++) {
       Completion completion = completions[x];
      
-      int count = 0;
       if (containsInsideEdge(left, middle, completion.activeEdge)){
         // we are using trie, and there's an extended rule that could be used to update prefix prob
         double prefixScore = operator.multiply(getForwardScore(left, middle, completion.activeEdge), 
@@ -1491,19 +1502,19 @@ public abstract class EarleyParser implements Parser {
             completion.score, completion.activeEdge, "multi", additionalMeasureMap);
         count++;
       }
-      
-      // add multi rule count
-      if(isSeparateRuleInTrie && count>0){
-        ProbRule rule = ruleSet.get(ruleId);
-        if(internalMeasures.contains(Measures.MULTI_RULE_COUNT)){
-          wordMeasures.addValue(Measures.MULTI_RULE_COUNT, count);
-        }
-        if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT)){
-          wordMeasures.addValue(Measures.MULTI_RHS_LENGTH_COUNT, count*rule.numChildren());
-        }
-        if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT)){
-          wordMeasures.addValue(Measures.MULTI_FUTURE_LENGTH_COUNT, count*(rule.numChildren()-right + middle));
-        }
+    }
+
+    // add multi rule count
+    if(isSeparateRuleInTrie && count>0){
+      ProbRule rule = ruleSet.get(ruleId);
+      if(internalMeasures.contains(Measures.MULTI_RULE_COUNT)){
+        wordMeasures.addValue(Measures.MULTI_RULE_COUNT, count);
+      }
+      if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT)){
+        wordMeasures.addValue(Measures.MULTI_RHS_LENGTH_COUNT, count*rule.numChildren());
+      }
+      if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT)){
+        wordMeasures.addValue(Measures.MULTI_FUTURE_LENGTH_COUNT, count*(rule.numChildren()-right + middle));
       }
     }
   } 
