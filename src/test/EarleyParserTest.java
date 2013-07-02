@@ -271,10 +271,11 @@ public class EarleyParserTest { // extends TestCase {
     
     String inputSentence = "b c";
     parser.parseSentence(inputSentence);
+
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.0829744925828269, 0.7282547206391556}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{1.0829744925828269, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.562401929858486, 1.0506494739700873}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.5117524558883986}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -283,10 +284,11 @@ public class EarleyParserTest { // extends TestCase {
     
     inputSentence = "b c c";
     parser.parseSentence(inputSentence);
+   
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119, 3.2834143460057716}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006, 0.011718750000000005}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.0829744925828269, 0.7282547206391556, 0.06410332359478736}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{1.0829744925828269, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.562401929858486, 1.0506494739700873, 0.09248154705470021}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.5117524558883986, 0.9581679269153871}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
@@ -295,10 +297,14 @@ public class EarleyParserTest { // extends TestCase {
     
     inputSentence = "d c c";
     parser.parseSentence(inputSentence);
+
+    System.err.println(parser.getMeasureList(Measures.ENTROPY));
+    System.err.println(parser.getMeasureList(Measures.ENTROPY_REDUCTION));
+ 
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.9582549309731871, 0.0, 0.8472978603872034}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.15000000000000002}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.3675498365376609, 0.3675498365376609, 0.40143566460085545}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.3675498365376609, 0.0, 0.03388582806}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.5302623264524325, 0.5302623264524325, 0.5791492425556193}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.0, 0.0}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = parser.viterbiParse();
