@@ -89,6 +89,7 @@ public abstract class EdgeSpace {
     if(edgeIndex.contains(e)){
       return indexOf(e);
     }
+    
     if (verbose >= 3){
       System.err.println("Adding " + e.toString(tagIndex, wordIndex));
     }
@@ -110,6 +111,10 @@ public abstract class EdgeSpace {
         }
         terminal2fragmentEdges.get(childIndex).add(state); // map _y to X -> _y Z T
       }
+      
+//      while (e.numRemainingChildren()>=2 && !e.isTagAfterDot(0) && !e.isTagAfterDot(1)){ // X -> _y _z T
+//        e = getToEdge(e);
+//      }
       
       // via edge: first child -> []
       Edge viaEdge = e.getViaEdge(); 

@@ -48,8 +48,22 @@ public class Edge {
   public int getChildAfterDot(int pos){
     return rule.getChild(dot+pos);
   }
+  public int getChildBeforeDot(int pos){
+    if(pos>dot){
+      System.err.println("! Invalid getChildBeforeDot: pos>dot"); 
+      System.exit(1);
+    }
+    return rule.getChild(dot-pos);
+  }
   public boolean isTagAfterDot(int pos){
     return rule.isTag(dot+pos);
+  }
+  public boolean isTagBeforeDot(int pos){
+    if(pos>dot){
+      System.err.println("! Invalid isTagBeforeDot: pos>dot"); 
+      System.exit(1);
+    }
+    return rule.isTag(dot-pos);
   }
   public int getChild(int pos){
     return rule.getChild(pos);
@@ -88,11 +102,15 @@ public class Edge {
   }
   
   /** 
-   * to edge: mother -> [second children onwards]
+   * to edge: move the dot to the next position
    * @return
    */
    public Edge getToEdge(){
-     return new Edge(rule.buildToRule(dot), 0);
+     if(dot<numChildren()) {
+       return new Edge(rule, dot+1);
+     } else {
+       return null;
+     }
    }
    
   public boolean equals(Object o) {

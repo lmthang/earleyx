@@ -39,7 +39,7 @@ public class RuleSet {
   //  protected Collection<ProbRule> fragmentRules; // X -> _a B _c
   protected int numMultiTerminalRules;
   protected int numFragmentRules; // includes numMultipleTerminalRules
-  
+
   // unary rules
   protected List<ProbRule> unaryRules;
 //  protected Map<Integer, Set<Integer>> unaryMap; // unaryMap.get(Y): set of Z for which there's a unary Y -> Z
@@ -54,6 +54,7 @@ public class RuleSet {
   protected Map<Integer, Map<Integer, Integer>> unaryChainEndMap;
   
 //  private Map<Integer, List<Integer>> tag2ruleIndices; // map tag to a set of rule indices
+//  protected Map<Integer, List<Integer>> fgWordMap; // map word id to list of FG rules starting with that word
   
   public RuleSet(Index<String> tagIndex, Index<String> wordIndex){
     this.tagIndex = tagIndex;
@@ -72,6 +73,7 @@ public class RuleSet {
     unkPreterminals = new HashSet<Integer>();
     
     numFragmentRules = 0;
+//    fgWordMap = new HashMap<Integer, List<Integer>>();
     numMultiTerminalRules = 0;
     
     // unary rules
@@ -108,13 +110,6 @@ public class RuleSet {
     int ruleId = numRules++;
     ruleMap.put(rule, ruleId);
     
-    // tag2ruleIndices
-//    int tag = rule.getMother();
-//    if(!tag2ruleIndices.containsKey(tag)){
-//      tag2ruleIndices.put(tag, new ArrayList<Integer>());
-//    }
-//    tag2ruleIndices.get(tag).add(ruleId);
-    
     // sublist of all rules
     if(numTags == 0){ // X -> _a or X -> _a _b _c
       if(numChildren>1){ // multiple terminal rules
@@ -143,11 +138,37 @@ public class RuleSet {
         updateUnaryChain(probRule.getMother(), probRule.getChild(0), chain, probRule.getProb());
       } else if(numTags<numChildren){ // fragment rule
         numFragmentRules++;
+        
+        // update fgWordMap
+//        if (!rule.isTag(0)){ // fragment rule starts with a terminal
+//          int wordId = rule.getChild(0);
+//          if(!fgWordMap.containsKey(wordId)){
+//            fgWordMap.put(wordId, new ArrayList<Integer>());
+//          }
+//          fgWordMap.get(wordId).add(ruleId);
+//        }
       }
     }
     
     return ruleId;
   }
+  
+  /**
+   * Get a list of fragment rules that start with a terminal, i.e., X -> _y Z ...
+   * @param wordId
+   * @return
+   */
+//  public List<ProbRule> fgRulesStartWithTerminal(int wordId){
+//    List<ProbRule> rules = new ArrayList<ProbRule>();
+//    if(fgWordMap.containsKey(wordId)){
+//      List<Integer> ruleIndices = fgWordMap.get(wordId);
+//      for (Integer ruleId : ruleIndices) {
+//        rules.add(get(ruleId));
+//      }
+//    }
+//    
+//    return rules;
+//  }
   
   public boolean hasSmoothRule(){
     return hasSmoothRules;

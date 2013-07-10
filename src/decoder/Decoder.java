@@ -21,9 +21,11 @@ public abstract class Decoder {
   protected EdgeSpace edgeSpace;
   protected Operator operator;
   protected Index<String> parserTagIndex;
+  protected Index<String> parserWordIndex;
   protected int verbose;
   
   protected List<? extends HasWord> words; // words to decode
+  protected List<Integer> wordIndices; // indices from parserWordIndex. size: numWords
   protected int numWords;
   
   public Decoder(EarleyParser parser) {
@@ -31,6 +33,11 @@ public abstract class Decoder {
     edgeSpace = parser.getEdgeSpace();
     operator = parser.getOperator();
     parserTagIndex = parser.getParserTagIndex();
+    parserWordIndex = parser.getParserWordIndex();
+    words = parser.getWords();
+    wordIndices = parser.getWordIndices();
+    numWords = parser.getNumWords();
+    
     this.verbose = EarleyParser.verbose;
   }
   

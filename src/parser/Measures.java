@@ -9,30 +9,28 @@ import java.util.Set;
 import edu.stanford.nlp.util.DoubleList;
 
 public class Measures {
-  public static final String PREFIX = "prefix";
+//  public static final String PREFIX = "prefix";
   public static final String SURPRISAL = "surprisal";
   public static final String ENTROPY = "entropy";
   public static final String ENTROPY_REDUCTION = "entropyreduction"; // max(0.0, current entropy - prev entropy)
-  public static final String MULTI_RULE_COUNT = "multirulecount";
-  public static final String MULTI_RHS_LENGTH_COUNT = "multirhslengthcount";
-  public static final String MULTI_FUTURE_LENGTH_COUNT = "multifuturelengthcount";
-  public static final String MULTI_RHS_LENGTH = "multirhslength";
-  public static final String MULTI_FUTURE_LENGTH = "multifuturelength";
-  public static final String STRINGPROB = "stringprob";
   
-//map a measure to True if it's computation could be done in log-form, e.g., surprisal: True, entropy: False
-  public static final Map<String, Boolean> measureLogFlagMap
-                  = new HashMap<String, Boolean>(){
-                    private static final long serialVersionUID = 1L;
-                  {
-                    put(PREFIX, true); 
-                    put(ENTROPY, false);
-                    put(MULTI_RULE_COUNT, false);
-                    put(MULTI_RHS_LENGTH_COUNT, false);
-                    put(MULTI_FUTURE_LENGTH_COUNT, false);
-                    put(MULTI_RHS_LENGTH, false);
-                    put(MULTI_FUTURE_LENGTH, false);
-                    }};
+  public static final String MULTI_RULE_COUNT = "multirulecount";
+  public static final String PCFG_RULE_COUNT = "pcfgrulecount";
+  public static final String MULTI_FUTURE_LENGTH_COUNT = "multifuturelengthcount";
+  public static final String PCFG_FUTURE_LENGTH_COUNT = "pcfgfuturelengthcount";
+  
+  // to be remove
+  public static final String MULTI_RHS_LENGTH = "multirhslength";
+  public static final String MULTI_RHS_LENGTH_COUNT = "multirhslengthcount";
+  public static final String MULTI_FUTURE_LENGTH = "multifuturelength";
+  public static final String PCFG_FUTURE_LENGTH = "pcfgfuturelength";
+  public static final String ALL_FUTURE_LENGTH = "allfuturelength";
+  
+  
+  
+  
+  
+  public static final String STRINGPROB = "stringprob";
   
   // map objective names, e.g., "prefix", "synPrefix", etc., to a list of values
   
@@ -74,9 +72,6 @@ public class Measures {
     return measureMap.get(obj).size();
   }
   
-  public int numPrefixValues(){
-    return numValues(PREFIX);
-  }
   
   /*** Getters & Setters ***/
   public List<Double> getSentList(String obj){
@@ -105,21 +100,24 @@ public class Measures {
   }
   
   // prefix
-  public void addPrefix(double value){
-    addValue(PREFIX, value);
-  }
-  
-  public void setPrefix(int pos, double value){
-    setValue(PREFIX, pos, value);
-  }
-  
-  public double getPrefix(int pos){
-    return getValue(PREFIX, pos);
-  }
-  
-  public double[] getPrefixArray(){
-    return getValueArray(PREFIX);
-  }
+//  public int numPrefixValues(){
+//    return numValues(PREFIX);
+//  }
+//  public void addPrefix(double value){
+//    addValue(PREFIX, value);
+//  }
+//  
+//  public void setPrefix(int pos, double value){
+//    setValue(PREFIX, pos, value);
+//  }
+//  
+//  public double getPrefix(int pos){
+//    return getValue(PREFIX, pos);
+//  }
+//  
+//  public double[] getPrefixArray(){
+//    return getValueArray(PREFIX);
+//  }
   
   // entropy
   public void addEntropy(double value){
