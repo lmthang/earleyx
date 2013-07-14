@@ -37,7 +37,7 @@ public class EarleyParserTest { // extends TestCase {
   private String rootSymbol = "ROOT";
   private int parserOpt = 0; // 0: dense, 1: sparse, 2: sparse IO
   private boolean isScaling = false; //true; //false; // 
-  private boolean isLogProb = true; // false; //true; 
+  private boolean isLogProb = true; //false; //true; 
   private String ioOptStr = "vb";
   private int insideOutsideOpt;  
   private String decodeOpt = "viterbi";
@@ -54,7 +54,7 @@ public class EarleyParserTest { // extends TestCase {
     Prediction.verbose = 0;
     Completion.verbose = 0;
     RuleFile.verbose = 0;
-    EarleyParser.verbose = 0;
+    EarleyParser.verbose = 1;
     
     if(ioOptStr.equalsIgnoreCase("em")){
       insideOutsideOpt = 1;
@@ -261,7 +261,7 @@ public class EarleyParserTest { // extends TestCase {
 //    System.err.println(parser.getMeasureList(Measures.PCFG_RULE_COUNT));
 //    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH));
 //    System.err.println(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH));
-    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
     assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{3.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{3.0, 2.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.4054054054054054, 0.0}));
@@ -343,7 +343,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.810810810810811, 0.13513513513513517}));
     assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513517}));
     System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{6.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.2, 0.25}));
     
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.39204208777602356, 0.5108256237659905}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.25000000000000006}));
@@ -362,7 +362,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513517, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513517, 0.0}));
     System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{6.0, 1.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.2, 0.25, 0.0}));
     
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.39204208777602356, 0.5108256237659905, 4.0943445622221}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.25000000000000006, 0.006250000000000002}));
@@ -433,7 +433,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.4054054054054054, 0.02702702702702703, 0.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.7067567567567569, 0.08513513513513515, 0.004054054054054057, 0.0}));
     System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{3.0, 1.0, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.3333333333333333, 0.0, 0.0}));
     
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.39204208777602356, 0.5108256237659905, 1.0033021088637848, 3.6888794541139354}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.25000000000000006, 0.1375, 0.0034375000000000035}));
@@ -479,7 +479,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513514, 0.0, 0.0}));
 
     System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{10.0, 3.0, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.4285714285714286, 0.5, 0.0, 0.0}));
     
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.39204208777602356, 0.5108256237659905, 1.0033021088637848, 3.6888794541139354}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.25000000000000006, 0.1375, 0.0034375000000000035}));
@@ -764,8 +764,8 @@ public class EarleyParserTest { // extends TestCase {
     //inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
 
     parser.parseSentence(inputSentence);
-    assertEquals(parser.getMeasureList(Measures.SURPRISAL).toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
-    assertEquals(parser.getMeasureList(Measures.STRINGPROB).toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34}));
     assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.1348058203053854, 0.07876904000128039, 0.025375324924613942, 0.007764597462226946, 2.856871834517225E-4, 8.025305401858703E-5, 1.1687492656508952E-5, 4.224750981273601E-6, 5.758139951136894E-9, 3.4652185701189458E-12, 1.9368285192192216E-15, 1.0417783132078003E-18, 5.45545668802379E-22, 2.8009992969889343E-25, 1.4164800662313532E-28, 7.077697168791668E-32}));
     assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.1348058203053854, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}));
     
@@ -785,8 +785,8 @@ public class EarleyParserTest { // extends TestCase {
     //inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
 
     parser.parseSentence(inputSentence);
-    assertEquals(parser.getMeasureList(Measures.SURPRISAL).toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
-    assertEquals(parser.getMeasureList(Measures.STRINGPROB).toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = (new ViterbiDecoder(parser)).getBestParse();
@@ -1201,7 +1201,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{317.0, 210.0, 372.0, 7282.0, 829.0, 915.0, 540.0, 14239.0, 1440.0, 652.0, 39.0, 63.0, 210.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.003180006496032591, 1.2158298137908102E-6, 1.7467307939167515E-9, 8.316044712701694E-14, 3.549865277596248E-16, 6.820759339243846E-19, 5.359081002073126E-21, 2.700846959742084E-24, 3.8401959265475023E-28, 4.9351919959742526E-29, 6.959212900398566E-32, 3.8598505448513773E-35, 7.743061311983176E-38}));
     assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.009176994183041303, 1.2239673621296583E-6, 1.7490749569969526E-9, 8.316044712701694E-14, 4.3108261855948454E-16, 6.929569719091034E-19, 8.99219419789869E-21, 2.700846959742084E-24, 3.8401959265475023E-28, 7.140771312351483E-29, 7.146984996309479E-32, 3.8598505448513773E-35, 7.743061311983176E-38}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{955.0, 563.0, 874.0, 16872.0, 1522.0, 1453.0, 1110.0, 24139.0, 2193.0, 714.0, 75.0, 100.0, 28.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{3.0126182965299684, 2.6809523809523808, 2.349462365591398, 2.316945893985169, 1.8359469240048252, 1.5879781420765027, 2.0555555555555554, 1.6952735444904838, 1.5229166666666667, 1.0950920245398772, 1.9230769230769231, 1.5873015873015872, 0.13333333333333333}));
     
     assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.8326817203428356, 2.4269016648514243E-5, 4.121917480418523E-8, 4.518598747003335E-11, 2.110784372492943E-14, 3.884416630469533E-17, 5.548235363248169E-19, 3.1574048970049775E-22, 2.771250823325358E-25, 1.0098502802870195E-26, 4.8143991971951525E-30, 3.574259539341525E-33, 1.4630844018609583E-34}));
     assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{2.426890180565079, 0.8326574513261871, 2.4227797473710058E-5, 4.11739888167152E-8, 4.5164879626308416E-11, 2.1068999558624734E-14, 3.828934276837051E-17, 5.545077958351164E-19, 3.154633646181652E-22, 2.670265795296656E-25, 1.0093688403673E-26, 4.810824937655811E-30, 3.427951099155429E-33}));
@@ -1226,23 +1226,23 @@ public class EarleyParserTest { // extends TestCase {
 
     parser.parseSentence(inputSentence);
     
-//    System.err.println(parser.getMeasureList(Measures.SURPRISAL));
-//    System.err.println(parser.getMeasureList(Measures.STRINGPROB));
-//    System.err.println(parser.getMeasureList(Measures.ENTROPY));
-//    System.err.println(parser.getMeasureList(Measures.ENTROPY_REDUCTION));
-//    System.err.println(parser.getMeasureList(Measures.MULTI_RULE_COUNT));
-//    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT));
-//    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT));
-//    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH));
-//    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH));    
+    System.err.println(parser.getMeasureList(Measures.SURPRISAL));
+    System.err.println(parser.getMeasureList(Measures.STRINGPROB));
+    System.err.println(parser.getMeasureList(Measures.ENTROPY));
+    System.err.println(parser.getMeasureList(Measures.ENTROPY_REDUCTION));
+    System.err.println(parser.getMeasureList(Measures.MULTI_RULE_COUNT));
+    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT));
+    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT));
+    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH));
+    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH));    
     System.err.println(parser.getMeasureList(Measures.PCFG_RULE_COUNT));
     System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH));
     System.err.println(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH));
     System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{3.0, 3.0, 2.0, 1.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.4054054054054054, 0.02702702702702703, 0.0, 0.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.7067567567567569, 0.08513513513513515, 0.004054054054054057, 0.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{10.0, 3.0, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{546.0, 373.0, 597.0, 11841.0, 1319.0, 1364.0, 821.0, 21410.0, 2020.0, 923.0, 46.0, 78.0, 252.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.012620090841831891, 5.778649581068926E-6, 9.892146353452529E-8, 2.498750644435286E-13, 1.6741461356812607E-13, 2.067689819913172E-16, 4.015964197921969E-18, 5.435181590548736E-20, 6.472247429885856E-25, 6.208063783517408E-26, 1.2124201250179224E-28, 6.335916680602132E-32, 7.440817873124088E-35}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.0244255323922276, 5.120636893019271E-5, 9.892146353452529E-8, 2.498750644435286E-13, 1.6741461356812607E-13, 2.557035549650541E-16, 4.5834712678306735E-17, 5.435181590548736E-20, 6.472247429885856E-25, 1.6550115212994305E-25, 1.4348043339439688E-28, 6.335916680602132E-32, 7.440822772163949E-35}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{3.2655677655677655, 3.096514745308311, 2.7772194304857623, 2.7854066379528755, 2.255496588324488, 1.9963343108504399, 2.4896467722289892, 2.137832788416628, 1.9163366336633663, 1.420368364030336, 2.0652173913043477, 1.705128205128205, 0.14285714285714285}));
     
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{4.254094940964446, 5.854798898649896, 6.0322048924817295, 6.198904683599011, 7.874431274853013, 6.02667550081766, 2.54560444262534, 6.488625139199364, 8.591322376781953, 3.365862507987032, 7.313675743919106, 7.884516573886657, 3.5527106568831073}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{6.975879230529539E-6, 1.1725990380429267E-7, 2.3573725281803898E-11, 1.2315048551875957E-11, 5.807683000230481E-15, 3.2610248990060633E-18, 1.8599201286349052E-20, 2.8079973913234422E-22, 3.9732462027772925E-25, 9.989142864053976E-29, 0.0, 5.564732528536069E-34, 8.542049486598615E-34}));

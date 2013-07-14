@@ -9,7 +9,7 @@ import edu.stanford.nlp.math.SloppyMath;
 import edu.stanford.nlp.parser.Parser;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.Counter;
-import edu.stanford.nlp.util.DoubleList;
+//import edu.stanford.nlp.util.DoubleList;
 import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Timing;
@@ -107,29 +107,32 @@ public abstract class EarleyParser implements Parser {
   private Set<String> internalMeasures; // internal measures (prefix, entropy, etc.)
   protected Measures measures; // store values for all measures, initialized for every sentence
   private double[] wordEntropy; // numWords+1
-  private long[] wordMultiRuleCount; // numWords+1
-  private long[] wordMultiRhsLengthCount; // numWords+1
-  private long[] wordMultiFutureLengthCount; // numWords+1
+  private double[] wordMultiRuleCount; // numWords+1
+  private double[] wordMultiRhsLengthCount; // numWords+1
+  private double[] wordMultiFutureLengthCount; // numWords+1
   private double[] wordMultiRhsLength; // numWords+1
   private double[] wordMultiFutureLength; // numWords+1
   
-  private long[] wordPcfgRuleCount; // numWords+1 
+  private double[] wordPcfgRuleCount; // numWords+1 
   private double[] wordPcfgFutureLength; // numWords+1
   private double[] wordAllFutureLength; // numWords+1
-  private long[] wordPcfgFutureLengthCount; // numWords+1
+  private double[] wordPcfgFutureLengthCount; // numWords+1
   
   public boolean isSeparateRuleInTrie = true; //false; //true; //false;  
   public boolean isFastFG = true;
   
   /** prefix probabilities **/
+  // TODO: use double lists and sum when reaching a certain capacity
   // prefixProb[i]: prefix prob/log-prob of word_0...word_(i-1) sum/log-sum of thisPrefixProb
-   protected double[] sentPrefixScores; // numWords+1 
-  
+  //  protected double[] wordPrefixScores; // numWords+1    
+  protected double[] wordPrefixScores; // numWords+1, wordPrefixProbs[i] = wordPcfgPrefixProbs[i] + wordMultiPrefixProbs[i]
+  protected double[] wordPcfgPrefixScores; // numWords+1
+  protected double[] wordMultiPrefixScores; // numWords+1
 
   /** per word info **/
   // to accumulate probabilities of all paths leading to a particular words
 //  protected Measures[] wordMeasures; // numWords+1, for each word, for each measure, store a list of values and sum up at the end  
-  protected DoubleList[] wordPrefixLists; // numWords+1
+//  protected DoubleList[] wordPrefixLists; // numWords+1
 
   
   /** scaling info **/
@@ -317,21 +320,25 @@ public abstract class EarleyParser implements Parser {
     for(String measure : measureString.split("\\s*,\\s*")){
       outputMeasures.add(measure);
     }
-
+    System.err.println("# output measures: " + outputMeasures);
+    
     // internal measures
     internalMeasures = new HashSet<String>();
-//    internalMeasures.add(Measures.PREFIX); // always need to compute prefix
     for(String measure : outputMeasures){
+      if(measure.equals(Measures.STRINGPROB) || measure.equals(Measures.SURPRISAL)
+          || measure.equals(Measures.PREFIX)){
+        continue;
+      }
       if(measure.equals(Measures.ENTROPY) || measure.equals(Measures.ENTROPY_REDUCTION)){
         internalMeasures.add(Measures.ENTROPY);
       } else {
         internalMeasures.add(measure);
       }
     }
-    if(internalMeasures.contains(Measures.ENTROPY) && isScaling){
-      System.err.println("Can't use -scale option when \"entropy\" is part of the output measures");
-      System.exit(1);
-    }
+//    if(internalMeasures.contains(Measures.ENTROPY) && isScaling){
+//      System.err.println("Can't use -scale option when \"entropy\" is part of the output measures");
+//      System.exit(1);
+//    }
     if(internalMeasures.size()>0){
       isSeparateRuleInTrie = true;
       System.err.println("# internal measures: " + internalMeasures);
@@ -454,8 +461,6 @@ public abstract class EarleyParser implements Parser {
         System.err.println(Util.sprint(parserTagIndex, parserNonterminalMap.keySet()));
       }
     }
-    
-    
   }
   
   private void buildEdgeSpace(){
@@ -610,6 +615,11 @@ public abstract class EarleyParser implements Parser {
   }
 
   public boolean parse(List<? extends HasWord> words) {
+    if(hasFragmentRule && isScaling){
+      System.err.println("! Currently doesn't support scaling for fragment grammars");
+      return false;
+    }
+    
     // start
     if(verbose>=0){
       if (words.size()<100){
@@ -744,30 +754,27 @@ public abstract class EarleyParser implements Parser {
       measures.setValue(Measures.STRINGPROB, right, Math.exp(stringLogProbability));
     }
     
-    // entropy reduction
-    if(outputMeasures.contains(Measures.ENTROPY_REDUCTION)){
-      double lastEntropy = measures.getEntropy(right-1);
-      double entropy = measures.getEntropy(right);
-      measures.setValue(Measures.ENTROPY_REDUCTION, right, Math.max(0.0, lastEntropy - entropy));
+    // prefix prob
+    double prefixProbability = operator.getProb(wordPrefixScores[right]); //measures.getPrefix(right));
+    double scaleFactor = 1; // other measures have been scaled in storeMeasures()
+    if(isScaling){
+      scaleFactor = operator.getProb(getScaling(0, right));
     }
-    
-    double count = 0;
-    if(outputMeasures.contains(Measures.MULTI_RULE_COUNT)){
-      count = measures.getValue(Measures.MULTI_RULE_COUNT, right); 
+    if(outputMeasures.contains(Measures.PREFIX)){
+      measures.setValue(Measures.PREFIX, right, prefixProbability/scaleFactor);
     }
-    
-    if(outputMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT) && count>0){
-      measures.setValue(Measures.MULTI_RHS_LENGTH_COUNT, right, measures.getValue(Measures.MULTI_RHS_LENGTH_COUNT, right)/count);
+    if(outputMeasures.contains(Measures.MULTI_PREFIX)){
+      measures.setValue(Measures.MULTI_PREFIX, right, operator.getProb(wordMultiPrefixScores[right])/scaleFactor);
     }
-    if(outputMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT) && count>0){
-      measures.setValue(Measures.MULTI_FUTURE_LENGTH_COUNT, right, measures.getValue(Measures.MULTI_FUTURE_LENGTH_COUNT, right)/count);
+    if(outputMeasures.contains(Measures.PCFG_PREFIX)){
+      measures.setValue(Measures.PCFG_PREFIX, right, operator.getProb(wordPcfgPrefixScores[right])/scaleFactor);
     }
     
     // surprisals
-    double prefixProbability = operator.getProb(sentPrefixScores[right]); //measures.getPrefix(right));
     if(outputMeasures.contains(Measures.SURPRISAL)){
       if(!isScaling){
-        double lastProbability = (right==1) ? 1.0 : operator.getProb(sentPrefixScores[right-1]);
+//        double lastProbability = (right==1) ? 1.0 : operator.getProb(wordPrefixScores[right-1]);
+        double lastProbability = operator.getProb(wordPrefixScores[right-1]);
         double prefixProbabilityRatio = prefixProbability / lastProbability;
         if (prefixProbabilityRatio > 1.0 + 1e-10){
           System.err.println("! Error: prefix probability ratio > 1.0: " + prefixProbabilityRatio);
@@ -784,6 +791,13 @@ public abstract class EarleyParser implements Parser {
         measures.setValue(Measures.SURPRISAL, right, -Math.log(prefixProbability));
       }
     }
+    
+    // entropy reduction
+    if(outputMeasures.contains(Measures.ENTROPY_REDUCTION)){
+      double lastEntropy = measures.getEntropy(right-1);
+      double entropy = measures.getEntropy(right);
+      measures.setValue(Measures.ENTROPY_REDUCTION, right, Math.max(0.0, lastEntropy - entropy));
+    }    
     
     if(verbose>=1){
       System.err.println(Util.sprint(parserWordIndex, wordIndices.subList(0, right)));
@@ -813,7 +827,7 @@ public abstract class EarleyParser implements Parser {
     
     /** Scaling factors **/
     if(isScaling){ // scaling
-      scalingMap.put(linear(right-1, right), operator.inverse(sentPrefixScores[right-1])); //measures.getPrefix(right-1)));
+      scalingMap.put(linear(right-1, right), operator.inverse(wordPrefixScores[right-1])); //measures.getPrefix(right-1)));
     }
     
     /** Handle normal rules **/
@@ -1466,9 +1480,15 @@ public abstract class EarleyParser implements Parser {
     }
     
     double prefixProb = operator.getProb(prefixScore);
-    
+    if(code==AG || code==FG){
+      wordMultiPrefixScores[right] = operator.add(wordMultiPrefixScores[right], prefixScore);
+    } else {
+      wordPcfgPrefixScores[right] = operator.add(wordPcfgPrefixScores[right], prefixScore);
+    }
     // prefix
-    wordPrefixLists[right].add(prefixScore);
+//    wordPrefixLists[right].add(prefixScore);
+    wordPrefixScores[right] = operator.add(wordPrefixScores[right], prefixScore);
+    
     if(verbose>=2){
       System.err.println("  prefix " + operator.getProb(prefixScore) + " = " 
           + operator.getProb(getForwardScore(left, middle, prevEdge)) 
@@ -1478,7 +1498,11 @@ public abstract class EarleyParser implements Parser {
     
     // entropy
     if(internalMeasures.contains(Measures.ENTROPY)){ // expected value of log prob
-      wordEntropy[right] += -prefixProb*SloppyMath.log(prefixProb, 2);
+      double scaleFactor = 1.0;
+      if(isScaling){
+        scaleFactor = operator.getProb(getScaling(0, right));
+      }
+      wordEntropy[right] += -(prefixProb/scaleFactor)*SloppyMath.log(prefixProb/scaleFactor, 2);
       
       if(verbose>=2){
         System.err.println("  entropy " + -prefixProb*operator.getLogProb(prefixScore));
@@ -2005,28 +2029,32 @@ public abstract class EarleyParser implements Parser {
     
     // init prefix prob
     //measures.setPrefix(0, operator.one());
-    sentPrefixScores = new double[numWords+1];
-    for (int i = 0; i < sentPrefixScores.length; i++) {
-      sentPrefixScores[i] = operator.zero();
-    }
-    sentPrefixScores[0] = operator.one();
+//    wordPrefixScores = new double[numWords+1];
+//    for (int i = 0; i < wordPrefixScores.length; i++) {
+//      wordPrefixScores[i] = operator.zero();
+//    }
+//    wordPrefixScores[0] = operator.one();
     
     /** init individual word measures **/
 //    wordMeasures = new Measures[numWords+1];
-    wordPrefixLists = new DoubleList[numWords+1];
+//    wordPrefixLists = new DoubleList[numWords+1];
     wordEntropy = new double[numWords+1];
-    wordMultiRuleCount = new long[numWords+1]; 
-    wordMultiRhsLengthCount = new long[numWords+1];
-    wordMultiFutureLengthCount = new long[numWords+1];
-    wordPcfgFutureLengthCount = new long[numWords+1];
+    wordMultiRuleCount = new double[numWords+1]; 
+    wordMultiRhsLengthCount = new double[numWords+1];
+    wordMultiFutureLengthCount = new double[numWords+1];
+    wordPcfgFutureLengthCount = new double[numWords+1];
     wordMultiRhsLength = new double[numWords+1];
     wordMultiFutureLength = new double[numWords+1];
-    wordPcfgRuleCount = new long[numWords+1]; 
+    wordPcfgRuleCount = new double[numWords+1]; 
     wordPcfgFutureLength = new double[numWords+1];
     wordAllFutureLength = new double[numWords+1];
+    
+    wordPrefixScores = new double[numWords+1];
+    wordPcfgPrefixScores = new double[numWords+1];
+    wordMultiPrefixScores = new double[numWords+1];
     for (int i = 0; i <= numWords; i++) {
 //      wordMeasures[i] = new Measures(internalMeasures);
-      wordPrefixLists[i] = new DoubleList();
+//      wordPrefixLists[i] = new DoubleList();
       wordEntropy[i] = 0;
       wordMultiRuleCount[i] = 0;
       wordMultiRhsLengthCount[i] = 0;
@@ -2037,7 +2065,12 @@ public abstract class EarleyParser implements Parser {
       wordPcfgRuleCount[i] = 0;
       wordPcfgFutureLength[i] = 0;
       wordAllFutureLength[i] = 0;
+      
+      wordPrefixScores[i] = operator.zero();
+      wordPcfgPrefixScores[i] = operator.zero();
+      wordMultiPrefixScores[i] = operator.zero();
     }
+    wordPrefixScores[0] = operator.one();
     
     // completion info
     if(insideOutsideOpt>0 || decodeOpt==2){
@@ -2072,30 +2105,44 @@ public abstract class EarleyParser implements Parser {
    */
   protected void wordInit(int right){
     // clear storage of the previous word
-    wordPrefixLists[right-1] = null;
+//    wordPrefixLists[right-1] = null;
 //    wordMeasures[right-1] = null; 
   }
   
   protected void storeMeasures(int right) {
-    // prefix: either in prob or log-prob domain
-    double score = operator.zero();
-    if(wordPrefixLists[right].size()==0){
-      System.err.println("! storeMeasures: no paths go through word " + right + ", " + words.get(right-1).word());
-      System.exit(1);
+//    // prefix: either in prob or log-prob domain
+//    double score = operator.zero();
+//    if(wordPrefixLists[right].size()==0){
+//      System.err.println("! storeMeasures: no paths go through word " + right + ", " + words.get(right-1).word());
+//      System.exit(1);
+//    }
+//    
+//    if(wordPrefixLists[right].size()>0){
+//      score = operator.arraySum(wordPrefixLists[right].toArray());
+//    }
+//    wordPrefixScores[right] = operator.add(wordPrefixScores[right], score);
+//    if(verbose>=1 && score>operator.zero()){
+//      System.err.print("# sum prefix [0," + right + "] " + operator.getProb(score));
+//      
+//      if(verbose>=2){
+//        System.err.println(", list = " + Util.sprintProb(wordPrefixLists[right].toArray(), operator));
+//      } else{
+//        System.err.println();
+//      }
+//    }
+    
+    // prefix
+    if(internalMeasures.contains(Measures.PREFIX)){
+      addMeasure(Measures.PREFIX, right, operator.getProb(wordPrefixScores[right]));
     }
     
-    if(wordPrefixLists[right].size()>0){
-      score = operator.arraySum(wordPrefixLists[right].toArray());
+    // multi prefix
+    if(internalMeasures.contains(Measures.MULTI_PREFIX)){
+      addMeasure(Measures.MULTI_PREFIX, right, operator.getProb(wordMultiPrefixScores[right]));
     }
-    sentPrefixScores[right] = operator.add(sentPrefixScores[right], score);
-    if(verbose>=1 && score>operator.zero()){
-      System.err.print("# sum prefix [0," + right + "] " + operator.getProb(score));
-      
-      if(verbose>=2){
-        System.err.println(", list = " + Util.sprintProb(wordPrefixLists[right].toArray(), operator));
-      } else{
-        System.err.println();
-      }
+    // pcfg prefix
+    if(internalMeasures.contains(Measures.PCFG_PREFIX)){
+      addMeasure(Measures.PCFG_PREFIX, right, operator.getProb(wordPcfgPrefixScores[right]));
     }
     
     // entropy
@@ -2103,49 +2150,65 @@ public abstract class EarleyParser implements Parser {
       addMeasure(Measures.ENTROPY, right, wordEntropy[right]);
     }
     
+    double scaleFactor = 1; // for prefix probs, we will scale in outputWordMeasures. entropy has been scaled in addPrefixProb
+    if(isScaling){
+      scaleFactor = operator.getProb(getScaling(0, right));
+    }
+    
     // multi rhs length
     if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH)){
-      addMeasure(Measures.MULTI_RHS_LENGTH, right, wordMultiRhsLength[right]);
+      addMeasure(Measures.MULTI_RHS_LENGTH, right, wordMultiRhsLength[right]/scaleFactor);
     }
     
     // multi future length
     if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH)){
-      addMeasure(Measures.MULTI_FUTURE_LENGTH, right, wordMultiFutureLength[right]);
-    }
-    
-    // multi rule count
-    if(internalMeasures.contains(Measures.MULTI_RULE_COUNT)){
-      addMeasure(Measures.MULTI_RULE_COUNT, right, wordMultiRuleCount[right]);
-    }
-    
-    // multi rhs length count
-    if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT)){
-      addMeasure(Measures.MULTI_RHS_LENGTH_COUNT, right, wordMultiRhsLengthCount[right]);
-    }
-    
-    // multi future length count
-    if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT)){
-      addMeasure(Measures.MULTI_FUTURE_LENGTH_COUNT, right, wordMultiFutureLengthCount[right]);
-    }
-    
-    // pcfg future length count
-    if(internalMeasures.contains(Measures.PCFG_FUTURE_LENGTH_COUNT)){
-      addMeasure(Measures.PCFG_FUTURE_LENGTH_COUNT, right, wordPcfgFutureLengthCount[right]);
-    }
-    
-    // pcfg rule count
-    if(internalMeasures.contains(Measures.PCFG_RULE_COUNT)){
-      addMeasure(Measures.PCFG_RULE_COUNT, right, wordPcfgRuleCount[right]);
+      addMeasure(Measures.MULTI_FUTURE_LENGTH, right, wordMultiFutureLength[right]/scaleFactor);
     }
     
     // pcfg future length
     if(internalMeasures.contains(Measures.PCFG_FUTURE_LENGTH)){
-      addMeasure(Measures.PCFG_FUTURE_LENGTH, right, wordPcfgFutureLength[right]);
+      addMeasure(Measures.PCFG_FUTURE_LENGTH, right, wordPcfgFutureLength[right]/scaleFactor);
     }
     
     // all future length
     if(internalMeasures.contains(Measures.ALL_FUTURE_LENGTH)){
-      addMeasure(Measures.ALL_FUTURE_LENGTH, right, wordAllFutureLength[right]);
+      addMeasure(Measures.ALL_FUTURE_LENGTH, right, wordAllFutureLength[right]/scaleFactor);
+    }
+    
+    // multi rule count
+    if(internalMeasures.contains(Measures.MULTI_RULE_COUNT)){
+      double count = wordMultiRuleCount[right];
+      addMeasure(Measures.MULTI_RULE_COUNT, right, count);
+    
+      // multi rhs length count
+      if(internalMeasures.contains(Measures.MULTI_RHS_LENGTH_COUNT)){
+        if(count>0){
+          wordMultiRhsLengthCount[right] /= count;
+        }
+        addMeasure(Measures.MULTI_RHS_LENGTH_COUNT, right, wordMultiRhsLengthCount[right]);
+      }
+      
+      // multi future length count
+      if(internalMeasures.contains(Measures.MULTI_FUTURE_LENGTH_COUNT)){
+        if(count>0){
+          wordMultiFutureLengthCount[right] /= count;
+        }
+        addMeasure(Measures.MULTI_FUTURE_LENGTH_COUNT, right, wordMultiFutureLengthCount[right]);
+      }
+    }
+    
+    // pcfg rule count
+    if(internalMeasures.contains(Measures.PCFG_RULE_COUNT)){
+      double count = wordPcfgRuleCount[right];
+      addMeasure(Measures.PCFG_RULE_COUNT, right, count);
+      
+      // pcfg future length count
+      if(internalMeasures.contains(Measures.PCFG_FUTURE_LENGTH_COUNT)){
+        if(count>0){
+          wordPcfgFutureLengthCount[right] /= count;
+        }
+        addMeasure(Measures.PCFG_FUTURE_LENGTH_COUNT, right, wordPcfgFutureLengthCount[right]);
+      }
     }
   }
 

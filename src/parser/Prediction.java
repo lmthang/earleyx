@@ -70,12 +70,13 @@ public class Prediction {
     
     /** Construct predictions via states**/
     for (int viaCategoryIndex : nonterminals) { // Z
-      if(verbose >= 2){
-        System.err.println("# via: " + tagIndex.get(viaCategoryIndex));
+      if(verbose >= 1){
+        System.err.print("# via: " + tagIndex.get(viaCategoryIndex) + " ...");
       }
       
       /** Make prediction **/
       List<Prediction> thesePredictions = new ArrayList<Prediction>();
+      
       for (ProbRule r:rules) { // go through each rule, Y -> . \beta, TODO: speed up here, keep track of indices with positive left-closure scores
         if (r.isUnary()) {
           continue;
@@ -93,6 +94,10 @@ public class Prediction {
         if (leftCornerClosureScore != operator.zero()) {
           Prediction p = new Prediction(predictedState, operator.multiply(rewriteScore, leftCornerClosureScore), rewriteScore);
           thesePredictions.add(p);
+      
+          if(verbose>=1 && thesePredictions.size() % 1000 == 0){
+            System.err.println(" (" + thesePredictions.size() + ") ");
+          }
           if (verbose>=2){
             System.err.println("Predict: " + p.toString(stateSpace, tagIndex, wordIndex, operator) 
                 + ", left-corner=" + df.format(operator.getProb(leftCornerClosureScore))
@@ -100,11 +105,11 @@ public class Prediction {
           }
         }
       }
+      if(verbose>=1){
+        System.err.println("Done! Num predictions = " + thesePredictions.size());
+      }
       
       if (thesePredictions.size() == 0) {
-        if(verbose>=2){
-          System.err.println("! Nonterminal " + tagIndex.get(viaCategoryIndex) + " has no prediction.");
-        }
         predictionsVia[viaCategoryIndex] = NO_PREDICTION;
       } else {
         predictionsVia[viaCategoryIndex] = (Prediction[]) thesePredictions.toArray(NO_PREDICTION);
@@ -114,6 +119,9 @@ public class Prediction {
     }
    
     /** construct complete predictions **/
+    if(verbose>=1){
+      System.err.print("# Constructing complete predictions ...");
+    }
     Prediction[][] predictions = new Prediction[stateSpace.size()][];
     for (int predictorState = 0; predictorState < stateSpace.size(); predictorState++) {
       Edge edgeObj = stateSpace.get(predictorState);
@@ -136,7 +144,9 @@ public class Prediction {
         }
       }
       
-      
+      if(verbose>=1 && predictorState%10000==0){
+        System.err.print(" (" + predictorState + ") ");
+      }
     }
     
     if(verbose >= 1){
