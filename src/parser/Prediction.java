@@ -3,7 +3,9 @@ package parser;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import base.ClosureMatrix;
 import base.Edge;
@@ -55,7 +57,11 @@ public class Prediction {
     // Note: we used list for nonterminals instead of set, to ensure a fixed order for debug purpose
     
     // indexed by non-terminal index, predictions for Z
-    Prediction[][] predictionsVia = new Prediction[tagIndex.size()][]; 
+ 
+    Map<Integer, List<Prediction>> predictionsViaList = new HashMap<Integer, List<Prediction>>(); 
+    for (int viaCategoryIndex : nonterminals) { // Z
+      predictionsViaList.put(viaCategoryIndex, new ArrayList<Prediction>());
+    }
     
     if(verbose > 0){
       System.err.println("\n## Constructing predictions ...");
@@ -65,39 +71,34 @@ public class Prediction {
     int viaStateCount = 0; // via state with prediction
     int totalPredictions = 0;
     
-    
-//    System.err.println(stateSpace.toString());
-    
     /** Construct predictions via states**/
-    for (int viaCategoryIndex : nonterminals) { // Z
-      if(verbose >= 1){
-        System.err.print("# via: " + tagIndex.get(viaCategoryIndex) + " ...");
+    int count = 0;
+    for (ProbRule r:rules) { // go through each rule, Y -> . \beta, TODO: speed up here, keep track of indices with positive left-closure scores
+      count++;
+      if(count % 10000 == 0){
+        System.err.print(" (" + count + ") ");
       }
       
-      /** Make prediction **/
-      List<Prediction> thesePredictions = new ArrayList<Prediction>();
+      if (r.isUnary()) {
+        continue;
+      }
       
-      for (ProbRule r:rules) { // go through each rule, Y -> . \beta, TODO: speed up here, keep track of indices with positive left-closure scores
-        if (r.isUnary()) {
-          continue;
-        }
-        
-        if(r.getProb()<0 || r.getProb()>1){
-          System.err.println("! Invalid rule prob: " + r.toString(tagIndex, wordIndex));
-        }
-        double rewriteScore = operator.getScore(r.getProb());
-        
-        int predictedCategoryMotherIndex = r.getMother();
-        int predictedState = stateSpace.indexOf(r.getEdge());
-        double leftCornerClosureScore = leftCornerClosures.get(viaCategoryIndex, predictedCategoryMotherIndex); // P_L (Z -> Y)
-        
+      if(r.getProb()<0 || r.getProb()>1){
+        System.err.println("! Invalid rule prob: " + r.toString(tagIndex, wordIndex));
+      }
+      double rewriteScore = operator.getScore(r.getProb());
+      
+      int predictedCategoryMotherIndex = r.getMother();
+      int predictedState = stateSpace.indexOf(r.getEdge());
+      
+      Map<Integer, Double> closureMap = leftCornerClosures.getParentClosures(predictedCategoryMotherIndex); // get a list of Z with non-zero closure scores Z -> Y
+      for(int viaCategoryIndex : closureMap.keySet()){
+        double leftCornerClosureScore = closureMap.get(viaCategoryIndex); //leftCornerClosures.get(viaCategoryIndex, predictedCategoryMotherIndex); // P_L (Z -> Y)
+      
         if (leftCornerClosureScore != operator.zero()) {
           Prediction p = new Prediction(predictedState, operator.multiply(rewriteScore, leftCornerClosureScore), rewriteScore);
-          thesePredictions.add(p);
+          predictionsViaList.get(viaCategoryIndex).add(p); //thesePredictions.add(p);
       
-          if(verbose>=1 && thesePredictions.size() % 1000 == 0){
-            System.err.println(" (" + thesePredictions.size() + ") ");
-          }
           if (verbose>=2){
             System.err.println("Predict: " + p.toString(stateSpace, tagIndex, wordIndex, operator) 
                 + ", left-corner=" + df.format(operator.getProb(leftCornerClosureScore))
@@ -105,16 +106,20 @@ public class Prediction {
           }
         }
       }
-      if(verbose>=1){
-        System.err.println("Done! Num predictions = " + thesePredictions.size());
-      }
-      
-      if (thesePredictions.size() == 0) {
+    }
+
+    Prediction[][] predictionsVia = new Prediction[tagIndex.size()][];
+    for (int viaCategoryIndex : nonterminals) { // Z
+      if (predictionsViaList.get(viaCategoryIndex).size() == 0) {
         predictionsVia[viaCategoryIndex] = NO_PREDICTION;
       } else {
-        predictionsVia[viaCategoryIndex] = (Prediction[]) thesePredictions.toArray(NO_PREDICTION);
+        predictionsVia[viaCategoryIndex] = (Prediction[]) predictionsViaList.get(viaCategoryIndex).toArray(NO_PREDICTION);
         viaStateCount++;
         totalPredictions += predictionsVia[viaCategoryIndex].length;
+      }      
+      
+      if(verbose >= 1){
+        System.err.print("# via: " + tagIndex.get(viaCategoryIndex) + ", num predictions " + predictionsVia[viaCategoryIndex].length);
       }
     }
    
@@ -220,3 +225,111 @@ public class Prediction {
   }
 
 }
+//public static Prediction[][] constructPredictions(Collection<ProbRule> rules,
+//    ClosureMatrix leftCornerClosures, 
+//    EdgeSpace stateSpace, Index<String> tagIndex, Index<String> wordIndex, 
+//    List<Integer> nonterminals, Operator operator){
+//  // Note: we used list for nonterminals instead of set, to ensure a fixed order for debug purpose
+//  
+//  // indexed by non-terminal index, predictions for Z
+//  Prediction[][] predictionsVia = new Prediction[tagIndex.size()][]; 
+//  
+//  if(verbose > 0){
+//    System.err.println("\n## Constructing predictions ...");
+//    Timing.startTime();
+//  }
+//  
+//  int viaStateCount = 0; // via state with prediction
+//  int totalPredictions = 0;
+//  
+//  
+////  System.err.println(stateSpace.toString());
+//  
+//  /** Construct predictions via states**/
+//  for (int viaCategoryIndex : nonterminals) { // Z
+//    if(verbose >= 1){
+//      System.err.print("# via: " + tagIndex.get(viaCategoryIndex) + " ...");
+//    }
+//    
+//    /** Make prediction **/
+//    List<Prediction> thesePredictions = new ArrayList<Prediction>();
+//    
+//    for (ProbRule r:rules) { // go through each rule, Y -> . \beta, TODO: speed up here, keep track of indices with positive left-closure scores
+//      if (r.isUnary()) {
+//        continue;
+//      }
+//      
+//      if(r.getProb()<0 || r.getProb()>1){
+//        System.err.println("! Invalid rule prob: " + r.toString(tagIndex, wordIndex));
+//      }
+//      double rewriteScore = operator.getScore(r.getProb());
+//      
+//      int predictedCategoryMotherIndex = r.getMother();
+//      int predictedState = stateSpace.indexOf(r.getEdge());
+//      double leftCornerClosureScore = leftCornerClosures.get(viaCategoryIndex, predictedCategoryMotherIndex); // P_L (Z -> Y)
+//      
+//      if (leftCornerClosureScore != operator.zero()) {
+//        Prediction p = new Prediction(predictedState, operator.multiply(rewriteScore, leftCornerClosureScore), rewriteScore);
+//        thesePredictions.add(p);
+//    
+//        if(verbose>=1 && thesePredictions.size() % 1000 == 0){
+//          System.err.print(" (" + thesePredictions.size() + ") ");
+//        }
+//        if (verbose>=2){
+//          System.err.println("Predict: " + p.toString(stateSpace, tagIndex, wordIndex, operator) 
+//              + ", left-corner=" + df.format(operator.getProb(leftCornerClosureScore))
+//              + ", rewrite=" + df.format(operator.getProb(rewriteScore)));
+//        }
+//      }
+//    }
+//    if(verbose>=1){
+//      System.err.println("Done! Num predictions = " + thesePredictions.size());
+//    }
+//    
+//    if (thesePredictions.size() == 0) {
+//      predictionsVia[viaCategoryIndex] = NO_PREDICTION;
+//    } else {
+//      predictionsVia[viaCategoryIndex] = (Prediction[]) thesePredictions.toArray(NO_PREDICTION);
+//      viaStateCount++;
+//      totalPredictions += predictionsVia[viaCategoryIndex].length;
+//    }
+//  }
+// 
+//  /** construct complete predictions **/
+//  if(verbose>=1){
+//    System.err.print("# Constructing complete predictions ...");
+//  }
+//  Prediction[][] predictions = new Prediction[stateSpace.size()][];
+//  for (int predictorState = 0; predictorState < stateSpace.size(); predictorState++) {
+//    Edge edgeObj = stateSpace.get(predictorState);
+//    if (edgeObj.numRemainingChildren()==0 || !edgeObj.isTagAfterDot(0)){ // tag -> []
+//      predictions[predictorState] = NO_PREDICTION;
+//    } else {
+//      int viaCategoryIndex = edgeObj.getChildAfterDot(0);
+//      
+//      if (nonterminals.contains(viaCategoryIndex)){
+//        predictions[predictorState] = predictionsVia[viaCategoryIndex];
+//        
+//        if(verbose>=2){
+//          System.err.println("Edge " + predictorState + ", " 
+//              + stateSpace.get(predictorState).toString(tagIndex, wordIndex)
+//              + ": predictions " + Util.sprint(predictions[predictorState], 
+//                  stateSpace, tagIndex, wordIndex, operator));
+//        }
+//      } else {
+//        predictions[predictorState] = NO_PREDICTION;
+//      }
+//    }
+//    
+//    if(verbose>=1 && predictorState%10000==0){
+//      System.err.print(" (" + predictorState + ") ");
+//    }
+//  }
+//  
+//  if(verbose >= 1){
+//    Timing.tick("Done! Total predictions=" + totalPredictions 
+//        + ", num nonterminals with predictions=" + viaStateCount); 
+//  }
+//  
+//  return predictions;
+//}
