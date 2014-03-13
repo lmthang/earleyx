@@ -12,6 +12,7 @@ public class LeftWildcardEdgeSpace extends EdgeSpace {
   }
   
   protected Edge getToEdge(Edge e){
-    return e.getToEdge();
+    return new Edge(e.getRule().buildToRule(e.getDot()), 0);
+//    return e.getToEdge();
   }
 }

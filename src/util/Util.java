@@ -275,6 +275,19 @@ public class Util {
     return sb.toString();
   }
 
+  public static String sprintProb(double[] values, Operator operator){
+    StringBuffer sb = new StringBuffer("[");
+    
+    if(values.length > 0){
+      for(double value : values){
+        sb.append(operator.getProb(value) + ", ");
+      }
+      sb.delete(sb.length()-2, sb.length());
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+  
   // print boolean array
   public static String sprint(boolean[] values){
     StringBuffer sb = new StringBuffer("[");

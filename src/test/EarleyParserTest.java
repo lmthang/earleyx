@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import decoder.MarginalDecoder;
+import decoder.ViterbiDecoder;
 
 import edu.stanford.nlp.trees.Tree;
 
@@ -34,14 +35,14 @@ import util.Util;
 public class EarleyParserTest { // extends TestCase {
   private EarleyParser parser;
   private String rootSymbol = "ROOT";
-  private int parserOpt = 0; //1; // 0: dense, 1: sparse, 2: sparse IO
+  private int parserOpt = 0; // 0: dense, 1: sparse, 2: sparse IO
   private boolean isScaling = false; //true; //false; // 
-  private boolean isLogProb = true; // false; //true; 
+  private boolean isLogProb = true; //false; //true; 
   private String ioOptStr = "vb";
   private int insideOutsideOpt;  
   private String decodeOpt = "viterbi";
   private double minRuleProb = 1e-20;
-  private String objString = "prefix,surprisal,stringprob,entropy,entropyreduction,multirulecount,multirhslengthcount,multifuturelengthcount,multirhslength,multifuturelength";
+  private String objString = "prefix,surprisal,stringprob,entropy,entropyreduction,multirhslength,multifuturelength,multirulecount,multirhslengthcount,multifuturelengthcount,pcfgrulecount,pcfgfuturelength,allfuturelength,pcfgfuturelengthcount";
   
   @Before
   public void setUp(){    
@@ -97,7 +98,8 @@ public class EarleyParserTest { // extends TestCase {
   "D->[_UNK-1] : 0.1\n";
   
   String basicRecursiveFragmentGrammarString = "ROOT->[A] : 1.0\n" + 
-  "A->[B C] : 0.25\n" +
+  "A->[B C] : 0.125\n" +
+  "A->[_b _c D] : 0.125\n" +
   "A->[B _c] : 0.125\n" +
   "A->[_b C] : 0.125\n" +
   "A->[B D] : 0.5\n" +
@@ -108,7 +110,8 @@ public class EarleyParserTest { // extends TestCase {
   "D->[_d] : 1.0\n";
 
   String basicRecursiveFragmentGrammarPseudoString = "ROOT->[A] : 1.0\n" + 
-  "A->[B C] : 0.25\n" +
+  "A->[B C] : 0.125\n" +
+  "A->[B1 C1 D] : 0.125\n" +
   "A->[B C1] : 0.125\n" +
   "A->[B1 C] : 0.125\n" +
   "A->[B D] : 0.5\n" +
@@ -120,6 +123,38 @@ public class EarleyParserTest { // extends TestCase {
   "C->[_c] : 1.0\n" + 
   "D->[_d] : 1.0\n" + 
   "D1->[_d] : 1.0\n";
+  
+  String complexRecursiveFragmentGrammarString = "ROOT->[A] : 1.0\n" + 
+  "A->[B C] : 0.125\n" +
+  "A->[_b _c D] : 0.05\n" +
+  "A->[_b _c _d] : 0.05\n" +
+  "A->[_b C _d] : 0.025\n" +
+  "A->[B _c] : 0.125\n" +
+  "A->[_b C] : 0.125\n" +
+  "A->[B D] : 0.5\n" +
+  "B->[A] : 0.1\n" +
+  "B->[_d C] : 0.4\n" +
+  "B->[_b] : 0.5\n" +
+  "C->[_c] : 1.0\n" + 
+  "D->[_d] : 1.0\n";
+
+  String complexRecursiveFragmentGrammarPseudoString = "ROOT->[A] : 1.0\n" + 
+  "A->[B C] : 0.125\n" +
+  "A->[B1 C1 D] : 0.05\n" +
+  "A->[B1 C1 D1] : 0.05\n" +
+  "A->[B1 C D1] : 0.025\n" +
+  "A->[B C1] : 0.125\n" +
+  "A->[B1 C] : 0.125\n" +
+  "A->[B D] : 0.5\n" +
+  "B->[A] : 0.1\n" +
+  "B->[D1 C] : 0.4\n" +
+  "B->[_b] : 0.5\n" +
+  "B1->[_b] : 1.0\n" +
+  "C1->[_c] : 1.0\n" +
+  "C->[_c] : 1.0\n" + 
+  "D->[_d] : 1.0\n" + 
+  "D1->[_d] : 1.0\n";
+  
   
   String extendedGrammarString = "ROOT->[A] : 1.0\n" + 
   "A->[_b _e] : 0.1\n" +
@@ -136,6 +171,7 @@ public class EarleyParserTest { // extends TestCase {
   "D->[_UNK] : 0.1\n";
   
   String wsj500AG = "grammars/WSJ.500.ag-map-new.rules";
+  String wsj500FG = "grammars/WSJ.500.fg.rules";
   String wsjAG22 = "grammars/WSJ.ag-map.22.rules";
   String wsj500 = "grammars/wsj500unk.grammar";
   String wsj5 = "grammars/wsj5unk.grammar";
@@ -181,6 +217,13 @@ public class EarleyParserTest { // extends TestCase {
     initParserFromString(basicGrammarString);
     String inputSentence = "a b";
     parser.parseSentence(inputSentence);
+
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0}));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{1.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.9, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.9, 0.0}));
     
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 1.0}));
@@ -193,7 +236,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.10000000000000002, 0.0}));
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.toString());
       assertEquals(tree.toString(), "( (ROOT (A a) (B b)))");
     }
@@ -201,67 +244,90 @@ public class EarleyParserTest { // extends TestCase {
   
   @Test
   public void testBasicRecursiveFragment(){
-    if(parserOpt == 1){
-      System.err.println("try the test testBasicRecursiveFragment only after " +
-      		"fastChartComplete has been implemented for fragment rules");
-      return;
-    }
-    
     initParserFromString(basicRecursiveFragmentGrammarString);
     
     String inputSentence = "b c";
     parser.parseSentence(inputSentence);
     
-    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.562401929858486, 1.0506494739700873}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.5117524558883986}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{1.0, 1.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{2.0, 2.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.27397260273972607, 0.13698630136986306}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.13698630136986303, 0.0}));    
- 
+//    System.err.println(parser.getMeasureList(Measures.SURPRISAL));
+//    System.err.println(parser.getMeasureList(Measures.STRINGPROB));
+//    System.err.println(parser.getMeasureList(Measures.ENTROPY));
+//    System.err.println(parser.getMeasureList(Measures.ENTROPY_REDUCTION));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_RULE_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH));    
+//    System.err.println(parser.getMeasureList(Measures.PCFG_RULE_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH));
+//    System.err.println(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH));
+//    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{3.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{3.0, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.4054054054054054, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513517}));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.39204208777602356, 0.5108256237659905}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.25000000000000006}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.8158954532037757, 1.3057534881384814}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.751534309189658, 0.5101419650652941}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{2.0, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{2.5, 2.5}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{1.5, 0.5}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.6756756756756759, 0.5405405405405406}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.4054054054054055, 0.13513513513513517}));    
+
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       assertEquals(tree.toString(), "( (ROOT (A b (C c))))");
     }
     
     inputSentence = "b c c";
     parser.parseSentence(inputSentence);    
 
-    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119, 3.2834143460057716}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006, 0.011718750000000005}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.562401929858486, 1.0506494739700873, 0.09248154705470021}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.5117524558883986, 0.9581679269153871}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{1.0, 1.0, 1.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{2.0, 2.0, 2.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0, 0.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.27397260273972607, 0.13698630136986306, 0.008561643835616445}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.13698630136986303, 0.0, 0.0}));    
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{3.0, 2.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.4054054054054054, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513517, 0.0}));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{3.0, 0.0, 0.0}));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.39204208777602356, 0.5108256237659905, 4.0943445622221}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.25000000000000006, 0.006250000000000002}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.8158954532037757, 1.3057534881384814, 0.05546927949749292}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.751534309189658, 0.5101419650652941, 1.2502842086409884}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{2.0, 2.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{2.5, 2.5, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{1.5, 0.5, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.6756756756756759, 0.5405405405405406, 0.006756756756756759}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.4054054054054055, 0.13513513513513517, 0.0}));    
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
-      assertEquals(tree.toString(), "( (ROOT (A (B (A b (C c))) (C c))))");
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
+      assertEquals(tree.toString(), "( (ROOT (A (B (A b (C c))) c)))");
     }
     
     inputSentence = "d c c";
     parser.parseSentence(inputSentence);
 
-    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.9582549309731871, 0.0, 0.8472978603872034}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.15000000000000002}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.5302623264524325, 0.5302623264524325, 0.5791492425556193}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{0.0, 1.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.0, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.32432432432432434, 0.0, 0.0}));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{0.0, 0.0, 0.0}));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{1.126011262856224, -0.0, 1.0986122886681093}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.1000000000000000}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.5268619021322574, 0.5268619021322574, 0.45507603952745407}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{2.0405678602611763, 0.0, 0.0717858626048033}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{1.0, 0.0, 1.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{2.0, 0.0, 2.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0, 0.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.767123287671233, 0.0, 0.10958904109589045}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.3835616438356165, 0.0, 0.0}));    
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.6486486486486487, 0.0, 0.10810810810810813}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.3243243243243243, 0.0, 0.0}));    
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
-      System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (ROOT (A (B d (C c)) (C c))))");
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
+      assertEquals(tree.toString(), "( (ROOT (A (B d (C c)) c)))");
     }
   }
   
@@ -271,42 +337,166 @@ public class EarleyParserTest { // extends TestCase {
     
     String inputSentence = "b c";
     parser.parseSentence(inputSentence);
-    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.0829744925828269, 0.7282547206391556}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{1.0829744925828269, 0.0}));
+
+
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{5.0, 4.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.810810810810811, 0.13513513513513517}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513517}));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.2, 0.25}));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.39204208777602356, 0.5108256237659905}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.25000000000000006}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.8158954532037757, 1.3057534881384814}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.751534309189658, 0.5101419650652941}));
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       assertEquals(tree.toString(), "( (ROOT (A (B1 b) (C c))))");
     }
     
     inputSentence = "b c c";
     parser.parseSentence(inputSentence);
-    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.4837969513780713, 0.587786664902119, 3.2834143460057716}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.31250000000000006, 0.011718750000000005}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.0829744925828269, 0.7282547206391556, 0.06410332359478736}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{1.0829744925828269, 0.0, 0.0}));
+
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{5.0, 4.0, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513517, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513517, 0.0}));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.2, 0.25, 0.0}));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.39204208777602356, 0.5108256237659905, 4.0943445622221}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.25000000000000006, 0.006250000000000002}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{1.8158954532037757, 1.3057534881384814, 0.05546927949749292}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.751534309189658, 0.5101419650652941, 1.2502842086409884}));
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
-      assertEquals(tree.toString(), "( (ROOT (A (B (A (B1 b) (C c))) (C c))))");
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
+      assertEquals(tree.toString(), "( (ROOT (A (B (A (B1 b) (C c))) (C1 c))))");
     }
     
     inputSentence = "d c c";
     parser.parseSentence(inputSentence);
-    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.9582549309731871, 0.0, 0.8472978603872034}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.15000000000000002}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.3675498365376609, 0.3675498365376609, 0.40143566460085545}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.3675498365376609, 0.0, 0.03388582806}));
+
+//    System.err.println(parser.getMeasureList(Measures.SURPRISAL));
+//    System.err.println(parser.getMeasureList(Measures.STRINGPROB));
+//    System.err.println(parser.getMeasureList(Measures.ENTROPY));
+//    System.err.println(parser.getMeasureList(Measures.ENTROPY_REDUCTION));
+    
+//    System.err.println(parser.getMeasureList(Measures.PCFG_RULE_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH));
+//    System.err.println(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{1.0, 1.0, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.32432432432432434, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.32432432432432434, 0.0, 0.0}));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0, 0.0}));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{1.126011262856224, -0.0, 1.0986122886681093}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.1000000000000000}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.5268619021322574, 0.5268619021322574, 0.45507603952745407}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{2.0405678602611763, 0.0, 0.0717858626048033}));
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
+      assertEquals(tree.toString(), "( (ROOT (A (B (D1 d) (C c)) (C1 c))))");
+    }
+  }
+
+  @Test
+  public void testComplexRecursiveFragment(){
+    if(parserOpt == 1){
+      System.err.println("try the test testComplexRecursiveFragment only after " +
+          "fastChartComplete has been implemented for fragment rules");
+      return;
+    }
+    
+    initParserFromString(complexRecursiveFragmentGrammarString);
+    
+    String inputSentence = "b c d c";
+    parser.parseSentence(inputSentence);
+      
+//    System.err.println(parser.getMeasureList(Measures.SURPRISAL));
+//    System.err.println(parser.getMeasureList(Measures.STRINGPROB));
+//    System.err.println(parser.getMeasureList(Measures.ENTROPY));
+//    System.err.println(parser.getMeasureList(Measures.ENTROPY_REDUCTION));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_RULE_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH));
+//    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH));
+    
+//    System.err.println(parser.getMeasureList(Measures.PCFG_RULE_COUNT));
+//    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH));
+//    System.err.println(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{3.0, 3.0, 2.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.4054054054054054, 0.02702702702702703, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.7067567567567569, 0.08513513513513515, 0.004054054054054057, 0.0}));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.3333333333333333, 0.0, 0.0}));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.39204208777602356, 0.5108256237659905, 1.0033021088637848, 3.6888794541139354}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.25000000000000006, 0.1375, 0.0034375000000000035}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{2.0474091812523696, 1.5372672161870753, 0.705631377684335, 0.033713327115090966}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.4981485201458993, 0.5101419650652943, 0.8316358385027403, 0.671918050569244}));
+ 
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{7.0, 6.0, 5.0, 1.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{2.857142857142857, 2.8333333333333335, 3.0, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{1.8571428571428572, 0.8333333333333334, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.6756756756756758, 0.45945945945945954, 0.24324324324324326, 0.00371621621621622}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.4054054054054055, 0.10810810810810811, 0.0, 0.0}));    
+ 
+    if(parser.getDecodeOpt()==1){
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.toString());
-      assertEquals(tree.toString(), "( (ROOT (A (B (D1 d) (C c)) (C c))))");
+      assertEquals(tree.toString(), "( (ROOT (A (B (A b c d)) c)))");
     }
   }
   
+  @Test
+  public void testComplexRecursiveFragmentPseudo(){
+    if(parserOpt == 1){
+      System.err.println("try the test testComplexRecursiveFragment only after " +
+          "fastChartComplete has been implemented for fragment rules");
+      return;
+    }
+    
+    initParserFromString(complexRecursiveFragmentGrammarPseudoString);
+    
+    String inputSentence = "b c d c";
+    parser.parseSentence(inputSentence);
+    
+    System.err.println(parser.getMeasureList(Measures.SURPRISAL));
+    System.err.println(parser.getMeasureList(Measures.STRINGPROB));
+    System.err.println(parser.getMeasureList(Measures.ENTROPY));
+    System.err.println(parser.getMeasureList(Measures.ENTROPY_REDUCTION));
+    System.err.println(parser.getMeasureList(Measures.PCFG_RULE_COUNT));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH));
+    System.err.println(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{7.0, 6.0, 4.0, 2.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513514, 0.0, 0.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.8108108108108109, 0.13513513513513514, 0.0, 0.0}));
+
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.4285714285714286, 0.5, 0.0, 0.0}));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.39204208777602356, 0.5108256237659905, 1.0033021088637848, 3.6888794541139354}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.25000000000000006, 0.1375, 0.0034375000000000035}));
+    // note that the entropy values in this test are not the same as the entropy values in
+    // testComplexRecursiveFragment. That is due to the presence of the rule
+    // A -> _b _c _d (A -> B1 C1 D1). In testComplexRecursiveFragment, there are
+    // 4 different paths going through A -> . _b _c _d; whereas in testComplexRecursiveFragment,
+    // there's only one path. In fact, our current way of estimating the entropy is not exact.
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{2.021561411972338, 1.511419446907044, 0.6797836084043034, 0.033713327115090966}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.7515343091896578, 0.5101419650652941, 0.8316358385027407, 0.6460702812892124}));
+ 
+    if(parser.getDecodeOpt()==1){
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
+      System.err.println(tree.toString());
+      assertEquals(tree.toString(), "( (ROOT (A (B (A (B1 b) (C1 c) (D d))) (C c))))");
+    }
+  }
   @Test
   public void testExtendedGrammarIO(){
     initParserFromString(extendedGrammarString);
@@ -375,7 +565,7 @@ public class EarleyParserTest { // extends TestCase {
     }
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       boolean matched = tree.toString().equals("( (S (NP (N the) (Det dog)) (VP (NP (N bites) (Det a)) (V cat))))")
           || tree.toString().equals("( (S (NP (Det the) (N dog)) (VP (V bites) (NP (Det a) (N cat)))))");
      
@@ -574,13 +764,13 @@ public class EarleyParserTest { // extends TestCase {
     //inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
 
     parser.parseSentence(inputSentence);
-    assertEquals(parser.getMeasureList(Measures.SURPRISAL).toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
-    assertEquals(parser.getMeasureList(Measures.STRINGPROB).toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34}));
     assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.1348058203053854, 0.07876904000128039, 0.025375324924613942, 0.007764597462226946, 2.856871834517225E-4, 8.025305401858703E-5, 1.1687492656508952E-5, 4.224750981273601E-6, 5.758139951136894E-9, 3.4652185701189458E-12, 1.9368285192192216E-15, 1.0417783132078003E-18, 5.45545668802379E-22, 2.8009992969889343E-25, 1.4164800662313532E-28, 7.077697168791668E-32}));
     assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.1348058203053854, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}));
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.toString());
       assertEquals(tree.toString(), "( (Sentence (Topic.pig (T.None .dog (Socials.NotTopical.kid.eyes kid.eyes (Socials.NotTopical.kid.hands (Socials.NotTopical.mom.eyes mom.eyes (Socials.NotTopical.mom.hands (Socials.NotTopical.mom.point #)))))) (Topic.pig (T.pig .pig (Socials.Topical.kid.eyes (Socials.Topical.kid.hands kid.hands (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None ##))) (Words.pig (Word.pig (Word and)) (Words.pig (Word.pig (Word whats)) (Words.pig (Word.pig (Word that)) (Words.pig (Word.pig (Word is)) (Words.pig (Word.pig (Word this)) (Words.pig (Word.pig (Word a)) (Words.pig (Word.pig (Word puppy)) (Words.pig (Word.None (Word dog))))))))))))");
     }
@@ -595,11 +785,11 @@ public class EarleyParserTest { // extends TestCase {
     //inputSentences.add(".dog kid.eyes mom.eyes mom.hands # .pig kid.hands # ## woof woof woof");
 
     parser.parseSentence(inputSentence);
-    assertEquals(parser.getMeasureList(Measures.SURPRISAL).toString(), "[3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314]");
-    assertEquals(parser.getMeasureList(Measures.STRINGPROB).toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{3.4174573107313915, 0.6931471805599453, 1.3862943611198908, 1.3862943611198908, 3.694359752341608, 1.3862943611198908, 2.079441541679836, 1.0931324986375284, 7.012115184306385, 7.705262364866332, 7.705262364866332, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.7052623648663285, 7.705262364866314}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34}));
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.toString());
       assertEquals(tree.toString(), "( (Sentence (Topic.pig (T.None (PSEUDO.DOG .dog) (Socials.NotTopical.kid.eyes (PSEUDOKID.EYES kid.eyes) (Socials.NotTopical.kid.hands (Socials.NotTopical.mom.eyes (PSEUDOMOM.EYES mom.eyes) (Socials.NotTopical.mom.hands (Socials.NotTopical.mom.point #)))))) (Topic.pig (T.pig (PSEUDO.PIG .pig) (Socials.Topical.kid.eyes (Socials.Topical.kid.hands (PSEUDOKID.HANDS kid.hands) (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None ##))) (Words.pig (Word.pig (Word and)) (Words.pig (Word.pig (Word whats)) (Words.pig (Word.pig (Word that)) (Words.pig (Word.pig (Word is)) (Words.pig (Word.pig (Word this)) (Words.pig (Word.pig (Word a)) (Words.pig (Word.pig (Word puppy)) (Words.pig (Word.None (Word dog))))))))))))");
     }
@@ -616,7 +806,7 @@ public class EarleyParserTest { // extends TestCase {
 //    assertEquals(parser.getMeasureList(Measures.STRINGPROB).toString(), "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2022168142565557E-10, 5.4153916509027207E-14, 2.4393658768449538E-17, 1.0988135789077507E-20, 4.949611260257871E-24, 2.229554866988794E-27, 1.0043041046125385E-30, 4.523892860747715E-34]");
 //    
 //    if(parser.getDecodeOpt()==1){
-//      Tree tree = parser.viterbiParse();
+//      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
 //      System.err.println(tree.toString());
 //      assertEquals(tree.toString(), "( (Sentence (Topic.pig (T.None .dog (Socials.NotTopical.kid.eyes kid.eyes (Socials.NotTopical.kid.hands (Socials.NotTopical.mom.eyes mom.eyes (Socials.NotTopical.mom.hands (Socials.NotTopical.mom.point #)))))) (Topic.pig (T.pig .pig (Socials.Topical.kid.eyes (Socials.Topical.kid.hands kid.hands (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None ##))) (Words.pig (Word.pig (Word and)) (Words.pig (Word.pig (Word whats)) (Words.pig (Word.pig (Word that)) (Words.pig (Word.pig (Word is)) (Words.pig (Word.pig (Word this)) (Words.pig (Word.pig (Word a)) (Words.pig (Word.pig (Word puppy)) (Words.pig (Word.None (Word dog))))))))))))");
 //    }
@@ -647,7 +837,7 @@ public class EarleyParserTest { // extends TestCase {
     
 
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.toString());
       assertEquals(tree.toString(), "( (ROOT (X (A a) (B b))))");
     }
@@ -858,7 +1048,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(stringProbList.toString(), "[0.0, 0.405]");
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.pennString());
       assertEquals(tree.toString(), "( (ROOT (A (B b) (C c))))");
     }
@@ -922,7 +1112,7 @@ public class EarleyParserTest { // extends TestCase {
     
 
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.pennString());
       assertEquals(tree.toString(), "( (ROOT (A (D d) (B e))))");
     }
@@ -978,7 +1168,7 @@ public class EarleyParserTest { // extends TestCase {
     }
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.pennString());
       boolean matched = tree.toString().equals("( (ROOT (A (D d) (B (A (D d) (B (A (B b) (C c))))))))")
           || tree.toString().equals("( (ROOT (A (D d) (B (A (B (A (D d) (B b))) (C c))))))");
@@ -1004,9 +1194,17 @@ public class EarleyParserTest { // extends TestCase {
 //    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT));
 //    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH));
 //    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH));    
+    System.err.println(parser.getMeasureList(Measures.PCFG_RULE_COUNT));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH));
+    System.err.println(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{317.0, 210.0, 372.0, 7282.0, 829.0, 915.0, 540.0, 14239.0, 1440.0, 652.0, 39.0, 63.0, 210.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.003180006496032591, 1.2158298137908102E-6, 1.7467307939167515E-9, 8.316044712701694E-14, 3.549865277596248E-16, 6.820759339243846E-19, 5.359081002073126E-21, 2.700846959742084E-24, 3.8401959265475023E-28, 4.9351919959742526E-29, 6.959212900398566E-32, 3.8598505448513773E-35, 7.743061311983176E-38}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.009176994183041303, 1.2239673621296583E-6, 1.7490749569969526E-9, 8.316044712701694E-14, 4.3108261855948454E-16, 6.929569719091034E-19, 8.99219419789869E-21, 2.700846959742084E-24, 3.8401959265475023E-28, 7.140771312351483E-29, 7.146984996309479E-32, 3.8598505448513773E-35, 7.743061311983176E-38}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{3.0126182965299684, 2.6809523809523808, 2.349462365591398, 2.316945893985169, 1.8359469240048252, 1.5879781420765027, 2.0555555555555554, 1.6952735444904838, 1.5229166666666667, 1.0950920245398772, 1.9230769230769231, 1.5873015873015872, 0.13333333333333333}));
     
     assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.8326817203428356, 2.4269016648514243E-5, 4.121917480418523E-8, 4.518598747003335E-11, 2.110784372492943E-14, 3.884416630469533E-17, 5.548235363248169E-19, 3.1574048970049775E-22, 2.771250823325358E-25, 1.0098502802870195E-26, 4.8143991971951525E-30, 3.574259539341525E-33, 1.4630844018609583E-34}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{0.0, 0.8326574513261871, 2.4227797473710058E-5, 4.11739888167152E-8, 4.5164879626308416E-11, 2.1068999558624734E-14, 3.828934276837051E-17, 5.545077958351164E-19, 3.154633646181652E-22, 2.670265795296656E-25, 1.0093688403673E-26, 4.810824937655811E-30, 3.427951099155429E-33}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{2.426890180565079, 0.8326574513261871, 2.4227797473710058E-5, 4.11739888167152E-8, 4.5164879626308416E-11, 2.1068999558624734E-14, 3.828934276837051E-17, 5.545077958351164E-19, 3.154633646181652E-22, 2.670265795296656E-25, 1.0093688403673E-26, 4.810824937655811E-30, 3.427951099155429E-33}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{28803.0, 1292.0, 935.0, 0.0, 753.0, 567.0, 260742.0, 0.0, 0.0, 69922.0, 1268.0, 0.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{12.536124709231677, 5.493808049535604, 6.2, 0.0, 22.0, 2.0, 6.039073106749201, 0.0, 0.0, 5.762420983381483, 2.5, 0.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{11.536124709231677, 4.493808049535604, 5.2, 0.0, 21.0, 1.0, 5.039073106749201, 0.0, 0.0, 4.762420983381483, 1.5, 0.0, 0.0}));
@@ -1014,12 +1212,56 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{1.6049945409894621, 3.081251821958178E-8, 1.4477160539360403E-11, 0.0, 3.42204987223404E-15, 1.2719447646611311E-20, 1.5529506777835743E-20, 0.0, 0.0, 2.265127605708859E-28, 1.0614912263849012E-32, 0.0, 0.0}));
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.pennString());
       assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) (CD two) (JJ young) (NNS sea-lions)) (VP (VBD took) (NP (RB not) (DT the) (JJ slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NN arrival)))) (. .))))");
     }
   }
-  
+
+  @Test
+  public void testWSJ500FG(){
+    initParserFromFile(wsj500FG);
+    
+    String inputSentence = "The two young sea-lions took not the slightest interest in our arrival .";
+
+    parser.parseSentence(inputSentence);
+    
+    System.err.println(parser.getMeasureList(Measures.SURPRISAL));
+    System.err.println(parser.getMeasureList(Measures.STRINGPROB));
+    System.err.println(parser.getMeasureList(Measures.ENTROPY));
+    System.err.println(parser.getMeasureList(Measures.ENTROPY_REDUCTION));
+    System.err.println(parser.getMeasureList(Measures.MULTI_RULE_COUNT));
+    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT));
+    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT));
+    System.err.println(parser.getMeasureList(Measures.MULTI_RHS_LENGTH));
+    System.err.println(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH));    
+    System.err.println(parser.getMeasureList(Measures.PCFG_RULE_COUNT));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH));
+    System.err.println(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH));
+    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{546.0, 373.0, 597.0, 11841.0, 1319.0, 1364.0, 821.0, 21410.0, 2020.0, 923.0, 46.0, 78.0, 252.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.012620090841831891, 5.778649581068926E-6, 9.892146353452529E-8, 2.498750644435286E-13, 1.6741461356812607E-13, 2.067689819913172E-16, 4.015964197921969E-18, 5.435181590548736E-20, 6.472247429885856E-25, 6.208063783517408E-26, 1.2124201250179224E-28, 6.335916680602132E-32, 7.440817873124088E-35}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.0244255323922276, 5.120636893019271E-5, 9.892146353452529E-8, 2.498750644435286E-13, 1.6741461356812607E-13, 2.557035549650541E-16, 4.5834712678306735E-17, 5.435181590548736E-20, 6.472247429885856E-25, 1.6550115212994305E-25, 1.4348043339439688E-28, 6.335916680602132E-32, 7.440822772163949E-35}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{3.2655677655677655, 3.096514745308311, 2.7772194304857623, 2.7854066379528755, 2.255496588324488, 1.9963343108504399, 2.4896467722289892, 2.137832788416628, 1.9163366336633663, 1.420368364030336, 2.0652173913043477, 1.705128205128205, 0.14285714285714285}));
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{4.254094940964446, 5.854798898649896, 6.0322048924817295, 6.198904683599011, 7.874431274853013, 6.02667550081766, 2.54560444262534, 6.488625139199364, 8.591322376781953, 3.365862507987032, 7.313675743919106, 7.884516573886657, 3.5527106568831073}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{6.975879230529539E-6, 1.1725990380429267E-7, 2.3573725281803898E-11, 1.2315048551875957E-11, 5.807683000230481E-15, 3.2610248990060633E-18, 1.8599201286349052E-20, 2.8079973913234422E-22, 3.9732462027772925E-25, 9.989142864053976E-29, 0.0, 5.564732528536069E-34, 8.542049486598615E-34}));
+        
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.15498985048959768, 6.723322311977446E-4, 2.32213582977896E-6, 6.43003720326732E-9, 3.725342967585564E-12, 1.0342633759758084E-14, 8.395101195853814E-16, 1.4613151758319634E-18, 3.251671086059866E-22, 1.199143113472655E-23, 9.127477318188103E-27, 3.781817912740217E-30, 1.1097156463692535E-31}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY_REDUCTION), new double[]{12.411391660651258, 0.15431751825840098, 6.700100953679679E-4, 2.3157057925756927E-6, 6.426311860299735E-9, 3.715000333825806E-12, 9.5031236401727E-15, 8.380488044095483E-16, 1.4609900087233574E-18, 3.1317567747126E-22, 1.1982303657408386E-23, 9.123695500275363E-27, 3.670846348103292E-30}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RULE_COUNT), new double[]{6.0, 2.0, 0.0, 0.0, 0.0, 2.0, 4679.0, 0.0, 0.0, 32.0, 990.0, 0.0, 69.0}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH_COUNT), new double[]{3.0, 3.5, 0.0, 0.0, 0.0, 7.0, 2.3889720025646506, 0.0, 0.0, 3.78125, 2.0, 0.0, 4.420289855072464}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{2.0, 1.5, 0.0, 0.0, 0.0, 5.0, 1.3879033981620004, 0.0, 0.0, 1.28125, 1.0, 0.0, 0.15942028985507245}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.020512785592802146, 1.1410904622647653E-4, 0.0, 0.0, 0.0, 6.850840216323204E-17, 7.376185589345266E-17, 0.0, 0.0, 2.30830534029722E-25, 8.292321603377748E-29, 0.0, 2.304670770276166E-33}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.011805441550395677, 4.542771934912376E-5, 0.0, 0.0, 0.0, 4.8934572973737176E-17, 4.1928954320846494E-17, 0.0, 0.0, 1.0342051429476942E-25, 4.146160801688874E-29, 0.0, 4.899039860697261E-41}));
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
+      System.err.println(tree.pennString());
+      assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) two (JJ young) (NNS sea-lions)) (VP (VBD took) (NP (RB not) (DT the) (JJ slightest) (NN interest)) (PP in (NP (PRP$ our) (JJ arrival)))) .)))");
+    }
+  }
+
 //  @Test
 //  public void testWSJ500AG22(){
 //    initParserFromFile(wsjAG22);
@@ -1035,7 +1277,7 @@ public class EarleyParserTest { // extends TestCase {
 //    assertEquals(stringProbList.toString(), "[0.0, 1.3079867249162168E-10, 4.867244486928411E-13, 1.0063754485484522E-16, 0.0, 0.0, 1.27408610509633E-22, 9.854091524354584E-27, 6.250980669146438E-32, 1.4087342474069947E-31, 0.0, 4.415190632996464E-34]");
 //    
 //    if(parser.getDecodeOpt()==1){
-//      Tree tree = parser.viterbiParse();
+//      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
 //      System.err.println(tree.pennString());
 //      assertEquals(tree.toString(), "( (ROOT (SBARQ (WHNP (WP What)) (SQ (VP (VBD did) (S (NP you) (VP do)) (PP (TO to) (NP (PRP$ my) (NNS horse))) (SBAR (S (NP she) (VP (VBD asked) (ADJP (ADJP breathless) (CC and) (ADJP gasping))))))))))");
 //    }
@@ -1085,7 +1327,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(1.8818812758090438E-33, stringProbList.get(12), 1e-5);
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.toString());
       assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) (CD two) (JJ young) (NNS sea-lions)) (VP (VBD took) (ADVP (RB not)) (NP (NP (DT the) (NN slightest) (NN interest)) (PP (IN in) (NP (PRP$ our) (NN arrival))))) (. .))))");
     }
@@ -1121,7 +1363,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(1.2514394214109883E-7, stringProbList.get(4), 1e-5);
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.pennString());
       assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) (VBG two) (NN young)) (VP (VBD sea-lions)) (. .))))");
     }
@@ -1152,7 +1394,7 @@ public class EarleyParserTest { // extends TestCase {
     parser.parseSentence(inputSentence);    
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       assertEquals(tree.toString(), "( (Sentence (Topic.dog (T.dog (PSEUDO.DOG .dog) (Socials.Topical.kid.eyes (PSEUDOKID.EYES kid.eyes) (Socials.Topical.kid.hands (Socials.Topical.mom.eyes (PSEUDOMOM.EYES mom.eyes) (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None (T.None (PSEUDO.PIG .pig) (Socials.NotTopical.kid.eyes (Socials.NotTopical.kid.hands (PSEUDOKID.HANDS kid.hands) (Socials.NotTopical.mom.eyes (Socials.NotTopical.mom.hands (Socials.NotTopical.mom.point #)))))) (Topic.None ##))) (Words.dog (Word.dog (Word and)) (Words.dog (Word.dog (Word whats)) (Words.dog (Word.dog (Word that)) (Words.dog (Word.dog (Word is)) (Words.dog (Word.dog (Word this)) (Words.dog (Word.dog (Word a)) (Words.dog (Word.dog (Word puppy)) (Words.dog (Word.dog (Word dog))))))))))))");
       
     }
@@ -1183,7 +1425,7 @@ public class EarleyParserTest { // extends TestCase {
     parser.parseSentence(inputSentence);    
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.pennString());
       assertEquals(tree.toString(), "( (Discourse (Discourse.pig (Sentence.pig (Topic.pig (T.None (PSEUDO.DOG .dog) (Socials.NotTopical.kid.eyes (PSEUDOKID.EYES kid.eyes) (Socials.NotTopical.kid.hands (Socials.NotTopical.mom.eyes (PSEUDOMOM.EYES mom.eyes) (Socials.NotTopical.mom.hands (Socials.NotTopical.mom.point #)))))) (Topic.pig (T.pig (PSEUDO.PIG .pig) (Socials.Topical.kid.eyes (Socials.Topical.kid.hands (PSEUDOKID.HANDS kid.hands) (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None ##))) (Words.pig (Word.pig and) (Words.pig (Word.pig whats) (Words.pig (Word.pig that) (Words.pig (Word.pig is) (Words.pig (Word.pig this) (Words.pig (Word.pig a) (Words.pig (Word.pig puppy) (Words.pig (Word.pig dog)))))))))) (Discourse.pig (Sentence.pig (Topic.pig (T.None (PSEUDO.DOG .dog) (Socials.NotTopical.kid.eyes (PSEUDOKID.EYES kid.eyes) (Socials.NotTopical.kid.hands (Socials.NotTopical.mom.eyes (PSEUDOMOM.EYES mom.eyes) (Socials.NotTopical.mom.hands (PSEUDOMOM.HANDS mom.hands) (Socials.NotTopical.mom.point #)))))) (Topic.pig (T.pig (PSEUDO.PIG .pig) (Socials.Topical.kid.eyes (Socials.Topical.kid.hands (PSEUDOKID.HANDS kid.hands) (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (Socials.Topical.mom.point #)))))) (Topic.None ##))) (Words.pig (Word.pig woof) (Words.pig (Word.pig woof) (Words.pig (Word.None woof))))) (Discourse.dog (Sentence.dog (Topic.dog (T.dog (PSEUDO.DOG .dog) (Socials.Topical.kid.eyes (Socials.Topical.kid.hands (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (PSEUDOMOM.HANDS mom.hands) (Socials.Topical.mom.point #)))))) (Topic.None ##)) (Words.dog (Word.dog woof) (Words.dog (Word.dog woof) (Words.dog (Word.dog woof) (Words.dog (Word.dog woof) (Words.dog (Word.None woof))))))) (Discourse.dog (Sentence.dog (Topic.dog (T.dog (PSEUDO.DOG .dog) (Socials.Topical.kid.eyes (PSEUDOKID.EYES kid.eyes) (Socials.Topical.kid.hands (Socials.Topical.mom.eyes (Socials.Topical.mom.hands (PSEUDOMOM.HANDS mom.hands) (Socials.Topical.mom.point #)))))) (Topic.None ##)) (Words.dog (Word.dog thats) (Words.dog (Word.None nice)))) (Discourse.None (Sentence.None (Topic.None ##) (Words.None (Word.None come) (Words.None (Word.None here) (Words.None (Word.None you) (Words.None (Word.None come) (Words.None (Word.None here) (Words.None (Word.None you)))))))))))))))");
       
@@ -1286,7 +1528,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(0.24544930825601569, surprisalList.get(1), 1e-5);
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.toString());
       assertEquals(tree.toString(), "( (ROOT (A (B b) (C c))))");
     }
@@ -1317,7 +1559,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(0.0, surprisalList.get(1), 1e-5); // -ln(1)
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.pennString());
       assertEquals(tree.toString(), "( (ROOT (A b c)))");
     }
@@ -1356,7 +1598,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(1-x*y, stringProbList.get(1), 1e-5);
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.pennString());
       assertEquals(tree.toString(), "( (ROOT (A b c)))");
     }
@@ -1412,7 +1654,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(x4 + x1*y4, stringProbList.get(2), 1e-5);
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.toString());
       assertEquals(tree.toString(), "( (ROOT (A b c d)))");
     }
@@ -1462,7 +1704,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(1.0, stringProbList.get(2), 1e-5);
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.toString());
       assertEquals(tree.toString(), "( (ROOT a b c))");
     }
@@ -1534,7 +1776,7 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(0.9901606659305786, stringProbList.get(2), 1e-5);
     
     if(parser.getDecodeOpt()==1){
-      Tree tree = parser.viterbiParse();
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
       System.err.println(tree.toString());
       assertEquals(tree.toString(), "( (ROOT a b c))");
     }
