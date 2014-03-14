@@ -855,7 +855,7 @@ public abstract class EarleyParser implements Parser {
       double score = lex.score(itw); // log
       
       if(score>0){
-        System.err.println("! Lex score should be in log-form, but is " + score);
+        System.err.println("! Lex score should be in log-form, but is " + score + ", rule " + itw);
         System.exit(1);
       }
       if(!isLogProb){
