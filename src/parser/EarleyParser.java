@@ -425,7 +425,7 @@ public abstract class EarleyParser implements Parser {
       Counter<Integer> counter = tag2wordsMap.get(iT);
       for (int iW : counter.keySet()) {
         double prob = counter.getCount(iW);
-        if(prob<0 || prob>1){ // make sure this is a proper prob
+        if(prob<0 || prob>1.000001){ // make sure this is a proper prob
           System.err.println("! prob of " + parserTagIndex.get(iT) + "->" + parserWordIndex.get(iW) + " " + prob 
               + " not in [0, 1]");
           System.exit(1);
