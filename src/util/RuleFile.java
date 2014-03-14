@@ -128,6 +128,10 @@ public class RuleFile {
         System.exit(1);
       }
       
+      if(prob>1 && prob<1.000001){
+    	System.err.println("! Change rule prob to 1.0: " + inputLine);
+    	prob = 1.0;
+      }
       String[] children = rhs.split(" ");
       int numChildren = children.length;
       
