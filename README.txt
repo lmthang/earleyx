@@ -1,18 +1,20 @@
-Features from Levy's parser
-* Smoothing
-* Strings to integers
-* Complete rewrite
-* Scaling parsing long sentences
-* Normal prob & log-prob
-* Support parsing for dense and sparse grammars
-* Handle grammars with high fan-out
+The Earleyx parser was originated from Roger Levy's parser, but has evolved
+significantly with the below features:
+(a) Code was restructured and rewritten to follow the flow of Stolcke's algorithm (see the method parse() in parser.EarleyParser).
+(b) Scaling approach to parse long sentences (see my TACL'13 paper). With scaling, no log operations are required (see the usage of util.Operator/ProbOperator/LogProbOperator).
+(c) Rule probability estimation: inside-outside algorithm in the prefix parser context as described in Stolcke's paper. Expectation-Maximization and Variational Bayes are implemented (see induction.InsideOutside).
+(d) Handling of dense and sparse grammars (arrays vs lists, see parser.EarleyParserDense/EarleyParserSparse).
+(e) Compute closure matrices efficiently in a way that avoids inverting large matrices as described in Stolcke's paper.
+(f) Smoothing of rule probabilities for unknown words.
+(g) Use integers for strings for speed.
+(h) Handle grammars with high fan-out.
 
 Concepts:
 * Tags: nonterminals + preterminals
-* Edge space
-* Edge
+* Edge: represent an active edge used in Earley algorithms, e.g X -> a b . c
+* Edge space: keeps track of edges as integers.
 
-Minh-Thang Luong, 2012
+Minh-Thang Luong @ 2012, 2013, 2014
 
 /*********/
 /* Files */
