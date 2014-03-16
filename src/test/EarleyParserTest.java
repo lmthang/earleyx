@@ -49,10 +49,10 @@ public class EarleyParserTest { // extends TestCase {
     ClosureMatrix.verbose = 0;
     EdgeSpace.verbose = 0;
     Grammar.verbose = 0;
-    Prediction.verbose = 3;
-    Completion.verbose = 3;
+    Prediction.verbose = 0;
+    Completion.verbose = 0;
     RuleFile.verbose = 0;
-    EarleyParser.verbose = 3;
+    EarleyParser.verbose = 0;
     
     if(ioOptStr.equalsIgnoreCase("em")){
       insideOutsideOpt = 1;
@@ -669,18 +669,27 @@ public class EarleyParserTest { // extends TestCase {
   }
   
   private boolean compare(List<Double> values, double[] results){
+  	boolean isEqual = true;
     if(values.size() == results.length){
       for (int i = 0; i < results.length; i++) {
         if(Math.abs(values.get(i)-results[i])>1e-5){
-          return false;
+        	isEqual = false;
+        	break;
         }
       }
-      
-      return true;
     } else {
-      return false;
+    	isEqual = false;
     }
+    
+    if(!isEqual){
+    	System.err.println("Values: " + Util.sprint(values));
+    	System.err.println("Results: " + Util.sprint(results));
+    }
+    
+    return isEqual;
   }
+
+  
   @Test
   public void testSocialUnigramPseudoIO(){
     rootSymbol = "Sentence";

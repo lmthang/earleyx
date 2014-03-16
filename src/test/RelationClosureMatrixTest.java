@@ -86,7 +86,7 @@ public class RelationClosureMatrixTest extends TestCase{
     /* do left-corner closures matrix */
     DoubleMatrix2D pl = relationMatrix.getPL(tagRules, nonterminalMap);
     assertEquals(Util.sprint(pl), "0.0 1.0 0.0 0.0\n0.0 0.1 0.1 0.0\n0.0 0.0 0.0 0.2\n0.0 0.0 0.3 0.0");
-    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator);
+    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator, tagIndex, "left-corner");
     leftCornerClosures.changeIndices(nonterminalMap);
     assertEquals(Util.sprint(leftCornerClosures.getClosureMatrix()), "0.0 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745");
     assertEquals(leftCornerClosures.sprintCol2rowMap(tagIndex), "ROOT(0): ROOT(0)=0.0\nA(1): ROOT(0)=0.10536051565782635 A(1)=0.10536051565782635\nB(2): ROOT(0)=-2.135349173618132 A(1)=-2.135349173618132 B(2)=0.06187540371808745 C(3)=-1.1420974006078486\nC(3): ROOT(0)=-3.744787086052232 A(1)=-3.744787086052232 B(2)=-1.547562508716013 C(3)=0.06187540371808745\n");
@@ -98,7 +98,7 @@ public class RelationClosureMatrixTest extends TestCase{
     /* do unary closure matrix */
     DoubleMatrix2D pu = relationMatrix.getPU(tagRules); //, nontermPretermIndexer);
     assertEquals(Util.sprint(pu), "0.0 1.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.2 0.0 0.0\n0.0 0.0 0.3 0.0 0.7 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0");
-    ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator);
+    ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator, tagIndex, "unary");
     assertEquals(Util.sprint(unaryClosures.getClosureMatrix()), "0.0 0.0 -Infinity -Infinity -Infinity -Infinity\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013 -1.9042374526547454 -Infinity\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745 -0.294799540220645 -Infinity");
     assertEquals(unaryClosures.sprintCol2rowMap(tagIndex), "ROOT(0): ROOT(0)=0.0\nA(1): ROOT(0)=0.0\nB(2): B(2)=0.06187540371808745 C(3)=-1.1420974006078486\nC(3): B(2)=-1.547562508716013 C(3)=0.06187540371808745\nD(4): B(2)=-1.9042374526547454 C(3)=-0.294799540220645\n");
 
@@ -152,7 +152,7 @@ public class RelationClosureMatrixTest extends TestCase{
     /* do left-corner closures matrix */
     DoubleMatrix2D pl = relationMatrix.getPL(tagRules, nonterminalMap);
     assertEquals(Util.sprint(pl), "0.0 1.0 0.0 0.0\n0.0 0.1 0.1 0.0\n0.0 0.0 0.0 0.2\n0.0 0.0 0.3 0.0");
-    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator);
+    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator, tagIndex, "left-corner");
     leftCornerClosures.changeIndices(nonterminalMap);
     assertEquals(Util.sprint(leftCornerClosures.getClosureMatrix()), "0.0 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745");
     System.err.println(Util.sprint(leftCornerClosures.getClosureMatrix()));
@@ -165,7 +165,7 @@ public class RelationClosureMatrixTest extends TestCase{
     /* do unary closure matrix */
     DoubleMatrix2D pu = relationMatrix.getPU(tagRules); //, nontermPretermIndexer);
     assertEquals(Util.sprint(pu), "0.0 1.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.2 0.0 0.0\n0.0 0.0 0.3 0.0 0.7 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0");
-    ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator);
+    ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator, tagIndex, "unary");
     assertEquals(Util.sprint(unaryClosures.getClosureMatrix()), "0.0 0.0 -Infinity -Infinity -Infinity -Infinity\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013 -1.9042374526547454 -Infinity\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745 -0.294799540220645 -Infinity");
     System.err.println(Util.sprint(unaryClosures.getClosureMatrix()));
     System.err.println(unaryClosures.sprintCol2rowMap(tagIndex));

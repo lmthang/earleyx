@@ -95,7 +95,7 @@ public class CompletionTest extends TestCase{
     // closure matrix
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     DoubleMatrix2D pu = relationMatrix.getPU(tagRules);
-    ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator);
+    ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator, tagIndex, "unary");
     
     Map<Integer, Completion[]>  tag2completionsMap = Completion.constructCompletions(
         unaryClosures, stateSpace, tagIndex, wordIndex, operator);
@@ -142,7 +142,7 @@ public class CompletionTest extends TestCase{
     // closure matrix
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     DoubleMatrix2D pu = relationMatrix.getPU(tagRules);
-    ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator);
+    ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator, tagIndex, "unary");
     
     Map<Integer, Completion[]>  tag2completionsMap = Completion.constructCompletions(
         unaryClosures, stateSpace, tagIndex, wordIndex, operator);

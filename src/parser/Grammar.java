@@ -70,12 +70,12 @@ public class Grammar {
     
     /* do left-corner closures matrix */
     DoubleMatrix2D pl = relationMatrix.getPL(ruleSet.getTagRules(), nonterminalMap);
-    leftCornerClosures = new ClosureMatrix(pl, operator);
+    leftCornerClosures = new ClosureMatrix(pl, operator, tagIndex, "left-corner");
     leftCornerClosures.changeIndices(nonterminalMap);
     
     /* do unary closure matrix */
     DoubleMatrix2D pu = relationMatrix.getPU(ruleSet.getTagRules()); //, nontermPretermIndexer);
-    unaryClosures = new ClosureMatrix(pu, operator);
+    unaryClosures = new ClosureMatrix(pu, operator, tagIndex, "unary");
     
     /*** Extended rules ***/
     /* !!! Important: this needs to be added after closure matrix construction

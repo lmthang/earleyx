@@ -34,13 +34,18 @@ public class ClosureMatrix {
   private static Algebra alg = new Algebra();
   private Map<Integer, Integer> rowIndexMap; // keep track of non-zero rows in pu matrix, non-zero row index -> linear id
   private Map<Integer, Integer> colIndexMap; // map from indices to real matrix column indices
-  // to answer the query given a non-termial Z, what are the non-terminals Y that have non-zero scores from Z->Y
+  // to answer the query given a non-termial Y, what are the non-terminals Z 
+  // that have non-zero scores from Z->Y
   // col2rowMap.get(colIndex).get(rowIndex) gives closure score of Z (rowIndex) -> Y (colIndex)
   private Map<Integer, Map<Integer, Double>> col2rowMap; 
   private DoubleMatrix2D closureMatrix;
   private Operator operator;
-  public ClosureMatrix(DoubleMatrix2D relationMatrix, Operator operator) {
+  private Index<String> tagIndex;
+  private String name;
+  public ClosureMatrix(DoubleMatrix2D relationMatrix, Operator operator, Index<String> tagIndex, String name) {
     this.operator = operator;
+    this.tagIndex = tagIndex;
+    this.name = name;
     
     rowIndexMap = new HashMap<Integer, Integer>();
     colIndexMap = new HashMap<Integer, Integer>();
@@ -50,14 +55,14 @@ public class ClosureMatrix {
     col2rowMap = new HashMap<Integer, Map<Integer,Double>>();
     
     if (verbose >= 1) {
-      System.err.println("\n# Building closure matrix...");
+      System.err.println("\n# Building " + name + " closure matrix...");
       Timing.startTime();
     }
     
     computeClosureMatrix(relationMatrix);
     
     if(verbose >= 3){
-      System.err.println("# closure matrix\n" + this);
+      System.err.println(this);
     }
  
 
@@ -74,44 +79,44 @@ public class ClosureMatrix {
   public void changeIndices(Map<Integer, Integer> indexMap){
     Map<Integer, Integer> newRowIndexMap = new HashMap<Integer, Integer>();
     Map<Integer, Integer> newColIndexMap = new HashMap<Integer, Integer>();
-    Map<Integer, Map<Integer, Double>> newCol2rowMap = new HashMap<Integer, Map<Integer, Double>>();
+//    Map<Integer, Map<Integer, Double>> newCol2rowMap = new HashMap<Integer, Map<Integer, Double>>();
     
     Map<Integer, Integer> reverseIndexMap = new HashMap<Integer, Integer>();
-    for(int key : indexMap.keySet()){
-      int value = indexMap.get(key);
+    for(int newIndex : indexMap.keySet()){ // indexMap: newIndex -> oldIndex
+      int oldIndex = indexMap.get(newIndex);
       
-      // indexMap: newIndex -> oldIndex row/colIndexMap: oldIndex -> real row/col index
-      if(rowIndexMap.containsKey(value)){
-        newRowIndexMap.put(key, rowIndexMap.get(value));
+      // row/colIndexMap: oldIndex -> real row/col index
+      if(rowIndexMap.containsKey(oldIndex)){
+        newRowIndexMap.put(newIndex, rowIndexMap.get(oldIndex));
       }
-      if(colIndexMap.containsKey(value)){
-        newColIndexMap.put(key, colIndexMap.get(value));
+      if(colIndexMap.containsKey(oldIndex)){
+        newColIndexMap.put(newIndex, colIndexMap.get(oldIndex));
       }
       
-      reverseIndexMap.put(value, key);
+      reverseIndexMap.put(oldIndex, newIndex);
     }
     rowIndexMap = newRowIndexMap;
     colIndexMap = newColIndexMap;
     
     // update col2rowMap
-    for(int colId : col2rowMap.keySet()){
-      int newColId = reverseIndexMap.get(colId);
-      if(!newCol2rowMap.containsKey(newColId)){
-        newCol2rowMap.put(newColId, new HashMap<Integer, Double>());
-      }
-      
-      Map<Integer, Double> valueMap = col2rowMap.get(colId);
-      for(int rowId : valueMap.keySet()){
-        int newRowId = reverseIndexMap.get(rowId);
-        newCol2rowMap.get(newColId).put(newRowId, valueMap.get(rowId));
-      }
-    }
-    col2rowMap = newCol2rowMap;
+//    for(int oldColId : col2rowMap.keySet()){
+//      int newColId = reverseIndexMap.get(oldColId);
+//      if(!newCol2rowMap.containsKey(newColId)){
+//        newCol2rowMap.put(newColId, new HashMap<Integer, Double>());
+//      }
+//      
+//      Map<Integer, Double> valueMap = col2rowMap.get(oldColId);
+//      for(int rowId : valueMap.keySet()){
+//        int newRowId = reverseIndexMap.get(rowId);
+//        newCol2rowMap.get(newColId).put(newRowId, valueMap.get(rowId));
+//      }
+//    }
+//    col2rowMap = newCol2rowMap;
     
     if(verbose>=2){
       System.err.println("new row map: " + newRowIndexMap);
       System.err.println("new col map: " + newColIndexMap);
-      System.err.println("new col2row map: " + newCol2rowMap);
+//      System.err.println("new col2row map: " + newCol2rowMap);
     }
   }
   
@@ -164,9 +169,13 @@ public class ClosureMatrix {
         rowIndexMap.put(i, numIndices);
         numIndices++;
       }
+      
+      // initialize col2rowMap, add P(Y->Y) = 1.0
+      col2rowMap.put(i, new HashMap<Integer, Double>());
+      col2rowMap.get(i).put(i, operator.one());
     }
     if (verbose >= 1) {
-      System.err.println("Num rows=" + numRows + ", num non-zero rows=" + numIndices);
+      System.err.println("  num rows=" + numRows + ", num non-zero rows=" + numIndices);
     }
     
     // construct submatrix of indices with non-zero rows
@@ -183,16 +192,16 @@ public class ClosureMatrix {
     
     // inverse submatrix
     if (verbose >= 2) {
-      System.err.println("Inverting submatrix ... ");
+      System.err.print("  inverted submatrix: ");
     }
     if(verbose >= 3){
       System.err.println(subRelationMatrix);
     }
     DoubleMatrix2D invSubMatrix = alg.inverse(subRelationMatrix);
     if (verbose >= 2) {
-      System.err.println("Inverted matrix");
+      System.err.print("  inverted matrix: ");
       System.err.println(invSubMatrix);
-      System.err.println("Computing full matrix ... ");
+      System.err.println("  computing full matrix ... ");
     }
     
     /** compute closure matrix **/
@@ -259,8 +268,11 @@ public class ClosureMatrix {
   
   @Override
   public String toString() {
-    StringBuffer sb = new StringBuffer(rowIndexMap.toString());
-
+    StringBuffer sb = new StringBuffer("# Closure matrix " + name + "\n");
+    sb.append("  rowIndexMap: " + rowIndexMap.toString() + "\n");
+    sb.append("  colIndexMap: " + colIndexMap.toString() + "\n");
+    sb.append("  col2rowMap:\n" + sprintCol2rowMap(tagIndex));
+    
     if(operator instanceof LogProbOperator){
       sb.append("\n" + closureMatrix.copy().assign(takeExp).toString());
     } else {
@@ -274,9 +286,9 @@ public class ClosureMatrix {
     for(int colId : col2rowMap.keySet()){
       Map<Integer, Double> valueMap = col2rowMap.get(colId);
       
-      sb.append(tagIndex.get(colId) + "(" + colId + "):");
+      sb.append("  \"" + tagIndex.get(colId) + "\" (" + colId + ")\t:");
       for(int rowId : valueMap.keySet()){
-        sb.append(" " + tagIndex.get(rowId) + "(" + rowId + ")=" + valueMap.get(rowId));
+        sb.append(" \"" + tagIndex.get(rowId) + "\" (" + rowId + ")=" + operator.getProb(valueMap.get(rowId)));
       }
       sb.append("\n");
     }

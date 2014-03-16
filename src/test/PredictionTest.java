@@ -63,7 +63,7 @@ public class PredictionTest extends TestCase {
     "E->[_e] : 1.0\n";
   
   public void testBasic(){
-    //Prediction.verbose = 2;
+    Prediction.verbose = 3;
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     
@@ -92,7 +92,7 @@ public class PredictionTest extends TestCase {
     // closure matrix
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     DoubleMatrix2D pl = relationMatrix.getPL(tagRules, nonterminalMap);
-    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator);
+    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator, tagIndex, "left-corner");
     leftCornerClosures.changeIndices(nonterminalMap);
     
     Prediction[][] predictions = Prediction.constructPredictions(tagRules, leftCornerClosures, edgeSpace
@@ -135,7 +135,7 @@ public class PredictionTest extends TestCase {
     // closure matrix
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     DoubleMatrix2D pl = relationMatrix.getPL(tagRules, nonterminalMap);
-    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator);
+    ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator, tagIndex, "left-corner");
     leftCornerClosures.changeIndices(nonterminalMap);
     
     Prediction[][] predictions = Prediction.constructPredictions(tagRules, leftCornerClosures, edgeSpace

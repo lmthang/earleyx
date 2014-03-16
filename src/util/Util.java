@@ -275,6 +275,21 @@ public class Util {
     return sb.toString();
   }
 
+
+  // print double list
+  public static String sprint(List<Double> values){
+  	StringBuffer sb = new StringBuffer("[");
+
+  	if(values.size() > 0){
+  		for(double value : values){
+  			sb.append(value + ", ");
+  		}
+  		sb.delete(sb.length()-2, sb.length());
+  	}
+  	sb.append("]");
+  	return sb.toString();
+  }
+
   public static String sprintProb(double[] values, Operator operator){
     StringBuffer sb = new StringBuffer("[");
     
