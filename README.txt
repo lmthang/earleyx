@@ -1,18 +1,23 @@
-Features from Levy's parser
-* Smoothing
-* Strings to integers
-* Complete rewrite
-* Scaling parsing long sentences
-* Normal prob & log-prob
-* Support parsing for dense and sparse grammars
-* Handle grammars with high fan-out
+The Earleyx parser was originated from Roger Levy's prefix parser, but has evolved significantly. Earleyx can generate Viterbi parses and perform rule estimation (Expectation-Maximization and Variational Bayes). The parser also implements the scaling approach as described in my TACL'13 paper which speeds up parsing time and allows for parsing long sentences (with restricted grammars).
 
-Concepts:
-* Tags: nonterminals + preterminals
-* Edge space
-* Edge
+Features:
+(a) Code was restructured and rewritten to follow the flow of Stolcke's algorithm (see the method parse() in parser.EarleyParser).
+(b) Scaling approach to parse long sentences (see my TACL'13 paper). With scaling, no log operations are required (see the usage of util.Operator/ProbOperator/LogProbOperator).
+(c) Rule probability estimation: inside-outside algorithm in the prefix parser context as described in Stolcke's paper. Expectation-Maximization and Variational Bayes are implemented (see induction.InsideOutside).
+(d) Handling of dense and sparse grammars (arrays vs lists, see parser.EarleyParserDense/EarleyParserSparse).
+(e) Compute closure matrices efficiently in a way that avoids inverting large matrices as described in Stolcke's paper (see base.ClosureMatrix).
+(f) Handle grammars with high fan-out (see Util.TrieSurprisal).
+(g) Use integers for strings for speed.
+(h) Smoothing of rule probabilities for unknown words (see parser.SmoothLexicon).
 
-Minh-Thang Luong, 2012
+References:
+(a) Andreas Stolcke. 1995. An Efficient Probabilistic Context-Free Parsing Algorithm that Computes Prefix Probabilities. Computational Linguistics 21(2), 165-201.
+(b) Roger Levy's prefix parser. http://idiom.ucsd.edu/~rlevy/prefixprobabilityparser.html 
+Roger Levy. 2008. Expectation-based syntactic comprehension. Cognition 106(3):1126-1177.
+(c) Earleyx:
+Minh-Thang Luong, Michael C. Frank, and Mark Johnson. 2013. Parsing entire discourses as very long strings: Capturing topic continuity in grounded language learning. Transactions of the Association for Computational Linguistics (TACL’13). 
+
+Minh-Thang Luong @ 2012, 2013, 2014
 
 /*********/
 /* Files */
@@ -92,6 +97,13 @@ You should see the same results as below:
 # iteration 9, numRules=19, sumNegLogProb = 50.63452160196377
 
 The final grammar is outputed into output/result.iogrammar .
+
+/****************************/
+/* Concepts (to be updated) */
+/****************************/
+* Tags: nonterminals + preterminals
+* Edge: represent an active edge used in Earley algorithms, e.g X -> a b . c
+* Edge space: keeps track of edges as integers.
 
 /*******************/
 /* Other Util code */
