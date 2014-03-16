@@ -1,7 +1,8 @@
 package parser;
 
 import edu.stanford.nlp.util.StringUtils;
-
+import edu.stanford.nlp.util.concurrent.MulticoreWrapper;
+import edu.stanford.nlp.util.concurrent.ThreadsafeProcessor;
 import induction.InsideOutside;
 
 import java.io.File;
@@ -11,12 +12,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import base.ClosureMatrix;
 import base.RelationMatrix;
 import base.ProbRule;
-
-
 import util.RuleFile;
 import util.Util;
 
@@ -32,7 +34,7 @@ public class Main {
     System.err.println("! " + message);
     System.err.println("Main -in inFile  -out outPrefix (-grammar grammarFile | -treebank treebankFile) " +
         "-obj objectives\n" + 
-        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-verbose opt]" +
+        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-thread n] [-verbose opt]" +
         "\t[-decode opt]" + 
         "\t[-io opt -maxiteration n -intermediate n -minprob f]\n");
     
@@ -52,6 +54,7 @@ public class Main {
     System.err.println("\t\t sparse \t\t optimize for sparse grammars (default: run with dense grammars)");
     System.err.println("\t\t normalprob \t\t perform numeric computation in normal prob (cf. log-prob). This switch is best to be used with -scale.");
     System.err.println("\t\t scale \t\t rescaling approach to parse extremely long sentences");
+    System.err.println("\t\t thread \t\t if value > 1, use multi-threaded version of the parser");
     System.err.println("\t\t verbose \t\t -1 -- no debug info (default), " + 
         "0: surprisal per word, 1-4 -- increasing more details");
     
@@ -108,6 +111,12 @@ public class Main {
     }
     
     /* verbose option */
+    int numThreads = 1;
+    if (argsMap.keySet().contains("-thread")) {
+      numThreads = Integer.parseInt(argsMap.get("-thread")[0]);
+    }
+    
+    /* verbose option */
     int verbose = -1;
     if (argsMap.keySet().contains("-verbose")) {
       verbose = Integer.parseInt(argsMap.get("-verbose")[0]);
@@ -139,25 +148,25 @@ public class Main {
     }
     
     /* decode opt */
-    String decodeOpt = "";
+    String decodeOptStr = "";
     if (argsMap.keySet().contains("-decode")) {
-      decodeOpt = argsMap.get("-decode")[0];
-      if(!decodeOpt.equalsIgnoreCase("viterbi") && !decodeOpt.equalsIgnoreCase("marginal") && !decodeOpt.equalsIgnoreCase("socialmarginal")){
-        printHelp(args, "! Invalid -decode option " + decodeOpt);
+      decodeOptStr = argsMap.get("-decode")[0];
+      if(!decodeOptStr.equalsIgnoreCase("viterbi") && !decodeOptStr.equalsIgnoreCase("marginal") && !decodeOptStr.equalsIgnoreCase("socialmarginal")){
+        printHelp(args, "! Invalid -decode option " + decodeOptStr);
       }
     }
     
     /* io opt */
-    String ioOpt = "";
+    String ioOptStr = "";
     if (argsMap.keySet().contains("-io")) {
-      ioOpt = argsMap.get("-io")[0];
-      if(!ioOpt.equalsIgnoreCase("em") & !ioOpt.equalsIgnoreCase("vb")){
+      ioOptStr = argsMap.get("-io")[0];
+      if(!ioOptStr.equalsIgnoreCase("em") & !ioOptStr.equalsIgnoreCase("vb")){
         printHelp(args, "-io, opt should be either em or vb");
       }
     }
     int maxiteration = 0;
     if (argsMap.keySet().contains("-maxiteration")) {
-      if(ioOpt.equals("")){
+      if(ioOptStr.equals("")){
         printHelp(args, "-maxiteration only used with -io");
       }
       maxiteration = Integer.parseInt(argsMap.get("-maxiteration")[0]);
@@ -167,7 +176,7 @@ public class Main {
     }
     double minRuleProb = 0;
     if (argsMap.keySet().contains("-minprob")) {
-      if(ioOpt.equals("")){
+      if(ioOptStr.equals("")){
         printHelp(args, "-minprob only used with -io");
       }
       minRuleProb = Integer.parseInt(argsMap.get("-minprob")[0]);
@@ -177,7 +186,7 @@ public class Main {
     }
     int intermediate = 0;
     if (argsMap.keySet().contains("-intermediate")) {
-      if(ioOpt.equals("")){
+      if(ioOptStr.equals("")){
         printHelp(args, "-intermediate only used with -io");
       }
       
@@ -188,22 +197,39 @@ public class Main {
     }
     
     /* obj opt */
-    String objString = "";
+    String objStr = "";
     if (argsMap.keySet().contains("-obj")) {
-      objString = argsMap.get("-obj")[0];
+      objStr = argsMap.get("-obj")[0];
     }
-    if(objString.equals("")){
+    if(objStr.equals("")){
       // default values
-      objString = Measures.SURPRISAL + "," + Measures.STRINGPROB;
+      objStr = Measures.SURPRISAL + "," + Measures.STRINGPROB;
+    }
+    
+    /* grammar opt */
+    String inGrammarFile = null;
+    int inGrammarType = 0; // 1: grammar, 2: treebank
+    if (argsMap.keySet().contains("-grammar") && argsMap.keySet().contains("-treebank")){
+      printHelp(args, "-grammar and -treebank are mutually exclusive");
+    } else if (argsMap.keySet().contains("-grammar")) { // read from grammar file
+      inGrammarFile = argsMap.get("-grammar")[0];
+      inGrammarType = 1;
+      System.err.println("In grammar file = " + inGrammarFile);
+    } else if (argsMap.keySet().contains("-treebank")) { // read from treebank file
+      inGrammarFile = argsMap.get("-treebank")[0];
+      inGrammarType = 2;
+      System.err.println("In treebank file = " + inGrammarFile);
+    } else {
+      printHelp(args, "No -grammar or -treebank option");
     }
     
     System.err.println("# Root symbol = " + rootSymbol);
-    System.err.println("# Objectives = " + objString);
+    System.err.println("# Objectives = " + objStr);
     System.err.println("# isSparse = " + (parserOpt==1));
     System.err.println("# isLogProb = " + isLogProb);
     System.err.println("# isScaling = " + isScaling);
-    System.err.println("# decodeOpt = " + decodeOpt);
-    System.err.println("# ioOpt = " + ioOpt);
+    System.err.println("# decodeOpt = " + decodeOptStr);
+    System.err.println("# ioOpt = " + ioOptStr);
     System.err.println("# maxIteration = " + maxiteration);
     System.err.println("# Verbose opt = " + verbose);
 
@@ -258,33 +284,24 @@ public class Main {
       printHelp(args, "No output prefix, -out option");
     }
     
-    /******************/
-    /* grammar option */
-    /******************/
-    String inGrammarFile = null;
-    int inGrammarType = 0; // 1: grammar, 2: treebank
-    if (argsMap.keySet().contains("-grammar") && argsMap.keySet().contains("-treebank")){
-      printHelp(args, "-grammar and -treebank are mutually exclusive");
-    } else if (argsMap.keySet().contains("-grammar")) { // read from grammar file
-      inGrammarFile = argsMap.get("-grammar")[0];
-      inGrammarType = 1;
-      System.err.println("In grammar file = " + inGrammarFile);
-    } else if (argsMap.keySet().contains("-treebank")) { // read from treebank file
-      inGrammarFile = argsMap.get("-treebank")[0];
-      inGrammarType = 2;
-      System.err.println("In treebank file = " + inGrammarFile);
-    } else {
-      printHelp(args, "No -grammar or -treebank option");
-    }
-    
-    if(parserOpt==0){ // dense
-      parser = new EarleyParserDense(inGrammarFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, ioOpt, decodeOpt, objString);
-    } else if(parserOpt==1){ // sparse
-      parser = new EarleyParserSparse(inGrammarFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, ioOpt, decodeOpt, objString);
-    } else {
-      assert(false);
+    /***************/
+    /* load parser */
+    /***************/
+    EarleyParserGenerator parserGenerator = new EarleyParserGenerator(inGrammarFile, inGrammarType, rootSymbol, 
+  			isScaling, isLogProb, ioOptStr, decodeOptStr, objStr);
+    if (numThreads==1){ // single threaded
+			if(parserOpt==0){ // dense
+			  parser = parserGenerator.getParserDense();
+			} else if(parserOpt==1){ // sparse
+				parser = parserGenerator.getParserSparse();
+			} else {
+			  assert(false);
+			}
+    } else { // multi-threaded
+    	
+//    	MulticoreWrapper<ParserInput,ParserOutput> wrapper = 
+//          new MulticoreWrapper<ParserInput, ParserOutput>(numThreads, new ThreadedParser(parserGenerator), false);
+    	
     }
     
     if(inGrammarType==2){
@@ -304,7 +321,7 @@ public class Main {
     /* Parsing */
     /***********/
     try {
-      if(ioOpt.equals("")){
+      if(ioOptStr.equals("")){
         parser.parseSentences(sentences, indices, outPrefix);
       } else {
         InsideOutside io = new InsideOutside(parser);
@@ -327,6 +344,65 @@ public class Main {
     //parser.dumpChart();
   }
 
+  /**
+   * Input to the parser.
+   *
+   */
+  private static class ParserInput {
+    public final String sentence;
+    public final int id;
+    
+    public ParserInput(String sentence, int id) {
+	    this.sentence = sentence;
+	    this.id = id;
+    }
+  }
+  
+  /**
+   * Output from the parser
+   *
+   */
+  private static class ParserOutput {
+  	public final Measures measures; // store values for all measures, initialized for every sentence
+    
+    public ParserOutput(Measures measures) {
+      this.measures = measures;
+    }
+  }
+  
+  /**
+   * Multi-threaded parser
+   *
+   */
+  private static class ThreadedParser implements ThreadsafeProcessor<ParserInput,ParserOutput> {
+  	private static EarleyParserGenerator parserGenerator;
+    
+    public ThreadedParser(EarleyParserGenerator parserGenerator) {
+      this.parserGenerator = parserGenerator;
+    }
+
+//    @Override
+//    public ParserOutput process(ParserInput input) {
+//      return null;
+//    }
+
+    @Override
+    public ThreadsafeProcessor<ParserInput, ParserOutput> newInstance() {
+      return new ThreadedParser(this.parserGenerator);
+    }
+
+		@Override
+		public ParserOutput call() throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setNextInput(ParserInput arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+  }
     
 }
 

@@ -8,23 +8,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 //import junit.framework.TestCase;
 import static org.junit.Assert.*;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import decoder.MarginalDecoder;
 import decoder.ViterbiDecoder;
-
 import edu.stanford.nlp.trees.Tree;
-
 import base.ClosureMatrix;
 import base.RelationMatrix;
-
 import parser.Completion;
 import parser.EarleyParser;
-import parser.EarleyParserDense;
-import parser.EarleyParserSparse;
+import parser.EarleyParserGenerator;
 import parser.EdgeSpace;
 import parser.Grammar;
 import parser.Measures;
@@ -40,9 +38,9 @@ public class EarleyParserTest { // extends TestCase {
   private boolean isLogProb = true; //false; //true; 
   private String ioOptStr = "vb";
   private int insideOutsideOpt;  
-  private String decodeOpt = "viterbi";
+  private String decodeOptStr = "viterbi";
   private double minRuleProb = 1e-20;
-  private String objString = "prefix,surprisal,stringprob,entropy,entropyreduction,multirhslength,multifuturelength,multirulecount,multirhslengthcount,multifuturelengthcount,pcfgrulecount,pcfgfuturelength,allfuturelength,pcfgfuturelengthcount";
+  private String objStr = "prefix,surprisal,stringprob,entropy,entropyreduction,multirhslength,multifuturelength,multirulecount,multirhslengthcount,multifuturelengthcount,pcfgrulecount,pcfgfuturelength,allfuturelength,pcfgfuturelengthcount";
   
   @Before
   public void setUp(){    
@@ -51,10 +49,10 @@ public class EarleyParserTest { // extends TestCase {
     ClosureMatrix.verbose = 0;
     EdgeSpace.verbose = 0;
     Grammar.verbose = 0;
-    Prediction.verbose = 0;
-    Completion.verbose = 0;
+    Prediction.verbose = 3;
+    Completion.verbose = 3;
     RuleFile.verbose = 0;
-    EarleyParser.verbose = 1;
+    EarleyParser.verbose = 3;
     
     if(ioOptStr.equalsIgnoreCase("em")){
       insideOutsideOpt = 1;
@@ -185,28 +183,31 @@ public class EarleyParserTest { // extends TestCase {
   String markGrammarVBFile = "grammars/testengger-bayes.grammar";
   String fragmentGrammar = "grammars/WSJ.FG.grammar";
   
-  private void initParserFromFile(String ruleFile){
+  private void initParserFromFile(String inGrammarFile){
     int inGrammarType = 1; // read from grammar
-    if(parserOpt==0){
-      parser = new EarleyParserDense(ruleFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, ioOptStr, decodeOpt, objString);
-    } else if(parserOpt==1){
-      parser = new EarleyParserSparse(ruleFile, inGrammarType, rootSymbol, isScaling, 
-          isLogProb, ioOptStr, decodeOpt, objString);
-    } else {
-      assert(false);
-    }
+    EarleyParserGenerator parserGenerator = new EarleyParserGenerator(inGrammarFile, inGrammarType, rootSymbol, 
+  			isScaling, isLogProb, ioOptStr, decodeOptStr, objStr);
+    if(parserOpt==0){ // dense
+		  parser = parserGenerator.getParserDense();
+		} else if(parserOpt==1){ // sparse
+			parser = parserGenerator.getParserSparse();
+		} else {
+		  assert(false);
+		}
   }
   
   private void initParserFromString(String grammarString){
     try {
-      if(parserOpt==0){
-        parser= new EarleyParserDense(Util.getBufferedReaderFromString(grammarString), 
-            rootSymbol, isScaling, isLogProb, ioOptStr, decodeOpt, objString);
-      } else if(parserOpt==1){    
-        parser= new EarleyParserSparse(Util.getBufferedReaderFromString(grammarString), 
-            rootSymbol, isScaling, isLogProb, ioOptStr, decodeOpt, objString);
-      }
+    	EarleyParserGenerator parserGenerator = new EarleyParserGenerator(
+    			Util.getBufferedReaderFromString(grammarString), rootSymbol, 
+    			isScaling, isLogProb, ioOptStr, decodeOptStr, objStr);
+      if(parserOpt==0){ // dense
+  		  parser = parserGenerator.getParserDense();
+  		} else if(parserOpt==1){ // sparse
+  			parser = parserGenerator.getParserSparse();
+  		} else {
+  		  assert(false);
+  		}
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
@@ -218,13 +219,14 @@ public class EarleyParserTest { // extends TestCase {
     String inputSentence = "a b";
     parser.parseSentence(inputSentence);
 
-    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0}));
-    
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{1.0, 1.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.9, 0.0}));
-    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.9, 0.0}));
-    
+//    System.err.println(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT));
+//    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH_COUNT), new double[]{1.0, 0.0}));
+//    
+//    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_RULE_COUNT), new double[]{1.0, 1.0}));
+//    assertEquals(true, compare(parser.getMeasureList(Measures.PCFG_FUTURE_LENGTH), new double[]{0.9, 0.0}));
+//    assertEquals(true, compare(parser.getMeasureList(Measures.ALL_FUTURE_LENGTH), new double[]{0.9, 0.0}));
+//    
+    System.err.println(parser.getMeasureList(Measures.SURPRISAL));
     assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{0.0, 0.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{0.0, 1.0}));
     assertEquals(true, compare(parser.getMeasureList(Measures.ENTROPY), new double[]{0.4689955935892813, 0.4689955935892813}));

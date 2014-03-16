@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 import parser.EarleyParser;
+import parser.EarleyParserOptions;
 import util.Operator;
 import util.RuleFile;
-import util.Util;
 import base.BaseLexicon;
 import base.ProbRule;
 import base.RuleSet;
@@ -46,7 +46,7 @@ public class InsideOutside {
     ruleSet = parser.getRuleSet();
     parserTagIndex = parser.getParserTagIndex();
     parserWordIndex = parser.getParserWordIndex();
-    insideOutsideOpt = parser.getInsideOutsideOpt();
+    insideOutsideOpt = EarleyParserOptions.insideOutsideOpt; //parser.getInsideOutsideOpt();
     this.verbose = EarleyParser.verbose;
   }
   
@@ -160,7 +160,7 @@ public class InsideOutside {
   }
   
   private void updateModel(){
-    parser.buildGrammar();
+    parser.updateGrammar();
     Map<Integer, Counter<Integer>> tag2wordsMap = lex.getTag2wordsMap();
     
     // reset lex

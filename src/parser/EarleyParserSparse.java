@@ -3,13 +3,16 @@
  */
 package parser;
 
-import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import util.Operator;
+import base.BaseLexicon;
+import base.RuleSet;
 import edu.stanford.nlp.util.DoubleList;
+import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Timing;
 
 /**
@@ -23,22 +26,37 @@ public class EarleyParserSparse extends EarleyParser {
   /* for inside-outside computation, currently works when isLeftWildcard=false */
   protected Map<Integer, Map<Integer, Double>> outerProb;     // innerProb.get(linear(left, right)).get(edge)
 
-  public EarleyParserSparse(BufferedReader br, String rootSymbol,
-      boolean isScaling, boolean isLogProb, String ioOptStr, String decodeOptStr,
-      String objString) {
-    super(br, rootSymbol, isScaling, isLogProb, ioOptStr, decodeOptStr, objString);
-    isFastComplete = true;
-    // TODO Auto-generated constructor stub
-  }
+  
+  public EarleyParserSparse(Grammar grammar, EdgeSpace edgeSpace,
+			BaseLexicon lex, RuleSet ruleSet, Index<String> parserWordIndex,
+			Index<String> parserTagIndex, Map<Integer, Integer> parserNonterminalMap,
+			Operator operator, Set<String> outputMeasures,
+			Set<String> internalMeasures, boolean isSeparateRuleInTrie) {
+		super(grammar, edgeSpace, lex, ruleSet, parserWordIndex, parserTagIndex,
+				parserNonterminalMap, operator, outputMeasures, internalMeasures,
+				isSeparateRuleInTrie);
+		isFastComplete = true;
+		if(verbose>=0){
+			System.err.println("# EarleyParserSparse");
+		}
+	}
 
-  public EarleyParserSparse(String grammarFile, int inGrammarType,
-      String rootSymbol, boolean isScaling, boolean isLogProb,
-      String ioOpt, String decodeOpt, String objString) {
-    super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
-        ioOpt, decodeOpt, objString);
-    isFastComplete = true;
-    System.err.println("# EarleyParserSparse");
-  }
+//	public EarleyParserSparse(BufferedReader br, String rootSymbol,
+//      boolean isScaling, boolean isLogProb, String ioOptStr, String decodeOptStr,
+//      String objString) {
+//    super(br, rootSymbol, isScaling, isLogProb, ioOptStr, decodeOptStr, objString);
+//    isFastComplete = true;
+//    // TODO Auto-generated constructor stub
+//  }
+//
+//  public EarleyParserSparse(String grammarFile, int inGrammarType,
+//      String rootSymbol, boolean isScaling, boolean isLogProb,
+//      String ioOpt, String decodeOpt, String objString) {
+//    super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
+//        ioOpt, decodeOpt, objString);
+//    isFastComplete = true;
+//    System.err.println("# EarleyParserSparse");
+//  }
 
   protected void sentInit(){
     super.sentInit();

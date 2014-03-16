@@ -1,12 +1,15 @@
 package parser;
 
-import java.io.BufferedReader;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import base.BaseLexicon;
+import base.RuleSet;
+import util.Operator;
 import util.Util;
-
 import edu.stanford.nlp.util.DoubleList;
+import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Timing;
 
@@ -21,28 +24,45 @@ public class EarleyParserDense extends EarleyParser{
   protected int[][] outsideChartCount;
   protected double[][][] outerProb;
 
-  public EarleyParserDense(BufferedReader br, String rootSymbol,
-      boolean isScaling, boolean isLogProb, String ioOptStr, String decodeOptStr,
-      String objString) {
-    super(br, rootSymbol, isScaling, isLogProb, ioOptStr, decodeOptStr, objString);
-    isFastComplete = false;
+  
+  public EarleyParserDense(Grammar grammar, EdgeSpace edgeSpace,
+			BaseLexicon lex, RuleSet ruleSet, Index<String> parserWordIndex,
+			Index<String> parserTagIndex, Map<Integer, Integer> parserNonterminalMap,
+			Operator operator, Set<String> outputMeasures,
+			Set<String> internalMeasures, boolean isSeparateRuleInTrie) {
+		
+  	super(grammar, edgeSpace, lex, ruleSet, parserWordIndex, parserTagIndex,
+				parserNonterminalMap, operator, outputMeasures, internalMeasures,
+				isSeparateRuleInTrie);
+		isFastComplete = false;
     
     if(verbose>0){
       System.err.println("# EarleyParserDense");
     }
-  }
+	}
 
-  public EarleyParserDense(String grammarFile, int inGrammarType,
-      String rootSymbol, boolean isScaling, boolean isLogProb,
-      String ioOptStr, String decodeOptStr, String objString) {
-    super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
-        ioOptStr, decodeOptStr, objString);
-    isFastComplete = false;
-    
-    if(verbose>0){
-      System.err.println("# EarleyParserDense");
-    }
-  }
+//	public EarleyParserDense(BufferedReader br, String rootSymbol,
+//      boolean isScaling, boolean isLogProb, String ioOptStr, String decodeOptStr,
+//      String objString) {
+//    super(br, rootSymbol, isScaling, isLogProb, ioOptStr, decodeOptStr, objString);
+//    isFastComplete = false;
+//    
+//    if(verbose>0){
+//      System.err.println("# EarleyParserDense");
+//    }
+//  }
+//
+//  public EarleyParserDense(String grammarFile, int inGrammarType,
+//      String rootSymbol, boolean isScaling, boolean isLogProb,
+//      String ioOptStr, String decodeOptStr, String objString) {
+//    super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
+//        ioOptStr, decodeOptStr, objString);
+//    isFastComplete = false;
+//    
+//    if(verbose>0){
+//      System.err.println("# EarleyParserDense");
+//    }
+//  }
 
   protected void sentInit(){
     super.sentInit();
