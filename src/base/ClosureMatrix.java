@@ -79,7 +79,7 @@ public class ClosureMatrix {
   public void changeIndices(Map<Integer, Integer> indexMap){
     Map<Integer, Integer> newRowIndexMap = new HashMap<Integer, Integer>();
     Map<Integer, Integer> newColIndexMap = new HashMap<Integer, Integer>();
-//    Map<Integer, Map<Integer, Double>> newCol2rowMap = new HashMap<Integer, Map<Integer, Double>>();
+    Map<Integer, Map<Integer, Double>> newCol2rowMap = new HashMap<Integer, Map<Integer, Double>>();
     
     Map<Integer, Integer> reverseIndexMap = new HashMap<Integer, Integer>();
     for(int newIndex : indexMap.keySet()){ // indexMap: newIndex -> oldIndex
@@ -99,24 +99,24 @@ public class ClosureMatrix {
     colIndexMap = newColIndexMap;
     
     // update col2rowMap
-//    for(int oldColId : col2rowMap.keySet()){
-//      int newColId = reverseIndexMap.get(oldColId);
-//      if(!newCol2rowMap.containsKey(newColId)){
-//        newCol2rowMap.put(newColId, new HashMap<Integer, Double>());
-//      }
-//      
-//      Map<Integer, Double> valueMap = col2rowMap.get(oldColId);
-//      for(int rowId : valueMap.keySet()){
-//        int newRowId = reverseIndexMap.get(rowId);
-//        newCol2rowMap.get(newColId).put(newRowId, valueMap.get(rowId));
-//      }
-//    }
-//    col2rowMap = newCol2rowMap;
+    for(int oldColId : col2rowMap.keySet()){
+      int newColId = reverseIndexMap.get(oldColId);
+      if(!newCol2rowMap.containsKey(newColId)){
+        newCol2rowMap.put(newColId, new HashMap<Integer, Double>());
+      }
+      
+      Map<Integer, Double> valueMap = col2rowMap.get(oldColId);
+      for(int rowId : valueMap.keySet()){
+        int newRowId = reverseIndexMap.get(rowId);
+        newCol2rowMap.get(newColId).put(newRowId, valueMap.get(rowId));
+      }
+    }
+    col2rowMap = newCol2rowMap;
     
     if(verbose>=2){
       System.err.println("new row map: " + newRowIndexMap);
       System.err.println("new col map: " + newColIndexMap);
-//      System.err.println("new col2row map: " + newCol2rowMap);
+      System.err.println("new col2row map: " + newCol2rowMap);
     }
   }
   

@@ -89,7 +89,7 @@ public class RelationClosureMatrixTest extends TestCase{
     ClosureMatrix leftCornerClosures = new ClosureMatrix(pl, operator, tagIndex, "left-corner");
     leftCornerClosures.changeIndices(nonterminalMap);
     assertEquals(Util.sprint(leftCornerClosures.getClosureMatrix()), "0.0 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745");
-    assertEquals(leftCornerClosures.sprintCol2rowMap(tagIndex), "ROOT(0): ROOT(0)=0.0\nA(1): ROOT(0)=0.10536051565782635 A(1)=0.10536051565782635\nB(2): ROOT(0)=-2.135349173618132 A(1)=-2.135349173618132 B(2)=0.06187540371808745 C(3)=-1.1420974006078486\nC(3): ROOT(0)=-3.744787086052232 A(1)=-3.744787086052232 B(2)=-1.547562508716013 C(3)=0.06187540371808745\n");
+    assertEquals(leftCornerClosures.sprintCol2rowMap(tagIndex), "  \"ROOT\" (0)	: \"ROOT\" (0)=1.0\n  \"A\" (1)	: \"ROOT\" (0)=1.1111111111111112 \"A\" (1)=1.1111111111111112\n  \"B\" (2)	: \"ROOT\" (0)=0.11820330969267138 \"A\" (1)=0.11820330969267138 \"B\" (2)=1.0638297872340425 \"C\" (3)=0.3191489361702127\n  \"C\" (3)	: \"ROOT\" (0)=0.023640661938534282 \"A\" (1)=0.023640661938534282 \"B\" (2)=0.21276595744680848 \"C\" (3)=1.0638297872340425\n");
     
     // Matlab code
     // a = [0 1 0 0 0 0; 0 0.1 0.1 0 0 0; 0 0 0 0.2 0 0; 0 0 0.3 0 0 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
@@ -100,7 +100,7 @@ public class RelationClosureMatrixTest extends TestCase{
     assertEquals(Util.sprint(pu), "0.0 1.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.2 0.0 0.0\n0.0 0.0 0.3 0.0 0.7 0.0\n0.0 0.0 0.0 0.0 0.0 0.0\n0.0 0.0 0.0 0.0 0.0 0.0");
     ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator, tagIndex, "unary");
     assertEquals(Util.sprint(unaryClosures.getClosureMatrix()), "0.0 0.0 -Infinity -Infinity -Infinity -Infinity\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013 -1.9042374526547454 -Infinity\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745 -0.294799540220645 -Infinity");
-    assertEquals(unaryClosures.sprintCol2rowMap(tagIndex), "ROOT(0): ROOT(0)=0.0\nA(1): ROOT(0)=0.0\nB(2): B(2)=0.06187540371808745 C(3)=-1.1420974006078486\nC(3): B(2)=-1.547562508716013 C(3)=0.06187540371808745\nD(4): B(2)=-1.9042374526547454 C(3)=-0.294799540220645\n");
+    assertEquals(unaryClosures.sprintCol2rowMap(tagIndex), "  \"ROOT\" (0)	: \"ROOT\" (0)=1.0\n  \"A\" (1)	: \"ROOT\" (0)=1.0 \"A\" (1)=1.0\n  \"B\" (2)	: \"B\" (2)=1.0638297872340425 \"C\" (3)=0.3191489361702127\n  \"C\" (3)	: \"B\" (2)=0.21276595744680848 \"C\" (3)=1.0638297872340425\n  \"D\" (4)	: \"B\" (2)=0.14893617021276595 \"C\" (3)=0.7446808510638298 \"D\" (4)=1.0\n  \"E\" (5)	: \"E\" (5)=1.0\n");
 
     // Matlab code
     // a = [0 1 0 0 0 0; 0 0 0 0 0 0; 0 0 0 0.2 0 0; 0 0 0.3 0 0.7 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
@@ -157,7 +157,7 @@ public class RelationClosureMatrixTest extends TestCase{
     assertEquals(Util.sprint(leftCornerClosures.getClosureMatrix()), "0.0 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity 0.10536051565782635 -2.135349173618132 -3.744787086052232\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745");
     System.err.println(Util.sprint(leftCornerClosures.getClosureMatrix()));
     System.err.println(leftCornerClosures.sprintCol2rowMap(tagIndex));
-    assertEquals(leftCornerClosures.sprintCol2rowMap(tagIndex), "ROOT(0): ROOT(0)=0.0\nA(1): ROOT(0)=0.10536051565782635 A(1)=0.10536051565782635\nB(2): ROOT(0)=-2.135349173618132 A(1)=-2.135349173618132 B(2)=0.06187540371808745 C(3)=-1.1420974006078486\nC(3): ROOT(0)=-3.744787086052232 A(1)=-3.744787086052232 B(2)=-1.547562508716013 C(3)=0.06187540371808745\n");
+    assertEquals(leftCornerClosures.sprintCol2rowMap(tagIndex), "  \"ROOT\" (0)	: \"ROOT\" (0)=1.0\n  \"A\" (1)	: \"ROOT\" (0)=1.1111111111111112 \"A\" (1)=1.1111111111111112\n  \"B\" (2)	: \"ROOT\" (0)=0.11820330969267138 \"A\" (1)=0.11820330969267138 \"B\" (2)=1.0638297872340425 \"C\" (3)=0.3191489361702127\n  \"C\" (3)	: \"ROOT\" (0)=0.023640661938534282 \"A\" (1)=0.023640661938534282 \"B\" (2)=0.21276595744680848 \"C\" (3)=1.0638297872340425\n");
     // Matlab code
     // a = [0 1 0 0 0 0; 0 0.1 0.1 0 0 0; 0 0 0 0.2 0 0; 0 0 0.3 0 0 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
     // log((eye(6)-a)^(-1))
@@ -169,7 +169,7 @@ public class RelationClosureMatrixTest extends TestCase{
     assertEquals(Util.sprint(unaryClosures.getClosureMatrix()), "0.0 0.0 -Infinity -Infinity -Infinity -Infinity\n-Infinity -Infinity 0.06187540371808745 -1.547562508716013 -1.9042374526547454 -Infinity\n-Infinity -Infinity -1.1420974006078486 0.06187540371808745 -0.294799540220645 -Infinity");
     System.err.println(Util.sprint(unaryClosures.getClosureMatrix()));
     System.err.println(unaryClosures.sprintCol2rowMap(tagIndex));
-    assertEquals(unaryClosures.sprintCol2rowMap(tagIndex), "ROOT(0): ROOT(0)=0.0\nA(1): ROOT(0)=0.0\nB(2): B(2)=0.06187540371808745 C(3)=-1.1420974006078486\nC(3): B(2)=-1.547562508716013 C(3)=0.06187540371808745\nD(4): B(2)=-1.9042374526547454 C(3)=-0.294799540220645\n");
+    assertEquals(unaryClosures.sprintCol2rowMap(tagIndex), "  \"ROOT\" (0)	: \"ROOT\" (0)=1.0\n  \"A\" (1)	: \"ROOT\" (0)=1.0 \"A\" (1)=1.0\n  \"B\" (2)	: \"B\" (2)=1.0638297872340425 \"C\" (3)=0.3191489361702127\n  \"C\" (3)	: \"B\" (2)=0.21276595744680848 \"C\" (3)=1.0638297872340425\n  \"D\" (4)	: \"B\" (2)=0.14893617021276595 \"C\" (3)=0.7446808510638298 \"D\" (4)=1.0\n  \"E\" (5)	: \"E\" (5)=1.0\n");
     // Matlab code
     // a = [0 1 0 0 0 0; 0 0 0 0 0 0; 0 0 0 0.2 0 0; 0 0 0.3 0 0.7 0; 0 0 0 0 0 0; 0 0 0 0 0 0];
     // log((eye(6)-a)^(-1))
