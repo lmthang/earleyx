@@ -99,11 +99,11 @@ public class Prediction {
           Prediction p = new Prediction(predictedState, operator.multiply(rewriteScore, leftCornerClosureScore), rewriteScore);
           predictionsViaList.get(viaCategoryIndex).add(p); //thesePredictions.add(p);
       
-          if (verbose>=2){
-            System.err.println("Predict: " + p.toString(stateSpace, tagIndex, wordIndex, operator) 
-                + ", left-corner=" + df.format(operator.getProb(leftCornerClosureScore))
-                + ", rewrite=" + df.format(operator.getProb(rewriteScore)));
-          }
+//          if (verbose>=2){
+//            System.err.println("Predict: " + p.toString(stateSpace, tagIndex, wordIndex, operator) 
+//                + ", left-corner=" + df.format(operator.getProb(leftCornerClosureScore))
+//                + ", rewrite=" + df.format(operator.getProb(rewriteScore)));
+//          }
         }
       }
     }
@@ -119,13 +119,21 @@ public class Prediction {
       }      
       
       if(verbose >= 1){
-        System.err.print("# via: " + tagIndex.get(viaCategoryIndex) + ", num predictions " + predictionsVia[viaCategoryIndex].length);
+        System.err.println("# via: " + tagIndex.get(viaCategoryIndex) + ", num predictions " + predictionsVia[viaCategoryIndex].length);
+      }
+      if(verbose >= 2){
+      	for (int i = 0; i < predictionsVia[viaCategoryIndex].length; i++) {
+      		Prediction p = predictionsVia[viaCategoryIndex][i];
+      		System.err.println("Predict: " + p.toString(stateSpace, tagIndex, wordIndex, operator) 
+              //+ ", left-corner=" + df.format(operator.getProb(leftCornerClosureScore))
+              + ", rewrite=" + df.format(operator.getProb(p.innerProbMultiplier)));
+				}
       }
     }
    
     /** construct complete predictions **/
     if(verbose>=1){
-      System.err.print("# Constructing complete predictions ...");
+      System.err.println("# Constructing complete predictions ...");
     }
     Prediction[][] predictions = new Prediction[stateSpace.size()][];
     for (int predictorState = 0; predictorState < stateSpace.size(); predictorState++) {

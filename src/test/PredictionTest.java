@@ -64,6 +64,7 @@ public class PredictionTest extends TestCase {
   
   public void testBasic(){
     Prediction.verbose = 3;
+    ClosureMatrix.verbose = 3;
     Index<String> wordIndex = new HashIndex<String>();
     Index<String> tagIndex = new HashIndex<String>();
     
