@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import util.DoubleList;
 import edu.stanford.nlp.math.ArrayMath;
-import edu.stanford.nlp.util.DoubleList;
 
 public class Measures {
   public static final String PREFIX = "prefix";

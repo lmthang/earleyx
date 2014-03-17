@@ -5,16 +5,16 @@ import edu.stanford.nlp.util.concurrent.MulticoreWrapper;
 import edu.stanford.nlp.util.concurrent.ThreadsafeProcessor;
 import induction.InsideOutside;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Set;
 
 import base.ClosureMatrix;
 import base.RelationMatrix;
@@ -298,10 +298,15 @@ public class Main {
 			  assert(false);
 			}
     } else { // multi-threaded
-    	
-//    	MulticoreWrapper<ParserInput,ParserOutput> wrapper = 
-//          new MulticoreWrapper<ParserInput, ParserOutput>(numThreads, new ThreadedParser(parserGenerator), false);
-    	
+    	// by default, exit on uncaught exception
+      Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable ex) {
+              System.err.println("Uncaught exception from thread: " + t.getName());
+              ex.printStackTrace();
+              System.exit(-1);
+            }
+          });
     }
     
     if(inGrammarType==2){
@@ -322,7 +327,54 @@ public class Main {
     /***********/
     try {
       if(ioOptStr.equals("")){
-        parser.parseSentences(sentences, indices, outPrefix);
+      	if(numThreads==1){
+      		parser.parseSentences(sentences, indices, outPrefix);
+      	} else { // multi-threaded
+      		// prepare writers
+          Map<String, BufferedWriter> measureWriterMap = new HashMap<String, BufferedWriter>();
+          Set<String> outputMeasures = parserGenerator.getOutputMeasures();
+          if(!outPrefix.equals("")) {
+            for (String measure : outputMeasures) {
+              measureWriterMap.put(measure, new BufferedWriter(new 
+                  FileWriter(outPrefix + "." + measure)));
+            }
+          }
+          
+      		MulticoreWrapper<ParserInput,ParserOutput> wrapper = 
+              new MulticoreWrapper<ParserInput, ParserOutput>(numThreads, new ThreadedParser(parserGenerator), false);
+        	for (int i = 0; i < sentences.size(); i++) {
+						wrapper.put(new ParserInput(sentences.get(i), indices.get(i)));
+						
+						while(wrapper.peek()) { // check if there's any new result
+		          ParserOutput output = wrapper.poll();
+		          
+		          // output
+		          for (String measure : measureWriterMap.keySet()) {
+		            BufferedWriter measureWriter = measureWriterMap.get(measure);
+		            measureWriter.write("# " + output.id + "\n");
+		            Util.outputSentenceResult(output.sentence, measureWriter, output.measures.getSentList(measure));
+		          }
+		        }
+					}
+        	
+        	wrapper.join();
+        	while(wrapper.peek()) { // check if there's any new result
+	          ParserOutput output = wrapper.poll();
+	          
+	          // output
+	          for (String measure : measureWriterMap.keySet()) {
+	            BufferedWriter measureWriter = measureWriterMap.get(measure);
+	            measureWriter.write("# " + output.id + "\n");
+	            Util.outputSentenceResult(output.sentence, measureWriter, output.measures.getSentList(measure));
+	          }
+	        }
+        	
+          // close
+          for (String measure : measureWriterMap.keySet()) {
+            BufferedWriter measureWriter = measureWriterMap.get(measure);
+            measureWriter.close();
+          }
+      	} // end if numThreads
       } else {
         InsideOutside io = new InsideOutside(parser);
         List<Double> objectiveList = io.insideOutside(sentences, outPrefix, maxiteration, intermediate, minRuleProb);
@@ -350,9 +402,9 @@ public class Main {
    */
   private static class ParserInput {
     public final String sentence;
-    public final int id;
+    public final String id;
     
-    public ParserInput(String sentence, int id) {
+    public ParserInput(String sentence, String id) {
 	    this.sentence = sentence;
 	    this.id = id;
     }
@@ -363,9 +415,13 @@ public class Main {
    *
    */
   private static class ParserOutput {
+  	public final String sentence;
+  	public final String id;
   	public final Measures measures; // store values for all measures, initialized for every sentence
     
-    public ParserOutput(Measures measures) {
+    public ParserOutput(String sentence, String id, Measures measures) {
+      this.sentence = sentence;
+      this.id = id;
       this.measures = measures;
     }
   }
@@ -375,33 +431,25 @@ public class Main {
    *
    */
   private static class ThreadedParser implements ThreadsafeProcessor<ParserInput,ParserOutput> {
-  	private static EarleyParserGenerator parserGenerator;
+  	private EarleyParser parser;
+    private EarleyParserGenerator parserGenerator;
     
     public ThreadedParser(EarleyParserGenerator parserGenerator) {
-      this.parserGenerator = parserGenerator;
+    	this.parserGenerator = parserGenerator;
+      this.parser = parserGenerator.getParserDense();
     }
 
-//    @Override
-//    public ParserOutput process(ParserInput input) {
-//      return null;
-//    }
+    @Override
+    public ParserOutput process(ParserInput input) {
+    	parser.parseSentence(input.sentence);
+      return new ParserOutput(input.sentence, input.id, parser.getMeasures());
+    }
 
     @Override
     public ThreadsafeProcessor<ParserInput, ParserOutput> newInstance() {
       return new ThreadedParser(this.parserGenerator);
     }
 
-		@Override
-		public ParserOutput call() throws Exception {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void setNextInput(ParserInput arg0) {
-			// TODO Auto-generated method stub
-			
-		}
   }
     
 }

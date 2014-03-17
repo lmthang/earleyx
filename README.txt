@@ -59,7 +59,7 @@ Main -in inFile  -out outPrefix (-grammar grammarFile | -treebank treebankFile) 
 
 /** Standard usages **/
 * The following command expects an input file and a treebank file (see data/):
-  java -classpath "earleyx.jar;lib/*" parser.Main -in data/dundee.full-text.tokenized.1 -treebank data/WSJ-processed.MRG.500 -out output/result -verbose 0
+  java -classpath "earleyx.jar;lib/*" parser.Main -in data/text.1 -treebank data/treebank.500 -out output/result -verbose 0
 
 After running the above command, the parser will generate the following files in the output/ directory:
   result.surprisal: surprisal values
@@ -68,7 +68,7 @@ After running the above command, the parser will generate the following files in
   result.grammar: the grammar extracted from the treebank
 
 * To run parser from an existing grammar rather than a tree bank, use the following command:
-  java -classpath "earleyx.jar;lib/*" parser.Main -in data/dundee.full-text.tokenized.1 -grammar output/result.grammar -out newOutput/result -verbose 0
+  java -classpath "earleyx.jar;lib/*" parser.Main -in data/text.1 -grammar output/result.grammar -out newOutput/result -verbose 0
 
 The results generated should be the same as before:
   diff output/result.surprisal newOutput/result.surprisal
@@ -109,7 +109,7 @@ The final grammar is outputed into output/result.iogrammar .
 /* Other Util code */
 /*******************/
 * Read WSJ-format file, extract grammar rules, smooth, and output to a file
-java -cp "earleyx.jar;lib/*" util.TreeBankFile -in data/WSJ-processed.MRG.5 -out grammars/wsj5.grammar -opt 1
+java -cp "earleyx.jar;lib/*" util.TreeBankFile -in data/treebank.5 -out grammars/wsj5.grammar -opt 1
 
 * For social cue data, remove pseudo node, and extract out individual sentence parses if the current parse is for the whole discourse
 java -cp "earleyx.jar;lib/*" util.TreeBankFile -in output/social.viterbi -out output/social.viterbi.clean -opt 3

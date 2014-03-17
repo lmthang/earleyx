@@ -8,20 +8,15 @@ import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.math.SloppyMath;
 import edu.stanford.nlp.parser.Parser;
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
-import edu.stanford.nlp.stats.Counter;
-//import edu.stanford.nlp.util.DoubleList;
-import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Timing;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,18 +26,12 @@ import java.util.Set;
 
 import base.BackTrack;
 import base.BaseLexicon;
-import base.BiasProbRule;
 import base.Edge;
-import base.FragmentRule;
 import base.Rule;
 import base.ProbRule;
 import base.RuleSet;
 import base.TerminalRule;
-import util.LogProbOperator;
 import util.Operator;
-import util.ProbOperator;
-import util.RuleFile;
-import util.TreeBankFile;
 import util.Util;
 
 
@@ -104,7 +93,7 @@ public abstract class EarleyParser implements Parser {
   
   /** output info **/
   protected Measures measures; // store values for all measures, initialized for every sentence
-  private double[] wordEntropy; // numWords+1
+	private double[] wordEntropy; // numWords+1
   private double[] wordMultiRuleCount; // numWords+1
   private double[] wordMultiRhsLengthCount; // numWords+1
   private double[] wordMultiFutureLengthCount; // numWords+1
@@ -2345,6 +2334,10 @@ public abstract class EarleyParser implements Parser {
   public List<Integer> getWordIndices() {
     return wordIndices;
   }
+  
+  public Measures getMeasures() {
+		return measures;
+	}
 }
 
 /** Unused code **/

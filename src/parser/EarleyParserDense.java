@@ -6,9 +6,9 @@ import java.util.Set;
 
 import base.BaseLexicon;
 import base.RuleSet;
+import util.DoubleList;
 import util.Operator;
 import util.Util;
-import edu.stanford.nlp.util.DoubleList;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Timing;

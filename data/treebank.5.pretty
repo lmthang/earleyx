@@ -1,0 +1,135 @@
+(ROOT
+  (S
+    (NP
+      (NP (NNP Investcorp))
+      (, ,)
+      (NP (NNP New) (NNP York))
+      (, ,))
+    (VP (VBD said)
+      (SBAR
+        (S
+          (NP
+            (NP (PRP it))
+            (CC and)
+            (NP
+              (NP (DT the) (NN management))
+              (PP (IN of)
+                (NP (NNPS Sports)
+                  (CC &)
+                  (NNP Recreation) (NNP Inc.)))))
+          (VP (VBD bought)
+            (NP
+              (NP (DT the) (NN operator))
+              (PP (IN of)
+                (NP (DT the) (JJ 10-store) (NNPS Sports) (NNP Unlimited) (NN chain))))
+            (PP (IN for)
+              (NP (DT some)
+                (QP ($ $) (CD 40) (CD million))))))))
+    (. .)))
+
+(ROOT
+  (SINV
+    (S
+      (NP (DT The) (NN investment) (NN bank))
+      (VP (VBZ becomes)
+        (NP
+          (NP (NN majority) (NN shareholder))
+          (PP (IN in)
+            (NP
+              (NP (NNPS Sports)
+                (CC &)
+                (NNP Recreation))
+              (, ,)
+              (NP (DT a) (JJ 10-year-old) (NN sporting) (NNS goods) (NN retailer))
+              (, ,))))))
+    (VP (VBD said))
+    (NP
+      (NP (NNP Oliver) (NNP E.) (NNP Richardson))
+      (, ,)
+      (NP
+        (NP
+          (NP (DT a) (NN member))
+          (PP (IN of)
+            (NP
+              (NP (NNP Investcorp) (POS 's))
+              (NN management) (NN committee))))
+        (CC and)
+        (NP
+          (NP (DT a) (NN director))
+          (PP (IN of)
+            (NP (DT the) (NN chain))))))
+    (. .)))
+
+(ROOT
+  (S
+    (NP
+      (NP (NNPS Sports) (NNP Unlimited))
+      (, ,)
+      (NP
+        (NP (NNP Tampa))
+        (, ,)
+        (NP (NNP Fla.)))
+      (, ,))
+    (VP (VBD posted)
+      (NP
+        (NP (NN revenue))
+        (PP (IN of)
+          (NP
+            (QP ($ $) (CD 59) (CD million)))))
+      (PP (IN for)
+        (NP
+          (NP (DT the) (NN year))
+          (VP (VBD ended)
+            (NP (NNP July) (CD 31))))))
+    (. .)))
+
+(ROOT
+  (S
+    (S
+      (NP (DT The) (NN company))
+      (VP (VBZ is) (`` ``)
+        (ADJP (RB very) (JJ profitable) ('' '')
+          (PP (IN on)
+            (NP (DT an) (VBG operating) (NN basis))))))
+    (PRN (, ,)
+      (S
+        (NP (NNP Mr.) (NNP Richardson))
+        (VP (VBD said))))
+    (, ,)
+    (CC but)
+    (S
+      (NP (PRP he))
+      (VP (VBD declined)
+        (S
+          (VP (TO to)
+            (VP (VB specify)
+              (NP (NNS numbers)))))))
+    (. .)))
+
+(ROOT
+  (S
+    (PP (IN In)
+      (NP (CD 1982)))
+    (, ,)
+    (NP
+      (NP
+        (NP
+          (NP (NNPS Sports))
+          (CC &)
+          (NP (NNP Recreation))
+          (POS 's))
+        (NNS managers))
+      (CC and)
+      (NP (JJ certain) (JJ passive) (NNS investors)))
+    (VP (VBD purchased)
+      (NP (DT the) (NN company))
+      (PP (IN from)
+        (NP
+          (NP (NNP Brunswick) (NNP Corp.))
+          (PP (IN of)
+            (NP
+              (NP (NNP Skokie))
+              (, ,)
+              (NP (NNP Ill)))))))
+    (. .)))
+

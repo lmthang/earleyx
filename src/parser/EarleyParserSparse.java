@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import util.DoubleList;
 import util.Operator;
 import base.BaseLexicon;
 import base.RuleSet;
-import edu.stanford.nlp.util.DoubleList;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Timing;
 

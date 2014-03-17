@@ -53,7 +53,7 @@ public class EarleyParserGenerator {
   private Map<Integer, Integer> parserNonterminalMap; // doesn't include preterminals. nonterminal + preterminal = parser tag indices
   private Operator operator; // either ProbOperator or LogProbOperator
   private Set<String> outputMeasures; // output measures (surprisal, stringprob, etc.)
-  private Set<String> internalMeasures; // internal measures (prefix, entropy, etc.)
+	private Set<String> internalMeasures; // internal measures (prefix, entropy, etc.)
   private boolean isSeparateRuleInTrie = true;
   
   public EarleyParserGenerator(String grammarFile, int inGrammarType, String rootSymbol, 
@@ -287,6 +287,8 @@ public class EarleyParserGenerator {
     lex.setWord2tagsMap(word2tagsMap);
   }
 
-  
+  public Set<String> getOutputMeasures() {
+		return outputMeasures;
+	} 
   
 }
