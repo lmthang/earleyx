@@ -32,25 +32,29 @@ grammars/		- sample grammars
 /********************************/
 /* Main class to run the parser */
 /********************************/
-
 Main -in inFile  -out outPrefix (-grammar grammarFile | -treebank treebankFile) -obj objectives
-	[-root rootSymbol] [-io] [-sparse] [-normalprob] [-scale] [-verbose opt]
-	Compulsory:
-		in              	input filename, i.e. sentences to parse
-		out             	output prefix to name output files.
-		grammar|treebank    either read directly from a grammar file or from a treebank.For the 
-							latter, a grammar file will be output as outPrefix.grammar .
-		obj             	a comma separated list consitsing of any of the following values: 
-							surprisal, stringprob, viterbi. Default is "surprisal,stringprob,viterbi" if -io is not specified, and "" if -io is specified. Output files will be outPrefix.obj .
+  [-root rootSymbol] [-sparse] [-normalprob] [-scale] [-thread n] [-verbose opt]  [-decode opt] [-io opt -maxiteration n -intermediate n -minprob f]
 
-	 Optional:
-		root            specify the start symbol of sentences (default "ROOT")
-		io              run inside-outside algorithm, output final grammar to outPrefix.io.grammar
-		sparse          optimize for sparse grammars (default: run with dense grammars)
-		normalprob      perform numeric computation in normal prob (cf. log-prob). 
-						This switch is best to be used with -scale.
-		scale           rescaling approach to parse extremely long sentences
-		verbose         -1 -- no debug info (default), 0: surprisal per word, 1-4 -- increasing more details
+  Compulsory:
+     in      input filename, i.e. sentences to parse
+     out     output prefix to name output files. 
+    grammar|treebank     either read directly from a grammar file or from a treebank.For the latter, a grammar file will be output as outPrefix.grammar .
+     obj     a comma separated list consitsing of any of the following values: surprisal, stringprob, viterbi, socialmarginal. Default is "surprisal,stringprob,viterbi". Output files will be outPrefix.obj .
+
+   Optional:
+     root      specify the start symbol of sentences (default "ROOT")
+     sparse      optimize for sparse grammars (default: run with dense grammars)
+     normalprob      perform numeric computation in normal prob (cf. log-prob). This switch is best to be used with -scale.
+     scale     rescaling approach to parse extremely long sentences
+     thread      if value > 1, use multi-threaded version of the parser
+     verbose     -1 -- no debug info (default), 0: surprisal per word, 1-4 -- increasing more details
+
+     decode      perform decoding, output parse trees to outPrefix.opt opt should be either "viterbi", "marginal" or "socialmarginal"
+
+     io      run inside-outside algorithm, output final grammar to outPrefix.io.grammar. opt should be "em" or "vb"
+     maxiteration      number of iterations to run Inside-Outside. If not specified, will run until convergence.
+     intermediate      Output grammars and parse trees every intermediate iterations.
+     minprob     prunning rules with probs below threshold. If not specified, no pruning.
 
 /*******************/
 /* Running example */
