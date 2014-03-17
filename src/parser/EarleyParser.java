@@ -90,6 +90,7 @@ public abstract class EarleyParser implements Parser {
   protected List<? extends HasWord> words;
   protected List<Integer> wordIndices; // indices from parserWordIndex. size: numWords
   protected int numWords = -1;
+  protected String sentId;
   
   /** output info **/
   protected Measures measures; // store values for all measures, initialized for every sentence
@@ -310,10 +311,10 @@ public abstract class EarleyParser implements Parser {
     List<Double> sentLogProbs = new ArrayList<Double>();
     for (int i = 0; i < sentences.size(); i++) {
       String sentenceString = sentences.get(i);
-      String id = indices.get(i);
+      sentId = indices.get(i);
 
       if(verbose>=0){
-        System.err.println("\n### Sent " + i + ": id=" + id + ", numWords=" + sentenceString.split("\\s+").length);
+        System.err.println("\n### Sent " + i + ": id=" + sentId + ", numWords=" + sentenceString.split("\\s+").length);
       }
       
       // parse sentence
@@ -323,7 +324,7 @@ public abstract class EarleyParser implements Parser {
       // output
       for (String measure : measureWriterMap.keySet()) {
         BufferedWriter measureWriter = measureWriterMap.get(measure);
-        measureWriter.write("# " + id + "\n");
+        measureWriter.write("# " + sentId + "\n");
         Util.outputSentenceResult(sentenceString, measureWriter, measures.getSentList(measure));
       }
       
@@ -382,7 +383,7 @@ public abstract class EarleyParser implements Parser {
     // start
     if(verbose>=0){
       if (words.size()<100){
-        System.err.println("## Parsing: " + words);
+        System.err.println("## Parsing sent " + sentId + ": " + words);
       }
       Timing.startTime();
     }
@@ -475,10 +476,10 @@ public abstract class EarleyParser implements Parser {
     
     // end
     if(verbose>=0){
-      Timing.tick("NegLogProb=" + -stringLogProbability(numWords) + ". finished parsing sentence. Num words = " + numWords);
+      Timing.tick("Finished parsing sentence " + sentId + ". Num words = " + numWords + ", negLogProb=" + -stringLogProbability(numWords) + ".");
     }
-    if (-stringLogProbability(numWords) == Double.NaN){
-      System.err.print("! Stop since NegLogProb=NaN");
+    if (-stringLogProbability(numWords) == Double.NaN || -stringLogProbability(numWords) == Double.POSITIVE_INFINITY){
+      System.err.print("! Stop since NegLogProb=NaN || Infinity");
       System.exit(1);
     }
     return (rootInnerScore>operator.zero());
@@ -632,8 +633,8 @@ public abstract class EarleyParser implements Parser {
         // find all rules that rewrite into word_i ... word_(right-1)
         Map<Integer, Double> valueMap = grammar.getRuleTrie().findAllMap(wordIndices.subList(i, right));
         if(valueMap != null){
-          if (verbose>=3){
-            System.err.println("AG full: " + words.subList(i, right) + ": " + Util.sprint(valueMap, parserTagIndex));
+          if (verbose>=1){
+            System.err.println("# Scanning multi-terminal rules: " + words.subList(i, right) + ": " + Util.sprint(valueMap, parserTagIndex));
           }
           for (int key : valueMap.keySet()) {
             int iT = -1 ;
@@ -652,7 +653,7 @@ public abstract class EarleyParser implements Parser {
           
         }
       }
-    }
+    } // end has multi-terminal rules
     
     /** Handle fragment rules **/
     if(hasFragmentRule){
@@ -748,6 +749,12 @@ public abstract class EarleyParser implements Parser {
     int nextRight = right;
     int edge = fragmentEdge;
     Edge edgeObj = edgeSpace.get(edge);
+    
+    if(verbose>=1){
+      System.err.println("# Fragment scanning [" + left + ", " + right + "]: "
+          + edgeObj.toString(parserTagIndex, parserWordIndex));
+    }
+    
     while(nextRight<=numWords) {
       // invariant: edgeObj [left, nextRight-1]: X -> \alpha . _y \beta and _y matches wordIndices.(nextRight-1)
       

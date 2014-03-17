@@ -34,8 +34,8 @@ public class EarleyParserTest { // extends TestCase {
   private EarleyParser parser;
   private String rootSymbol = "ROOT";
   private int parserOpt = 0; // 0: dense, 1: sparse, 2: sparse IO
-  private boolean isScaling = true; // false; //  
-  private boolean isLogProb = false; //true; true; // 
+  private boolean isScaling = false; // true; //   
+  private boolean isLogProb = true; //false; //true;  
   private String ioOptStr = "vb";
   private int insideOutsideOpt;  
   private String decodeOptStr = "viterbi";

@@ -118,13 +118,12 @@ public class Prediction {
         totalPredictions += predictionsVia[viaCategoryIndex].length;
       }      
       
-      if(verbose >= 1){
-        System.err.println("# via: " + tagIndex.get(viaCategoryIndex) + ", num predictions " + predictionsVia[viaCategoryIndex].length);
-      }
       if(verbose >= 2){
+        System.err.println("# via: " + tagIndex.get(viaCategoryIndex) + ", num predictions " + predictionsVia[viaCategoryIndex].length);
+      
       	for (int i = 0; i < predictionsVia[viaCategoryIndex].length; i++) {
       		Prediction p = predictionsVia[viaCategoryIndex][i];
-      		System.err.println("Predict: " + p.toString(stateSpace, tagIndex, wordIndex, operator) 
+      		System.err.println("  predict: " + p.toString(stateSpace, tagIndex, wordIndex, operator) 
               //+ ", left-corner=" + df.format(operator.getProb(leftCornerClosureScore))
               + ", rewrite=" + df.format(operator.getProb(p.innerProbMultiplier)));
 				}

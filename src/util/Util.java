@@ -248,15 +248,19 @@ public class Util {
     }
   }
   
-  public static void init(double[][] dl, double value) {
-    for (int i = 0; i < dl.length; i++) {
-      init(dl[i], value);
-    }
-  }
+//  public static void init(double[][] dl, double value) {
+//    for (int j = 0; j < dl.length; j++) {
+//      init(dl[j], value);
+//    }
+//  }
   
   public static void init(double[][][] dl, double value) {
-    for (int i = 0; i < dl.length; i++) {
-      init(dl[i], value);
+    for (int left = 0; left < dl.length; left++) {
+//      init(dl[i], value);
+      
+      for (int right = left; right < dl.length; right++) {
+        init(dl[left][right], value);
+      }
     }
   }
   

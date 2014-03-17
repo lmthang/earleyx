@@ -129,8 +129,8 @@ public class RuleFile {
       }
       
       if(prob>1 && prob<1.000001){
-    	System.err.println("! Change rule prob to 1.0: " + inputLine);
-    	prob = 1.0;
+	    	System.err.println("! Change rule prob to 1.0: " + inputLine);
+	    	prob = 1.0;
       }
       String[] children = rhs.split(" ");
       int numChildren = children.length;
@@ -194,7 +194,8 @@ public class RuleFile {
     
     if (verbose>=1){
       System.err.println(" Done! Num rules = " + count + ", num fragment rules = " 
-          + ruleSet.numFragmentRules() + " (num multiple terminal rules = " + ruleSet.numMultipleTerminalRules());
+          + ruleSet.numFragmentRules() + 
+          " (num multiple terminal rules = " + ruleSet.numMultipleTerminalRules() + ")");
     }
     if (verbose>=4){
       System.err.println("# ruleSet " + ruleSet.size() + "\n" + Util.sprint(ruleSet.getAllRules(), tagIndex, wordIndex));
