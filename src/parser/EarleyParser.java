@@ -91,8 +91,8 @@ public abstract class EarleyParser implements Parser {
   protected List<Integer> wordIndices; // indices from parserWordIndex. size: numWords
   protected int numWords = -1;
   protected String sentId;
-  
-  /** output info **/
+
+	/** output info **/
   protected Measures measures; // store values for all measures, initialized for every sentence
 	private double[] wordEntropy; // numWords+1
   private double[] wordMultiRuleCount; // numWords+1
@@ -205,12 +205,6 @@ public abstract class EarleyParser implements Parser {
    		System.err.println("# Start edge " + edgeSpace.get(startEdge).toString(parserTagIndex, parserWordIndex));
    		System.err.println("# Goal edge " + edgeSpace.get(goalEdge).toString(parserTagIndex, parserWordIndex));
    	}   	
-    if(verbose>=1){
-   		System.err.println("# Num nonterminals " + parserNonterminalMap.size());
-   	}
-   	if(verbose>=2){
- 			System.err.println(Util.sprint(parserTagIndex, parserNonterminalMap.keySet()));
- 		}
   }
 
   
@@ -476,10 +470,11 @@ public abstract class EarleyParser implements Parser {
     
     // end
     if(verbose>=0){
-      Timing.tick("Finished parsing sentence " + sentId + ". Num words = " + numWords + ", negLogProb=" + -stringLogProbability(numWords) + ".");
+      Timing.tick("Finished parsing sentence " + sentId + ". " + words 
+      		+ ". Num words = " + numWords + ", negLogProb=" + -stringLogProbability(numWords) + ".");
     }
     if (-stringLogProbability(numWords) == Double.NaN || -stringLogProbability(numWords) == Double.POSITIVE_INFINITY){
-      System.err.print("! Stop since NegLogProb=NaN || Infinity");
+      System.err.print("! Stop since NegLogProb=NaN || Infinity. Sentence " + sentId + ". " + words);
       System.exit(1);
     }
     return (rootInnerScore>operator.zero());
@@ -2344,6 +2339,10 @@ public abstract class EarleyParser implements Parser {
   
   public Measures getMeasures() {
 		return measures;
+	}
+  
+  public void setSentId(String sentId) {
+		this.sentId = sentId;
 	}
 }
 

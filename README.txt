@@ -9,6 +9,7 @@ Features:
 (f) Handle grammars with high fan-out (see Util.TrieSurprisal).
 (g) Use integers for strings for speed.
 (h) Smoothing of rule probabilities for unknown words (see parser.SmoothLexicon).
+(i) Multi-threaded support for certain options.
 
 References:
 (a) Andreas Stolcke. 1995. An Efficient Probabilistic Context-Free Parsing Algorithm that Computes Prefix Probabilities. Computational Linguistics 21(2), 165-201.

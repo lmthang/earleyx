@@ -441,6 +441,7 @@ public class Main {
 
     @Override
     public ParserOutput process(ParserInput input) {
+    	parser.setSentId(input.id);
     	parser.parseSentence(input.sentence);
       return new ParserOutput(input.sentence, input.id, parser.getMeasures());
     }

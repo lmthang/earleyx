@@ -84,6 +84,13 @@ public class EarleyParserGenerator {
       System.err.println("! Invalid grammarType " + inGrammarType);
       System.exit(1);
     }
+  	
+  	if(verbose>=2){
+   		System.err.println("# Num nonterminals " + parserNonterminalMap.size());
+   	}
+   	if(verbose>=2){
+ 			System.err.println(Util.sprint(parserTagIndex, parserNonterminalMap.keySet()));
+ 		}
   }
   public EarleyParserGenerator(BufferedReader br, String rootSymbol, 
       boolean isScaling, boolean isLogProb,
