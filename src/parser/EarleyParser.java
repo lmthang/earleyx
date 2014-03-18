@@ -69,7 +69,7 @@ public abstract class EarleyParser implements Parser {
   protected final int goalEdge; // "" -> [] if isLeftWildcard=true; otherwise, "" -> ROOT .
   protected final int edgeSpaceSize;   // edge space
   protected final int numCategories; // nonterminas + preterminals
-  protected static boolean isFastComplete = false; 
+  protected static boolean isFastComplete = false; // set to false in EarleyParserDense, and true in EarleyParserSparse
   protected final boolean hasMultiTerminalRule;
   protected final boolean hasFragmentRule;
   protected final boolean isSeparateRuleInTrie;
@@ -930,7 +930,7 @@ public abstract class EarleyParser implements Parser {
     
     if(insideChartCount(middle, right)>0){
       // there're active edges for the span [middle, right]
-      if(verbose>=3){
+      if(verbose>=2){
         System.err.println("\n# Complete all [" + left + "," + middle + "," + right + "]: insideChartCount[" 
             + middle + "," + right + "]=" + insideChartCount(middle, right));
       }
@@ -1150,7 +1150,7 @@ public abstract class EarleyParser implements Parser {
     // set of completions X -> \alpha . Z \beta
     Completion[] completions = grammar.getCompletions(tag);
     
-    if (verbose>=3 && completions.length>0){
+    if (verbose>=2 && completions.length>0){
       System.err.println(completionInfo(middle, right, nextEdge, inner, completions));
     }
     
@@ -1193,7 +1193,7 @@ public abstract class EarleyParser implements Parser {
           addBacktrack(left, middle, right, nextEdge, newEdge, newInnerScore);
         }
         
-        if (verbose >= 3) {
+        if (verbose >= 2) {
           System.err.println("  start " + edgeScoreInfo(left, middle, completion.activeEdge) 
               + " -> new " + edgeScoreInfo(left, right, newEdge, newForwardScore, newInnerScore));
 

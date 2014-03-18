@@ -48,7 +48,7 @@ public abstract class EdgeSpace {
   }
   
   public void build(Collection<ProbRule> rules){
-    if (verbose >= 1){
+    if (verbose >= 0){
       System.err.println("\n## Setting up edge space ...");
     }
     if(verbose >= 3){
@@ -59,7 +59,7 @@ public abstract class EdgeSpace {
     for (ProbRule r: rules) {
       addEdge(r.getEdge());
       
-      if(verbose >= 1){
+      if(verbose >= 0){
         if(++numRules % 10000 == 0){
           System.err.print(" (" + numRules + ") ");
         }
@@ -75,7 +75,7 @@ public abstract class EdgeSpace {
         addEdge(new Edge(new MotherRule(tag), 0));
       }
     }
-    if (verbose >= 1) {
+    if (verbose >= 0) {
       Timing.tick("Done! Num rules=" + numRules + ", state space size=" + size);
     }
   }
