@@ -258,7 +258,7 @@ public class Util {
     for (int left = 0; left < dl.length; left++) {
 //      init(dl[i], value);
       
-      for (int right = left; right < dl.length; right++) {
+      for (int right = left; right < dl[left].length; right++) {
         init(dl[left][right], value);
       }
     }

@@ -113,7 +113,7 @@ public class EarleyParserDense extends EarleyParser{
   */
   protected void addToChart(int left, int right, int edge,  
      double forward, double inner) {
-    //int lrIndex = linear(left, right); // left right index
+//    int lrIndex = linear(left, right); // left right index
     assert(chartEntries[left][right][edge] == false);
    
     chartEntries[left][right][edge] = true;
