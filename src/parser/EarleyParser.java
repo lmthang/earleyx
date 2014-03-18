@@ -806,7 +806,7 @@ public abstract class EarleyParser implements Parser {
         continue;
       }
       
-      if(verbose>=3){
+      if(verbose>=2){
         System.err.println("\n# Predict all [" + left + "," + right + "]: " + 
             "chart count=" + insideChartCount(left, right));
       }
@@ -820,7 +820,7 @@ public abstract class EarleyParser implements Parser {
     
     storePredictTmpScores(right);
     
-    if (verbose >= 3 && flag) {
+    if (verbose >= 2 && flag) {
       dumpChart();
     }
   }
@@ -828,8 +828,8 @@ public abstract class EarleyParser implements Parser {
 
   protected void predictFromEdge(int left, int right, int edge) {
     Prediction[] predictions = grammar.getPredictions(edge);
-    if (verbose >= 3 && predictions.length>0) {
-      System.err.println("From edge " + edgeScoreInfo(left, right, edge));
+    if (verbose >= 2 && predictions.length>0) {
+      System.err.println("# From edge " + edgeScoreInfo(left, right, edge));
     }
     
     for (int x = 0, n = predictions.length; x < n; x++) { // go through each prediction
@@ -860,7 +860,7 @@ public abstract class EarleyParser implements Parser {
         }
       }
       
-      if (verbose >= 3) {
+      if (verbose >= 2) {
         System.err.println("  to " + edgeScoreInfo(right, right, newEdge, newForwardProb, newInnerProb));
       }
     }
@@ -1150,7 +1150,7 @@ public abstract class EarleyParser implements Parser {
     // set of completions X -> \alpha . Z \beta
     Completion[] completions = grammar.getCompletions(tag);
     
-    if (verbose>=2 && completions.length>0){
+    if (verbose>=3 && completions.length>0){
       System.err.println(completionInfo(middle, right, nextEdge, inner, completions));
     }
     
@@ -1194,7 +1194,7 @@ public abstract class EarleyParser implements Parser {
         }
         
         if (verbose >= 2) {
-          System.err.println("  start " + edgeScoreInfo(left, middle, completion.activeEdge) 
+          System.err.println("# start " + edgeScoreInfo(left, middle, completion.activeEdge) 
               + " -> new " + edgeScoreInfo(left, right, newEdge, newForwardScore, newInnerScore));
 
           if (isGoalEdge(newEdge)) {
@@ -2052,7 +2052,7 @@ public abstract class EarleyParser implements Parser {
   
   protected String completionInfo(int middle, int right, 
       int edge, double inner, Completion[] completions){
-    return "# Completed " + + edge + " " + edgeInfo(middle, right, edge)  
+    return "# Completed " + edge + " " + edgeInfo(middle, right, edge)  
     + ", inside=" + df.format(operator.getProb(inner))  
     + ", completions: " + Util.sprint(completions, edgeSpace, parserTagIndex, parserWordIndex, operator);
   }

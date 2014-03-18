@@ -118,7 +118,7 @@ public class Prediction {
         totalPredictions += predictionsVia[viaCategoryIndex].length;
       }      
       
-      if(verbose >= 2){
+      if(verbose >= 3){
         System.err.println("# via: " + tagIndex.get(viaCategoryIndex) + ", num predictions " + predictionsVia[viaCategoryIndex].length);
       
       	for (int i = 0; i < predictionsVia[viaCategoryIndex].length; i++) {
@@ -145,7 +145,7 @@ public class Prediction {
         if (nonterminals.contains(viaCategoryIndex)){
           predictions[predictorState] = predictionsVia[viaCategoryIndex];
           
-          if(verbose>=2){
+          if(verbose>=3){
             System.err.println("Edge " + predictorState + ", " 
                 + stateSpace.get(predictorState).toString(tagIndex, wordIndex)
                 + ": predictions " + Util.sprint(predictions[predictorState], 
