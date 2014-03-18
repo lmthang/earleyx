@@ -201,7 +201,7 @@ public abstract class EarleyParser implements Parser {
     }
 
     // debug info
-    if(verbose>=3){
+    if(verbose>=2){
    		System.err.println("# Start edge " + edgeSpace.get(startEdge).toString(parserTagIndex, parserWordIndex));
    		System.err.println("# Goal edge " + edgeSpace.get(goalEdge).toString(parserTagIndex, parserWordIndex));
    	}   	
@@ -390,17 +390,18 @@ public abstract class EarleyParser implements Parser {
     /** Step (1): add start edge "" -> . ROOT and perform the initial prediction **/
     /******************************************************************************/
     addToChart(0, 0, startEdge, operator.one(), operator.one());
+    if(verbose>=2){
+    	dumpChart();
+    }
     chartPredict(0); // start expanding from ROOT
     addToChart(0, 0, startEdge, operator.one(), operator.one()); // this is a bit of a hack needed because chartPredict(0) wipes out the seeded rootActiveEdge chart entry.
     addInnerScore(0, numWords, startEdge, operator.one()); // set inside score 1.0 for "" -> . ROOT
     if (isFastComplete){
       addActiveEdgeInfo(0, 0, startEdge);
     }
-    if(verbose>=3){
+    if(verbose>=2){
+    	Timing.endTime("Done initializing!");
       dumpChart();
-    }
-    if (verbose>=2){
-      Timing.endTime("Done initializing!");
     }
     if(internalMeasures.contains(Measures.ENTROPY)){
       computeInitEntropy();

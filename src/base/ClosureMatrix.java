@@ -191,14 +191,12 @@ public class ClosureMatrix {
     }
     
     // inverse submatrix
-    if (verbose >= 2) {
-      System.err.print("  inverted submatrix: ");
-    }
     if(verbose >= 3){
+    	System.err.print("  inverted submatrix: ");
       System.err.println(subRelationMatrix);
     }
     DoubleMatrix2D invSubMatrix = alg.inverse(subRelationMatrix);
-    if (verbose >= 2) {
+    if (verbose >= 3) {
       System.err.print("  inverted matrix: ");
       System.err.println(invSubMatrix);
       System.err.println("  computing full matrix ... ");

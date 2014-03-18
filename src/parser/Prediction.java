@@ -118,9 +118,11 @@ public class Prediction {
         totalPredictions += predictionsVia[viaCategoryIndex].length;
       }      
       
-      if(verbose >= 3){
+      if(verbose >= 2){
         System.err.println("# via: " + tagIndex.get(viaCategoryIndex) + ", num predictions " + predictionsVia[viaCategoryIndex].length);
-      
+      }
+        
+      if(verbose >= 3){
       	for (int i = 0; i < predictionsVia[viaCategoryIndex].length; i++) {
       		Prediction p = predictionsVia[viaCategoryIndex][i];
       		System.err.println("  predict: " + p.toString(stateSpace, tagIndex, wordIndex, operator) 
@@ -145,6 +147,12 @@ public class Prediction {
         if (nonterminals.contains(viaCategoryIndex)){
           predictions[predictorState] = predictionsVia[viaCategoryIndex];
           
+          if(verbose>=2 && tagIndex.get(viaCategoryIndex).equals("ROOT")){
+          	System.err.println("Edge " + predictorState + ", " 
+                + stateSpace.get(predictorState).toString(tagIndex, wordIndex)
+                + ": predictions " + Util.sprint(predictions[predictorState], 
+                    stateSpace, tagIndex, wordIndex, operator));
+          }
           if(verbose>=3){
             System.err.println("Edge " + predictorState + ", " 
                 + stateSpace.get(predictorState).toString(tagIndex, wordIndex)
