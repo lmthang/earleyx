@@ -113,7 +113,7 @@ public class ClosureMatrix {
     }
     col2rowMap = newCol2rowMap;
     
-    if(verbose>=2){
+    if(verbose>=3){
       System.err.println("new row map: " + newRowIndexMap);
       System.err.println("new col map: " + newColIndexMap);
       System.err.println("new col2row map: " + newCol2rowMap);
