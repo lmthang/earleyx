@@ -48,7 +48,7 @@ public abstract class EdgeSpace {
   }
   
   public void build(Collection<ProbRule> rules){
-  	Timing.startDoing("\n## Setting up edge space ...");
+  	Timing.startDoing("\n## Setting up edge space");
   	Util.log(verbose, 3, "Rules: " + Util.sprint(rules, tagIndex, wordIndex));
     
     int numRules = 0;

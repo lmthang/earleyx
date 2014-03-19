@@ -625,7 +625,6 @@ public abstract class EarleyParser implements Parser {
         if(valueMap != null){
         	Util.log(verbose, 1, "# Scanning multi-terminal rules: " + words.subList(i, right)
         			+ ", map " + valueMap);
-        	Util.log(verbose, 1, Util.sprint(valueMap, parserTagIndex));
           
           for (int key : valueMap.keySet()) {
             int iT = -1 ;

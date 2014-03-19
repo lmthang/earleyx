@@ -40,19 +40,21 @@ public class EarleyParserTest { // extends TestCase {
   private int insideOutsideOpt;  
   private String decodeOptStr = "viterbi";
   private double minRuleProb = 1e-20;
-  private String objStr = "prefix,surprisal,stringprob,entropy,entropyreduction,multirhslength,multifuturelength,multirulecount,multirhslengthcount,multifuturelengthcount,pcfgrulecount,pcfgfuturelength,allfuturelength,pcfgfuturelengthcount";
+  private String objStr = "prefix,surprisal,stringprob";
+  //private String objStr = "prefix,surprisal,stringprob,entropy,entropyreduction,multirhslength,multifuturelength,multirulecount,multirhslengthcount,multifuturelengthcount,pcfgrulecount,pcfgfuturelength,allfuturelength,pcfgfuturelengthcount";
   
   @Before
   public void setUp(){    
     // set output verbose modes
-    RelationMatrix.verbose = 0;
-    ClosureMatrix.verbose = 0;
-    EdgeSpace.verbose = 0;
-    Grammar.verbose = 0;
-    Prediction.verbose = 0;
-    Completion.verbose = 0;
-    RuleFile.verbose = 0;
-    EarleyParser.verbose = 0;
+  	int verbose = 1;
+    RelationMatrix.verbose = verbose;
+    ClosureMatrix.verbose = verbose;
+    EdgeSpace.verbose = verbose;
+    Grammar.verbose = verbose;
+    Prediction.verbose = verbose;
+    Completion.verbose = verbose;
+    RuleFile.verbose = verbose;
+    EarleyParser.verbose = verbose;
     
     if(ioOptStr.equalsIgnoreCase("em")){
       insideOutsideOpt = 1;
@@ -170,6 +172,7 @@ public class EarleyParserTest { // extends TestCase {
   
   String wsj500AG = "grammars/WSJ.500.ag-map-new.rules";
   String wsj500FG = "grammars/WSJ.500.fg.rules";
+  String wsj5000FG = "grammars/wsj.5000.fg.grammar";
   String wsjAG22 = "grammars/WSJ.ag-map.22.rules";
   String wsj500 = "grammars/wsj500unk.grammar";
   String wsj5 = "grammars/wsj5unk.grammar";
@@ -1269,6 +1272,24 @@ public class EarleyParserTest { // extends TestCase {
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH_COUNT), new double[]{2.0, 1.5, 0.0, 0.0, 0.0, 5.0, 1.3879033981620004, 0.0, 0.0, 1.28125, 1.0, 0.0, 0.15942028985507245}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_RHS_LENGTH), new double[]{0.020512785592802146, 1.1410904622647653E-4, 0.0, 0.0, 0.0, 6.850840216323204E-17, 7.376185589345266E-17, 0.0, 0.0, 2.30830534029722E-25, 8.292321603377748E-29, 0.0, 2.304670770276166E-33}));
     assertEquals(true, compare(parser.getMeasureList(Measures.MULTI_FUTURE_LENGTH), new double[]{0.011805441550395677, 4.542771934912376E-5, 0.0, 0.0, 0.0, 4.8934572973737176E-17, 4.1928954320846494E-17, 0.0, 0.0, 1.0342051429476942E-25, 4.146160801688874E-29, 0.0, 4.899039860697261E-41}));
+    
+    if(parser.getDecodeOpt()==1){
+      Tree tree = (new ViterbiDecoder(parser)).getBestParse();
+      System.err.println(tree.pennString());
+      assertEquals(tree.toString(), "( (ROOT (S (NP (DT The) two (JJ young) (NNS sea-lions)) (VP (VBD took) (NP (RB not) (DT the) (JJ slightest) (NN interest)) (PP in (NP (PRP$ our) (JJ arrival)))) .)))");
+    }
+  }
+  
+  @Test
+  public void testWSJ5000FG(){
+    initParserFromFile(wsj5000FG);
+    
+    String inputSentence = "The two young sea-lions took not the slightest interest in our arrival .";
+
+    parser.parseSentence(inputSentence);
+    
+    assertEquals(true, compare(parser.getMeasureList(Measures.SURPRISAL), new double[]{4.254094940964446, 5.854798898649896, 6.0322048924817295, 6.198904683599011, 7.874431274853013, 6.02667550081766, 2.54560444262534, 6.488625139199364, 8.591322376781953, 3.365862507987032, 7.313675743919106, 7.884516573886657, 3.5527106568831073}));
+    assertEquals(true, compare(parser.getMeasureList(Measures.STRINGPROB), new double[]{6.975879230529539E-6, 1.1725990380429267E-7, 2.3573725281803898E-11, 1.2315048551875957E-11, 5.807683000230481E-15, 3.2610248990060633E-18, 1.8599201286349052E-20, 2.8079973913234422E-22, 3.9732462027772925E-25, 9.989142864053976E-29, 0.0, 5.564732528536069E-34, 8.542049486598615E-34}));
     
     if(parser.getDecodeOpt()==1){
       Tree tree = (new ViterbiDecoder(parser)).getBestParse();

@@ -52,7 +52,7 @@ public class Grammar {
     this.nonterminalMap = nonterminals;
     this.operator = operator;
     
-    System.err.println("Grammar nonterminals: " + Util.sprint(nonterminalMap.keySet(), tagIndex));
+//    System.err.println("Grammar nonterminals: " + Util.sprint(nonterminalMap.keySet(), tagIndex));
     if(operator instanceof LogProbOperator){
       ruleTrie = new TrieSurprisal(true); // log prob
     } else {
