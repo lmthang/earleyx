@@ -67,9 +67,14 @@ public class EarleyParserGenerator {
       TreeBankFile.processTreebank(grammarFile, ruleSet, intTaggedWords, parserTagIndex, 
           parserWordIndex, parserNonterminalMap);
       
-      buildEdgeSpace();
-      buildGrammar();
-      buildLex(intTaggedWords);
+      // build edgeSpace
+      edgeSpace.build(ruleSet.getTagRules());
+      // build grammar
+      grammar = new Grammar(parserWordIndex, parserTagIndex, parserNonterminalMap, operator);
+      grammar.learnGrammar(ruleSet, edgeSpace, isSeparateRuleInTrie);
+      // build lexicon
+      lex = new SmoothLexicon(parserWordIndex, parserTagIndex);
+      lex.train(intTaggedWords);
       
       // add terminal rules      
       Map<Integer, Counter<Integer>> tag2wordsMap = lex.getTag2wordsMap();
@@ -85,13 +90,10 @@ public class EarleyParserGenerator {
       System.exit(1);
     }
   	
-  	if(verbose>=2){
-   		System.err.println("# Num nonterminals " + parserNonterminalMap.size());
-   	}
-   	if(verbose>=2){
- 			System.err.println(Util.sprint(parserTagIndex, parserNonterminalMap.keySet()));
- 		}
+  	Util.log(verbose, 2, "# Num nonterminals " + parserNonterminalMap.size());
+  	Util.log(verbose, 2, Util.sprint(parserTagIndex, parserNonterminalMap.keySet()));
   }
+  
   public EarleyParserGenerator(BufferedReader br, String rootSymbol, 
       boolean isScaling, boolean isLogProb,
       String ioOptStr, String decodeOptStr, String measureString){
@@ -243,45 +245,14 @@ public class EarleyParserGenerator {
      // Counters.logInPlace(counter);
    }
 
-   buildEdgeSpace();
-   buildGrammar();
+   // build edgeSpace
+   edgeSpace.build(ruleSet.getTagRules());   
+   // build grammar
+   grammar = new Grammar(parserWordIndex, parserTagIndex, parserNonterminalMap, operator);
+   grammar.learnGrammar(ruleSet, edgeSpace, isSeparateRuleInTrie);
+   
    buildLex(tag2wordsMap, word2tagsMap);
  }
-  
-  private void buildEdgeSpace(){
-    /* set up edge space. */
-    if (verbose>=1){
-      System.err.print("\n### Building edgespace ... ");
-    }
-    
-    edgeSpace.build(ruleSet.getTagRules());    
-  }
-  
-  public void buildGrammar(){
-    /* learn grammar */
-    if (verbose>=1){
-      System.err.println("\n### Learning grammar ... ");
-    }
-    grammar = new Grammar(parserWordIndex, parserTagIndex, parserNonterminalMap, operator);
-    grammar.learnGrammar(ruleSet, edgeSpace, isSeparateRuleInTrie);
-  }
-  
-  /**
-   * Construct grammar and lexicon from rules and int tagged words
-   * 
-   * @param originalRules
-   * @param intTaggedWords
-   * @param rootRule
-   * @return
-   */
-  private void buildLex(Collection<IntTaggedWord> intTaggedWords){
-    /* learn lexicon */
-    if (verbose>=1){
-      System.err.println("\n### Learning lexicon ... ");
-    }
-    lex = new SmoothLexicon(parserWordIndex, parserTagIndex);
-    lex.train(intTaggedWords);
-  }
   
   public void buildLex(Map<Integer, Counter<Integer>> tag2wordsMap,
       Map<Integer, Set<IntTaggedWord>> word2tagsMap) {

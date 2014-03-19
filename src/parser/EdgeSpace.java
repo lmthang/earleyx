@@ -48,12 +48,8 @@ public abstract class EdgeSpace {
   }
   
   public void build(Collection<ProbRule> rules){
-    if (verbose >= 0){
-      System.err.println("\n## Setting up edge space ...");
-    }
-    if(verbose >= 3){
-      System.err.println("Rules: " + Util.sprint(rules, tagIndex, wordIndex));
-    }
+  	Timing.startDoing("\n## Setting up edge space ...");
+  	Util.log(verbose, 3, "Rules: " + Util.sprint(rules, tagIndex, wordIndex));
     
     int numRules = 0;
     for (ProbRule r: rules) {
@@ -69,15 +65,11 @@ public abstract class EdgeSpace {
     // add preterminals that we haven't seen
     for (int tag = 0; tag < tagIndex.size(); tag++) {
       if(indexOfTag(tag) == -1){ // add preterminal -> []
-        if(verbose>=3){
-          System.err.println("Add preterminal " + tagIndex.get(tag) + " to edge space");
-        }
+      	Util.log(verbose, 3, "Add preterminal " + tagIndex.get(tag) + " to edge space");
         addEdge(new Edge(new MotherRule(tag), 0));
       }
     }
-    if (verbose >= 0) {
-      Timing.tick("Done! Num rules=" + numRules + ", state space size=" + size);
-    }
+    Timing.endDoing("Num rules=" + numRules + ", state space size=" + size + ".");
   }
   
   protected abstract Edge getToEdge(Edge e);

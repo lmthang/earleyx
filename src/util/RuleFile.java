@@ -22,13 +22,13 @@ import base.Rule;
 import base.RuleSet;
 import base.TagRule;
 import base.TerminalRule;
-
 import edu.stanford.nlp.parser.lexparser.IntTaggedWord;
 import edu.stanford.nlp.stats.ClassicCounter;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.util.HashIndex;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.StringUtils;
+import edu.stanford.nlp.util.Timing;
 
 public class RuleFile {
   public static int verbose = 0;
@@ -60,12 +60,9 @@ public class RuleFile {
       Index<String> tagIndex,
       boolean isBias // true if file contains bias
       ) throws IOException{
+    
+    Timing.startDoing("\n## Parsing rule data ...");
     String inputLine;
-    
-    if (verbose>=1){
-      System.err.print("# Parsing rule data ...");
-    }
-    
     int count = 0;
     Matcher m = null;
     Matcher biasM = null;
@@ -185,25 +182,19 @@ public class RuleFile {
       
       ruleSet.add(probRule);
       
-      if (verbose>=1){
+      if (verbose>=0){
         if(count % 10000 == 0){
           System.err.print(" (" + count + ") ");
         }
       }
     }
     
-    if (verbose>=1){
-      System.err.println(" Done! Num rules = " + count + ", num fragment rules = " 
-          + ruleSet.numFragmentRules() + 
-          " (num multiple terminal rules = " + ruleSet.numMultipleTerminalRules() + ")");
-    }
-    if (verbose>=4){
-      System.err.println("# ruleSet " + ruleSet.size() + "\n" + Util.sprint(ruleSet.getAllRules(), tagIndex, wordIndex));
-      System.err.println(Util.sprint(tag2wordsMap, tagIndex, wordIndex));
-    }
+    Timing.endDoing("Num rules = " + count + ", num fragment rules = " + ruleSet.numFragmentRules() 
+        + " (num multiple terminal rules = " + ruleSet.numMultipleTerminalRules() + ")."
+        + " Tag index size = " + tagIndex.size() + ", word index size = " + wordIndex.size());
+    Util.log(verbose, 3, "# ruleSet " + ruleSet.size() + "\n" + Util.sprint(ruleSet.getAllRules(), tagIndex, wordIndex)
+    		+ "\n" + Util.sprint(tag2wordsMap, tagIndex, wordIndex)); 
     
-//    System.err.println(ruleSet.getUnkPreterminals());
-//    System.err.println(Util.sprint(ruleSet.getUnkPreterminals(), tagIndex));
     br.close();
   }
   

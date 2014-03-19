@@ -64,7 +64,9 @@ public class Grammar {
   /**
    * learns all the grammar stuff.  Note that rootRule must be a unary contained in rules.
    */
-  public void learnGrammar(RuleSet ruleSet, EdgeSpace edgeSpace, boolean isSeparateRuleInTrie) {    
+  public void learnGrammar(RuleSet ruleSet, EdgeSpace edgeSpace, boolean isSeparateRuleInTrie) {   
+  	Util.log(verbose, 0, "\n### Learning grammar ... ");
+  	
     /*** Compute reflective and transitive left-corner and unit-production matrices ***/
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
     
@@ -94,14 +96,13 @@ public class Grammar {
 //    completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
     tag2completionsMap = Completion.constructCompletions(unaryClosures, edgeSpace, 
         tagIndex, wordIndex, operator);
+    
+    if(verbose>=0){ Timing.tick("! Done building grammar."); }
   }
 
   private void processMultiTerminalRules(Collection<ProbRule> extendedRules, RuleSet ruleSet, 
       EdgeSpace edgeSpace, boolean isSeparateRuleInTrie){
-    if (verbose >= 1) {
-      System.err.println("\n# Processing extended rules ...");
-      Timing.startTime();
-    }
+  	Timing.startDoing("\n# Processing extended rules ...");
     
     int numExtendedRules = 0;
     for (ProbRule extendedRule : extendedRules) {
@@ -114,23 +115,18 @@ public class Grammar {
             operator.getScore(extendedRule.getProb())));
       }
       
-      if (verbose >= 4) {
-        System.err.println("Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
-      }
-      if (verbose >= 1) {
+      Util.log(verbose, 1, "Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
+      if (verbose>=0) {
         if(++numExtendedRules % 10000 == 0){
           System.err.print(" (" + numExtendedRules + ") ");
         }
       }
     }
     
-    if (verbose >= 4) {
-      System.err.println(Util.sprint(extendedRules, tagIndex, wordIndex));
-      System.err.println(ruleTrie.toString(wordIndex, tagIndex));
-    }
-    if (verbose >= 1) {
-      Timing.endTime("Done! Num extended rules=" + numExtendedRules);
-    }
+    Util.log(verbose, 1, Util.sprint(extendedRules, tagIndex, wordIndex)
+    		+ "\n" + ruleTrie.toString(wordIndex, tagIndex));
+    Timing.endDoing("Num extended rules=" + numExtendedRules + ", tag index size =" + tagIndex.size()
+    		+ ", word index size = " + wordIndex.size());
   }
   
 
