@@ -1,4 +1,4 @@
-<project name="earleyx" default="dist" basedir=".">
+<project name="earleyx" default="compile" basedir=".">
     <description>
         simple example build file
     </description>
@@ -25,7 +25,7 @@
   <target name="compile" depends="init"
         description="compile the source " >
     <!-- Compile the java code from ${src} into ${bin} -->
-    <javac srcdir="${src}" destdir="${bin}" includeantruntime="false">
+    <javac srcdir="${src}" destdir="${bin}" debug="true" includeantruntime="false">
       <!-- Thang added classpaths -->
       <classpath refid="compile.classpath"/>
     </javac>

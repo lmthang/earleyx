@@ -146,13 +146,7 @@ public class Prediction {
         
         if (nonterminals.contains(viaCategoryIndex)){
           predictions[predictorState] = predictionsVia[viaCategoryIndex];
-          
-          if(verbose>=2 && tagIndex.get(viaCategoryIndex).equals("ROOT")){
-          	System.err.println("Edge " + predictorState + ", " 
-                + stateSpace.get(predictorState).toString(tagIndex, wordIndex)
-                + ": predictions " + Util.sprint(predictions[predictorState], 
-                    stateSpace, tagIndex, wordIndex, operator));
-          }
+         
           if(verbose>=3){
             System.err.println("Edge " + predictorState + ", " 
                 + stateSpace.get(predictorState).toString(tagIndex, wordIndex)

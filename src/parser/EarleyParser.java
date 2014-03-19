@@ -679,6 +679,12 @@ public abstract class EarleyParser implements Parser {
     }
     
     int edge = edgeSpace.indexOfTag(tag);
+    if(edge==-1) {
+      System.err.println("! edge = -1. Stop.");
+      System.exit(1);
+    } else if (verbose>=1){
+      System.err.println("  edge " + edge + ":" + edgeInfo(left, right, edge));
+    }
     assert(edgeSpace.get(edge).numChildren()==0);
     
     // add terminal rule
@@ -821,7 +827,7 @@ public abstract class EarleyParser implements Parser {
     
     storePredictTmpScores(right);
     
-    if (verbose >= 2 && flag) {
+    if (verbose >= 3 && flag) {
       dumpChart();
     }
   }
@@ -861,7 +867,7 @@ public abstract class EarleyParser implements Parser {
         }
       }
       
-      if (verbose >= 2) {
+      if (verbose >= 3) {
         System.err.println("  to " + edgeScoreInfo(right, right, newEdge, newForwardProb, newInnerProb));
       }
     }
