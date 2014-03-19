@@ -54,7 +54,7 @@ public class EarleyParserGenerator {
   private Operator operator; // either ProbOperator or LogProbOperator
   private Set<String> outputMeasures; // output measures (surprisal, stringprob, etc.)
 	private Set<String> internalMeasures; // internal measures (prefix, entropy, etc.)
-  private boolean isSeparateRuleInTrie = true;
+  private boolean isSeparateRuleInTrie = false; // IMPORTANT: this one, by default should be false.
   
   public EarleyParserGenerator(String grammarFile, int inGrammarType, String rootSymbol, 
       boolean isScaling, boolean isLogProb, String ioOptStr, String decodeOptStr, String objString){

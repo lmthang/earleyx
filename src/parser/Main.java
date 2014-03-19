@@ -5,13 +5,16 @@ import edu.stanford.nlp.util.concurrent.MulticoreWrapper;
 import edu.stanford.nlp.util.concurrent.ThreadsafeProcessor;
 import induction.InsideOutside;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +72,7 @@ public class Main {
     System.exit(1);
   }
   
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     if(args.length==0){
       printHelp(args, "No argument");
     }
@@ -272,6 +275,7 @@ public class Main {
     /*****************/
     /* output prefix */
     /*****************/
+    Set<String> parsedSentIndices = new HashSet<String>(); // list of sentences we already parsed
     String outPrefix = null;
     if (argsMap.keySet().contains("-out")) {
       outPrefix = argsMap.get("-out")[0];
@@ -279,6 +283,36 @@ public class Main {
       if(!outDir.exists()){
         System.err.println("# Creating output directory " + outDir.getAbsolutePath());
         outDir.mkdirs();
+      }
+      
+      // try to find out what sentences have been parsed if output files exist.
+      File surprisalFile = new File(outPrefix + "." + Measures.SURPRISAL);
+      if(surprisalFile.exists()){ 
+      	BufferedReader br = new BufferedReader(new FileReader(surprisalFile));
+      	String line;
+      	while((line=br.readLine())!=null){
+      		Util.error(!line.startsWith("# "), "! We expect an id line from the old output file: " + line);
+      		String sentId = line.trim().substring(2);
+      		parsedSentIndices.add(sentId);
+      		while(true){
+      			line = br.readLine();
+      			if (line==null || line.startsWith("#! Done")) break;
+      		}
+      	}
+      	br.close();
+      	
+      	System.err.println("# Already parsed " + parsedSentIndices.size() + " sentences: " + parsedSentIndices);
+      	List<String> remainedSents = new ArrayList<String>();
+      	List<String> remainedIndices = new ArrayList<String>();
+      	for (int i = 0; i < sentences.size(); i++) {
+					if(!parsedSentIndices.contains(indices.get(i))){
+						remainedSents.add(sentences.get(i));
+						remainedIndices.add(indices.get(i));
+					}
+				}
+      	sentences = remainedSents;
+      	indices = remainedIndices;
+      	System.err.println("# Need to parse " + indices.size() + " sentences: " + indices);
       }
     } else {
       printHelp(args, "No output prefix, -out option");
@@ -336,7 +370,7 @@ public class Main {
           if(!outPrefix.equals("")) {
             for (String measure : outputMeasures) {
               measureWriterMap.put(measure, new BufferedWriter(new 
-                  FileWriter(outPrefix + "." + measure)));
+                  FileWriter(outPrefix + "." + measure, true))); // append results
             }
           }
           
@@ -442,7 +476,10 @@ public class Main {
     @Override
     public ParserOutput process(ParserInput input) {
     	parser.setSentId(input.id);
-    	parser.parseSentence(input.sentence);
+    	if(!parser.parseSentence(input.sentence)){
+    		System.err.print("! Failed to parse sentence " + input.id + ". " + input.sentence);
+    		System.exit(1);
+    	}
       return new ParserOutput(input.sentence, input.id, parser.getMeasures());
     }
 

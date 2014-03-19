@@ -115,7 +115,7 @@ public class Grammar {
             operator.getScore(extendedRule.getProb())));
       }
       
-      Util.log(verbose, 1, "Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
+      Util.log(verbose, 2, "Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
       if (verbose>=0) {
         if(++numExtendedRules % 10000 == 0){
           System.err.print(" (" + numExtendedRules + ") ");
@@ -123,8 +123,8 @@ public class Grammar {
       }
     }
     
-    Util.log(verbose, 1, Util.sprint(extendedRules, tagIndex, wordIndex)
-    		+ "\n" + ruleTrie.toString(wordIndex, tagIndex));
+    Util.log(verbose, 2, Util.sprint(extendedRules, tagIndex, wordIndex));
+    if (!isSeparateRuleInTrie) Util.log(verbose, 1, ruleTrie.toString(wordIndex, tagIndex));
     Timing.endDoing("Num extended rules=" + numExtendedRules + ", tag index size =" + tagIndex.size()
     		+ ", word index size = " + wordIndex.size());
   }
