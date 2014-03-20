@@ -553,7 +553,9 @@ public class Util {
       sb.delete(sb.length()-2, sb.length());
       sb.append("}, ");
     }
-    sb.delete(sb.length()-2, sb.length());
+    if(int2intCounter.size()>0) {
+    	sb.delete(sb.length()-2, sb.length());
+    }
     return sb.toString();
   }
 

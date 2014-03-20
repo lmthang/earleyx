@@ -312,7 +312,7 @@ public class Main {
 				}
       	sentences = remainedSents;
       	indices = remainedIndices;
-      	System.err.println("# Need to parse " + indices.size() + " sentences: " + indices);
+      	System.err.println("# Need to parse " + indices.size());
       }
     } else {
       printHelp(args, "No output prefix, -out option");
