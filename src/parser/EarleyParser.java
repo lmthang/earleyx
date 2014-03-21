@@ -1198,8 +1198,12 @@ public abstract class EarleyParser implements Parser {
     if(verbose>=2){
       String type = (code==EarleyParserOptions.PCFG) ? "PCFG" : ((code==EarleyParserOptions.AG) ? "AG" : "FG");
       if(code == EarleyParserOptions.AG){ 
-        System.err.println("# add " + type + " measures [" + left + ", " + middle + ", " + right + "]: " 
-            + ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
+        System.err.print("# add " + type + " measures [" + left + ", " + middle + ", " + right + "]");
+        if(ruleId>=0) { // it can be -1 in handleMultiTerminalRules
+          System.err.println(ruleSet.get(ruleId).getRule().toString(parserTagIndex, parserWordIndex));
+        } else {
+        	System.err.println();
+        }
       } else {
         System.err.println("# add " + type + " measures: " + edgeInfo(left, middle, prevEdge));
       }

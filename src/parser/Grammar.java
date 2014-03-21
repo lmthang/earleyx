@@ -35,8 +35,8 @@ public class Grammar {
   // while a pair of X, state id, and rule score is a value associated to the key
   private TrieSurprisal ruleTrie;
   
-  //private Completion[][] completionsArray; // completions[i] is the set of Completion instances for the state i
-  private Map<Integer, Completion[]> tag2completionsMap;
+  private Completion[][] completionsArray; // completions[i] is the set of Completion instances for the tag i
+//  private Map<Integer, Completion[]> tag2completionsMap;
   private Prediction[][] predictionsArray; // predictions[i] is the set of Prediction instances for the state i
 
   private Index<String> wordIndex;
@@ -94,8 +94,8 @@ public class Grammar {
     // here state space does implies new states added from extended rules
     // we purposely use the old nontermPretermIndexer
 //    completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, tagIndex);
-    tag2completionsMap = Completion.constructCompletions(unaryClosures, edgeSpace, 
-        tagIndex, wordIndex, operator);
+    completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, 
+        tagIndex, wordIndex, operator); // tag2completionsMap
     
     if(verbose>=0){ Timing.tick("! Done building grammar."); }
   }
@@ -136,11 +136,16 @@ public class Grammar {
   }
 
   public Completion[] getCompletions(int tag) {
-    if(tag2completionsMap.containsKey(tag)){
-      return tag2completionsMap.get(tag);
-    } else {
-      return Completion.NO_COMPLETION;
-    }
+//    if(tag2completionsMap.containsKey(tag)){
+//      return tag2completionsMap.get(tag);
+//    } else {
+//      return Completion.NO_COMPLETION;
+//    }
+  	if(tag>=completionsArray.length){
+  		return Completion.NO_COMPLETION;
+  	} else {
+  		return completionsArray[tag];
+  	}
   }
 
   public Prediction[] getPredictions(int pos) {

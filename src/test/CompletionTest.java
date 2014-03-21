@@ -97,11 +97,11 @@ public class CompletionTest extends TestCase{
     DoubleMatrix2D pu = relationMatrix.getPU(tagRules);
     ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator, tagIndex, "unary");
     
-    Map<Integer, Completion[]>  tag2completionsMap = Completion.constructCompletions(
+    Completion[][]  completionArray = Completion.constructCompletions(
         unaryClosures, stateSpace, tagIndex, wordIndex, operator);
     StringBuffer sb = new StringBuffer();
-    for(int iT : tag2completionsMap.keySet()){
-      Completion[] completions = tag2completionsMap.get(iT);
+    for (int iT = 0; iT < tagIndex.size(); iT++) {
+      Completion[] completions = completionArray[iT];
       sb.append(tagIndex.get(iT) + ", " + 
           Util.sprint(completions, stateSpace, tagIndex, wordIndex, operator) + "\n");
     }
@@ -144,11 +144,11 @@ public class CompletionTest extends TestCase{
     DoubleMatrix2D pu = relationMatrix.getPU(tagRules);
     ClosureMatrix unaryClosures = new ClosureMatrix(pu, operator, tagIndex, "unary");
     
-    Map<Integer, Completion[]>  tag2completionsMap = Completion.constructCompletions(
+    Completion[][]  completionArray = Completion.constructCompletions(
         unaryClosures, stateSpace, tagIndex, wordIndex, operator);
     StringBuffer sb = new StringBuffer();
-    for(int iT : tag2completionsMap.keySet()){
-      Completion[] completions = tag2completionsMap.get(iT);
+    for (int iT = 0; iT < tagIndex.size(); iT++) {
+      Completion[] completions = completionArray[iT];
       sb.append(tagIndex.get(iT) + ", " + 
           Util.sprint(completions, stateSpace, tagIndex, wordIndex, operator) + "\n");
     }

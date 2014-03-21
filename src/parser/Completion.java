@@ -9,7 +9,6 @@ import java.util.Set;
 
 import base.ClosureMatrix;
 import base.Edge;
-
 import util.Operator;
 import util.Util;
 import edu.stanford.nlp.util.Index;
@@ -42,33 +41,30 @@ public class Completion {
 
   /**
    * Construct completions
+   * For each tag Y, return a set of rules X -> Z \alpha such that the unary closure score R(Z->Y) is non-zero.
+   * 
    * @param rules
    * @param allNontermCategories
    * @param unaryClosures
-   * @return
+   * @return completionArray[i]: list of rules X -> Z \alpha for tag Y (id i). 
    */
-  public static Map<Integer, Completion[]> constructCompletions(ClosureMatrix unaryClosures, 
+  public static Completion[][] constructCompletions(ClosureMatrix unaryClosures, 
       EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex, Operator operator){
     
     /* do completion Set[] */
     if(verbose > 0){
-      System.err.println("\n## Constructing completions ...");
-      Timing.startTime();
+      Timing.startDoing("\n## Constructing completions");
     }
     
-    Map<Integer, Set<Completion>> tag2completionsMap = new HashMap<Integer, Set<Completion>>();
-    
-
     // init
+    Map<Integer, Set<Completion>> tag2completionsMap = new HashMap<Integer, Set<Completion>>();
     for(int tag=0; tag<tagIndex.size(); tag++){ // go through passive states, Y -> []
       tag2completionsMap.put(tag, new HashSet<Completion>());
     }
     
     for(int activeEdge : edgeSpace.getActiveEdges()){ // go through active states, X -> Z \alpha
       if(!edgeSpace.get(activeEdge).isTagAfterDot(0)){
-        if(verbose>=3){
-          System.err.println("constructCompletions: skip " + edgeSpace.get(activeEdge).toString(tagIndex, wordIndex));
-        }
+      	Util.log(verbose, 3, "  skip " + edgeSpace.get(activeEdge).toString(tagIndex, wordIndex));
         continue;
       }
       int viaTag = edgeSpace.get(activeEdge).getChildAfterDot(0); // Z
@@ -83,44 +79,42 @@ public class Completion {
 
             tag2completionsMap.get(tag).add(completion);
      
-            if(verbose >= 3){
-              System.err.println("Edge " + tagIndex.get(tag)
+            Util.log(verbose, 3, "Edge " + tagIndex.get(tag)
                   + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
-            }
           }
         }
       } else { // for zero row, there is only passive state, which is the via state Z -> []
         Completion completion = new Completion(activeEdge, operator.one()); // , edgeSpace.to(activeEdge)
         tag2completionsMap.get(viaTag).add(completion);
         
-        if(verbose >= 3){
-          System.err.println("Edge " + tagIndex.get(viaTag)
+        Util.log(verbose, 3, "Edge " + tagIndex.get(viaTag)
               + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
-        }
       }
     }
 
-    Map<Integer, Completion[]> returnTag2completionsMap = new HashMap<Integer, Completion[]>();
+//    Map<Integer, Completion[]> returnTag2completionsMap = new HashMap<Integer, Completion[]>();
+    Completion[][] completionArray = new Completion[tagIndex.size()][];
+    
     // for(int edge : edgeSpace.getPassiveEdges()){ // go through passive states, Y -> []
     for(int iT=0; iT<tagIndex.size(); iT++){
       List<Completion> l = new ArrayList<Completion>(tag2completionsMap.get(iT));
-      returnTag2completionsMap.put(iT, (Completion[]) l.toArray(NO_COMPLETION));
+      completionArray[iT] = (Completion[]) l.toArray(NO_COMPLETION);
     }
     
     if (verbose >= 1) {
       Timing.tick("Done with completion");
     }
     
-    assert checkCompletions(returnTag2completionsMap, edgeSpace, tagIndex, wordIndex, operator);
-    return returnTag2completionsMap;
+    assert checkCompletions(completionArray, edgeSpace, tagIndex, wordIndex, operator);
+    return completionArray;
   }
   
   /* check to see if any of the completions are invalid*/
-  private static boolean checkCompletions(Map<Integer, Completion[]> passiveEdge2completionsMap
-      , EdgeSpace edgeSpace, Index<String> tagIndex, Index<String> wordIndex, Operator operator) {
+  private static boolean checkCompletions(Completion[][] completionArray, EdgeSpace edgeSpace, 
+  		Index<String> tagIndex, Index<String> wordIndex, Operator operator) {
     boolean satisfied = true;
-    for (int passiveEdge : passiveEdge2completionsMap.keySet()) {
-      Completion[] completions = passiveEdge2completionsMap.get(passiveEdge);
+    for (int tag = 0; tag < tagIndex.size(); tag++) {
+    	Completion[] completions = completionArray[tag];
       
       for (Completion completion : completions){
         Edge active = edgeSpace.get(completion.activeEdge);
