@@ -263,11 +263,11 @@ public class Util {
   
   public static void init(double[][][] dl, double value) {
     for (int left = 0; left < dl.length; left++) {
-      init(dl[left], value);
+//      init(dl[left], value);
       
-//      for (int right = left; right < dl[left].length; right++) {
-//        init(dl[left][right], value);
-//      }
+      for (int right = left; right < dl[left].length; right++) {
+        init(dl[left][right], value);
+      }
     }
   }
   

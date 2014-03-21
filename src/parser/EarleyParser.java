@@ -613,7 +613,7 @@ public abstract class EarleyParser implements Parser {
     for (IntTaggedWord itw : iTWs) { // go through each POS tag the current word could have
       // score
       double score = lex.score(itw); // log
-      Util.error(score>0, "! Lex score should be in log-form, but is " + score + ", rule " + itw);
+      //Util.error(score>0, "! Lex score should be in log-form, but is " + score + ", rule " + itw);
       
       if(!EarleyParserOptions.isLogProb){
         score = Math.exp(score);
@@ -675,7 +675,7 @@ public abstract class EarleyParser implements Parser {
     }
     
     int edge = edgeSpace.indexOfTag(tag);
-    Util.error(edge==-1, "! edge = -1. Stop, tag=" + parserTagIndex.get(tag) + ".");
+//    Util.error(edge==-1, "! edge = -1. Stop, tag=" + parserTagIndex.get(tag) + ".");
     // Util.error(edgeSpace.get(edge).numChildren()==0, "! edge " + edge + " has no child.");
     assert(edge!=-1 && edgeSpace.get(edge).numChildren()==0);
     
@@ -1514,7 +1514,7 @@ public abstract class EarleyParser implements Parser {
     
     // for fragment rules, cell [middle][right] might be empty
     if(!completedEdges.containsKey(mrIndex)){ // X -> \alpha _y . \beta due to fragment rules 
-    	Util.error(middle != (right-1) || !hasFragmentRule, "! outside: empty completed edges for [middle, right] = [" + middle + ", " + right + "]");
+//    	Util.error(middle != (right-1) || !hasFragmentRule, "! outside: empty completed edges for [middle, right] = [" + middle + ", " + right + "]");
       
       // outside to the left: X -> \alpha . _y \beta
       double rightInside = operator.one();
@@ -2010,8 +2010,8 @@ public abstract class EarleyParser implements Parser {
   }
   
   protected Map<Integer, Map<Integer,Double>> computeCatChart(String type){ // type either "inside" or "outside"
-    Util.error(!type.equalsIgnoreCase("outside") && !type.equalsIgnoreCase("inside"), 
-    		"! computeCatChart: Unknown chart type " + type);
+//    Util.error(!type.equalsIgnoreCase("outside") && !type.equalsIgnoreCase("inside"), 
+//    		"! computeCatChart: Unknown chart type " + type);
   	
     Map<Integer, Map<Integer,Double>> chart = new HashMap<Integer, Map<Integer,Double>>();
     
