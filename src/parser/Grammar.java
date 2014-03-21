@@ -65,7 +65,7 @@ public class Grammar {
    * learns all the grammar stuff.  Note that rootRule must be a unary contained in rules.
    */
   public void learnGrammar(RuleSet ruleSet, EdgeSpace edgeSpace, boolean isSeparateRuleInTrie) {   
-  	//Util.log(verbose, 0, "\n### Learning grammar ... ");
+  	if(verbose>=0) System.err.println("\n### Learning grammar ... ");
   	
     /*** Compute reflective and transitive left-corner and unit-production matrices ***/
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
@@ -117,7 +117,7 @@ public class Grammar {
             operator.getScore(extendedRule.getProb())));
       }
       
-      //Util.log(verbose, 2, "Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
+      if(verbose>=2) System.err.println("Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
       if (verbose>=0) {
         if(++numExtendedRules % 10000 == 0){
           System.err.print(" (" + numExtendedRules + ") ");
@@ -125,8 +125,8 @@ public class Grammar {
       }
     }
     
-    //Util.log(verbose, 2, Util.sprint(extendedRules, tagIndex, wordIndex));
-    //if (!isSeparateRuleInTrie) //Util.log(verbose, 1, ruleTrie.toString(wordIndex, tagIndex));
+    if(verbose>=2) System.err.println(Util.sprint(extendedRules, tagIndex, wordIndex));
+    //if (!isSeparateRuleInTrie) if(verbose>=1) System.err.println(ruleTrie.toString(wordIndex, tagIndex));
    Timing.endDoing("Num extended rules=" + numExtendedRules + ", tag index size =" + tagIndex.size()	+ ", word index size = " + wordIndex.size());
   }
   

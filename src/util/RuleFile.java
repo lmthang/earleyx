@@ -190,7 +190,7 @@ public class RuleFile {
     }
     
    Timing.endDoing("Num rules = " + count + ", num fragment rules = " + ruleSet.numFragmentRules() + " (num multiple terminal rules = " + ruleSet.numMultipleTerminalRules() + ")." + " Tag index size = " + tagIndex.size() + ", word index size = " + wordIndex.size() + ".");
-    //Util.log(verbose, 3, "# ruleSet " + ruleSet.size() + "\n" + Util.sprint(ruleSet.getAllRules(), tagIndex, wordIndex)	+ "\n" + Util.sprint(tag2wordsMap, tagIndex, wordIndex)); 
+    if(verbose>=3) System.err.println("# ruleSet " + ruleSet.size() + "\n" + Util.sprint(ruleSet.getAllRules(), tagIndex, wordIndex)	+ "\n" + Util.sprint(tag2wordsMap, tagIndex, wordIndex)); 
     //System.err.println("Tags: " + Util.sprint(tagIndex)); 
     br.close();
   }

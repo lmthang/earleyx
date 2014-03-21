@@ -49,7 +49,7 @@ public abstract class EdgeSpace {
   
   public void build(Collection<ProbRule> rules){
   Timing.startDoing("\n## Setting up edge space");
-  	//Util.log(verbose, 3, "Rules: " + Util.sprint(rules, tagIndex, wordIndex));
+  	if(verbose>=3) System.err.println("Rules: " + Util.sprint(rules, tagIndex, wordIndex));
     
     int numRules = 0;
     for (ProbRule r: rules) {
@@ -67,7 +67,7 @@ public abstract class EdgeSpace {
     for (int tag = 0; tag < tagIndex.size(); tag++) {
       Edge e = new Edge(new MotherRule(tag), 0);
       if(!edgeIndex.contains(e)){ // add preterminal -> []
-        //Util.log(verbose, 3, "Add preterminal " + tagIndex.get(tag) + " to edge space");
+        if(verbose>=3) System.err.println("Add preterminal " + tagIndex.get(tag) + " to edge space");
         addEdge(e);
       }
       tagEdgeMap[tag] = indexOf(e);

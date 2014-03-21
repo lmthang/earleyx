@@ -90,8 +90,8 @@ public class EarleyParserGenerator {
       System.exit(1);
     }
   	
-  	//Util.log(verbose, 2, "# Num nonterminals " + parserNonterminalMap.size());
-  	//Util.log(verbose, 2, Util.sprint(parserTagIndex, parserNonterminalMap.keySet()));
+  	if(verbose>=2) System.err.println("# Num nonterminals " + parserNonterminalMap.size());
+  	if(verbose>=2) System.err.println(Util.sprint(parserTagIndex, parserNonterminalMap.keySet()));
   }
   
   public EarleyParserGenerator(BufferedReader br, String rootSymbol, 

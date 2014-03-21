@@ -64,7 +64,7 @@ public class Completion {
     
     for(int activeEdge : edgeSpace.getActiveEdges()){ // go through active states, X -> Z \alpha
       if(!edgeSpace.get(activeEdge).isTagAfterDot(0)){
-      	//Util.log(verbose, 3, "  skip " + edgeSpace.get(activeEdge).toString(tagIndex, wordIndex));
+      	if(verbose>=3) System.err.println("  skip " + edgeSpace.get(activeEdge).toString(tagIndex, wordIndex));
         continue;
       }
       int viaTag = edgeSpace.get(activeEdge).getChildAfterDot(0); // Z
@@ -79,14 +79,14 @@ public class Completion {
 
             tag2completionsMap.get(tag).add(completion);
      
-            //Util.log(verbose, 3, "Edge " + tagIndex.get(tag) + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
+            if(verbose>=3) System.err.println("Edge " + tagIndex.get(tag) + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
           }
         }
       } else { // for zero row, there is only passive state, which is the via state Z -> []
         Completion completion = new Completion(activeEdge, operator.one()); // , edgeSpace.to(activeEdge)
         tag2completionsMap.get(viaTag).add(completion);
         
-        //Util.log(verbose, 3, "Edge " + tagIndex.get(viaTag) + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
+        if(verbose>=3) System.err.println("Edge " + tagIndex.get(viaTag) + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
       }
     }
 
