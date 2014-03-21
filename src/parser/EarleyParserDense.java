@@ -69,7 +69,7 @@ public class EarleyParserDense extends EarleyParser{
     
     if (verbose>=2){
       System.err.println("# EarleyParserDense initializing ... ");
-      Timing.startTime();
+     Timing.startTime();
     }
   
     //int numCells = linear(0, numWords+1);

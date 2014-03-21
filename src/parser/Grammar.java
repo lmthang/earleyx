@@ -65,7 +65,7 @@ public class Grammar {
    * learns all the grammar stuff.  Note that rootRule must be a unary contained in rules.
    */
   public void learnGrammar(RuleSet ruleSet, EdgeSpace edgeSpace, boolean isSeparateRuleInTrie) {   
-  	Util.log(verbose, 0, "\n### Learning grammar ... ");
+  	//Util.log(verbose, 0, "\n### Learning grammar ... ");
   	
     /*** Compute reflective and transitive left-corner and unit-production matrices ***/
     RelationMatrix relationMatrix = new RelationMatrix(tagIndex);
@@ -97,12 +97,14 @@ public class Grammar {
     completionsArray = Completion.constructCompletions(unaryClosures, edgeSpace, 
         tagIndex, wordIndex, operator); // tag2completionsMap
     
-    if(verbose>=0){ Timing.tick("! Done building grammar."); }
+    if(verbose>=0){
+      Timing.tick("! Done building grammar."); 
+    }
   }
 
   private void processMultiTerminalRules(Collection<ProbRule> extendedRules, RuleSet ruleSet, 
       EdgeSpace edgeSpace, boolean isSeparateRuleInTrie){
-  	Timing.startDoing("\n# Processing extended rules ...");
+  Timing.startDoing("\n# Processing extended rules ...");
     
     int numExtendedRules = 0;
     for (ProbRule extendedRule : extendedRules) {
@@ -115,7 +117,7 @@ public class Grammar {
             operator.getScore(extendedRule.getProb())));
       }
       
-      Util.log(verbose, 2, "Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
+      //Util.log(verbose, 2, "Add to trie: " + extendedRule.toString(tagIndex, wordIndex));
       if (verbose>=0) {
         if(++numExtendedRules % 10000 == 0){
           System.err.print(" (" + numExtendedRules + ") ");
@@ -123,10 +125,9 @@ public class Grammar {
       }
     }
     
-    Util.log(verbose, 2, Util.sprint(extendedRules, tagIndex, wordIndex));
-    if (!isSeparateRuleInTrie) Util.log(verbose, 1, ruleTrie.toString(wordIndex, tagIndex));
-    Timing.endDoing("Num extended rules=" + numExtendedRules + ", tag index size =" + tagIndex.size()
-    		+ ", word index size = " + wordIndex.size());
+    //Util.log(verbose, 2, Util.sprint(extendedRules, tagIndex, wordIndex));
+    //if (!isSeparateRuleInTrie) //Util.log(verbose, 1, ruleTrie.toString(wordIndex, tagIndex));
+   Timing.endDoing("Num extended rules=" + numExtendedRules + ", tag index size =" + tagIndex.size()	+ ", word index size = " + wordIndex.size());
   }
   
 
@@ -218,7 +219,7 @@ public class Grammar {
 //public Prediction[] getPrediction(int predictorState){
 //int viaState = stateSpace.via[predictorState];
 //
-////assert (viaState == -1 && !nontermIndexer.contains(viaState));
+//assert (viaState == -1 && !nontermIndexer.contains(viaState));
 //
 //if(nontermIndexer.contains(viaState)){
 //  int viaCategoryIndex = nontermIndexer.indexOf(viaState);
@@ -240,7 +241,7 @@ public class Grammar {
 //public boolean containsExtendedRule = false;
 //private Index<String> extendedTerminalIndexer = new HashIndex<String>(); // index the rhs terminal sequence of extended rules
 //
-//// rule A -> b c, map terminal index of "b c" into a list of state indices, on of which is A -> []
+// rule A -> b c, map terminal index of "b c" into a list of state indices, on of which is A -> []
 //private Map<Integer, List<Pair<Integer, Double>>> extendedTerminalMap = 
 //new HashMap<Integer, List<Pair<Integer,Double>>>();
 //

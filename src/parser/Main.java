@@ -478,7 +478,7 @@ public class Main {
     	parser.setSentId(input.id);
     	if(!parser.parseSentence(input.sentence)){
     		System.err.print("! Failed to parse sentence " + input.id + ". " + input.sentence);
-    		System.exit(1);
+    		//System.exit(1);
     	}
       return new ParserOutput(input.sentence, input.id, parser.getMeasures());
     }

@@ -63,7 +63,7 @@ public class EarleyParserSparse extends EarleyParser {
     
     if (verbose>=2){
       System.err.println("# EarleyParserSparse initializing ... ");
-      Timing.startTime();
+     Timing.startTime();
     }
   
     forwardProb = new HashMap<Integer, Map<Integer,Double>>();

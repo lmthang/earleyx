@@ -49,12 +49,6 @@ public class Util {
   	}
   }
   
-  public static void log(int verbose, int threshold, String message){
-  	if(verbose>=threshold){
-  		System.err.println(message);
-  	}
-  }
-  
   /**
    * Returns the intersection of sets s1 and s2 (use set sizes to determine intersection order
    */

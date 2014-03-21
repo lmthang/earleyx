@@ -37,7 +37,7 @@ public class RelationMatrix {
     
     if(verbose >= 1){
       System.err.println("\n# Construct left-corner relation matrix " + numRows + " x " + numRows);
-      Timing.startTime();
+     Timing.startTime();
       if(verbose>=2){
         System.err.println(Util.sprint(tagIndex, Util.getNonterminals(nonterminalMap)));
       }
@@ -77,7 +77,7 @@ public class RelationMatrix {
     }
     
     if (verbose >= 1) {
-      Timing.endTime("Done! Num rules processed =" + numRules);
+     Timing.endTime("Done! Num rules processed =" + numRules);
     }
     if(verbose >= 3){
       System.err.println(pl + "\n");
@@ -99,7 +99,7 @@ public class RelationMatrix {
     
     if(verbose >= 1){
       System.err.println("\n# Construct unit-production relation matrix " + numRows + " x " + numRows);
-      Timing.startTime();
+     Timing.startTime();
       if(verbose>=2){
         System.err.println(Util.sprint(tagIndex));
       }
@@ -127,7 +127,7 @@ public class RelationMatrix {
     }
     
     if (verbose >= 1) {
-      Timing.endTime("Done! Num unary rules=" + numUnaryRules);
+     Timing.endTime("Done! Num unary rules=" + numUnaryRules);
     }
     if(verbose >= 3){
       System.err.println(pu + "\n");

@@ -35,7 +35,7 @@ public abstract class EdgeSpace {
   protected Index<String> tagIndex; // map tag strings to tag integers
   protected Index<String> wordIndex; // map tag strings to tag integers
   protected Map<Integer, Set<Integer>> terminal2fragmentEdges; // map word index of _y to a list of edges X -> . _y Z T, where the first token after the dot is _y
-  
+ protected int[] tagEdgeMap; // tagEdgeMap[i]: give an edge number for tag i 
 
   public EdgeSpace(Index<String> tagIndex, Index<String> wordIndex){
     this.tagIndex = tagIndex;
@@ -48,8 +48,8 @@ public abstract class EdgeSpace {
   }
   
   public void build(Collection<ProbRule> rules){
-  	Timing.startDoing("\n## Setting up edge space");
-  	Util.log(verbose, 3, "Rules: " + Util.sprint(rules, tagIndex, wordIndex));
+  Timing.startDoing("\n## Setting up edge space");
+  	//Util.log(verbose, 3, "Rules: " + Util.sprint(rules, tagIndex, wordIndex));
     
     int numRules = 0;
     for (ProbRule r: rules) {
@@ -63,13 +63,16 @@ public abstract class EdgeSpace {
     }
      
     // add preterminals that we haven't seen
+    tagEdgeMap = new int[tagIndex.size()];
     for (int tag = 0; tag < tagIndex.size(); tag++) {
-      if(indexOfTag(tag) == -1){ // add preterminal -> []
-      	Util.log(verbose, 3, "Add preterminal " + tagIndex.get(tag) + " to edge space");
-        addEdge(new Edge(new MotherRule(tag), 0));
+      Edge e = new Edge(new MotherRule(tag), 0);
+      if(!edgeIndex.contains(e)){ // add preterminal -> []
+        //Util.log(verbose, 3, "Add preterminal " + tagIndex.get(tag) + " to edge space");
+        addEdge(e);
       }
+      tagEdgeMap[tag] = indexOf(e);
     }
-    Timing.endDoing("Num rules=" + numRules + ", state space size=" + size + ".");
+   Timing.endDoing("Num rules=" + numRules + ", state space size=" + size + ".");
   }
   
   protected abstract Edge getToEdge(Edge e);
@@ -141,10 +144,8 @@ public abstract class EdgeSpace {
   * @param tag
   * @return
   */
-  private Edge dummyEdge = new Edge(new MotherRule(0), 0);
   public int indexOfTag(int tag) {
-    dummyEdge.setMother(tag);
-    return edgeIndex.indexOf(dummyEdge);
+    return tagEdgeMap[tag];
   }
   
   public int size() {
@@ -245,7 +246,7 @@ public abstract class EdgeSpace {
 //to[state] = -1;
 //}
 
-//// store mother -> [] edge if not in the state space
+// store mother -> [] edge if not in the state space
 //int motherIndex = e.getMother();
 //if(!index2stateMap.containsKey(motherIndex)){ 
 //  Edge motherEdge = e.getMotherEdge();
@@ -279,9 +280,9 @@ public abstract class EdgeSpace {
 //size = tagIndex.size();
 //via = new int[2*size];
 //to = new int[2*size];
-////mother = new int[2*size];
+//mother = new int[2*size];
 //
-//// add tag edges: tag -> [] to both activeEdgeIndex and passiveStates
+// add tag edges: tag -> [] to both activeEdgeIndex and passiveStates
 //for (int iT = 0; iT < size; iT++) {
 //  tag2edgeMap.put(iT, ActiveEdge.createTagEdge(iT));
 //  int index = activeEdgeIndex.indexOf(tag2edgeMap.get(iT), true);
@@ -297,7 +298,7 @@ public abstract class EdgeSpace {
 //  return tagIndex;
 //}
 
-//// get mother state: mother -> []
+// get mother state: mother -> []
 //ActiveEdge motherEdge = e.getMotherEdge();
 //int motherState = storeEdgeInIndex(motherEdge);
 //

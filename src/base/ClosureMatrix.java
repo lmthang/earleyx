@@ -56,7 +56,7 @@ public class ClosureMatrix {
     
     if (verbose >= 1) {
       System.err.println("\n# Building " + name + " closure matrix...");
-      Timing.startTime();
+     Timing.startTime();
     }
     
     computeClosureMatrix(relationMatrix);
@@ -67,7 +67,7 @@ public class ClosureMatrix {
  
 
     if (verbose >= 1) {
-      Timing.tick("Done=!");
+     Timing.tick("Done=!");
     }  
   }
 

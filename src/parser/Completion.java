@@ -53,7 +53,7 @@ public class Completion {
     
     /* do completion Set[] */
     if(verbose > 0){
-      Timing.startDoing("\n## Constructing completions");
+     Timing.startDoing("\n## Constructing completions");
     }
     
     // init
@@ -64,7 +64,7 @@ public class Completion {
     
     for(int activeEdge : edgeSpace.getActiveEdges()){ // go through active states, X -> Z \alpha
       if(!edgeSpace.get(activeEdge).isTagAfterDot(0)){
-      	Util.log(verbose, 3, "  skip " + edgeSpace.get(activeEdge).toString(tagIndex, wordIndex));
+      	//Util.log(verbose, 3, "  skip " + edgeSpace.get(activeEdge).toString(tagIndex, wordIndex));
         continue;
       }
       int viaTag = edgeSpace.get(activeEdge).getChildAfterDot(0); // Z
@@ -79,16 +79,14 @@ public class Completion {
 
             tag2completionsMap.get(tag).add(completion);
      
-            Util.log(verbose, 3, "Edge " + tagIndex.get(tag)
-                  + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
+            //Util.log(verbose, 3, "Edge " + tagIndex.get(tag) + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
           }
         }
       } else { // for zero row, there is only passive state, which is the via state Z -> []
         Completion completion = new Completion(activeEdge, operator.one()); // , edgeSpace.to(activeEdge)
         tag2completionsMap.get(viaTag).add(completion);
         
-        Util.log(verbose, 3, "Edge " + tagIndex.get(viaTag)
-              + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
+        //Util.log(verbose, 3, "Edge " + tagIndex.get(viaTag) + ": completion " + completion.toString(edgeSpace, tagIndex, wordIndex, operator));
       }
     }
 
@@ -102,7 +100,7 @@ public class Completion {
     }
     
     if (verbose >= 1) {
-      Timing.tick("Done with completion");
+     Timing.tick("Done with completion");
     }
     
     assert checkCompletions(completionArray, edgeSpace, tagIndex, wordIndex, operator);
@@ -212,10 +210,10 @@ public class Completion {
 //  assert(viaState>=0);
 //  assert(stateSpace.get(viaState).numChildren()==0);
 //  
-////  if(verbose >= 2){
-////    System.err.println("Active state " + activeState + ": " + stateSpace.get(activeState)
-////        + ", via state " + viaState + ": " + stateSpace.get(viaState));
-////  }
+//  if(verbose >= 2){
+//    System.err.println("Active state " + activeState + ": " + stateSpace.get(activeState)
+//        + ", via state " + viaState + ": " + stateSpace.get(viaState));
+//  }
 //  
 //  // get passive states
 //  if(unaryClosures.containsRow(viaCategoryIndex)){ // non-zero rows in closure matrix, there exists some Y that R(Z->Y) is non-zero 
@@ -249,10 +247,10 @@ public class Completion {
 //  }
 //}
 //
-//// BackwardCombination[][] backwardCombinations = new BackwardCombination[numBackPassiveStates][];
+// BackwardCombination[][] backwardCombinations = new BackwardCombination[numBackPassiveStates][];
 //Completion[][] backwardCombinations = new Completion[stateSpace.size()][];
 //for (int passiveState = 0; passiveState < stateSpace.size(); passiveState++) {
-////for (int i = 0; i < numBackPassiveStates; i++) {
+//for (int i = 0; i < numBackPassiveStates; i++) {
 //  //int passiveState = backPassiveStateIndexer.get(i);
 //  if(backComboMap.containsKey(passiveState)){
 //    Set<Completion> backCombo = backComboMap.get(passiveState);

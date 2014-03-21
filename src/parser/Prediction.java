@@ -55,7 +55,7 @@ public class Prediction {
       EdgeSpace stateSpace, Index<String> tagIndex, Index<String> wordIndex, 
       List<Integer> nonterminals, Operator operator){
   	if(verbose >= 0){
-  		Timing.startDoing("\n## Constructing predictions");
+  	Timing.startDoing("\n## Constructing predictions");
   	}
 
     // Note: we used list for nonterminals instead of set, to ensure a fixed order for debug purpose
@@ -114,7 +114,7 @@ public class Prediction {
         viaStateCount++;
         totalPredictions += predictionsVia[viaCategoryIndex].length;
         
-        Util.log(verbose, 2, "  via: " + tagIndex.get(viaCategoryIndex) + ", num predictions " + predictionsVia[viaCategoryIndex].length);
+        //Util.log(verbose, 2, "  via: " + tagIndex.get(viaCategoryIndex) + ", num predictions " + predictionsVia[viaCategoryIndex].length);
         if(verbose >= 3){
         	for (int i = 0; i < predictionsVia[viaCategoryIndex].length; i++) {
         		Prediction p = predictionsVia[viaCategoryIndex][i];
@@ -127,7 +127,7 @@ public class Prediction {
     }
    
     /** construct complete predictions **/
-    Util.log(verbose, 1, "# Constructing complete predictions ...");
+    //Util.log(verbose, 1, "# Constructing complete predictions ...");
     
     Prediction[][] predictions = new Prediction[stateSpace.size()][];
     for (int predictorState = 0; predictorState < stateSpace.size(); predictorState++) {
@@ -140,10 +140,7 @@ public class Prediction {
         if (nonterminals.contains(viaCategoryIndex)){
           predictions[predictorState] = predictionsVia[viaCategoryIndex];
          
-          Util.log(verbose, 3, "Edge " + predictorState + ", " 
-              + stateSpace.get(predictorState).toString(tagIndex, wordIndex)
-              + ": predictions " + Util.sprint(predictions[predictorState], 
-                  stateSpace, tagIndex, wordIndex, operator));
+          //Util.log(verbose, 3, "Edge " + predictorState + ", "  + stateSpace.get(predictorState).toString(tagIndex, wordIndex) + ": predictions " + Util.sprint(predictions[predictorState], stateSpace, tagIndex, wordIndex, operator));
         } else {
           predictions[predictorState] = NO_PREDICTION;
         }
@@ -155,8 +152,7 @@ public class Prediction {
     }
     
     if(verbose >= 0){
-    	Timing.endDoing("Done! Total predictions=" + totalPredictions 
-          + ", num nonterminals with predictions=" + viaStateCount);   
+    Timing.endDoing("Done! Total predictions=" + totalPredictions  + ", num nonterminals with predictions=" + viaStateCount);   
     }
     
     return predictions;
@@ -236,14 +232,14 @@ public class Prediction {
 //  
 //  if(verbose > 0){
 //    System.err.println("\n## Constructing predictions ...");
-//    Timing.startTime();
+//   Timing.startTime();
 //  }
 //  
 //  int viaStateCount = 0; // via state with prediction
 //  int totalPredictions = 0;
 //  
 //  
-////  System.err.println(stateSpace.toString());
+//  System.err.println(stateSpace.toString());
 //  
 //  /** Construct predictions via states**/
 //  for (int viaCategoryIndex : nonterminals) { // Z
@@ -327,7 +323,7 @@ public class Prediction {
 //  }
 //  
 //  if(verbose >= 1){
-//    Timing.tick("Done! Total predictions=" + totalPredictions 
+//   Timing.tick("Done! Total predictions=" + totalPredictions 
 //        + ", num nonterminals with predictions=" + viaStateCount); 
 //  }
 //  

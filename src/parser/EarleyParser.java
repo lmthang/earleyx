@@ -378,7 +378,7 @@ public abstract class EarleyParser implements Parser {
       if (words.size()<100){
         System.err.println("## Parsing sent " + sentId + ": " + words);
       }
-      Timing.startTime();
+     Timing.startTime();
     }
     this.words = words;
     
@@ -399,7 +399,7 @@ public abstract class EarleyParser implements Parser {
       addActiveEdgeInfo(0, 0, startEdge);
     }
     if(verbose>=2){
-    	Timing.endTime("Done initializing!");
+    Timing.endTime("Done initializing!");
       dumpChart();
     }
 //    if(internalMeasures.contains(Measures.ENTROPY)){
@@ -420,22 +420,30 @@ public abstract class EarleyParser implements Parser {
       /*************************/
       /** Step (2b): complete **/
       /*************************/
-      if(verbose>=1){ Timing.startTime(); }
+      if(verbose>=1){
+        Timing.startTime(); 
+      }
       if(isFastComplete){
         fastChartComplete(right);
       } else {
         chartComplete(right);
       }
-      if(verbose>=1){ Timing.tick("# " + word + ", finished chartComplete"); }
+      if(verbose>=1){
+        Timing.tick("# " + word + ", finished chartComplete"); 
+      }
       
       
       /************************/
       /** Step (2c): predict **/
       /************************/
       // predict all new active edges for further down the road
-      if(verbose>=1){ Timing.startTime(); }
+      if(verbose>=1){
+        Timing.startTime(); 
+      }
       chartPredict(right);
-      if(verbose>=1){ Timing.tick("# " + word + ", finished chartPredict"); }
+      if(verbose>=1){
+        Timing.tick("# " + word + ", finished chartPredict"); 
+      }
       
       
       /*************************************/
@@ -470,8 +478,7 @@ public abstract class EarleyParser implements Parser {
     
     // end
     if(verbose>=0){
-      Timing.tick("Finished parsing sentence " + sentId + ". " + words 
-      		+ ". Num words = " + numWords + ", negLogProb=" + -stringLogProbability(numWords) + ".");
+     Timing.tick("Finished parsing sentence " + sentId + ". " + words + ". Num words = " + numWords + ", negLogProb=" + -stringLogProbability(numWords) + ".");
     }
     if (-stringLogProbability(numWords) == Double.NaN){
       System.err.print("! NegLogProb=NaN. Sentence " + sentId + ". " + words);
@@ -602,7 +609,7 @@ public abstract class EarleyParser implements Parser {
       status = "unknown";
     }
     
-    Util.log(verbose, 1, "# " + right + "\t" + word + ", " + status + " numTags=" + iTWs.size());
+    //Util.log(verbose, 1, "# " + right + "\t" + word + ", " + status + " numTags=" + iTWs.size());
     for (IntTaggedWord itw : iTWs) { // go through each POS tag the current word could have
       // score
       double score = lex.score(itw); // log
@@ -623,8 +630,7 @@ public abstract class EarleyParser implements Parser {
         // find all rules that rewrite into word_i ... word_(right-1)
         Map<Integer, Double> valueMap = grammar.getRuleTrie().findAllMap(wordIndices.subList(i, right));
         if(valueMap != null){
-        	Util.log(verbose, 1, "# Scanning multi-terminal rules: " + words.subList(i, right)
-        			+ ", map " + valueMap);
+        	//Util.log(verbose, 1, "# Scanning multi-terminal rules: " + words.subList(i, right)	+ ", map " + valueMap);
           
           for (int key : valueMap.keySet()) {
             int iT = -1 ;
@@ -660,9 +666,7 @@ public abstract class EarleyParser implements Parser {
    * @param inner
    */
   protected void scanning(int left, int right, int tag, double score){
-  	Util.log(verbose, 1, "# Scanning [" + left + ", " + right + "]: "
-          + parserTagIndex.get(tag) + "->" + 
-          words.subList(left, right) + " : " + operator.getProb(score));
+  	//Util.log(verbose, 1, "# Scanning [" + left + ", " + right + "]: " + parserTagIndex.get(tag) + "->" + words.subList(left, right) + " : " + operator.getProb(score));
     
     // scaling
     double inner = score;
@@ -671,7 +675,7 @@ public abstract class EarleyParser implements Parser {
     }
     
     int edge = edgeSpace.indexOfTag(tag);
-    // Util.error(edge==-1, "! edge = -1. Stop.");
+    Util.error(edge==-1, "! edge = -1. Stop, tag=" + parserTagIndex.get(tag) + ".");
     // Util.error(edgeSpace.get(edge).numChildren()==0, "! edge " + edge + " has no child.");
     assert(edge!=-1 && edgeSpace.get(edge).numChildren()==0);
     
@@ -683,7 +687,7 @@ public abstract class EarleyParser implements Parser {
         ProbRule probRule = new ProbRule(rule, operator.getProb(score));
         ruleSet.add(probRule);
    
-        Util.log(verbose, 3, "Add ProbRule " + probRule.toString(parserTagIndex, parserWordIndex));
+        //Util.log(verbose, 3, "Add ProbRule " + probRule.toString(parserTagIndex, parserWordIndex));
       }
       
       if (this instanceof EarleyParserSparse){
@@ -710,9 +714,9 @@ public abstract class EarleyParser implements Parser {
   protected void fragmentScanning(int right){
     Set<Integer> leftIndices = fragmentEdgeInfo.get(right-1).keySet();
     
-    Util.log(verbose, 2, "## Fragment scan " + right + " ... ");
+    //Util.log(verbose, 2, "## Fragment scan " + right + " ... ");
     for (Integer left : leftIndices) {
-    	Util.log(verbose, 2, "# Fragment scan [" + left + ", " + (right-1) + "] ... ");
+    	//Util.log(verbose, 2, "# Fragment scan [" + left + ", " + (right-1) + "] ... ");
       Set<Integer> fragmentEdges = fragmentEdgeInfo.get(right-1).get(left);
 
       for (Integer fragmentEdge : fragmentEdges) {
@@ -721,7 +725,7 @@ public abstract class EarleyParser implements Parser {
 
     }
     
-    Util.log(verbose, 2, "Done fragment scan " + right);
+    //Util.log(verbose, 2, "Done fragment scan " + right);
   }
   
   private void fragmentScanning(int left, int right, int fragmentEdge){
@@ -732,8 +736,7 @@ public abstract class EarleyParser implements Parser {
     int edge = fragmentEdge;
     Edge edgeObj = edgeSpace.get(edge);
     
-    Util.log(verbose, 2, "# Fragment scanning [" + left + ", " + right + "]: "
-          + edgeObj.toString(parserTagIndex, parserWordIndex));
+    //Util.log(verbose, 2, "# Fragment scanning [" + left + ", " + right + "]: " + edgeObj.toString(parserTagIndex, parserWordIndex));
     
     while(nextRight<=numWords) {
       // invariant: edgeObj [left, nextRight-1]: X -> \alpha . _y \beta and _y matches wordIndices.(nextRight-1)
@@ -759,7 +762,7 @@ public abstract class EarleyParser implements Parser {
     }  
     
     // add nextEdgeObj [left, nextRight]: X -> \alpha _y . \beta into chart
-    Util.log(verbose, 2, "  add to chart: " + edgeInfo(left, nextRight, edge));
+    //Util.log(verbose, 2, "  add to chart: " + edgeInfo(left, nextRight, edge));
     
     
     if (edgeObj.numRemainingChildren()==0){ // completed: X -> \alpha Z .
@@ -790,8 +793,7 @@ public abstract class EarleyParser implements Parser {
         continue;
       }
       
-      Util.log(verbose, 2, "\n# Predict all [" + left + "," + right + "]: " + 
-            "chart count=" + insideChartCount(left, right));
+      //Util.log(verbose, 2, "\n# Predict all [" + left + "," + right + "]: " +  "chart count=" + insideChartCount(left, right));
       
       flag = true;
       for(int edge : listInsideEdges(left, right)){
@@ -842,7 +844,7 @@ public abstract class EarleyParser implements Parser {
         }
       }
       
-      Util.log(verbose, 3, "  to " + edgeScoreInfo(right, right, newEdge, newForwardProb, newInnerProb));
+      //Util.log(verbose, 3, "  to " + edgeScoreInfo(right, right, newEdge, newForwardProb, newInnerProb));
     }
   }
   
@@ -856,7 +858,7 @@ public abstract class EarleyParser implements Parser {
     }
     completedEdges.get(lrIndex).add(edge);
     
-    Util.log(verbose, 3, "# Add completed edge " + edgeInfo(left, right, edge));
+    //Util.log(verbose, 3, "# Add completed edge " + edgeInfo(left, right, edge));
   }
   
   public void addActiveEdgeInfo(int left, int right, int edge){
@@ -865,7 +867,7 @@ public abstract class EarleyParser implements Parser {
     }
     activeEdgeInfo.get(right).get(edge).add(left);
     
-    Util.log(verbose, 3, "# Add active edge info " + edgeInfo(left, right, edge));
+    //Util.log(verbose, 3, "# Add active edge info " + edgeInfo(left, right, edge));
   }
   
   public void addFragmentEdgeInfo(int left, int right, int edge){
@@ -874,7 +876,7 @@ public abstract class EarleyParser implements Parser {
     }
     fragmentEdgeInfo.get(right).get(left).add(edge);
     
-    Util.log(verbose, 2, "# Add fragment edge info " + edgeInfo(left, right, edge));
+    //Util.log(verbose, 2, "# Add fragment edge info " + edgeInfo(left, right, edge));
   }
   
   /**
@@ -904,8 +906,7 @@ public abstract class EarleyParser implements Parser {
     
     if(insideChartCount(middle, right)>0){
       // there're active edges for the span [middle, right]
-    	Util.log(verbose, 2, "\n# Complete all [" + left + "," + middle + "," + right + "]: insideChartCount[" 
-            + middle + "," + right + "]=" + insideChartCount(middle, right));
+    	//Util.log(verbose, 2, "\n# Complete all [" + left + "," + middle + "," + right + "]: insideChartCount[" + middle + "," + right + "]=" + insideChartCount(middle, right));
       
       // tag completions
       for(int edge : listInsideEdges(middle, right)){
@@ -919,7 +920,7 @@ public abstract class EarleyParser implements Parser {
     
     /** Handle multi-terminal rules **/
     if(hasMultiTerminalRule && !isForwardCellEmpty(left, middle)){
-    	Util.log(verbose, 2, "# handle multiterminal rules " + left + ", " + middle + ", " + right);
+    	//Util.log(verbose, 2, "# handle multiterminal rules " + left + ", " + middle + ", " + right);
       Map<Integer, Double> valueMap = grammar.getRuleTrie().findAllPrefixMap(wordIndices.subList(middle, right));
       
       if(valueMap != null){
@@ -973,8 +974,7 @@ public abstract class EarleyParser implements Parser {
       
       // list of nextEdge right: middle Y -> v .
       if(completedEdges.containsKey(mrIndex)){
-      	Util.log(verbose, 3, "\n# Complete all [" + middle + "," + right + "]: insideChartCount[" 
-              + middle + "," + right + "]=" + completedEdges.get(mrIndex).size());
+      	//Util.log(verbose, 3, "\n# Complete all [" + middle + "," + right + "]: insideChartCount["  + middle + "," + right + "]=" + completedEdges.get(mrIndex).size());
         
         Integer[] copyEdges = completedEdges.get(mrIndex).toArray(new Integer[0]);
         for(int nextEdge : copyEdges){
@@ -1016,15 +1016,13 @@ public abstract class EarleyParser implements Parser {
 
     if(completions.length>0){ // there exists a completion
       double inner = getInnerScore(middle, right, nextEdge);
-      Util.log(verbose, 3, completionInfo(middle, right, nextEdge, inner, completions));
+      //Util.log(verbose, 3, completionInfo(middle, right, nextEdge, inner, completions));
  
       for (Completion completion : completions) { // go through all completions we could finish
         int prevEdge = completion.activeEdge; // X -> \alpha . Z \beta
 
         if(activeEdgeInfo.containsKey(middle) && activeEdgeInfo.get(middle).containsKey(prevEdge)){
-        	Util.log(verbose, 3, "Left for [*, " + middle + "] " 
-        				+ edgeSpace.get(prevEdge).toString(parserTagIndex, parserWordIndex) 
-                + ":  " + activeEdgeInfo.get(middle).get(prevEdge));
+        	//Util.log(verbose, 3, "Left for [*, " + middle + "] " + edgeSpace.get(prevEdge).toString(parserTagIndex, parserWordIndex) + ":  " + activeEdgeInfo.get(middle).get(prevEdge));
           
           
           for(int left : activeEdgeInfo.get(middle).get(prevEdge)){ // middle : left X -> \alpha . Z \beta
@@ -1219,10 +1217,7 @@ public abstract class EarleyParser implements Parser {
     // prefix
     wordPrefixScores[right] = operator.add(wordPrefixScores[right], prefixScore);
     
-    Util.log(verbose, 2, "  prefix " + operator.getProb(prefixScore) + " = " 
-          + operator.getProb(getForwardScore(left, middle, prevEdge)) 
-          + " * completion " + operator.getProb(completionScore) 
-          + " * inner " + operator.getProb(inner));
+    //Util.log(verbose, 2, "  prefix " + operator.getProb(prefixScore) + " = "  + operator.getProb(getForwardScore(left, middle, prevEdge)) + " * completion " + operator.getProb(completionScore) + " * inner " + operator.getProb(inner));
     
     // entropy
 //    if(internalMeasures.contains(Measures.ENTROPY)){ // expected value of log prob
@@ -1232,7 +1227,7 @@ public abstract class EarleyParser implements Parser {
 //      }
 //      wordEntropy[right] += -(prefixProb/scaleFactor)*SloppyMath.log(prefixProb/scaleFactor, 2);
 //      
-//      Util.log(verbose, 2, "  entropy " + -prefixProb*operator.getLogProb(prefixScore));
+//      //Util.log(verbose, 2, "  entropy " + -prefixProb*operator.getLogProb(prefixScore));
 //    }
     
 //    if(isSeparateRuleInTrie){
@@ -1276,7 +1271,7 @@ public abstract class EarleyParser implements Parser {
 //      wordPcfgFutureLength[right] += prefixProb * numRemainChildren;
 //    }
 //    
-//    Util.log(verbose, 2, "  " + Measures.PCFG_FUTURE_LENGTH + " " + df.format(prefixProb*numRemainChildren)
+//    //Util.log(verbose, 2, "  " + Measures.PCFG_FUTURE_LENGTH + " " + df.format(prefixProb*numRemainChildren)
 //          + " = prob " + df.format(prefixProb) + " * measure " + numRemainChildren);
 //  }
 //  
@@ -1286,7 +1281,7 @@ public abstract class EarleyParser implements Parser {
 //      wordAllFutureLength[right] += prefixProb * numRemainChildren;
 //    }
 //    
-//    Util.log(verbose, 2, "  " + Measures.ALL_FUTURE_LENGTH + " " + df.format(prefixProb*numRemainChildren)
+//    //Util.log(verbose, 2, "  " + Measures.ALL_FUTURE_LENGTH + " " + df.format(prefixProb*numRemainChildren)
 //          + " = prob " + df.format(prefixProb) + " * measure " + numRemainChildren);
 //  }
 //  
@@ -1322,7 +1317,7 @@ public abstract class EarleyParser implements Parser {
 //    if(internalMeasures.contains(Measures.PCFG_FUTURE_LENGTH_COUNT)){
 //      wordPcfgFutureLengthCount[right] += ruleCount*numRemainChildren;
 //    }
-//    Util.log(verbose, 2, "  " + Measures.PCFG_RULE_COUNT + " measure " + ruleCount);
+//    //Util.log(verbose, 2, "  " + Measures.PCFG_RULE_COUNT + " measure " + ruleCount);
 //  }
   
   protected void addPrefixMultiRule(int left, int middle, int right, int edge, int ruleId, double inner) {    
@@ -1403,7 +1398,7 @@ public abstract class EarleyParser implements Parser {
     }
     
     if(verbose>=1){
-    	Timing.startDoing("# Computing outside probabilities ...");
+    Timing.startDoing("# Computing outside probabilities ...");
     }
     
 
@@ -1414,7 +1409,7 @@ public abstract class EarleyParser implements Parser {
     outside(0, numWords, goalEdge, rootInnerScore, verbose); //4);
     
     if(verbose>=1){
-      Timing.endDoing();
+     Timing.endDoing();
     }
   }
   
@@ -1436,7 +1431,7 @@ public abstract class EarleyParser implements Parser {
  
     // outside
     for(int length=end-start; length>0; length--){
-    	Util.log(verbose, 1, "# Outside length " + length + "");
+    	//Util.log(verbose, 1, "# Outside length " + length + "");
       
       for (int left=0; left<=end-length; left++){ // left
         int right = left+length; // right
@@ -1485,12 +1480,12 @@ public abstract class EarleyParser implements Parser {
           if(edgeObj.getDot()>0){// X -> \beta Z . \alpha // && !edgeObj.isTerminalEdge()){ 
             assert(edge == goalEdge || edgeObj.numChildren()>1);
             
-            Util.log(verbose, 3, "## " + outsideInfo(left, right, edge));
+            //Util.log(verbose, 3, "## " + outsideInfo(left, right, edge));
             
             int prevTag = edgeObj.getChild(edgeObj.getDot()-1); // Z
             Edge prevEdgeObj = edgeObj.getPrevEdge(); // X -> \beta . Z \alpha
             int prevEdge = edgeSpace.indexOf(prevEdgeObj);
-            Util.log(verbose, 3, "  prev edge " + prevEdgeObj.toString(parserTagIndex, parserWordIndex));
+            //Util.log(verbose, 3, "  prev edge " + prevEdgeObj.toString(parserTagIndex, parserWordIndex));
             
             // recursively split into strictly smaller chunks
             for(int middle=right-1; middle>left; middle--){ // middle
@@ -1513,8 +1508,7 @@ public abstract class EarleyParser implements Parser {
     assert(middle!=left || prevEdgeObj.getDot()==0); // if middle==left, prev edge should be X -> . Z \alpha
     
     double leftInside = getInnerScore(left, middle, prevEdge);
-    Util.log(verbose, 3, "  left inside [" + left + ", " + middle + "] " 
-          + operator.getProb(leftInside));
+    //Util.log(verbose, 3, "  left inside [" + left + ", " + middle + "] "  + operator.getProb(leftInside));
     
     int mrIndex = linear(middle, right);
     
@@ -1541,11 +1535,7 @@ public abstract class EarleyParser implements Parser {
         if(unaryClosureScore > operator.zero()) { // positive R(Z -> Y)
           double rightInside = getInnerScore(middle, right, nextEdge);
           
-          Util.log(verbose, 3, "    next edge [" + middle + ", " + right + "] " + 
-                nextEdgeObj.toString(parserTagIndex, parserWordIndex) + 
-                ", right inside " + operator.getProb(rightInside) + 
-                ", unary(" + parserTagIndex.get(prevTag) + "->" 
-                + parserTagIndex.get(nextTag) + ")=" + operator.getProb(unaryClosureScore));
+          //Util.log(verbose, 3, "    next edge [" + middle + ", " + right + "] " + nextEdgeObj.toString(parserTagIndex, parserWordIndex) + ", right inside " + operator.getProb(rightInside) + ", unary(" + parserTagIndex.get(prevTag) + "->" + parserTagIndex.get(nextTag) + ")=" + operator.getProb(unaryClosureScore));
           
           // left outside = parent outside * right inside
           // Note: we multiply unaryClosure score here even though Stolcke's paper suggests that we should not
@@ -1586,8 +1576,7 @@ public abstract class EarleyParser implements Parser {
   
   protected void outsideUpdate(int left, int right, int edge, double outsideScore, double rootInsideScore, int verbose){
     addOuterScore(left, right, edge, outsideScore);
-    Util.log(verbose, 3, "      after adding " + operator.getProb(outsideScore) + 
-          ", " + outsideInfo(left, right, edge));
+    //Util.log(verbose, 3, "      after adding " + operator.getProb(outsideScore) +  ", " + outsideInfo(left, right, edge));
     
     // add expected counts
     Edge edgeObj = edgeSpace.get(edge);
@@ -1697,7 +1686,7 @@ public abstract class EarleyParser implements Parser {
    * Initialization for every sentence
    */
   protected void sentInit(){
-  	Util.log(verbose, 2, "# EarleyParser initializing ... ");
+  	//Util.log(verbose, 2, "# EarleyParser initializing ... ");
     
     // words
     if(words == null || words.size()==0){
@@ -1916,7 +1905,7 @@ public abstract class EarleyParser implements Parser {
   
   public void updateGrammar(){
     /* learn grammar */
-  	Util.log(verbose, 1, "\n### Update grammar ... ");
+  	//Util.log(verbose, 1, "\n### Update grammar ... ");
     grammar = new Grammar(parserWordIndex, parserTagIndex, parserNonterminalMap, operator);
     grammar.learnGrammar(ruleSet, edgeSpace, isSeparateRuleInTrie);
   }
@@ -2259,7 +2248,7 @@ public abstract class EarleyParser implements Parser {
 /** Unused code **/
 
 
-//// prefix: either in prob or log-prob domain
+// prefix: either in prob or log-prob domain
 //double score = operator.zero();
 //if(wordPrefixLists[right].size()==0){
 //System.err.println("! storeMeasures: no paths go through word " + right + ", " + words.get(right-1).word());
@@ -2287,13 +2276,13 @@ public abstract class EarleyParser implements Parser {
 //    
 //    // scaling
 //    double scalingFactor = operator.one();
-////    if (EarleyParserOptions.isScaling){
-////      if (isOutsideProb){ // outside prob has a scaling factor for [0,left][right, numWords]
-////        scalingFactor = operator.multiply(scalingMatrix[linear[0][left]], scalingMatrix[linear[right][numWords]]);
-////      } else {
-////        scalingFactor = scalingMatrix[linear(left, right)];
-////      }
-////    }
+//    if (EarleyParserOptions.isScaling){
+//      if (isOutsideProb){ // outside prob has a scaling factor for [0,left][right, numWords]
+//        scalingFactor = operator.multiply(scalingMatrix[linear[0][left]], scalingMatrix[linear[right][numWords]]);
+//      } else {
+//        scalingFactor = scalingMatrix[linear(left, right)];
+//      }
+//    }
 //
 //    
 //    double maxG = Double.NEGATIVE_INFINITY;
@@ -2306,7 +2295,7 @@ public abstract class EarleyParser implements Parser {
 //}
 
 //linear = new int[numWords+1][numWords+1];
-//// go in the order of CKY parsing
+// go in the order of CKY parsing
 //numCells=0;
 //for(int right=0; right<=numWords; right++){
 //  for(int left=right; left>=0; left--){
@@ -2353,7 +2342,7 @@ public abstract class EarleyParser implements Parser {
 //  
 //}
 
-//// inside-outside
+// inside-outside
 //if(insideOutsideOpt==2){
 //  addToInsideChart(left, right, tag, inner);
 //}
@@ -2365,22 +2354,22 @@ public abstract class EarleyParser implements Parser {
 //protected void fragmentComplete(int left, int right){
 //  String word = words.get(right-1).word();
 //  Set<Integer> fragmentEdges = edgeSpace.getFragmentEdges(parserWordIndex.indexOf(word));
-////  int middle = right-1;
+//  int middle = right-1;
 //  
 //  if(fragmentEdges != null){ // there are fragment edges that start with the current word
 //    Set<Integer> predictedEdges = listInsideEdges(left, right-1);
 //    
 //    if(predictedEdges.size()>0){ // non-empty cell
-////      System.err.println("# [" + left + ", " + (right-1) + "]: " + Util.sprint(predictedEdges, edgeSpace, parserTagIndex, parserWordIndex));
-////      System.err.println("Fragment: " + Util.sprint(fragmentEdges, edgeSpace, parserTagIndex, parserWordIndex));   
+//      System.err.println("# [" + left + ", " + (right-1) + "]: " + Util.sprint(predictedEdges, edgeSpace, parserTagIndex, parserWordIndex));
+//      System.err.println("Fragment: " + Util.sprint(fragmentEdges, edgeSpace, parserTagIndex, parserWordIndex));   
 //      Set<Integer> intersectEdges = Util.intersection(predictedEdges, fragmentEdges);
 //     
 //      // Thang July 2013: potential BUG (maybe very minor). 
 //      // For fragment edges in which the dot position is 0, we might need to consider 
 //      // unary recursive rewriting rules similar to how we handle multi-terminal rules in addPrefixMultiRule()
 //      if(intersectEdges.size()>0){
-////        System.err.println("# " + word + "\t[" + left + ", " + (right-1) + 
-////            "] " + ": " + Util.sprint(intersectEdges, edgeSpace, parserTagIndex, parserWordIndex));
+//        System.err.println("# " + word + "\t[" + left + ", " + (right-1) + 
+//            "] " + ": " + Util.sprint(intersectEdges, edgeSpace, parserTagIndex, parserWordIndex));
 //
 //        int rhsLengthCount = 0;
 //        int futureLengthCount = 0;
@@ -2404,11 +2393,11 @@ public abstract class EarleyParser implements Parser {
 //  double newInnerProb = getInnerScore(left, middle, prevEdge);
 //  
 //  if (EarleyParserOptions.isScaling){
-////    if(verbose>=2){
-////      System.err.println("fragment complete scaling " + operator.multiply(newForwardProb, getScaling(middle, right)) 
-////          + " = " + newForwardProb 
-////          + ", scaled = " + getScaling(middle, right));
-////    }
+//    if(verbose>=2){
+//      System.err.println("fragment complete scaling " + operator.multiply(newForwardProb, getScaling(middle, right)) 
+//          + " = " + newForwardProb 
+//          + ", scaled = " + getScaling(middle, right));
+//    }
 //    newForwardProb = operator.multiply(newForwardProb, getScaling(middle, right));
 //    newInnerProb = operator.multiply(newInnerProb, getScaling(middle, right));
 //  }
