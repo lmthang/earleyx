@@ -302,21 +302,29 @@ public class Main {
       	br.close();
       	
       	System.err.println("# Already parsed " + parsedSentIndices.size() + " sentences: " + parsedSentIndices);
-      	List<String> remainedSents = new ArrayList<String>();
-      	List<String> remainedIndices = new ArrayList<String>();
-      	for (int i = 0; i < sentences.size(); i++) {
-					if(!parsedSentIndices.contains(indices.get(i))){
-						remainedSents.add(sentences.get(i));
-						remainedIndices.add(indices.get(i));
-					}
-				}
-      	sentences = remainedSents;
-      	indices = remainedIndices;
-      	System.err.println("# Need to parse " + indices.size());
       }
     } else {
       printHelp(args, "No output prefix, -out option");
     }
+    
+    // filter out long sentences (>40 words) and those that we have parsed
+  	List<String> remainedSents = new ArrayList<String>();
+  	List<String> remainedIndices = new ArrayList<String>();
+  	for (int i = 0; i < sentences.size(); i++) {
+			if(!parsedSentIndices.contains(indices.get(i))){
+				int numWords = sentences.get(i).split("\\s").length; 
+				if(numWords<=40){ // not longer than 40 words
+					remainedSents.add(sentences.get(i));
+					remainedIndices.add(indices.get(i));
+				} else {
+					System.err.println("! Skip long sent, numWords=" + numWords + ". Sent: " + sentences.get(i));
+				}
+			}
+		}
+  	sentences = remainedSents;
+  	indices = remainedIndices;
+  	System.err.println("# Need to parse " + indices.size());
+  	
     
     /***************/
     /* load parser */
