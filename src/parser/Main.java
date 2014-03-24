@@ -37,8 +37,8 @@ public class Main {
     System.err.println("! " + message);
     System.err.println("Main -in inFile  -out outPrefix (-grammar grammarFile | -treebank treebankFile) " +
         "-obj objectives\n" + 
-        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-thread n] [-verbose opt]" +
-        "\t[-decode opt]" + 
+        "\t[-root rootSymbol] [-sparse] [-normalprob] [-scale] [-decode opt] [-verbose opt]" +
+        "\t[-thread n] [-filter length]" + 
         "\t[-io opt -maxiteration n -intermediate n -minprob f]\n");
     
     // compulsory
@@ -57,13 +57,15 @@ public class Main {
     System.err.println("\t\t sparse \t\t optimize for sparse grammars (default: run with dense grammars)");
     System.err.println("\t\t normalprob \t\t perform numeric computation in normal prob (cf. log-prob). This switch is best to be used with -scale.");
     System.err.println("\t\t scale \t\t rescaling approach to parse extremely long sentences");
-    System.err.println("\t\t thread \t\t if value > 1, use multi-threaded version of the parser");
-    System.err.println("\t\t verbose \t\t -1 -- no debug info (default), " + 
-        "0: surprisal per word, 1-4 -- increasing more details");
-    
     System.err.println("\n\t\t decode \t\t perform decoding, " + 
         "output parse trees to outPrefix.opt " +
         "opt should be either \"viterbi\", \"marginal\" or \"socialmarginal\"");
+    System.err.println("\t\t verbose \t\t -1 -- no debug info (default), " + 
+        "0: surprisal per word, 1-4 -- increasing more details");
+    
+    System.err.println("\t\t thread \t\t if value > 1, use multi-threaded version of the parser");
+    System.err.println("\t\t filter \t\t if value > 0, filter sentences that are >= filtered length");
+    
     System.err.println("\n\t\t io \t\t run inside-outside algorithm, " + 
         "output final grammar to outPrefix.io.grammar. opt should be \"em\" or \"vb\"");
     System.err.println("\t\t maxiteration \t\t number of iterations to run Inside-Outside. If not specified, will run until convergence.");
@@ -73,7 +75,7 @@ public class Main {
   }
   
   public static void main(String[] args) throws IOException {
-    if(args.length==0){
+  	if(args.length==0){
       printHelp(args, "No argument");
     }
     System.err.println("EarleyParser invoked with arguments " + Arrays.asList(args));
@@ -96,9 +98,12 @@ public class Main {
     flags.put("-sparse", new Integer(0)); // optimize for sparse grammars
     flags.put("-normalprob", new Integer(0)); // normal prob 
     flags.put("-scale", new Integer(0)); // scaling 
+    flags.put("-decode", new Integer(1)); // decode option
     flags.put("-verbose", new Integer(1)); 
     
-    flags.put("-decode", new Integer(1)); // decode option
+    flags.put("-thread", new Integer(1)); // thread option
+    flags.put("-filter", new Integer(1)); // filter option
+    
     flags.put("-io", new Integer(1)); // inside-outside computation
     flags.put("-maxiteration", new Integer(1)); // number of iterations to run IO
     flags.put("-minprob", new Integer(1)); // pruning threshold
@@ -106,17 +111,12 @@ public class Main {
     
     Map<String, String[]> argsMap = StringUtils.argsToMap(args, flags);
     args = argsMap.get(null);
+
     
     /* root symbol */
     String rootSymbol = "ROOT";
     if (argsMap.keySet().contains("-root")) {
       rootSymbol = argsMap.get("-root")[0];
-    }
-    
-    /* verbose option */
-    int numThreads = 1;
-    if (argsMap.keySet().contains("-thread")) {
-      numThreads = Integer.parseInt(argsMap.get("-thread")[0]);
     }
     
     /* verbose option */
@@ -144,12 +144,6 @@ public class Main {
       isLogProb = false;
     }
     
-    /* scale opt */
-    boolean isScaling = false;
-    if (argsMap.keySet().contains("-scale")) {
-      isScaling = true;
-    }
-    
     /* decode opt */
     String decodeOptStr = "";
     if (argsMap.keySet().contains("-decode")) {
@@ -157,6 +151,24 @@ public class Main {
       if(!decodeOptStr.equalsIgnoreCase("viterbi") && !decodeOptStr.equalsIgnoreCase("marginal") && !decodeOptStr.equalsIgnoreCase("socialmarginal")){
         printHelp(args, "! Invalid -decode option " + decodeOptStr);
       }
+    }
+    
+    /* scale opt */
+    boolean isScaling = false;
+    if (argsMap.keySet().contains("-scale")) {
+      isScaling = true;
+    }
+    
+    /* thread option */
+    int numThreads = 1;
+    if (argsMap.keySet().contains("-thread")) {
+      numThreads = Integer.parseInt(argsMap.get("-thread")[0]);
+    }
+    
+    /* filter option */
+    int filterLen = 0;
+    if (argsMap.keySet().contains("-filter")) {
+    	filterLen = Integer.parseInt(argsMap.get("-filter")[0]);
     }
     
     /* io opt */
@@ -177,7 +189,7 @@ public class Main {
         printHelp(args, "maxiteration<=0");
       }
     }
-    double minRuleProb = 0;
+    float minRuleProb = 0;
     if (argsMap.keySet().contains("-minprob")) {
       if(ioOptStr.equals("")){
         printHelp(args, "-minprob only used with -io");
@@ -232,9 +244,13 @@ public class Main {
     System.err.println("# isLogProb = " + isLogProb);
     System.err.println("# isScaling = " + isScaling);
     System.err.println("# decodeOpt = " + decodeOptStr);
+    System.err.println("# verbose opt = " + verbose);
+    
+    System.err.println("# Num threads = " + numThreads);
+    System.err.println("# Filter length = " + filterLen);
+    
     System.err.println("# ioOpt = " + ioOptStr);
     System.err.println("# maxIteration = " + maxiteration);
-    System.err.println("# Verbose opt = " + verbose);
 
     /******************/
     /* get input data */
@@ -307,23 +323,24 @@ public class Main {
       printHelp(args, "No output prefix, -out option");
     }
     
-    // filter out long sentences (>40 words) and those that we have parsed
+    // filter out long sentences and those that we have parsed
   	List<String> remainedSents = new ArrayList<String>();
   	List<String> remainedIndices = new ArrayList<String>();
   	for (int i = 0; i < sentences.size(); i++) {
 			if(!parsedSentIndices.contains(indices.get(i))){
 				int numWords = sentences.get(i).split("\\s").length; 
-				if(numWords<=40){ // not longer than 40 words
+				if(filterLen>0 && numWords>=filterLen){ // filter long sentences
+					System.err.println("! Skip long sent, numWords=" + numWords + ". Sent: " + sentences.get(i));
+				} else {
 					remainedSents.add(sentences.get(i));
 					remainedIndices.add(indices.get(i));
-				} else {
-					System.err.println("! Skip long sent, numWords=" + numWords + ". Sent: " + sentences.get(i));
 				}
 			}
 		}
   	sentences = remainedSents;
   	indices = remainedIndices;
   	System.err.println("# Need to parse " + indices.size());
+
   	
     
     /***************/
