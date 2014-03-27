@@ -233,6 +233,7 @@ public abstract class EarleyParser implements Parser {
   protected abstract void initOuterProbs();
   
   // tmp predict probabilities
+  protected abstract void chartPredict(int left, int right);
   protected abstract void initPredictTmpScores();
   protected abstract void addPredictTmpForwardScore(int edge, double score);
   protected abstract void addPredictTmpInnerScore(int edge, double score);
@@ -368,10 +369,10 @@ public abstract class EarleyParser implements Parser {
   }
 
   public boolean parse(List<? extends HasWord> words) {
-    if(hasFragmentRule && EarleyParserOptions.isScaling){
-      System.err.println("! Currently doesn't support scaling for fragment grammars");
-      return false;
-    }
+//    if(hasFragmentRule && EarleyParserOptions.isScaling){
+//      System.err.println("! Currently doesn't support scaling for fragment grammars");
+//      return false;
+//    }
     
     // start
     if(verbose>=0){
@@ -714,7 +715,6 @@ public abstract class EarleyParser implements Parser {
   protected void fragmentScanning(int right){
     Set<Integer> leftIndices = fragmentEdgeInfo.get(right-1).keySet();
     
-    if(verbose>=2) System.err.println("## Fragment scan " + right + " ... ");
     for (Integer left : leftIndices) {
     	if(verbose>=2) System.err.println("# Fragment scan [" + left + ", " + (right-1) + "] ... ");
       Set<Integer> fragmentEdges = fragmentEdgeInfo.get(right-1).get(left);
@@ -722,7 +722,6 @@ public abstract class EarleyParser implements Parser {
       for (Integer fragmentEdge : fragmentEdges) {
         fragmentScanning(left, right, fragmentEdge);
       }  
-
     }
     
     if(verbose>=2) System.err.println("Done fragment scan " + right);
@@ -732,49 +731,89 @@ public abstract class EarleyParser implements Parser {
     double forwardScore = getForwardScore(left, right-1, fragmentEdge);
     double innerScore = getInnerScore(left, right-1, fragmentEdge);
     
-    int nextRight = right;
     int edge = fragmentEdge;
     Edge edgeObj = edgeSpace.get(edge);
-    
-    if(verbose>=2) System.err.println("# Fragment scanning [" + left + ", " + right + "]: " + edgeObj.toString(parserTagIndex, parserWordIndex));
-    
-    while(nextRight<=numWords) {
-      // invariant: edgeObj [left, nextRight-1]: X -> \alpha . _y \beta and _y matches wordIndices.(nextRight-1)
-      
-      // scaling
-      if(EarleyParserOptions.isScaling){ 
-        forwardScore = operator.multiply(forwardScore, getScaling(nextRight-1, nextRight));
-        innerScore = operator.multiply(innerScore, getScaling(nextRight-1, nextRight));
-      }
-      addPrefixProb(forwardScore, left, nextRight-1, nextRight, 
-          operator.one(), operator.one(), edge, -1, EarleyParserOptions.FG);
-      
-      // advance to next position [left, nextRight]: X -> \alpha _y . \beta
-      edge = edgeSpace.to(edge);
-      edgeObj = edgeSpace.get(edge); //nextEdgeObj.getToEdge();
-      if(edgeObj.numRemainingChildren()==0 || edgeObj.isTagAfterDot(0)
-          || nextRight==numWords || edgeObj.getChildAfterDot(0) != wordIndices.get(nextRight)){ // look ahead to see if any matching terminal
-        break;
-      } 
-      
-      // there's a next terminal that matches
-      nextRight++;
-    }  
-    
-    // add nextEdgeObj [left, nextRight]: X -> \alpha _y . \beta into chart
-    if(verbose>=2) System.err.println("  add to chart: " + edgeInfo(left, nextRight, edge));
-    
-    
-    if (edgeObj.numRemainingChildren()==0){ // completed: X -> \alpha Z .
-      if(EarleyParserOptions.insideOutsideOpt>0 || EarleyParserOptions.decodeOpt==2){
-        addCompletedEdges(left, nextRight, edge);
-      }
-    } else if (isFastComplete){
-      addActiveEdgeInfo(left, nextRight, edge);
+    if(verbose>=2) System.err.println("# Fragment scanning [" + left + ", " + (right-1) + "]: " + edgeObj.toString(parserTagIndex, parserWordIndex));
+    // scaling
+    if(EarleyParserOptions.isScaling){ 
+      forwardScore = operator.multiply(forwardScore, getScaling(right-1, right));
+      innerScore = operator.multiply(innerScore, getScaling(right-1, right));
     }
-    addToChart(left, nextRight, edge, forwardScore, innerScore);
+    addPrefixProb(forwardScore, left, right-1, right, 
+        operator.one(), operator.one(), edge, -1, EarleyParserOptions.FG);
     
+    // advance to next position [left, nextRight]: X -> \alpha _y . \beta
+    edge = edgeSpace.to(edge);
+    edgeObj = edgeSpace.get(edge); //nextEdgeObj.getToEdge();
+    if(edgeObj.numRemainingChildren()>0 && !edgeObj.isTagAfterDot(0)
+        && right<numWords && edgeObj.getChildAfterDot(0) == wordIndices.get(right)){ // look ahead to see if any matching terminal
+    	addToChart(left, right, edge, forwardScore, innerScore);
+    	addFragmentEdgeInfo(left, right, edge);
+    	right++;
+    }
+	  
+	  // add nextEdgeObj [left, nextRight]: X -> \alpha _y . \beta into chart
+	  if(verbose>=2) System.err.println("  add to chart: " + edgeInfo(left, right, edge));
+	  
+	  
+	  if (edgeObj.numRemainingChildren()==0){ // completed: X -> \alpha Z .
+	    if(EarleyParserOptions.insideOutsideOpt>0 || EarleyParserOptions.decodeOpt==2){
+	      addCompletedEdges(left, right, edge);
+	    }
+	  } else if (isFastComplete){
+	    addActiveEdgeInfo(left, right, edge);
+	  }
+	  addToChart(left, right, edge, forwardScore, innerScore);
   }
+  
+//  private void fragmentScanning(int left, int right, int fragmentEdge){
+//    double forwardScore = getForwardScore(left, right-1, fragmentEdge);
+//    double innerScore = getInnerScore(left, right-1, fragmentEdge);
+//    
+//    int nextRight = right;
+//    int edge = fragmentEdge;
+//    Edge edgeObj = edgeSpace.get(edge);
+//    
+//    if(verbose>=2) System.err.println("# Fragment scanning [" + left + ", " + right + "]: " + edgeObj.toString(parserTagIndex, parserWordIndex));
+//    
+//    while(nextRight<=numWords) {
+//      // invariant: edgeObj [left, nextRight-1]: X -> \alpha . _y \beta and _y matches wordIndices.(nextRight-1)
+//      
+//      // scaling
+//      if(EarleyParserOptions.isScaling){ 
+//        forwardScore = operator.multiply(forwardScore, getScaling(nextRight-1, nextRight));
+//        innerScore = operator.multiply(innerScore, getScaling(nextRight-1, nextRight));
+//      }
+//      addPrefixProb(forwardScore, left, nextRight-1, nextRight, 
+//          operator.one(), operator.one(), edge, -1, EarleyParserOptions.FG);
+//      
+//      // advance to next position [left, nextRight]: X -> \alpha _y . \beta
+//      edge = edgeSpace.to(edge);
+//      edgeObj = edgeSpace.get(edge); //nextEdgeObj.getToEdge();
+//      if(edgeObj.numRemainingChildren()==0 || edgeObj.isTagAfterDot(0)
+//          || nextRight==numWords || edgeObj.getChildAfterDot(0) != wordIndices.get(nextRight)){ // look ahead to see if any matching terminal
+//        break;
+//      } 
+//      
+//      // there's a next terminal that matches
+//      nextRight++;
+//    }  
+//    
+//    // add nextEdgeObj [left, nextRight]: X -> \alpha _y . \beta into chart
+//    if(verbose>=2) System.err.println("  add to chart: " + edgeInfo(left, nextRight, edge));
+//    
+//    
+//    if (edgeObj.numRemainingChildren()==0){ // completed: X -> \alpha Z .
+//      if(EarleyParserOptions.insideOutsideOpt>0 || EarleyParserOptions.decodeOpt==2){
+//        addCompletedEdges(left, nextRight, edge);
+//      }
+//    } else if (isFastComplete){
+//      addActiveEdgeInfo(left, nextRight, edge);
+//    }
+//    addToChart(left, nextRight, edge, forwardScore, innerScore);
+//    
+//  }
+  
   /********************************/
   /********** PREDICTION **********/
   /********************************/
@@ -796,6 +835,7 @@ public abstract class EarleyParser implements Parser {
       if(verbose>=2) System.err.println("\n# Predict all [" + left + "," + right + "]: " +  "chart count=" + insideChartCount(left, right));
       
       flag = true;
+//      chartPredict(left, right);
       for(int edge : listInsideEdges(left, right)){
         // predict for right: left X -> \alpha . Y \beta
         predictFromEdge(left, right, edge);
@@ -830,15 +870,16 @@ public abstract class EarleyParser implements Parser {
       
       // store activeEdgeInfo: right: right X -> . \alpha
       if(isFastComplete){
-        assert(edgeSpace.get(newEdge).numChildren()>0 && edgeSpace.get(newEdge).getDot()==0);
+//        assert(edgeSpace.get(newEdge).numChildren()>0 && edgeSpace.get(newEdge).getDot()==0);
         addActiveEdgeInfo(right, right, newEdge);
       }
       
       // fragment edges
       if(hasFragmentRule && right<numWords){
         Edge nextEdgeObj = edgeSpace.get(newEdge);
-        assert(nextEdgeObj.numChildren()>0 && nextEdgeObj.getDot()==0);
+//        assert(nextEdgeObj.numChildren()>0 && nextEdgeObj.getDot()==0);
         
+        // after dot is a matching terminal
         if(!nextEdgeObj.isTagAfterDot(0) && nextEdgeObj.getChildAfterDot(0) == wordIndices.get(right)){
           addFragmentEdgeInfo(right, right, newEdge);
         }

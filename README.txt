@@ -2,7 +2,7 @@ The Earleyx parser was originated from Roger Levy's prefix parser, but has evolv
 
 Features:
 (a) Code was restructured and rewritten to follow the flow of Stolcke's algorithm (see the method parse() in parser.EarleyParser).
-(b) Scaling approach to parse long sentences (see my TACL'13 paper). With scaling, no log operations are required (see the usage of util.Operator/ProbOperator/LogProbOperator).
+(b) Scaling approach to parse long sentences (see my TACL'13 paper). With scaling, no log operations are required and parsing can be sped up 3-6 times (use -normalprob -scale flags, see the usage of util.Operator/ProbOperator/LogProbOperator).
 (c) Rule probability estimation: inside-outside algorithm in the prefix parser context as described in Stolcke's paper. Expectation-Maximization and Variational Bayes are implemented (see induction.InsideOutside).
 (d) Handling of dense and sparse grammars (arrays vs lists, see parser.EarleyParserDense/EarleyParserSparse).
 (e) Compute closure matrices efficiently in a way that avoids inverting large matrices as described in Stolcke's paper (see base.ClosureMatrix).

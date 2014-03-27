@@ -41,23 +41,6 @@ public class EarleyParserSparse extends EarleyParser {
 		}
 	}
 
-//	public EarleyParserSparse(BufferedReader br, String rootSymbol,
-//      boolean isScaling, boolean isLogProb, String ioOptStr, String decodeOptStr,
-//      String objString) {
-//    super(br, rootSymbol, isScaling, isLogProb, ioOptStr, decodeOptStr, objString);
-//    isFastComplete = true;
-//    // TODO Auto-generated constructor stub
-//  }
-//
-//  public EarleyParserSparse(String grammarFile, int inGrammarType,
-//      String rootSymbol, boolean isScaling, boolean isLogProb,
-//      String ioOpt, String decodeOpt, String objString) {
-//    super(grammarFile, inGrammarType, rootSymbol, isScaling, isLogProb,
-//        ioOpt, decodeOpt, objString);
-//    isFastComplete = true;
-//    System.err.println("# EarleyParserSparse");
-//  }
-
   protected void sentInit(){
     super.sentInit();
     
@@ -75,6 +58,17 @@ public class EarleyParserSparse extends EarleyParser {
     outerProb = new HashMap<Integer, Map<Integer,Double>>();
   }
 
+  @Override
+  protected void chartPredict(int left, int right){
+    Set<Integer> edges = forwardProb.containsKey(linear(left, right)) ? 
+    		forwardProb.get(linear(left, right)).keySet() : new HashSet<Integer>();    
+  	
+  	for (int edge : edges) {
+      // predict for right: left X -> \alpha . Y \beta
+      predictFromEdge(left, right, edge);
+    }
+  }
+  
   /* (non-Javadoc)
    * @see parser.EarleyParser#addToChart(int, int, int, double, double)
    */
